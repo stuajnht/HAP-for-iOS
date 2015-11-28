@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ChameleonFramework
 
 class DetailViewController: UIViewController {
 
@@ -33,6 +34,10 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
+        
+        // Setting the colour
+        view.backgroundColor = UIColor.flatSkyBlueColorDark()
+        self.setStatusBarStyle(UIStatusBarStyleContrast)
     }
 
     override func didReceiveMemoryWarning() {
