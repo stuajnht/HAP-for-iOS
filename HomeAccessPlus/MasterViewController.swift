@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ChameleonFramework
 
 class MasterViewController: UITableViewController {
 
@@ -25,6 +26,11 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
+        
+        // Setting the navigation bar colour
+        self.navigationController!.navigationBar.barTintColor = UIColor.flatSkyBlueColorDark()
+        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
+        self.navigationController!.navigationBar.translucent = false
     }
 
     override func viewWillAppear(animated: Bool) {

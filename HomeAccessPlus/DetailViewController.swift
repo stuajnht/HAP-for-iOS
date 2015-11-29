@@ -35,9 +35,10 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
         
-        // Setting the colour
-        view.backgroundColor = UIColor.flatSkyBlueColorDark()
-        self.setStatusBarStyle(UIStatusBarStyleContrast)
+        // Setting the navigation bar colour
+        self.navigationController!.navigationBar.barTintColor = UIColor.flatSkyBlueColorDark()
+        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
+        self.navigationController!.navigationBar.translucent = false
     }
 
     override func didReceiveMemoryWarning() {
