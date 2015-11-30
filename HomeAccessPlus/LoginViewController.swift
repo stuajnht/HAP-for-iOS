@@ -12,8 +12,14 @@ import ChameleonFramework
 class LoginViewController: UIViewController {
     
     @IBOutlet weak var lblAppName: UILabel!
+    @IBOutlet weak var tblHAPServer: UITextField!
+    @IBOutlet weak var lblHAPServer: UILabel!
+    @IBOutlet weak var tblUsername: UITextField!
+    @IBOutlet weak var lblUsername: UILabel!
+    @IBOutlet weak var tbxPassword: UITextField!
+    @IBOutlet weak var lblPassword: UILabel!
     @IBOutlet weak var btnLogin: UIButton!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -22,6 +28,9 @@ class LoginViewController: UIViewController {
         // Setting up the colours for the login scene
         view.backgroundColor = UIColor.flatSkyBlueColorDark()
         lblAppName.textColor = UIColor.flatWhiteColor()
+        lblHAPServer.textColor = UIColor.flatWhiteColor()
+        lblUsername.textColor = UIColor.flatWhiteColor()
+        lblPassword.textColor = UIColor.flatWhiteColor()
         btnLogin.tintColor = UIColor.flatWhiteColor()
     }
 
