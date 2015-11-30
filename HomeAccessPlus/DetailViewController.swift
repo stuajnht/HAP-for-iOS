@@ -35,6 +35,12 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
         
+        // Adding navigation back button to detail view, to show the master view, as it is
+        // removed from the AppDelegate.swift file
+        // See: http://nshipster.com/uisplitviewcontroller/
+        navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem()
+        navigationItem.leftItemsSupplementBackButton = true
+        
         // Setting the navigation bar colour
         self.navigationController!.navigationBar.barTintColor = UIColor.flatSkyBlueColorDark()
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
