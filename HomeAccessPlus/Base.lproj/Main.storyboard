@@ -142,7 +142,7 @@
                                     <constraint firstAttribute="trailing" secondItem="0pF-Dc-fgY" secondAttribute="trailing" id="WkW-Mr-Aqs"/>
                                     <constraint firstItem="0pF-Dc-fgY" firstAttribute="top" secondItem="iNB-h7-ReC" secondAttribute="top" constant="24" id="XoJ-rB-0pF"/>
                                     <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerX" secondItem="iNB-h7-ReC" secondAttribute="centerX" id="kG7-lx-vqa"/>
-                                    <constraint firstAttribute="bottom" secondItem="0pF-Dc-fgY" secondAttribute="bottom" constant="128" id="pCL-Oy-CPb"/>
+                                    <constraint firstAttribute="bottom" secondItem="0pF-Dc-fgY" secondAttribute="bottom" constant="32" id="pCL-Oy-CPb"/>
                                 </constraints>
                             </scrollView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please set up this device" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9jv-7n-iGz">
