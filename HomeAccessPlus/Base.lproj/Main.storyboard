@@ -80,7 +80,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
-                                <rect key="frame" x="20" y="159" width="560" height="213"/>
+                                <rect key="frame" x="20" y="193" width="560" height="213"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HAP+ Server" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhV-w6-XOo">
                                         <rect key="frame" x="0.0" y="0.0" width="560" height="21"/>
@@ -132,25 +132,36 @@
                                     <segue destination="H1p-Uh-vWS" kind="show" id="BnI-yd-gmz"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please set up this device" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9jv-7n-iGz">
+                                <rect key="frame" x="20" y="153" width="560" height="21"/>
+                                <animations/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="0pF-Dc-fgY" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="14" id="3CC-nN-HQu"/>
                             <constraint firstItem="KHF-Ap-mWF" firstAttribute="top" secondItem="hwg-xc-3VP" secondAttribute="bottom" constant="98" id="7go-Js-Hsv"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="qLq-0V-biQ" secondAttribute="trailingMargin" id="AWm-I1-Lnu"/>
                             <constraint firstItem="AeN-LS-lgG" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="RyM-Md-8zf"/>
+                            <constraint firstItem="0pF-Dc-fgY" firstAttribute="top" secondItem="9jv-7n-iGz" secondAttribute="bottom" constant="19" id="XiI-8F-KEL"/>
                             <constraint firstAttribute="trailingMargin" secondItem="AeN-LS-lgG" secondAttribute="trailing" id="Y6j-hb-Ukz"/>
                             <constraint firstItem="KHF-Ap-mWF" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="cSd-pI-Gf8"/>
                             <constraint firstAttribute="trailingMargin" secondItem="KHF-Ap-mWF" secondAttribute="trailing" id="dGw-xu-5IH"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="l1b-5d-RK2"/>
                             <constraint firstItem="0pF-Dc-fgY" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="qic-Nt-Uij"/>
                             <constraint firstItem="MaX-vJ-0ky" firstAttribute="top" secondItem="AeN-LS-lgG" secondAttribute="bottom" constant="98" id="rHn-Yr-dG4"/>
                             <constraint firstAttribute="trailingMargin" secondItem="0pF-Dc-fgY" secondAttribute="trailing" id="up6-1v-rDQ"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="8" id="wsM-f9-LDu"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="btnLogin" destination="AeN-LS-lgG" id="9ys-I0-led"/>
                         <outlet property="lblAppName" destination="KHF-Ap-mWF" id="AJK-h5-HT6"/>
                         <outlet property="lblHAPServer" destination="hhV-w6-XOo" id="l8z-z4-Uw9"/>
+                        <outlet property="lblMessage" destination="9jv-7n-iGz" id="GNc-FF-D4x"/>
                         <outlet property="lblPassword" destination="Uiw-KM-uvi" id="PpS-z2-AqE"/>
                         <outlet property="lblUsername" destination="kaJ-gd-iJ6" id="FIo-RK-JNV"/>
                         <outlet property="tblHAPServer" destination="Zyd-Pb-sSl" id="4Np-c5-Rqq"/>

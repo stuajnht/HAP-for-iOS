@@ -25,6 +25,7 @@ import ChameleonFramework
 class LoginViewController: UIViewController {
     
     @IBOutlet weak var lblAppName: UILabel!
+    @IBOutlet weak var lblMessage: UILabel!
     @IBOutlet weak var tblHAPServer: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
     @IBOutlet weak var tblUsername: UITextField!
@@ -41,6 +42,7 @@ class LoginViewController: UIViewController {
         // Setting up the colours for the login scene
         view.backgroundColor = UIColor.flatSkyBlueColorDark()
         lblAppName.textColor = UIColor.flatWhiteColor()
+        lblMessage.textColor = UIColor.flatWhiteColor()
         lblHAPServer.textColor = UIColor.flatWhiteColor()
         lblUsername.textColor = UIColor.flatWhiteColor()
         lblPassword.textColor = UIColor.flatWhiteColor()
