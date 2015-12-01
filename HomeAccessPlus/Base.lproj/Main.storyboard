@@ -82,8 +82,8 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iNB-h7-ReC">
                                 <rect key="frame" x="20" y="193" width="560" height="407"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
-                                        <rect key="frame" x="0.0" y="76" width="560" height="255"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
+                                        <rect key="frame" x="0.0" y="24" width="560" height="255"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HAP+ Server" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhV-w6-XOo">
                                                 <rect key="frame" x="0.0" y="0.0" width="560" height="21"/>
@@ -138,11 +138,11 @@
                                 </subviews>
                                 <animations/>
                                 <constraints>
-                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerX" secondItem="iNB-h7-ReC" secondAttribute="centerX" id="AFo-zS-gip"/>
-                                    <constraint firstAttribute="trailing" secondItem="0pF-Dc-fgY" secondAttribute="trailing" id="Ahi-am-1yA"/>
-                                    <constraint firstAttribute="bottom" secondItem="0pF-Dc-fgY" secondAttribute="bottom" constant="76" id="Ln2-xa-roY"/>
-                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="UWf-Cb-BBf"/>
-                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerY" secondItem="iNB-h7-ReC" secondAttribute="centerY" id="lxA-x5-V4Q"/>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="7tA-QN-Ssq"/>
+                                    <constraint firstAttribute="trailing" secondItem="0pF-Dc-fgY" secondAttribute="trailing" id="WkW-Mr-Aqs"/>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="top" secondItem="iNB-h7-ReC" secondAttribute="top" constant="24" id="XoJ-rB-0pF"/>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerX" secondItem="iNB-h7-ReC" secondAttribute="centerX" id="kG7-lx-vqa"/>
+                                    <constraint firstAttribute="bottom" secondItem="0pF-Dc-fgY" secondAttribute="bottom" constant="128" id="pCL-Oy-CPb"/>
                                 </constraints>
                             </scrollView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please set up this device" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9jv-7n-iGz">
@@ -156,16 +156,16 @@
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="8" symbolic="YES" id="7WO-0C-cgz"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="KHF-Ap-mWF" secondAttribute="trailing" id="CIl-xU-tbJ"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="KHF-Ap-mWF" secondAttribute="leading" id="YRL-4b-t5r"/>
-                            <constraint firstItem="iNB-h7-ReC" firstAttribute="bottom" secondItem="MaX-vJ-0ky" secondAttribute="top" id="fVd-AU-CuB"/>
-                            <constraint firstItem="iNB-h7-ReC" firstAttribute="top" secondItem="9jv-7n-iGz" secondAttribute="bottom" constant="19" id="g0A-v3-RlF"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="hOc-aR-HSS"/>
-                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="lKv-ZE-WIA"/>
-                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="top" secondItem="hwg-xc-3VP" secondAttribute="bottom" constant="98" id="vAH-ep-UhA"/>
-                            <constraint firstItem="iNB-h7-ReC" firstAttribute="trailing" secondItem="qLq-0V-biQ" secondAttribute="trailingMargin" id="vjk-nA-18X"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="iNB-h7-ReC" secondAttribute="trailing" id="yym-w7-0Y0"/>
+                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="trailing" secondItem="qLq-0V-biQ" secondAttribute="trailingMargin" id="2JL-hS-KT9"/>
+                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="leading" secondItem="9jv-7n-iGz" secondAttribute="leading" id="BY4-Fz-vBP"/>
+                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="top" secondItem="hwg-xc-3VP" secondAttribute="bottom" constant="98" id="DhI-7O-ljc"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="8" symbolic="YES" id="FUN-oz-0c5"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="iNB-h7-ReC" secondAttribute="trailing" id="JhR-rE-mbl"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="bottom" secondItem="MaX-vJ-0ky" secondAttribute="top" id="UW2-HR-wDU"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="Whb-St-SUN"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="oYw-eA-4ic"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="top" secondItem="9jv-7n-iGz" secondAttribute="bottom" constant="19" id="xsS-pN-YBr"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="KHF-Ap-mWF" secondAttribute="trailing" id="zBO-lg-GXl"/>
                         </constraints>
                     </view>
                     <connections>
