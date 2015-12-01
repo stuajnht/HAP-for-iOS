@@ -26,9 +26,9 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
-    @IBOutlet weak var tbxHAPServer: UITextField!
+    @IBOutlet weak var tblHAPServer: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
-    @IBOutlet weak var tbxUsername: UITextField!
+    @IBOutlet weak var tblUsername: UITextField!
     @IBOutlet weak var lblUsername: UILabel!
     @IBOutlet weak var tbxPassword: UITextField!
     @IBOutlet weak var lblPassword: UILabel!
