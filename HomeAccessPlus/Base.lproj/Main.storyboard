@@ -79,59 +79,72 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
-                                <rect key="frame" x="20" y="193" width="560" height="255"/>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iNB-h7-ReC">
+                                <rect key="frame" x="20" y="193" width="560" height="407"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HAP+ Server" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhV-w6-XOo">
-                                        <rect key="frame" x="0.0" y="0.0" width="560" height="21"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
+                                        <rect key="frame" x="0.0" y="76" width="560" height="255"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HAP+ Server" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhV-w6-XOo">
+                                                <rect key="frame" x="0.0" y="0.0" width="560" height="21"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter HAP+ server address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Zyd-Pb-sSl">
+                                                <rect key="frame" x="0.0" y="33" width="560" height="30"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kaJ-gd-iJ6">
+                                                <rect key="frame" x="0.0" y="75" width="560" height="21"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nwk-1j-HYh">
+                                                <rect key="frame" x="0.0" y="108" width="560" height="30"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uiw-KM-uvi">
+                                                <rect key="frame" x="0.0" y="150" width="560" height="21"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ho4-w2-VHj">
+                                                <rect key="frame" x="0.0" y="183" width="560" height="30"/>
+                                                <animations/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AeN-LS-lgG">
+                                                <rect key="frame" x="0.0" y="225" width="560" height="30"/>
+                                                <animations/>
+                                                <state key="normal" title="Login"/>
+                                                <connections>
+                                                    <segue destination="H1p-Uh-vWS" kind="show" id="BnI-yd-gmz"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
                                         <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter HAP+ server address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Zyd-Pb-sSl">
-                                        <rect key="frame" x="0.0" y="33" width="560" height="30"/>
-                                        <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits"/>
-                                    </textField>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kaJ-gd-iJ6">
-                                        <rect key="frame" x="0.0" y="75" width="560" height="21"/>
-                                        <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nwk-1j-HYh">
-                                        <rect key="frame" x="0.0" y="108" width="560" height="30"/>
-                                        <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits"/>
-                                    </textField>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uiw-KM-uvi">
-                                        <rect key="frame" x="0.0" y="150" width="560" height="21"/>
-                                        <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ho4-w2-VHj">
-                                        <rect key="frame" x="0.0" y="183" width="560" height="30"/>
-                                        <animations/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
-                                    </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AeN-LS-lgG">
-                                        <rect key="frame" x="0.0" y="225" width="560" height="30"/>
-                                        <animations/>
-                                        <state key="normal" title="Login"/>
-                                        <connections>
-                                            <segue destination="H1p-Uh-vWS" kind="show" id="BnI-yd-gmz"/>
-                                        </connections>
-                                    </button>
+                                    </stackView>
                                 </subviews>
                                 <animations/>
-                            </stackView>
+                                <constraints>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerX" secondItem="iNB-h7-ReC" secondAttribute="centerX" id="AFo-zS-gip"/>
+                                    <constraint firstAttribute="trailing" secondItem="0pF-Dc-fgY" secondAttribute="trailing" id="Ahi-am-1yA"/>
+                                    <constraint firstAttribute="bottom" secondItem="0pF-Dc-fgY" secondAttribute="bottom" constant="76" id="Ln2-xa-roY"/>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="UWf-Cb-BBf"/>
+                                    <constraint firstItem="0pF-Dc-fgY" firstAttribute="centerY" secondItem="iNB-h7-ReC" secondAttribute="centerY" id="lxA-x5-V4Q"/>
+                                </constraints>
+                            </scrollView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please set up this device" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9jv-7n-iGz">
                                 <rect key="frame" x="20" y="153" width="560" height="21"/>
                                 <animations/>
@@ -143,15 +156,16 @@
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="top" secondItem="hwg-xc-3VP" secondAttribute="bottom" constant="98" id="5Hv-fG-yId"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="qLq-0V-biQ" secondAttribute="trailingMargin" id="5W1-RD-Z84"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="Khs-q6-dZm"/>
-                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="leading" secondItem="9jv-7n-iGz" secondAttribute="leading" id="L2k-y4-11a"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="0pF-Dc-fgY" secondAttribute="leading" id="SNu-NV-evy"/>
-                            <constraint firstItem="0pF-Dc-fgY" firstAttribute="top" secondItem="9jv-7n-iGz" secondAttribute="bottom" constant="19" id="YpQ-fS-9Sq"/>
-                            <constraint firstItem="0pF-Dc-fgY" firstAttribute="trailing" secondItem="9jv-7n-iGz" secondAttribute="trailing" id="Zu5-d3-79B"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="8" symbolic="YES" id="dqF-wQ-l09"/>
-                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="KHF-Ap-mWF" secondAttribute="trailing" id="iog-Yx-3jH"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="top" secondItem="KHF-Ap-mWF" secondAttribute="bottom" constant="8" symbolic="YES" id="7WO-0C-cgz"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="KHF-Ap-mWF" secondAttribute="trailing" id="CIl-xU-tbJ"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="KHF-Ap-mWF" secondAttribute="leading" id="YRL-4b-t5r"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="bottom" secondItem="MaX-vJ-0ky" secondAttribute="top" id="fVd-AU-CuB"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="top" secondItem="9jv-7n-iGz" secondAttribute="bottom" constant="19" id="g0A-v3-RlF"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="leading" secondItem="iNB-h7-ReC" secondAttribute="leading" id="hOc-aR-HSS"/>
+                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="leading" secondItem="qLq-0V-biQ" secondAttribute="leadingMargin" id="lKv-ZE-WIA"/>
+                            <constraint firstItem="KHF-Ap-mWF" firstAttribute="top" secondItem="hwg-xc-3VP" secondAttribute="bottom" constant="98" id="vAH-ep-UhA"/>
+                            <constraint firstItem="iNB-h7-ReC" firstAttribute="trailing" secondItem="qLq-0V-biQ" secondAttribute="trailingMargin" id="vjk-nA-18X"/>
+                            <constraint firstItem="9jv-7n-iGz" firstAttribute="trailing" secondItem="iNB-h7-ReC" secondAttribute="trailing" id="yym-w7-0Y0"/>
                         </constraints>
                     </view>
                     <connections>
