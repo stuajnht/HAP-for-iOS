@@ -1,5 +1,7 @@
 # Home Access Plus+ iOS app change log
 
+## 0.2.0
+
 ## 0.1.0
 
 ### Notes
