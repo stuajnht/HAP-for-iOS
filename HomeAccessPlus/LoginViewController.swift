@@ -34,6 +34,9 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var lblPassword: UILabel!
     @IBOutlet weak var btnLogin: UIButton!
     
+    // Loading an instance of the HAPi
+    let api = HAPi()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -54,6 +57,9 @@ class LoginViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func attemptLogin(sender: AnyObject) {
+        print(api.checkAPI(tblHAPServer.text!))
+    }
 
     /*
     // MARK: - Navigation
