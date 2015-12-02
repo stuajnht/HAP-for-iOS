@@ -2,6 +2,9 @@
 
 ## 0.2.0
 
+### New Stuff
+* Added app icon
+
 ## 0.1.0
 
 ### Notes
