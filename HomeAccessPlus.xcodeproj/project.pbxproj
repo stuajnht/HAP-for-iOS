@@ -16,6 +16,7 @@
 		FCB1D9F31C09F54C00DEC02E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */; };
 		FCB1D9F61C09F54C00DEC02E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */; };
 		FCB1DA011C09F54C00DEC02E /* HomeAccessPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */; };
+		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusTests.swift; sourceTree = "<group>"; };
 		FCB1DA021C09F54C00DEC02E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */,
 				FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */,
 				FCB1D9F71C09F54C00DEC02E /* Info.plist */,
+				FCE2500F1C0F946E00DD7E20 /* HAPi.swift */,
 			);
 			path = HomeAccessPlus;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */,
+				FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */,
 				FCB1D9EE1C09F54C00DEC02E /* DetailViewController.swift in Sources */,
 				FCB1D9EC1C09F54C00DEC02E /* MasterViewController.swift in Sources */,
 				FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */,
