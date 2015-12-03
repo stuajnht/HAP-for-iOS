@@ -52,14 +52,19 @@ class HAPi {
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - returns: Can the HAP+ server API be contacted
-    func checkAPI(hapServer: String, callback:(String) -> Void) -> Void {
+    func checkAPI(hapServer: String, callback:(Bool) -> Void) -> Void {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
             .responseString { response in
                 logger.debug("Success: \(response.result.isSuccess)")
                 logger.debug("Response String: \(response.result.value)")
-                callback(response.result.value!)
+                // Seeing if the response is 'OK'
+                if (response.result.value! == "OK") {
+                    callback(true)
+                } else {
+                    callback(false)
+                }
             }
     }
 }

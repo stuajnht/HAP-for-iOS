@@ -60,15 +60,22 @@ class LoginViewController: UIViewController {
     
     @IBAction func attemptLogin(sender: AnyObject) {
         //logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
-        logger.debug("Check API result: \(checkAPI(tblHAPServer.text!))")
+        checkAPI(tblHAPServer.text!)
     }
     
-    func checkAPI(hapServer: String) -> Bool {
-        api.checkAPI(hapServer, callback: { (result: String) -> Void in
-            logger.debug("Callback result: \(result)")
+    func checkAPI(hapServer: String) -> Void {
+        api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
+            logger.debug("Check API success: \(result)")
+            if (result == false) {
+                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
+                apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(apiFailController, animated: true, completion: nil)
+            } else {
+                let apiSuccessController = UIAlertController(title: "Valid HAP+ Address", message: "The address that you have entered for the HAP+ server is valid", preferredStyle: UIAlertControllerStyle.Alert)
+                apiSuccessController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(apiSuccessController, animated: true, completion: nil)
+            }
         })
-        
-        return false
     }
 
     /*
