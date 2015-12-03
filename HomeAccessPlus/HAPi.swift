@@ -21,6 +21,7 @@
 
 import Foundation
 import Alamofire
+import XCGLogger
 
 /// HAPi class to format, get and return data from the HAP+ API
 ///
@@ -56,8 +57,8 @@ class HAPi {
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
             .responseString { response in
-                print("Success: \(response.result.isSuccess)")
-                print("Response String: \(response.result.value)")
+                logger.debug("Success: \(response.result.isSuccess)")
+                logger.debug("Response String: \(response.result.value)")
             }
         
         return false

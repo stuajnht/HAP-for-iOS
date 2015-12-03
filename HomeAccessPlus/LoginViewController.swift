@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import XCGLogger
 
 class LoginViewController: UIViewController {
     
@@ -58,7 +59,7 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func attemptLogin(sender: AnyObject) {
-        print(api.checkAPI(tblHAPServer.text!))
+        logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
     }
 
     /*
