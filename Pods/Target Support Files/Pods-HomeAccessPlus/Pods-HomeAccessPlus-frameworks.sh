@@ -86,8 +86,10 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-HomeAccessPlus/Alamofire.framework"
   install_framework "Pods-HomeAccessPlus/ChameleonFramework.framework"
+  install_framework "Pods-HomeAccessPlus/XCGLogger.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-HomeAccessPlus/Alamofire.framework"
   install_framework "Pods-HomeAccessPlus/ChameleonFramework.framework"
+  install_framework "Pods-HomeAccessPlus/XCGLogger.framework"
 fi

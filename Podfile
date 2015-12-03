@@ -6,6 +6,7 @@ use_frameworks!
 target 'HomeAccessPlus' do
   pod 'Alamofire'
   pod 'ChameleonFramework'
+  pod 'XCGLogger'
 end
 
 target 'HomeAccessPlusTests' do
