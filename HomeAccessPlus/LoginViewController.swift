@@ -59,7 +59,16 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func attemptLogin(sender: AnyObject) {
-        logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
+        //logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
+        logger.debug("Check API result: \(checkAPI(tblHAPServer.text!))")
+    }
+    
+    func checkAPI(hapServer: String) -> Bool {
+        api.checkAPI(hapServer, callback: { (result: String) -> Void in
+            logger.debug("Callback result: \(result)")
+        })
+        
+        return false
     }
 
     /*
