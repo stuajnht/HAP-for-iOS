@@ -38,6 +38,9 @@ class LoginViewController: UIViewController {
     // Loading an instance of the HAPi
     let api = HAPi()
     
+    // Seeing if all of the login checks have completed successfully
+    var successfulLogin = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -58,6 +61,18 @@ class LoginViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        // Preventing the login button from progressing until the
+        // login checks have been validated
+        // From: http://jamesleist.com/ios-swift-tutorial-stop-segue-show-alert-text-box-empty/
+        if (identifier == "login.btnLoginSegue") {
+            return successfulLogin
+        }
+        
+        // By default, perform the transition
+        return true
+    }
+    
     @IBAction func attemptLogin(sender: AnyObject) {
         //logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
         checkAPI(tblHAPServer.text!)
@@ -71,9 +86,10 @@ class LoginViewController: UIViewController {
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
             } else {
-                let apiSuccessController = UIAlertController(title: "Valid HAP+ Address", message: "The address that you have entered for the HAP+ server is valid", preferredStyle: UIAlertControllerStyle.Alert)
-                apiSuccessController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(apiSuccessController, animated: true, completion: nil)
+                // Successful HAP+ API check, so continue with the login attempt
+                // - TODO: Remove this as it's just in for testing, and replace with next login check
+                self.successfulLogin = true
+                self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
             }
         })
     }

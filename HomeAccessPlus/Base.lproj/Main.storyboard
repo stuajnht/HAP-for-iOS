@@ -130,7 +130,7 @@
                                                 <state key="normal" title="Login"/>
                                                 <connections>
                                                     <action selector="attemptLogin:" destination="70L-Rq-5X4" eventType="touchUpInside" id="4LW-LW-wXo"/>
-                                                    <segue destination="H1p-Uh-vWS" kind="show" id="BnI-yd-gmz"/>
+                                                    <segue destination="H1p-Uh-vWS" kind="show" identifier="login.btnLoginSegue" id="BnI-yd-gmz"/>
                                                 </connections>
                                             </button>
                                         </subviews>
