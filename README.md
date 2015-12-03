@@ -14,3 +14,4 @@ Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LIC
 This project uses Cocoapods. Their project source code pages and licenses can be found below:
 * [Alamofire](https://github.com/Alamofire/Alamofire/)
 * [ChameleonFramework](https://github.com/ViccAlexander/Chameleon)
+* [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
