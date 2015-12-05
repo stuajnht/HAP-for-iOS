@@ -78,6 +78,12 @@ class LoginViewController: UIViewController {
         // and if so, attempt to log the user into the HAP+ server
         if(api.checkConnection()) {
             checkAPI(tblHAPServer.text!)
+        } else {
+            // Unable to connect to the Internet, so let the user know they
+            // should make sure they have an active connection
+            let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+            apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
         }
     }
     
