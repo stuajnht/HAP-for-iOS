@@ -59,7 +59,7 @@ class HAPi {
     /// - version: 1
     /// - date: 2015-12-05
     ///
-    /// - returns: Boolean - Is there an available Internet connection
+    /// - returns: Is there an available Internet connection
     func checkConnection() -> Bool {
         logger.debug("Checking connection to the Internet")
         let status = Reach().connectionStatus()
