@@ -17,6 +17,7 @@
 		FCB1D9F61C09F54C00DEC02E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */; };
 		FCB1DA011C09F54C00DEC02E /* HomeAccessPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */; };
 		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
+		FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 		FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusTests.swift; sourceTree = "<group>"; };
 		FCB1DA021C09F54C00DEC02E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
+		FCF451A21C12FF500067DFF9 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				FCB1D9ED1C09F54C00DEC02E /* DetailViewController.swift */,
 				FCB1D9EF1C09F54C00DEC02E /* Main.storyboard */,
 				FC364A751C0BACB30085DC7E /* LoginViewController.swift */,
+				FCF451A21C12FF500067DFF9 /* Reach.swift */,
 				FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */,
 				FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */,
 				FCB1D9F71C09F54C00DEC02E /* Info.plist */,
@@ -297,6 +300,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */,
+				FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */,
 				FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */,
 				FCB1D9EE1C09F54C00DEC02E /* DetailViewController.swift in Sources */,
 				FCB1D9EC1C09F54C00DEC02E /* MasterViewController.swift in Sources */,
