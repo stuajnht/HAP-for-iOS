@@ -74,8 +74,11 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func attemptLogin(sender: AnyObject) {
-        //logger.debug("Attempt login result: \(api.checkAPI(tblHAPServer.text!))")
-        checkAPI(tblHAPServer.text!)
+        // Checking if there is an available Internet connection,
+        // and if so, attempt to log the user into the HAP+ server
+        if(api.checkConnection()) {
+            checkAPI(tblHAPServer.text!)
+        }
     }
     
     func checkAPI(hapServer: String) -> Void {

@@ -40,6 +40,43 @@ import XCGLogger
 /// - since: 0.2.0-alpha
 class HAPi {
     
+    /// Checks to see if there is currently a connection available to the Internet
+    ///
+    /// As we are never sure if a user is connected to the Internet, and
+    /// any use of the features of the HAP+ API need an available connection,
+    /// this function checks to see if there is a reachable connection before
+    /// attempting to do any network related functions
+    ///
+    /// This function uses the Reach.swift class, based on the file from
+    /// here: [Reach](https://github.com/Isuru-Nanayakkara/Reach)
+    ///
+    /// - note: All functions in the class should call this first before attempting
+    ///         to do any Internet related functions. This function can also be called
+    ///         from anywhere else in the code if a Internet connection check is needed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-05
+    ///
+    /// - returns: Is there an available Internet connection
+    func checkConnection() -> Bool {
+        logger.debug("Checking connection to the Internet")
+        let status = Reach().connectionStatus()
+        switch status {
+        case .Unknown, .Offline:
+            logger.warning("No available connection to the Internet")
+            return false
+        case .Online(.WWAN):
+            logger.info("Connection to the Intenet via WWAN")
+            return true
+        case .Online(.WiFi):
+            logger.info("Connection to the Internet via WiFi")
+            return true
+        }
+    }
+    
+    
     /// Checks to make sure that the HAP+ server is available and is able to
     /// connect to the API
     ///
