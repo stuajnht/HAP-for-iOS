@@ -23,7 +23,7 @@ import UIKit
 import ChameleonFramework
 import XCGLogger
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
@@ -57,6 +57,14 @@ class LoginViewController: UIViewController {
         lblUsername.textColor = UIColor.flatWhiteColor()
         lblPassword.textColor = UIColor.flatWhiteColor()
         btnLogin.tintColor = UIColor.flatWhiteColor()
+        
+        // Handle the text field’s user input
+        tblHAPServer.delegate = self
+        tblUsername.delegate = self
+        tbxPassword.delegate = self
+        tblHAPServer.returnKeyType = .Next
+        tblUsername.returnKeyType = .Next
+        tbxPassword.returnKeyType = .Go
     }
 
     override func didReceiveMemoryWarning() {
@@ -177,6 +185,36 @@ class LoginViewController: UIViewController {
                 self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
             }
         })
+    }
+    
+    /// Looking after moving the focus onto each textfield when the next
+    /// button is pressed on the keyboard
+    ///
+    /// To make it easier for the user to navigate to the next textbox
+    /// when they're setting up the login information, we move the focus
+    /// to the next textbox when the 'next' button is presses on the keyboard
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-06
+    ///
+    /// - param textfield: The identifier for the textfield
+    /// - returns: Indicates that the text field should respond to the user
+    ///            pressing the next / go key
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        // Hide the keyboard and move it to the next textfield
+        if textField == self.tblHAPServer {
+            self.tblUsername.becomeFirstResponder()
+        }
+        if textField == self.tblUsername {
+            self.tbxPassword.becomeFirstResponder()
+        }
+        if textField == self.tbxPassword {
+            self.tbxPassword.resignFirstResponder()
+            attemptLogin(self)
+        }
+        return true
     }
 
     /*
