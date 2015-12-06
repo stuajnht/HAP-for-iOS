@@ -94,8 +94,8 @@ class HAPi {
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
             .responseString { response in
-                logger.debug("Success: \(response.result.isSuccess)")
-                logger.debug("Response String: \(response.result.value)")
+                logger.verbose("Successful contact of server: \(response.result.isSuccess)")
+                logger.verbose("Response string from server API : \(response.result.value)")
                 // Seeing if the response is 'OK'
                 if (response.result.value! == "OK") {
                     callback(true)
