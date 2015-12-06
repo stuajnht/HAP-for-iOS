@@ -34,6 +34,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tbxPassword: UITextField!
     @IBOutlet weak var lblPassword: UILabel!
     @IBOutlet weak var btnLogin: UIButton!
+    @IBOutlet weak var sclLoginTextboxes: UIScrollView!
     
     // Loading an instance of the HAPi
     let api = HAPi()
@@ -43,6 +44,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // Seeing if all of the login checks have completed successfully
     var successfulLogin = false
+    
+    // Used for moving the scrollbox when the keyboard is shown
+    var activeField: UITextField?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,6 +69,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tblHAPServer.returnKeyType = .Next
         tblUsername.returnKeyType = .Next
         tbxPassword.returnKeyType = .Go
+        
+        // Registering for moving the scroll view when the keyboard is shown
+        registerForKeyboardNotifications()
     }
 
     override func didReceiveMemoryWarning() {
@@ -77,6 +84,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // login checks have been validated
         // From: http://jamesleist.com/ios-swift-tutorial-stop-segue-show-alert-text-box-empty/
         if (identifier == "login.btnLoginSegue") {
+            // Deregistering from keyboard notifications to allow
+            // enable scrolling the textboxes
+            deregisterFromKeyboardNotifications()
             return successfulLogin
         }
         
@@ -215,6 +225,67 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             attemptLogin(self)
         }
         return true
+    }
+    
+    // MARK: Keyboard
+    // The following functions look after scrolling the textboxes into view
+    // when the keyboard is shown or hidden:
+    //  * registerForKeyboardNotifications
+    //  * deregisterFromKeyboardNotifications
+    //  * keyboardWasShown
+    //  * keyboardWillBeHidden
+    //  * textFieldDidBeginEditing
+    //  * textFieldDidEndEditing
+    // See: http://stackoverflow.com/a/28813720
+    func registerForKeyboardNotifications() {
+        // Adding notifies on keyboard appearing
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWasShown:", name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillBeHidden:", name: UIKeyboardWillHideNotification, object: nil)
+    }
+    
+    func deregisterFromKeyboardNotifications() {
+        // Removing notifies on keyboard appearing
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+    }
+    
+    func keyboardWasShown(notification: NSNotification) {
+        // Need to calculate keyboard exact size due to Apple suggestions
+        self.sclLoginTextboxes.scrollEnabled = true
+        let info : NSDictionary = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize!.height, 0.0)
+        
+        self.sclLoginTextboxes.contentInset = contentInsets
+        self.sclLoginTextboxes.scrollIndicatorInsets = contentInsets
+        
+        var aRect : CGRect = self.view.frame
+        aRect.size.height -= keyboardSize!.height
+        if let _ = activeField {
+            if (!CGRectContainsPoint(aRect, activeField!.frame.origin)) {
+                self.sclLoginTextboxes.scrollRectToVisible(activeField!.frame, animated: true)
+            }
+        }
+    }
+    
+    func keyboardWillBeHidden(notification: NSNotification) {
+        // Once keyboard disappears, restore original positions
+        let info : NSDictionary = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -keyboardSize!.height, 0.0)
+        self.sclLoginTextboxes.contentInset = contentInsets
+        self.sclLoginTextboxes.scrollIndicatorInsets = contentInsets
+        self.view.endEditing(true)
+        self.sclLoginTextboxes.scrollEnabled = false
+        
+    }
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        activeField = textField
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        activeField = nil
     }
 
     /*
