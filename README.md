@@ -10,8 +10,14 @@ To be able to use this app, you will need to have the following:
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](https://github.com/stuajnht/HAP-for-iOS/blob/master/LICENSE.md) file for more information.
 
+The name "Home Access Plus+" and all server side code are copyright Nick Brown ([nb development](https://nbdev.uk/projects/hap.aspx))
+
 ### Cocoapods
 This project uses Cocoapods. Their project source code pages and licenses can be found below:
 * [Alamofire](https://github.com/Alamofire/Alamofire/)
 * [ChameleonFramework](https://github.com/ViccAlexander/Chameleon)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
+
+### Other Projects
+The following projects and source code are included in HAP+ for iOS. Their licenses project pages can be found below:
+* [Reach](https://github.com/Isuru-Nanayakkara/Reach)

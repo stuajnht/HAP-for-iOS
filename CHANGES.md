@@ -4,6 +4,8 @@
 
 ### New Stuff
 * Added app icon
+* Added API to check for Internet connection
+* Added API to check that the HAP+ server is contactable
 
 ## 0.1.0
 
