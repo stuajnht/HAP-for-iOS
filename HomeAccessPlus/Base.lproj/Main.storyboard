@@ -179,6 +179,7 @@
                         <outlet property="lblMessage" destination="9jv-7n-iGz" id="GNc-FF-D4x"/>
                         <outlet property="lblPassword" destination="Uiw-KM-uvi" id="PpS-z2-AqE"/>
                         <outlet property="lblUsername" destination="kaJ-gd-iJ6" id="FIo-RK-JNV"/>
+                        <outlet property="sclLoginTextboxes" destination="iNB-h7-ReC" id="G11-fp-25b"/>
                         <outlet property="tblHAPServer" destination="Zyd-Pb-sSl" id="4Np-c5-Rqq"/>
                         <outlet property="tblUsername" destination="nwk-1j-HYh" id="bAU-JP-rQO"/>
                         <outlet property="tbxPassword" destination="ho4-w2-VHj" id="E6Z-UY-irx"/>
