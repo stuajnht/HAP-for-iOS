@@ -38,6 +38,9 @@ class LoginViewController: UIViewController {
     // Loading an instance of the HAPi
     let api = HAPi()
     
+    // Setting up a reference to the HAP+ server address
+    var hapServerAddress = ""
+    
     // Seeing if all of the login checks have completed successfully
     var successfulLogin = false
     
@@ -77,6 +80,8 @@ class LoginViewController: UIViewController {
         // Checking if there is an available Internet connection,
         // and if so, attempt to log the user into the HAP+ server
         if(api.checkConnection()) {
+            // Cleaning up the HAP+ server address that has been typed
+            
             checkAPI(tblHAPServer.text!, attempt: 1)
         } else {
             // Unable to connect to the Internet, so let the user know they
@@ -132,6 +137,47 @@ class LoginViewController: UIViewController {
                 self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
             }
         })
+    }
+    
+    /// Cleans up the HAP+ URL address that the user has typed
+    ///
+    /// The HAP+ URL and API addresses need to be in the format
+    /// https://hapServer.FQDN/optionalDirectory. This function
+    /// formats the entered URL to make sure that it conforms to
+    /// this standard
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-06
+    ///
+    /// - parameter hapServer: The URL of the HAP+ server
+    func formatHAPURL(hapAddress: String) -> Void {
+        // Making sure that https:// is at the beginning of the sting.
+        // This is needed as by default HAP+ server only works over https
+        // See: https://hap.codeplex.com/SourceControl/changeset/87691
+        let http = "http://"
+        let https = "https://"
+        
+        hapServerAddress = hapAddress
+        logger.debug("Original HAP+ URL: \(hapServerAddress)")
+        
+        // Seeing if server has http at the start
+        if (hapServerAddress.hasPrefix(http)) {
+            // Replacing the http:// in the URL to be https://
+            hapServerAddress = hapServerAddress.stringByReplacingOccurrencesOfString(http, withString: https)
+        } else {
+            // Appending https:// to the start of the address
+            hapServerAddress = https + hapServerAddress
+        }
+        
+        // Removing any trailing '/' characters, as we add these in
+        // during any API calls
+        if (hapServerAddress.hasSuffix("/")) {
+            hapServerAddress = hapServerAddress.stringByReplacingOccurrencesOfString("/", withString: "")
+        }
+        
+        logger.debug("Formatted HAP+ URL: \(hapServerAddress)")
     }
 
     /*
