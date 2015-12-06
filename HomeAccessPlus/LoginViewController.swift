@@ -134,18 +134,26 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func attemptLogin(sender: AnyObject) {
-        // Checking if there is an available Internet connection,
-        // and if so, attempt to log the user into the HAP+ server
-        if(api.checkConnection()) {
-            // Cleaning up the HAP+ server address that has been typed
-            
-            checkAPI(hapServerAddress, attempt: 1)
+        // Seeing if the textboxes are valid before attempting
+        // any login attempts
+        if (textboxesValid() == false) {
+            let textboxesValidAlertController = UIAlertController(title: "Incorrect Information", message: "Please check that you have entered all correct information, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+            textboxesValidAlertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(textboxesValidAlertController, animated: true, completion: nil)
         } else {
-            // Unable to connect to the Internet, so let the user know they
-            // should make sure they have an active connection
-            let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-            apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
+            // Checking if there is an available Internet connection,
+            // and if so, attempt to log the user into the HAP+ server
+            if(api.checkConnection()) {
+                // Cleaning up the HAP+ server address that has been typed
+                
+                checkAPI(hapServerAddress, attempt: 1)
+            } else {
+                // Unable to connect to the Internet, so let the user know they
+                // should make sure they have an active connection
+                let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+                apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
+            }
         }
     }
     
@@ -225,6 +233,45 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             attemptLogin(self)
         }
         return true
+    }
+    
+    /// Checks to see if all of the textboxes on the login view contain
+    /// valid data before attempting to perform any logon attempts
+    ///
+    /// All textboxes on the login view need to have data filled in on them
+    /// so that it can be used for the logon attempts. If any of these are
+    /// blank, then the textboxes are not valid. The HAP+ address also needs
+    /// to be a valid URL as well, which while this partially gets created
+    /// and formatted when the user leaves the relevant textbox, we need to
+    /// check that there are no invalid characters in the URL
+    ///
+    /// For any attemps that are not valid, the relevant form controls are
+    /// highlighted so the user knows what needs to be corrected
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-06
+    ///
+    /// - returns: Are all of the textboxes validated and filled in properly
+    func textboxesValid() -> Bool {
+        var valid = true
+        
+        // Length validation checks
+        if (tblHAPServer.text == "") {
+            valid = false
+            tblHAPServer.layer.borderColor = UIColor.flatRedColor().CGColor
+        }
+        if (tblUsername.text == "") {
+            valid = false
+            tblUsername.layer.borderColor = UIColor.flatRedColor().CGColor
+        }
+        if (tbxPassword.text == "") {
+            valid = false
+            tbxPassword.layer.borderColor = UIColor.flatRedColor().CGColor
+        }
+        
+        return valid
     }
     
     // MARK: Keyboard
