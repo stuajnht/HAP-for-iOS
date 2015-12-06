@@ -165,11 +165,12 @@ class LoginViewController: UIViewController {
             if (result == false && attempt == 1) {
                 self.checkAPI(hapServer + "/hap", attempt: attempt + 1)
             }
-            if (result == false) {
+            if (result == false && attempt != 1) {
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
-            } else {
+            }
+            if (result) {
                 // Successful HAP+ API check, so continue with the login attempt
                 // - TODO: Remove this as it's just in for testing, and replace with next login check
                 self.successfulLogin = true
