@@ -260,17 +260,41 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Length validation checks
         if (tblHAPServer.text == "") {
             valid = false
-            tblHAPServer.layer.borderColor = UIColor.flatRedColor().CGColor
-        }
-        if (tblUsername.text == "") {
-            valid = false
-            tblUsername.layer.borderColor = UIColor.flatRedColor().CGColor
-        }
-        if (tbxPassword.text == "") {
-            valid = false
-            tbxPassword.layer.borderColor = UIColor.flatRedColor().CGColor
+            tblHAPServer.textColor = UIColor.flatRedColor()
+            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblHAPServer.layer.borderWidth = 2
+            logger.warning("HAP+ server address missing")
+        } else {
+            tblHAPServer.textColor = UIColor.flatBlackColor()
+            tblHAPServer.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblHAPServer.layer.borderWidth = 0
         }
         
+        if (tblUsername.text == "") {
+            valid = false
+            tblUsername.textColor = UIColor.flatRedColor()
+            tblUsername.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblUsername.layer.borderWidth = 2
+            logger.warning("Username missing")
+        } else {
+            tblUsername.textColor = UIColor.flatBlackColor()
+            tblUsername.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblUsername.layer.borderWidth = 0
+        }
+        
+        if (tbxPassword.text == "") {
+            valid = false
+            tbxPassword.textColor = UIColor.flatRedColor()
+            tbxPassword.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tbxPassword.layer.borderWidth = 2
+            logger.warning("Password missing")
+        } else {
+            tbxPassword.textColor = UIColor.flatBlackColor()
+            tbxPassword.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tbxPassword.layer.borderWidth = 0
+        }
+        
+        logger.info("Login textboxes valid: \(valid)")
         return valid
     }
     
