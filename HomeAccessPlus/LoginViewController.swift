@@ -77,7 +77,7 @@ class LoginViewController: UIViewController {
         // Checking if there is an available Internet connection,
         // and if so, attempt to log the user into the HAP+ server
         if(api.checkConnection()) {
-            checkAPI(tblHAPServer.text!)
+            checkAPI(tblHAPServer.text!, attempt: 1)
         } else {
             // Unable to connect to the Internet, so let the user know they
             // should make sure they have an active connection
@@ -87,9 +87,40 @@ class LoginViewController: UIViewController {
         }
     }
     
-    func checkAPI(hapServer: String) -> Void {
+    /// Checks the HAP+ API provided, to make sure that the server is
+    /// contactable and the right version
+    ///
+    /// Before attempting to do any additional processing, we need to make sure
+    /// the HAP+ server URL provided can contact the users HAP+ server. This function
+    /// performs this, and either caries on with the logon attempt, or lets the user
+    /// know that there was a problem with the URL
+    ///
+    /// - note: This function can get called twice if needed before continuing the logon
+    ///         attempt. If the user doesn't type "/hap" at the end of the URL but the
+    ///         site needs it, this is when the function is called again with this appended
+    ///         to hopefully guess what should be in there. Any server set up different to
+    ///         this will fail on the second attempt, and let the user know
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 2
+    /// - date: 2015-12-03
+    ///
+    /// - parameter hapServer: The URL to the HAP+ server
+    /// - parameter attempt: How many times this function has been called
+    func checkAPI(hapServer: String, attempt: Int) -> Void {
+        logger.debug("Attempting to contact the HAP+ server at the URL: \(hapServer)")
+        
         api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
-            logger.debug("Check API success: \(result)")
+            logger.info("HAP+ API contactable at \(hapServer): \(result)")
+            
+            // Seeing if the check for the API was successful. If not, then see
+            // what attempt we are on. If the first attempt, then call this function
+            // again with "/hap" at the end of the URL, otherwise let the user know
+            // there was a problem with the URL they entered
+            if (result == false && attempt == 1) {
+                self.checkAPI(hapServer + "/hap", attempt: attempt + 1)
+            }
             if (result == false) {
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
