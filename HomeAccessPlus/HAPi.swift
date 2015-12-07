@@ -124,8 +124,14 @@ class HAPi {
     func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            let httpHeaders = [
+                "Content-Type": "application/json"
+            ]
+            
             // Connecting to the API to log in the user with the credentials
-            Alamofire.request(.POST, hapServer + "/api/ad/", parameters: ["username": username, "password": password])
+            Alamofire.request(.POST, hapServer + "/api/ad/", parameters: ["username": username, "password": password], headers: httpHeaders)
                 .responseJSON { response in
                     logger.debug("Response JSON: \(response.result.value)")
                     callback(false)
