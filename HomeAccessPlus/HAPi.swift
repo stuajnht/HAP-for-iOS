@@ -114,6 +114,11 @@ class HAPi {
     /// have their name and also the needed tokens that we can use to authenticate
     /// the user through all future activities
     ///
+    /// - note: The callback from this function returns a string of either true
+    ///         or false depending if the user logon was valid (which is collected
+    ///         from the JSON response). The other values that are stored are saved
+    ///         in this function from the JSON response
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
     /// - version: 1
@@ -122,7 +127,7 @@ class HAPi {
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
     /// - parameter password: The password entered for the username provided
-    func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
+    func loginUser(hapServer: String, username: String, password: String, callback:(String) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -135,11 +140,15 @@ class HAPi {
             Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
                 .responseJSON { response in
                     logger.verbose("Response JSON for login attempt: \(response.result.value)")
-                    callback(false)
+                    if let dataFromString = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
+                        let json = JSON(data: dataFromString)
+                        let validLogon = json["isValid"].stringValue
+                        callback(validLogon)
+                    }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(false)
+            callback("false")
         }
     }
 }
