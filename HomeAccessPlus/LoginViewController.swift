@@ -197,11 +197,33 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.presentViewController(apiFailController, animated: true, completion: nil)
             }
             if (result) {
-                // Successful HAP+ API check, so continue with the login attempt
-                // - TODO: Remove this as it's just in for testing, and replace with next login check
-                self.successfulLogin = true
-                self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
+                // Successful HAP+ API check, so we now have a fully valid
+                // HAP+ server address
+                self.hapServerAddress = hapServer
+                
+                // Continue with the login attempt by validating the credentials
+                self.loginUser()
             }
+        })
+    }
+    
+    /// Attempting to log in user with the provided credentials
+    ///
+    /// Calls the HAPi loginUser() function to see if the provided credentials
+    /// match those of a valid user on the network
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-07
+    func loginUser() -> Void {
+        // Checking the username and password entered are for a valid user on
+        // the network
+        logger.info("Attempting to log in user with typed credentials")
+        self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: Bool) -> Void in
+            // - TODO: Remove this as it's just in for testing, and replace with next login check
+            self.successfulLogin = result
+            self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
         })
     }
     
