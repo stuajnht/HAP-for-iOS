@@ -252,6 +252,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - since: 0.2.0-alpha
     /// - version: 1
     /// - date: 2015-12-06
+    /// - seealso: formatHAPURL
     ///
     /// - returns: Are all of the textboxes validated and filled in properly
     func textboxesValid() -> Bool {
@@ -292,6 +293,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             tbxPassword.textColor = UIColor.flatBlackColor()
             tbxPassword.layer.borderColor = UIColor.flatBlackColor().CGColor
             tbxPassword.layer.borderWidth = 0
+        }
+        
+        // URL Regex checking
+        // See: http://code.tutsplus.com/tutorials/8-regular-expressions-you-should-know--net-6149
+        // See: http://stackoverflow.com/a/24207852
+        let urlPattern = "(https:\\/\\/)((\\w|\\d|-)+\\.)+(\\w|\\d){2,6}(\\/(\\w|\\d|\\+|-)+)*"
+        let predicate = NSPredicate(format:"SELF MATCHES %@", argumentArray:[urlPattern])
+        if (predicate.evaluateWithObject(hapServerAddress) == false) {
+            valid = false
+            tblHAPServer.textColor = UIColor.flatRedColor()
+            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblHAPServer.layer.borderWidth = 2
+            logger.warning("HAP+ server address is an invalid format")
+        } else {
+            tblHAPServer.textColor = UIColor.flatBlackColor()
+            tblHAPServer.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblHAPServer.layer.borderWidth = 0
         }
         
         logger.info("Login textboxes valid: \(valid)")
