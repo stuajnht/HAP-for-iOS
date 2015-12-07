@@ -221,9 +221,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // the network
         logger.info("Attempting to log in user with typed credentials")
         self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: Bool) -> Void in
-            // - TODO: Remove this as it's just in for testing, and replace with next login check
-            self.successfulLogin = result
-            self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
+            // Seeing what the result is from the API logon attempt
+            // The callback will be either 'true' or 'false' as this is
+            // what is used in the JSON response for if the logon is valid
+            if (result == true) {
+                // We have successfully logged in, so set the variable to true and
+                // perform the login to master view controller segue
+                logger.debug("Successfully logged in user to HAP+")
+                self.successfulLogin = true
+                self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
+            } else {
+                // Inform the user they didn't have a valid username or password
+                logger.warning("The username or password was not valid")
+                let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+            }
         })
     }
     

@@ -21,6 +21,7 @@
 
 import Foundation
 import Alamofire
+import SwiftyJSON
 import XCGLogger
 
 /// HAPi class to format, get and return data from the HAP+ API
@@ -113,6 +114,11 @@ class HAPi {
     /// have their name and also the needed tokens that we can use to authenticate
     /// the user through all future activities
     ///
+    /// - note: The callback from this function returns a string of either true
+    ///         or false depending if the user logon was valid (which is collected
+    ///         from the JSON response). The other values that are stored are saved
+    ///         in this function from the JSON response
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
     /// - version: 1
@@ -131,11 +137,28 @@ class HAPi {
             ]
             
             // Connecting to the API to log in the user with the credentials
+            logger.debug("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
             Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
-                .responseJSON { response in
-                    logger.verbose("Response JSON for login attempt: \(response.result.value)")
-                    callback(false)
-            }
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseJSON { response in switch response.result {
+                    case .Success(let JSON):
+                        logger.verbose("Response JSON for login attempt: \(JSON)")
+                        
+                        // Seeing if there is a valid logon attempt, from the returned JSON
+                        let validLogon = JSON["isValid"]!!.stringValue
+                        logger.info("Logon username and password valid: \(validLogon)")
+                        if (validLogon == "1") {
+                            callback(true)
+                        } else {
+                            callback(false)
+                        }
+                    
+                    case .Failure(let error):
+                        logger.warning("Request failed with error: \(error)")
+                        callback(false)
+                    }
+                }
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(false)
