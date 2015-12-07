@@ -137,15 +137,29 @@ class HAPi {
             ]
             
             // Connecting to the API to log in the user with the credentials
+            logger.debug("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
             Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
-                .responseJSON { response in
-                    logger.verbose("Response JSON for login attempt: \(response.result.value)")
-                    if let dataFromString = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
-                        let json = JSON(data: dataFromString)
-                        let validLogon = json["isValid"].stringValue
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseJSON { response in switch response.result {
+                    case .Success(let JSON):
+                        logger.debug("Response JSON for login attempt: \(JSON)")
+                        let validLogon = JSON["isValid"]!!.stringValue
                         callback(validLogon)
+                    
+                    case .Failure(let error):
+                        logger.warning("Request failed with error: \(error)")
+                        callback("false")
                     }
-            }
+                }
+                //.responseJSON { response in
+                //    logger.verbose("Response JSON for login attempt: \(response.result.value)")
+                //    if let dataFromString = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
+                //        let json = JSON(data: dataFromString)
+                //        let validLogon = json["isValid"].stringValue
+                //        callback(validLogon)
+                //    }
+            //}
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback("false")
