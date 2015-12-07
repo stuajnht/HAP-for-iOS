@@ -133,7 +133,7 @@ class HAPi {
             // Connecting to the API to log in the user with the credentials
             Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
                 .responseJSON { response in
-                    logger.debug("Response JSON: \(response.result.value)")
+                    logger.verbose("Response JSON for login attempt: \(response.result.value)")
                     callback(false)
             }
         } else {
