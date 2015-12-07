@@ -104,4 +104,35 @@ class HAPi {
                 }
             }
     }
+    
+    /// Attempts to log in the user with the username and password provided
+    ///
+    /// Once it has been confirmed that the HAP+ server is contactable and has
+    /// a valid API interface, we can attempt to log the user in with the username
+    /// and password that they have entered. If the login is successful we will
+    /// have their name and also the needed tokens that we can use to authenticate
+    /// the user through all future activities
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-07
+    ///
+    /// - parameter hapServer: The full URL to the main HAP+ root
+    /// - parameter username: The username of the user we are trying to log in
+    /// - parameter password: The password entered for the username provided
+    func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Connecting to the API to log in the user with the credentials
+            Alamofire.request(.POST, hapServer + "/api/ad/", parameters: ["username": username, "password": password])
+                .responseJSON { response in
+                    logger.debug("Response JSON: \(response.result.value)")
+                    callback(false)
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(false)
+        }
+    }
 }
