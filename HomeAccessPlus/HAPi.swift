@@ -21,6 +21,7 @@
 
 import Foundation
 import Alamofire
+import SwiftyJSON
 import XCGLogger
 
 /// HAPi class to format, get and return data from the HAP+ API
