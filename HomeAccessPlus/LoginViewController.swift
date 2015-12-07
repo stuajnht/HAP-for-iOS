@@ -220,11 +220,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Checking the username and password entered are for a valid user on
         // the network
         logger.info("Attempting to log in user with typed credentials")
-        self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: String) -> Void in
+        self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: Bool) -> Void in
             // Seeing what the result is from the API logon attempt
             // The callback will be either 'true' or 'false' as this is
             // what is used in the JSON response for if the logon is valid
-            if (result == "true") {
+            if (result == true) {
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
                 logger.debug("Successfully logged in user to HAP+")

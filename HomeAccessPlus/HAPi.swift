@@ -127,7 +127,7 @@ class HAPi {
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
     /// - parameter password: The password entered for the username provided
-    func loginUser(hapServer: String, username: String, password: String, callback:(String) -> Void) -> Void {
+    func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -143,26 +143,25 @@ class HAPi {
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
-                        logger.debug("Response JSON for login attempt: \(JSON)")
+                        logger.verbose("Response JSON for login attempt: \(JSON)")
+                        
+                        // Seeing if there is a valid logon attempt, from the returned JSON
                         let validLogon = JSON["isValid"]!!.stringValue
-                        callback(validLogon)
+                        logger.info("Logon username and password valid: \(validLogon)")
+                        if (validLogon == "1") {
+                            callback(true)
+                        } else {
+                            callback(false)
+                        }
                     
                     case .Failure(let error):
                         logger.warning("Request failed with error: \(error)")
-                        callback("false")
+                        callback(false)
                     }
                 }
-                //.responseJSON { response in
-                //    logger.verbose("Response JSON for login attempt: \(response.result.value)")
-                //    if let dataFromString = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
-                //        let json = JSON(data: dataFromString)
-                //        let validLogon = json["isValid"].stringValue
-                //        callback(validLogon)
-                //    }
-            //}
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback("false")
+            callback(false)
         }
     }
 }
