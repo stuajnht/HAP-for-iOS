@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import MBProgressHUD
 import XCGLogger
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
