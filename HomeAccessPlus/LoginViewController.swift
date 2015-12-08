@@ -130,8 +130,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             // Replacing the http:// in the URL to be https://
             hapServerAddress = hapServerAddress.stringByReplacingOccurrencesOfString(http, withString: https)
         } else {
-            // Appending https:// to the start of the address
-            hapServerAddress = https + hapServerAddress
+            // Fix for issue #10 - See: https://github.com/stuajnht/HAP-for-iOS/issues/10
+            // If the HAP+ address already includes https:// at the start, do
+            // not prepend it again
+            if (!hapServerAddress.hasPrefix(https)) {
+                // Appending https:// to the start of the address
+                hapServerAddress = https + hapServerAddress
+            }
         }
         
         // Removing any trailing '/' characters, as we add these in

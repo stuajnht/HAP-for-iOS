@@ -11,6 +11,7 @@
 
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ (~~#1~~)
+* If the HAP+ server address already begins with https://, do not prepend it again (#10)
 
 ## 0.1.0
 
