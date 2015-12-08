@@ -77,7 +77,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Filling in any settings that are saved
         if let hapServer = settings.stringForKey("hapServer")
         {
+            logger.debug("Settings for HAP+ server address exist with value \(hapServer)")
             tblHAPServer.text = hapServer
+            tblHAPServer.hidden = true
+            lblHAPServer.hidden = true
+            
+            // Checking the URL is still correct (it is) but this
+            // function needs to be called otherwise when attempting
+            // to log in it will say the URL is incorrect
+            formatHAPURL(self)
         }
         
         // Registering for moving the scroll view when the keyboard is shown
