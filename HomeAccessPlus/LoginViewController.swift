@@ -46,6 +46,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // Seeing if all of the login checks have completed successfully
     var successfulLogin = false
     
+    // MBProgressHUD variable, so that the detail label can be updated as needed
+    var hud : MBProgressHUD = MBProgressHUD()
+    
     // Used for moving the scrollbox when the keyboard is shown
     var activeField: UITextField?
     
@@ -147,7 +150,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             hudShow("Checking Internet connection")
             
             if(api.checkConnection()) {
-                // Cleaning up the HAP+ server address that has been typed
+                // An Internet connection is available, so see if there is a
+                // valid HAP+ server address
+                hudUpdateLabel("Contacting HAP+ server")
                 
                 checkAPI(hapServerAddress, attempt: 1)
             } else {
@@ -209,6 +214,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Continue with the login attempt by validating the credentials
+                self.hudUpdateLabel("Checking login details")
                 self.loginUser()
             }
         })
@@ -228,6 +234,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // the network
         logger.info("Attempting to log in user with typed credentials")
         self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: Bool) -> Void in
+            // Hiding the HUD, as it doesn't matter what the result is, we
+            // don't need to show it any more
+            self.hudHide()
+            
             // Seeing what the result is from the API logon attempt
             // The callback will be either 'true' or 'false' as this is
             // what is used in the JSON response for if the logon is valid
@@ -364,10 +374,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
     // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
     // See: http://stackoverflow.com/a/26882235
+    // See: http://stackoverflow.com/a/32285621
     func hudShow(detailLabel: String) {
-        let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         hud.labelText = "Please wait..."
         hud.detailsLabelText = detailLabel
+    }
+    
+    /// Updating the detail label that is shown in the HUD
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-beta
+    /// - version: 1
+    /// - date: 2015-12-08
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter labelText: The text that should be shown for the HUD label
+    func hudUpdateLabel(labelText: String) {
+        hud.detailsLabelText = labelText
     }
     
     func hudHide() {
