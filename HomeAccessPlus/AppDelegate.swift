@@ -28,6 +28,10 @@ let logger = XCGLogger.defaultInstance()
 // Declaring a global constant to the HAP+ main app colour
 let hapMainColour = "#005DAB"
 
+// Declaring a global constant to NSUserDefaults to access settings
+// throughout the app
+let settings = NSUserDefaults.standardUserDefaults()
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
 

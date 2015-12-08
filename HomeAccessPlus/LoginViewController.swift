@@ -74,6 +74,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tblUsername.returnKeyType = .Next
         tbxPassword.returnKeyType = .Go
         
+        // Filling in any settings that are saved
+        if let hapServer = settings.stringForKey("hapServer")
+        {
+            tblHAPServer.text = hapServer
+        }
+        
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
     }
@@ -212,6 +218,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // Successful HAP+ API check, so we now have a fully valid
                 // HAP+ server address
                 self.hapServerAddress = hapServer
+                
+                // Saving the HAP+ server API address to use later
+                settings.setObject(hapServer, forKey: "hapServer")
                 
                 // Continue with the login attempt by validating the credentials
                 self.hudUpdateLabel("Checking login details")
