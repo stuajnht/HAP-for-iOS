@@ -144,6 +144,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
+            showLoadingHUD("Checking Internet connection")
+            
             if(api.checkConnection()) {
                 // Cleaning up the HAP+ server address that has been typed
                 
@@ -151,6 +153,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             } else {
                 // Unable to connect to the Internet, so let the user know they
                 // should make sure they have an active connection
+                hideLoadingHUD()
+                
                 let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
@@ -350,6 +354,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         logger.info("Login textboxes valid: \(valid)")
         return valid
+    }
+    
+    // MARK: MBProgressHUD
+    // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
+    // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
+    // See: http://stackoverflow.com/a/26882235
+    func showLoadingHUD(detailLabel: String) {
+        let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.labelText = "Please wait..."
+        hud.detailsLabelText = detailLabel
+    }
+    
+    func hideLoadingHUD() {
+        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
     }
     
     // MARK: Keyboard
