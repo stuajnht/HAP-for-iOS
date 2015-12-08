@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import MBProgressHUD
 import XCGLogger
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
@@ -44,6 +45,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // Seeing if all of the login checks have completed successfully
     var successfulLogin = false
+    
+    // MBProgressHUD variable, so that the detail label can be updated as needed
+    var hud : MBProgressHUD = MBProgressHUD()
     
     // Used for moving the scrollbox when the keyboard is shown
     var activeField: UITextField?
@@ -143,13 +147,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
+            hudShow("Checking Internet connection")
+            
             if(api.checkConnection()) {
-                // Cleaning up the HAP+ server address that has been typed
+                // An Internet connection is available, so see if there is a
+                // valid HAP+ server address
+                hudUpdateLabel("Contacting HAP+ server")
                 
                 checkAPI(hapServerAddress, attempt: 1)
             } else {
                 // Unable to connect to the Internet, so let the user know they
                 // should make sure they have an active connection
+                hudHide()
+                
                 let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
@@ -192,6 +202,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.checkAPI(hapServer + "/hap", attempt: attempt + 1)
             }
             if (result == false && attempt != 1) {
+                self.hudHide()
+                
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
@@ -202,6 +214,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Continue with the login attempt by validating the credentials
+                self.hudUpdateLabel("Checking login details")
                 self.loginUser()
             }
         })
@@ -221,6 +234,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // the network
         logger.info("Attempting to log in user with typed credentials")
         self.api.loginUser(self.hapServerAddress, username: self.tblUsername.text!, password: self.tbxPassword.text!, callback: { (result: Bool) -> Void in
+            // Hiding the HUD, as it doesn't matter what the result is, we
+            // don't need to show it any more
+            self.hudHide()
+            
             // Seeing what the result is from the API logon attempt
             // The callback will be either 'true' or 'false' as this is
             // what is used in the JSON response for if the logon is valid
@@ -349,6 +366,37 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         logger.info("Login textboxes valid: \(valid)")
         return valid
+    }
+    
+    // MARK: MBProgressHUD
+    // The following functions look after showing the HUD during the login
+    // progress so that the user knows that something is happening
+    // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
+    // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
+    // See: http://stackoverflow.com/a/26882235
+    // See: http://stackoverflow.com/a/32285621
+    func hudShow(detailLabel: String) {
+        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.labelText = "Please wait..."
+        hud.detailsLabelText = detailLabel
+    }
+    
+    /// Updating the detail label that is shown in the HUD
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-beta
+    /// - version: 1
+    /// - date: 2015-12-08
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter labelText: The text that should be shown for the HUD label
+    func hudUpdateLabel(labelText: String) {
+        hud.detailsLabelText = labelText
+    }
+    
+    func hudHide() {
+        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
     }
     
     // MARK: Keyboard
