@@ -144,7 +144,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
-            showLoadingHUD("Checking Internet connection")
+            hudShow("Checking Internet connection")
             
             if(api.checkConnection()) {
                 // Cleaning up the HAP+ server address that has been typed
@@ -153,7 +153,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             } else {
                 // Unable to connect to the Internet, so let the user know they
                 // should make sure they have an active connection
-                hideLoadingHUD()
+                hudHide()
                 
                 let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
@@ -197,6 +197,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.checkAPI(hapServer + "/hap", attempt: attempt + 1)
             }
             if (result == false && attempt != 1) {
+                self.hudHide()
+                
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
@@ -357,16 +359,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     // MARK: MBProgressHUD
+    // The following functions look after showing the HUD during the login
+    // progress so that the user knows that something is happening
     // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
     // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
     // See: http://stackoverflow.com/a/26882235
-    func showLoadingHUD(detailLabel: String) {
+    func hudShow(detailLabel: String) {
         let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         hud.labelText = "Please wait..."
         hud.detailsLabelText = detailLabel
     }
     
-    func hideLoadingHUD() {
+    func hudHide() {
         MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
     }
     
