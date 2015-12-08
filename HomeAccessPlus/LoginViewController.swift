@@ -54,7 +54,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Do any additional setup after loading the view.
         
         // Setting up the colours for the login scene
-        view.backgroundColor = UIColor.flatSkyBlueColorDark()
+        view.backgroundColor = UIColor(hexString: hapMainColour)
         lblAppName.textColor = UIColor.flatWhiteColor()
         lblMessage.textColor = UIColor.flatWhiteColor()
         lblHAPServer.textColor = UIColor.flatWhiteColor()

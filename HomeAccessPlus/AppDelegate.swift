@@ -25,6 +25,9 @@ import XCGLogger
 // Declaring a global constant to the default XCGLogger instance
 let logger = XCGLogger.defaultInstance()
 
+// Decalring a global constant to the HAP+ main app colour
+let hapMainColour = "#005DAB"
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
 
