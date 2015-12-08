@@ -7,6 +7,7 @@
 * Added API to check for Internet connection
 * Added API to check that the HAP+ server is contactable
 * Added API to check the username and password for the user, and log them in if correct
+* Displayed loading spinner during the logon attempt (~~#2~~)
 
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ (~~#1~~)
