@@ -7,6 +7,11 @@ To be able to use this app, you will need to have the following:
 * iOS 9 device
 * Home Access Plus+ set up and running for your institution (bug your network managers to get this set up)
 
+## Contributing
+Thanks for your interest in contributing to this project. You can contribute or report issues in the following ways:
+* [Report a bug](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/bug) if something isn't working as you expect it to
+* [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
+
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](https://github.com/stuajnht/HAP-for-iOS/blob/master/LICENSE.md) file for more information.
 
