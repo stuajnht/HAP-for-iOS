@@ -39,6 +39,7 @@ let settingsFirstName = "firstName"
 let settingsUsername = "username"
 let settingsToken1 = "token1"
 let settingsToken2 = "token2"
+let settingsDeviceType = "deviceType"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {

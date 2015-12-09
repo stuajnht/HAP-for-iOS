@@ -272,6 +272,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
                 logger.debug("Successfully logged in user to HAP+")
+                
+                // Find out what the device should be set up as: Personal, Shared
+                // or Single so that it can be used later. This is shown run if it
+                // hasn't been set before (i.e. the very first setup of this device)
+                if let deviceType = settings.stringForKey(settingsDeviceType) {
+                    // Device is set up, so nothing to do here
+                    logger.info("This is a \(deviceType) device")
+                } else {
+                    let loginUserDeviceType = UIAlertController(title: "Please Select Device Type", message: "Personal - A device you have bought\nShared - School owned class set\nSingle - School owned 1:1 scheme", preferredStyle: UIAlertControllerStyle.Alert)
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Personal", style: UIAlertActionStyle.Default, handler: nil))
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Shared", style: UIAlertActionStyle.Default, handler: nil))
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Single", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(loginUserDeviceType, animated: true, completion: nil)
+                }
+                
+                // Performing the segue to the master detail view
                 self.successfulLogin = true
                 self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
             } else {
