@@ -8,6 +8,7 @@
 * Added API to check that the HAP+ server is contactable
 * Added API to check the username and password for the user, and log them in if correct
 * Displayed loading spinner during the logon attempt - #2
+* Presented option to choose the device type during first setup of HAP+
 
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1
