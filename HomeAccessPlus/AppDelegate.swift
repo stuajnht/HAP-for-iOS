@@ -35,6 +35,10 @@ let hapMainColour = "#005DAB"
 let settings = NSUserDefaults.standardUserDefaults()
 let settingsHAPServer = "hapServer"
 let settingsSiteName = "siteName"
+let settingsFirstName = "firstName"
+let settingsUsername = "username"
+let settingsToken1 = "token1"
+let settingsToken2 = "token2"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {

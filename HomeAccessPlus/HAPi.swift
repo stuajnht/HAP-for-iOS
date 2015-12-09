@@ -175,6 +175,10 @@ class HAPi {
                             let siteName = JSON["SiteName"]
                             logger.debug("Site name from JSON: \(siteName)")
                             settings.setObject(siteName, forKey: settingsSiteName)
+                            settings.setObject(JSON["FirstName"], forKey: settingsFirstName)
+                            settings.setObject(JSON["Username"], forKey: settingsUsername)
+                            settings.setObject(JSON["Token1"], forKey: settingsToken1)
+                            settings.setObject(JSON["Token2"], forKey: settingsToken2)
                             
                             // Letting the callback know we have successfully logged in
                             callback(true)
