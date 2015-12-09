@@ -75,9 +75,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tbxPassword.returnKeyType = .Go
         
         // Filling in any settings that are saved
-        if let hapServer = settings.stringForKey("hapServer")
+        if let hapServer = settings.stringForKey(settingsHAPServer)
         {
-            logger.debug("Settings for HAP+ server address exist with value \(hapServer)")
+            logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
             tblHAPServer.text = hapServer
             tblHAPServer.hidden = true
             lblHAPServer.hidden = true
@@ -86,6 +86,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             // function needs to be called otherwise when attempting
             // to log in it will say the URL is incorrect
             formatHAPURL(self)
+        }
+        if let siteName = settings.stringForKey(settingsSiteName)
+        {
+            logger.debug("The HAP+ server is for the site: \(siteName)")
+            lblMessage.text = siteName
         }
         
         // Registering for moving the scroll view when the keyboard is shown
@@ -233,7 +238,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Saving the HAP+ server API address to use later
-                settings.setObject(hapServer, forKey: "hapServer")
+                settings.setObject(hapServer, forKey: settingsHAPServer)
                 
                 // Continue with the login attempt by validating the credentials
                 self.hudUpdateLabel("Checking login details")

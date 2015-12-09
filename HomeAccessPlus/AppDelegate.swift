@@ -29,8 +29,12 @@ let logger = XCGLogger.defaultInstance()
 let hapMainColour = "#005DAB"
 
 // Declaring a global constant to NSUserDefaults to access settings
-// throughout the app
+// throughout the app, and also the variables to these settings, to
+// prevent accidental typos with incorrect names
+// See: http://www.codingexplorer.com/nsuserdefaults-a-swift-introduction/
 let settings = NSUserDefaults.standardUserDefaults()
+let settingsHAPServer = "hapServer"
+let settingsSiteName = "siteName"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {

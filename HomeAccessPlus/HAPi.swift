@@ -149,6 +149,13 @@ class HAPi {
                         let validLogon = JSON["isValid"]!!.stringValue
                         logger.info("Logon username and password valid: \(validLogon)")
                         if (validLogon == "1") {
+                            // We have successfully logged in, so save some settings
+                            // the NSUserDefaults settings variable
+                            let siteName = JSON["SiteName"]
+                            logger.debug("Site name from JSON: \(siteName)")
+                            settings.setObject(siteName, forKey: settingsSiteName)
+                            
+                            // Letting the callback know we have successfully logged in
                             callback(true)
                         } else {
                             callback(false)
