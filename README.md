@@ -6,6 +6,7 @@ Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple devi
 To be able to use this app, you will need to have the following:
 * iOS 9 device
 * Home Access Plus+ set up and running for your institution (bug your network managers to get this set up)
+  * You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
 
 ## Contributing
 Thanks for your interest in contributing to this project. You can contribute or report issues in the following ways:
