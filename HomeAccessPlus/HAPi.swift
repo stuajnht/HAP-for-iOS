@@ -99,7 +99,7 @@ class HAPi {
                 // server, so as to not try and get a value from a variable
                 // that is never set - issue #11
                 // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
-                case.Success(let result):
+                case.Success(_):
                     logger.verbose("Successful contact of server: \(response.result.isSuccess)")
                     logger.verbose("Response string from server API : \(response.result.value)")
                     // Seeing if the response is 'OK'
