@@ -278,12 +278,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // hasn't been set before (i.e. the very first setup of this device)
                 if let deviceType = settings.stringForKey(settingsDeviceType) {
                     // Device is set up, so nothing to do here
-                    logger.info("This is a \(deviceType) device")
+                    logger.info("This device is set up in \(deviceType) mode")
                 } else {
                     let loginUserDeviceType = UIAlertController(title: "Please Select Device Type", message: "Personal - A device you have bought\nShared - School owned class set\nSingle - School owned 1:1 scheme", preferredStyle: UIAlertControllerStyle.Alert)
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Personal", style: UIAlertActionStyle.Default, handler: nil))
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Shared", style: UIAlertActionStyle.Default, handler: nil))
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Single", style: UIAlertActionStyle.Default, handler: nil))
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Personal", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                        self.setDeviceType("personal") }))
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Shared", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                        self.setDeviceType("shared") }))
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Single", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                        self.setDeviceType("single") }))
                     self.presentViewController(loginUserDeviceType, animated: true, completion: nil)
                 }
                 
@@ -298,6 +301,34 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.presentViewController(loginUserFailController, animated: true, completion: nil)
             }
         })
+    }
+    
+    /// Set up the type of device this is
+    ///
+    /// A device can be in one of three states, which are:
+    ///   * Personal - A device a user has bought themselves
+    ///   * Shared - A device that is owned by the school, and 
+    ///              part of a class set
+    ///   * Single - A device owned by the school, in a 1:1 scheme
+    ///
+    /// During the initial login attempt and setup, the user is
+    /// presented with the option to choose one of these three options
+    /// in the form of an alert. Once the user has made their choice, it
+    /// is saved here into the settings, and then the segue to the master
+    /// detail view is completed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-beta
+    /// - version: 1
+    /// - date: 2015-12-09
+    ///
+    /// - param deviceType: The type of device this is going to be
+    func setDeviceType(deviceType: String) {
+        logger.info("This device is being set up in \(deviceType) mode")
+        settings.setObject(deviceType, forKey: settingsDeviceType)
+        // Performing the segue to the master detail view
+        self.successfulLogin = true
+        self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
     }
     
     /// Looking after moving the focus onto each textfield when the next
