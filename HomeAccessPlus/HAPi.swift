@@ -94,13 +94,24 @@ class HAPi {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
-            .responseString { response in
-                logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("Response string from server API : \(response.result.value)")
-                // Seeing if the response is 'OK'
-                if (response.result.value! == "OK") {
-                    callback(true)
-                } else {
+            .responseString { response in switch response.result {
+                // Seeing if there is a successful contact from the HAP+
+                // server, so as to not try and get a value from a variable
+                // that is never set - issue #11
+                // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
+                case.Success(let result):
+                    logger.verbose("Successful contact of server: \(response.result.isSuccess)")
+                    logger.verbose("Response string from server API : \(response.result.value)")
+                    // Seeing if the response is 'OK'
+                    if (response.result.value! == "OK") {
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                // We were not able to contact any HAP+ server at the address
+                // given to this function, such as a non-existent DNS address
+                case .Failure(let error):
+                    logger.warning("Connection to API failed with error: \(error)")
                     callback(false)
                 }
             }
