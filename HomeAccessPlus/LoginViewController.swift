@@ -228,7 +228,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == false && attempt != 1) {
                 self.hudHide()
                 
-                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid", preferredStyle: UIAlertControllerStyle.Alert)
+                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
             }

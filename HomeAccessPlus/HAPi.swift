@@ -85,6 +85,12 @@ class HAPi {
     /// to use. This check is located at "<HAP server URL>/api/test" and on
     /// result of a successful API test the server returns "OK"
     ///
+    /// - note: Since iOS9, TLS 1.2 is required for any https connections. If
+    ///         this function keeps failing after verifying the HAP+ address
+    ///         is valid, then it is a good idea to check that the server
+    ///         has TLS 1.2 enabled. See: [StackOverflow](http://stackoverflow.com/a/31138106)
+    ///         See: [Apple Developer](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14)
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
     ///
@@ -94,13 +100,28 @@ class HAPi {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
-            .responseString { response in
-                logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("Response string from server API : \(response.result.value)")
-                // Seeing if the response is 'OK'
-                if (response.result.value! == "OK") {
-                    callback(true)
-                } else {
+            .responseString { response in switch response.result {
+                // Seeing if there is a successful contact from the HAP+
+                // server, so as to not try and get a value from a variable
+                // that is never set - issue #11
+                // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
+                case.Success(_):
+                    logger.verbose("Successful contact of server: \(response.result.isSuccess)")
+                    logger.verbose("Response string from server API : \(response.result.value)")
+                    // Seeing if the response is 'OK'
+                    if (response.result.value! == "OK") {
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                // We were not able to contact any HAP+ server at the address
+                // given to this function, such as a non-existent DNS address
+                // It could also be that the server is not running TLS 1.2, which
+                // iOS 9 requires (the error logged below would have the following
+                // message: Error Domain=NSURLErrorDomain Code=-1200 "An SSL error
+                // has occurred and a secure connection to the server cannot be made.")
+                case .Failure(let error):
+                    logger.verbose("Connection to API failed with error: \(error)")
                     callback(false)
                 }
             }
