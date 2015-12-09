@@ -111,7 +111,7 @@ class HAPi {
                 // We were not able to contact any HAP+ server at the address
                 // given to this function, such as a non-existent DNS address
                 case .Failure(let error):
-                    logger.warning("Connection to API failed with error: \(error)")
+                    logger.verbose("Connection to API failed with error: \(error)")
                     callback(false)
                 }
             }
