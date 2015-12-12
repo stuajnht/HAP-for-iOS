@@ -181,6 +181,15 @@ class HAPi {
                             settings.setObject(JSON["Token2"], forKey: settingsToken2)
                             settings.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
                             
+                            // Setting the groups the user is part of
+                            self.setRoles({ (result: Bool) -> Void in
+                                if (result) {
+                                    logger.info("Successfully set the roles for \(settings.stringForKey(settingsUsername)!)")
+                                } else {
+                                    logger.warning("Failed to set the roles for \(settings.stringForKey(settingsUsername)!)")
+                                }
+                            })
+                            
                             // Letting the callback know we have successfully logged in
                             callback(true)
                         } else {
@@ -195,6 +204,58 @@ class HAPi {
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(false)
+        }
+    }
+    
+    /// Sets the roles of the user that has logged in, to see what they
+    /// are able to do
+    ///
+    /// Once a user has successfully logged in, we can set their roles and
+    /// groups that they are in from the HAP+ server. While this is not
+    /// really that useful for this app, as the groups will make more sense
+    /// to the Windows network and what permissions they have avaiable there,
+    /// we need to know if they're a domain admin if the device is going to
+    /// be put into a shared or single mode.
+    ///
+    /// The reason for this is to prevent "exploring" students from being able
+    /// to access the settings and remove the iOS device from the HAP+ server,
+    /// meaning that no-one will be able to use the app until a technical staff
+    /// member has connected it up again (which they will begrudgingly do (I
+    /// know I would!))
+    ///
+    /// This function will normally only be called after a successful login, as
+    /// there isn't much point in getting groups a user is in after the first
+    /// login. As this function is asynchronous, it can be called in the
+    /// loginUser function without affecting logon speed
+    ///
+    /// - note: Upon checking the HAP+ API documentation, it has come to my
+    ///         attention that there are no checks performed on this API call
+    ///         to make sure that a valid user is accessing it. This may change
+    ///         in a future version of the HAP+ API, so bare in mind that
+    ///         someday this function may break!
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-beta
+    /// - version: 1
+    /// - date: 2015-12-12
+    /// - seealso: loginUser
+    func setRoles(callback:(Bool) -> Void) -> Void {
+        Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings.stringForKey(settingsUsername)!)
+            .responseString { response in switch response.result {
+                // Seeing if there is a successful contact from the HAP+
+                // server, so as to not try and get a value from a variable
+                // that is never set
+            case.Success(_):
+                logger.verbose("Successful contact of server: \(response.result.isSuccess)")
+                logger.debug("\(settings.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                // TODO: Add code to save the groups the user is part of
+                
+                // We were not able to contact the HAP+ server, so we cannot
+                // put the user into any groups
+            case .Failure(let error):
+                logger.verbose("Connection to API failed with error: \(error)")
+                callback(false)
+                }
         }
     }
 }
