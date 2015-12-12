@@ -10,6 +10,7 @@
 * Displayed loading spinner during the logon attempt - #2
 * Presented option to choose the device type during first setup of HAP+
 * Collected the groups that the user is part of, to see if they are a domain admin
+* Locksmith is being used to securely store the users password for future authentication attempts
 
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1

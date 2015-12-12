@@ -21,6 +21,7 @@
 
 import Foundation
 import Alamofire
+import Locksmith
 import SwiftyJSON
 import XCGLogger
 
@@ -180,6 +181,15 @@ class HAPi {
                             settings.setObject(JSON["Token1"], forKey: settingsToken1)
                             settings.setObject(JSON["Token2"], forKey: settingsToken2)
                             settings.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
+                            
+                            // Saving the password for future logon attempts
+                            // and for when the logon tokens expire
+                            do {
+                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings.stringForKey(settingsUsername)!)
+                                logger.debug("Securely saved user password")
+                            } catch {
+                                logger.error("Failed to securely save password")
+                            }
                             
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
