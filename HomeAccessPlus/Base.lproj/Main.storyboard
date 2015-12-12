@@ -96,7 +96,10 @@
                                                 <rect key="frame" x="0.0" y="33" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="URL"/>
+                                                <connections>
+                                                    <action selector="formatHAPURL:" destination="70L-Rq-5X4" eventType="editingDidEnd" id="m1N-48-RFd"/>
+                                                </connections>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kaJ-gd-iJ6">
                                                 <rect key="frame" x="0.0" y="75" width="560" height="21"/>
@@ -109,7 +112,7 @@
                                                 <rect key="frame" x="0.0" y="108" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uiw-KM-uvi">
                                                 <rect key="frame" x="0.0" y="150" width="560" height="21"/>
@@ -122,14 +125,15 @@
                                                 <rect key="frame" x="0.0" y="183" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" secureTextEntry="YES"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AeN-LS-lgG">
                                                 <rect key="frame" x="0.0" y="225" width="560" height="30"/>
                                                 <animations/>
                                                 <state key="normal" title="Login"/>
                                                 <connections>
-                                                    <segue destination="H1p-Uh-vWS" kind="show" id="BnI-yd-gmz"/>
+                                                    <action selector="attemptLogin:" destination="70L-Rq-5X4" eventType="touchUpInside" id="4LW-LW-wXo"/>
+                                                    <segue destination="H1p-Uh-vWS" kind="show" identifier="login.btnLoginSegue" id="BnI-yd-gmz"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -175,6 +179,7 @@
                         <outlet property="lblMessage" destination="9jv-7n-iGz" id="GNc-FF-D4x"/>
                         <outlet property="lblPassword" destination="Uiw-KM-uvi" id="PpS-z2-AqE"/>
                         <outlet property="lblUsername" destination="kaJ-gd-iJ6" id="FIo-RK-JNV"/>
+                        <outlet property="sclLoginTextboxes" destination="iNB-h7-ReC" id="G11-fp-25b"/>
                         <outlet property="tblHAPServer" destination="Zyd-Pb-sSl" id="4Np-c5-Rqq"/>
                         <outlet property="tblUsername" destination="nwk-1j-HYh" id="bAU-JP-rQO"/>
                         <outlet property="tbxPassword" destination="ho4-w2-VHj" id="E6Z-UY-irx"/>

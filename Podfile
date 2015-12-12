@@ -6,6 +6,10 @@ use_frameworks!
 target 'HomeAccessPlus' do
   pod 'Alamofire'
   pod 'ChameleonFramework'
+  pod 'Locksmith'
+  pod 'MBProgressHUD'
+  pod 'SwiftyJSON'
+  pod 'XCGLogger'
 end
 
 target 'HomeAccessPlusTests' do

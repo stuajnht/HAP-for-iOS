@@ -3,13 +3,25 @@ PODS:
   - ChameleonFramework (2.0.5):
     - ChameleonFramework/Default (= 2.0.5)
   - ChameleonFramework/Default (2.0.5)
+  - Locksmith (2.0.2)
+  - MBProgressHUD (0.9.1)
+  - SwiftyJSON (2.3.1)
+  - XCGLogger (3.1.1)
 
 DEPENDENCIES:
   - Alamofire
   - ChameleonFramework
+  - Locksmith
+  - MBProgressHUD
+  - SwiftyJSON
+  - XCGLogger
 
 SPEC CHECKSUMS:
   Alamofire: 9f93b56389e48def9220dd57d1f44b1927229a5a
   ChameleonFramework: 69b0256ae77de31b89b9c83ef501d154e1e64341
+  Locksmith: 7f2b68448449a7712348f9a4ed60604c1cc8dfa6
+  MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
+  SwiftyJSON: 592b53bee5ef3dd9b3bebc6b9cb7ee35426ae8c3
+  XCGLogger: e111a313f609432394c3ae378d99511634fd2e3c
 
 COCOAPODS: 0.39.0

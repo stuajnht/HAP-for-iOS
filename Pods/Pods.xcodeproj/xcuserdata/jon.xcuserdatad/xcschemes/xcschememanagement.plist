@@ -14,7 +14,27 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Locksmith.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>MBProgressHUD.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-HomeAccessPlus.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>SwiftyJSON.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>XCGLogger.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -22,7 +42,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>0ECC85868FB65FAA657C3089DCB9DCA8</key>
+		<key>205170CF59DF618F892FC71CCC08E857</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -32,7 +52,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>65CCEF1A90CCD0ED275702D3F6BB7894</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>92943306EC8070DF9CD02ECD505D2CD5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9B57F4EE4746045CEAE2D933A3C8EC9E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E61CE3B6DFA1FE6B3E296965C76C0E10</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>FB27A1CADF8901BBBA84EA947F374C1B</key>
 		<dict>
 			<key>primary</key>
 			<true/>

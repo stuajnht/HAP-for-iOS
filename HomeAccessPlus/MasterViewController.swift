@@ -41,7 +41,7 @@ class MasterViewController: UITableViewController {
         }
         
         // Setting the navigation bar colour
-        self.navigationController!.navigationBar.barTintColor = UIColor.flatSkyBlueColorDark()
+        self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
     }
