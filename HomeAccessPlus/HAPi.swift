@@ -179,6 +179,7 @@ class HAPi {
                             settings.setObject(JSON["Username"], forKey: settingsUsername)
                             settings.setObject(JSON["Token1"], forKey: settingsToken1)
                             settings.setObject(JSON["Token2"], forKey: settingsToken2)
+                            settings.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
                             
                             // Letting the callback know we have successfully logged in
                             callback(true)

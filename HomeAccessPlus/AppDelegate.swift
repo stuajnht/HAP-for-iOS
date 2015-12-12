@@ -39,6 +39,7 @@ let settingsFirstName = "firstName"
 let settingsUsername = "username"
 let settingsToken1 = "token1"
 let settingsToken2 = "token2"
+let settingsToken2Name = "token2Name"
 let settingsDeviceType = "deviceType"
 
 @UIApplicationMain
