@@ -9,6 +9,7 @@
 * Added API to check the username and password for the user, and log them in if correct
 * Displayed loading spinner during the logon attempt - #2
 * Presented option to choose the device type during first setup of HAP+
+* Collected the groups that the user is part of, to see if they are a domain admin
 
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1
