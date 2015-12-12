@@ -162,6 +162,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func attemptLogin(sender: AnyObject) {
+        // Hiding the keyboard, as if the user presses the login button
+        // when the keyboard is still showing, it will cover the HUD and
+        // pop up and down when any alerts are shown, which looks messy
+        self.view.endEditing(true)
+        
         // Seeing if the textboxes are valid before attempting
         // any login attempts
         if (textboxesValid() == false) {
