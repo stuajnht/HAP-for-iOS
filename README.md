@@ -22,6 +22,7 @@ The name "Home Access Plus+" and all server side code are copyright Nick Brown (
 This project uses Cocoapods. Their project source code pages and licenses can be found below:
 * [Alamofire](https://github.com/Alamofire/Alamofire/)
 * [ChameleonFramework](https://github.com/ViccAlexander/Chameleon)
+* [Locksmith](https://github.com/matthewpalmer/Locksmith)
 * [MBProgressHUD](https://github.com/jdg/MBProgressHUD)
 * [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
