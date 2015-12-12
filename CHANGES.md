@@ -13,6 +13,7 @@
 ### Changes
 * Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1
 * Informed users that they need to be running TLS 1.2 on the HAP+ server - #11
+* Disabled auto correction and predictive text on logon textboxes, and set HAP+ address keyboard display type to URLs - #12
 
 ### Bug Fixes
 * If the HAP+ server address already begins with https://, do not prepend it again - #10

@@ -96,7 +96,7 @@
                                                 <rect key="frame" x="0.0" y="33" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" autocorrectionType="no"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="URL"/>
                                                 <connections>
                                                     <action selector="formatHAPURL:" destination="70L-Rq-5X4" eventType="editingDidEnd" id="m1N-48-RFd"/>
                                                 </connections>
