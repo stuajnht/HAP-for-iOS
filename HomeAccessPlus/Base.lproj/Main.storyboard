@@ -251,6 +251,10 @@
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
+                                    <outlet property="imgFileIcon" destination="WD2-Zl-A4X" id="v1t-DA-dbF"/>
+                                    <outlet property="lblFileDetails" destination="98K-vO-NDy" id="ilv-pY-fcd"/>
+                                    <outlet property="lblFileName" destination="pAj-Mw-3WF" id="cwh-J6-4OO"/>
+                                    <outlet property="lblFileType" destination="mh3-nw-UUT" id="rQd-Rz-TZi"/>
                                     <segue destination="vC3-pB-5Vb" kind="showDetail" identifier="showDetail" id="6S0-TO-JiA"/>
                                 </connections>
                             </tableViewCell>

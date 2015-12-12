@@ -23,6 +23,11 @@ import UIKit
 
 class FileTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var lblFileName: UILabel!
+    @IBOutlet weak var lblFileType: UILabel!
+    @IBOutlet weak var lblFileDetails: UILabel!
+    @IBOutlet weak var imgFileIcon: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
