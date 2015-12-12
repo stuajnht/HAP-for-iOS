@@ -185,6 +185,7 @@ class HAPi {
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
                                     logger.info("Successfully set the roles for \(settings.stringForKey(settingsUsername)!)")
+                                    logger.debug("Roles for \(settings.stringForKey(settingsUsername)!): \(settings.stringForKey(settingsUserRoles)!)")
                                 } else {
                                     logger.warning("Failed to set the roles for \(settings.stringForKey(settingsUsername)!)")
                                 }
@@ -247,13 +248,18 @@ class HAPi {
                 // that is never set
             case.Success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.debug("\(settings.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
-                // TODO: Add code to save the groups the user is part of
+                logger.verbose("\(settings.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                // Saving the groups the user is part of
+                settings.setObject(response.result.value, forKey: settingsUserRoles)
+                callback(true)
                 
                 // We were not able to contact the HAP+ server, so we cannot
                 // put the user into any groups
             case .Failure(let error):
                 logger.verbose("Connection to API failed with error: \(error)")
+                // Creating an empty escaped string -- [""] -- so that the setting
+                /// value exists and is over-written from a previous logged on user
+                settings.setObject("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
         }
