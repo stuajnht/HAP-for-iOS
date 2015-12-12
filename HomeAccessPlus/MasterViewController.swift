@@ -26,6 +26,10 @@ class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
+    
+    // Example array to be used for initial testing to hold files
+    // TODO: Remove after testing?
+    var files = []
 
 
     override func viewDidLoad() {
@@ -61,6 +65,27 @@ class MasterViewController: UITableViewController {
         let indexPath = NSIndexPath(forRow: 0, inSection: 0)
         self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
+    
+    /// A test function to check that the table cells are
+    /// set up correctly
+    ///
+    /// - note: Do not rely on this function... it may be removed
+    ///         once testing is complete!
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-12
+    func loadSampleFiles() {
+        var files1 = [String]()
+        files1 = ["Test 1", "Text Document", "32/13/0000      323KB"]
+        var files2 = [String]()
+        files2 = ["Test 2", "Word Document", "32/13/9999      1.2MB"]
+        var files3 = [String]()
+        files3 = ["Test 3", "Image Document", "32/13/0929      3B"]
+        
+        files = [files1, files2, files3]
+    }
 
     // MARK: - Segues
 
@@ -83,7 +108,7 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return objects.count
+        return files.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
