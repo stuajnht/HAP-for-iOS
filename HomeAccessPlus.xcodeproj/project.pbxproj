@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		35C2786884C1B3BC821AEB83 /* Pods_HomeAccessPlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */; };
 		FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC364A751C0BACB30085DC7E /* LoginViewController.swift */; };
+		FC7DEDD61C1CCBBF00C83A86 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DEDD51C1CCBBF00C83A86 /* FileTableViewCell.swift */; };
 		FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
 		FCB1D9EC1C09F54C00DEC02E /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9EB1C09F54C00DEC02E /* MasterViewController.swift */; };
 		FCB1D9EE1C09F54C00DEC02E /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9ED1C09F54C00DEC02E /* DetailViewController.swift */; };
@@ -35,6 +36,7 @@
 		1D0DF93B88C5F660330ECD54 /* Pods-HomeAccessPlus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HomeAccessPlus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus.debug.xcconfig"; sourceTree = "<group>"; };
 		385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HomeAccessPlus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC364A751C0BACB30085DC7E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		FC7DEDD51C1CCBBF00C83A86 /* FileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
 		FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeAccessPlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FCB1D9EB1C09F54C00DEC02E /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				FCB1D9EB1C09F54C00DEC02E /* MasterViewController.swift */,
 				FCB1D9ED1C09F54C00DEC02E /* DetailViewController.swift */,
 				FCB1D9EF1C09F54C00DEC02E /* Main.storyboard */,
+				FC7DEDD51C1CCBBF00C83A86 /* FileTableViewCell.swift */,
 				FC364A751C0BACB30085DC7E /* LoginViewController.swift */,
 				FCF451A21C12FF500067DFF9 /* Reach.swift */,
 				FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */,
@@ -300,6 +303,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */,
+				FC7DEDD61C1CCBBF00C83A86 /* FileTableViewCell.swift in Sources */,
 				FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */,
 				FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */,
 				FCB1D9EE1C09F54C00DEC02E /* DetailViewController.swift in Sources */,
