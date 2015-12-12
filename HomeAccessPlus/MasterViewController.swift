@@ -48,6 +48,8 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
+        
+        loadSampleFiles()
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -112,10 +114,17 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-
-        let object = objects[indexPath.row] as! NSDate
-        cell.textLabel!.text = object.description
+        // Table view cells are reused and should be dequeued using a cell identifier.
+        let cellIdentifier = "FileTableViewCell"
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! FileTableViewCell
+        
+        // Fetches the appropriate meal for the data source layout.
+        let file = files[indexPath.row]
+        
+        cell.lblFileName.text = file[0] as? String
+        cell.lblFileType.text = file[1] as? String
+        cell.lblFileDetails.text = file[2] as? String
+        
         return cell
     }
 
