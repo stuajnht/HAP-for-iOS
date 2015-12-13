@@ -131,6 +131,9 @@ class MasterViewController: UITableViewController {
         cell.lblFileType.text = file[1] as? String
         cell.lblFileDetails.text = file[2] as? String
         cell.fileIcon((file[3] as? String)!)
+        if (((file[3] as? String)! == "") || ((file[3] as? String)! == "Drive")) {
+            cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        }
         
         return cell
     }
