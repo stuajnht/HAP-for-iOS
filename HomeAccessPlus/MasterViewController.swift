@@ -80,13 +80,19 @@ class MasterViewController: UITableViewController {
     /// - date: 2015-12-12
     func loadSampleFiles() {
         var files1 = [String]()
-        files1 = ["Test 1", "Text Document", "32/13/0000 11:20      323 KB"]
+        files1 = ["Test 1", "Text Document", "32/13/0000 11:20      323 KB", ".txt"]
         var files2 = [String]()
-        files2 = ["Test 2", "Word Document", "32/13/9999 23:59       1.2 MB"]
+        files2 = ["Test 2", "Word Document", "32/13/9999 23:59       1.2 MB", ".avi"]
         var files3 = [String]()
-        files3 = ["Test 3", "Image Document", "32/13/0929 03:32      300.00 Bytes"]
+        files3 = ["Test 3", "Image Document", "32/13/0929 03:32      300.00 Bytes", ".xlsx"]
+        var files4 = [String]()
+        files4 = ["My Folder", "Directory", "32/13/9210 06:22", ""]
+        var files5 = [String]()
+        files5 = ["Home", "H:", "94.94% full", "Drive"]
+        var files6 = [String]()
+        files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
         
-        files = [files1, files2, files3]
+        files = [files1, files2, files3, files4, files5, files6]
     }
 
     // MARK: - Segues
@@ -124,6 +130,7 @@ class MasterViewController: UITableViewController {
         cell.lblFileName.text = file[0] as? String
         cell.lblFileType.text = file[1] as? String
         cell.lblFileDetails.text = file[2] as? String
+        cell.fileIcon((file[3] as? String)!)
         
         return cell
     }

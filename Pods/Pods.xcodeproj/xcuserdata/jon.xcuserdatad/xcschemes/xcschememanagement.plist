@@ -14,6 +14,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Font-Awesome-Swift-Font-Awesome-Swift.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Font-Awesome-Swift.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Locksmith.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -42,7 +52,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>205170CF59DF618F892FC71CCC08E857</key>
+		<key>00AA35A5B917ABB9357CB3E2FC97B22D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -52,7 +62,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>65CCEF1A90CCD0ED275702D3F6BB7894</key>
+		<key>4780E79D0065E21A7A3FD0DDB06EF0D6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9059506BB06F7BE16783C81066F50605</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -67,12 +82,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>E5103AA3B86FD939D2C77DC3043B8AC4</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>E61CE3B6DFA1FE6B3E296965C76C0E10</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>FB27A1CADF8901BBBA84EA947F374C1B</key>
+		<key>F66053EEA26A8CB73A62225FCB22917E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
