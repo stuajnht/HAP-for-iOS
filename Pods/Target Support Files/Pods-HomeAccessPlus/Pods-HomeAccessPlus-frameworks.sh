@@ -86,6 +86,7 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-HomeAccessPlus/Alamofire.framework"
   install_framework "Pods-HomeAccessPlus/ChameleonFramework.framework"
+  install_framework "Pods-HomeAccessPlus/Font_Awesome_Swift.framework"
   install_framework "Pods-HomeAccessPlus/Locksmith.framework"
   install_framework "Pods-HomeAccessPlus/MBProgressHUD.framework"
   install_framework "Pods-HomeAccessPlus/SwiftyJSON.framework"
@@ -94,6 +95,7 @@ fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-HomeAccessPlus/Alamofire.framework"
   install_framework "Pods-HomeAccessPlus/ChameleonFramework.framework"
+  install_framework "Pods-HomeAccessPlus/Font_Awesome_Swift.framework"
   install_framework "Pods-HomeAccessPlus/Locksmith.framework"
   install_framework "Pods-HomeAccessPlus/MBProgressHUD.framework"
   install_framework "Pods-HomeAccessPlus/SwiftyJSON.framework"
