@@ -80,11 +80,11 @@ class MasterViewController: UITableViewController {
     /// - date: 2015-12-12
     func loadSampleFiles() {
         var files1 = [String]()
-        files1 = ["Test 1", "Text Document", "32/13/0000      323KB"]
+        files1 = ["Test 1", "Text Document", "32/13/0000 11:20      323 KB"]
         var files2 = [String]()
-        files2 = ["Test 2", "Word Document", "32/13/9999      1.2MB"]
+        files2 = ["Test 2", "Word Document", "32/13/9999 23:59       1.2 MB"]
         var files3 = [String]()
-        files3 = ["Test 3", "Image Document", "32/13/0929      3B"]
+        files3 = ["Test 3", "Image Document", "32/13/0929 03:32      300.00 Bytes"]
         
         files = [files1, files2, files3]
     }

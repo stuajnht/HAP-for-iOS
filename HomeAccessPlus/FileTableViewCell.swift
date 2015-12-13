@@ -31,6 +31,11 @@ class FileTableViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        
+        // Setting the colours of the file type and details
+        // labels, so that they're not too distracting
+        lblFileType.textColor = UIColor.flatGrayColor()
+        lblFileDetails.textColor = UIColor.flatGrayColor()
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
