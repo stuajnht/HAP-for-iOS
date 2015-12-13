@@ -26,6 +26,10 @@ class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
+    
+    // Example array to be used for initial testing to hold files
+    // TODO: Remove after testing?
+    var files = []
 
 
     override func viewDidLoad() {
@@ -44,6 +48,8 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
+        
+        loadSampleFiles()
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -60,6 +66,27 @@ class MasterViewController: UITableViewController {
         objects.insert(NSDate(), atIndex: 0)
         let indexPath = NSIndexPath(forRow: 0, inSection: 0)
         self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+    }
+    
+    /// A test function to check that the table cells are
+    /// set up correctly
+    ///
+    /// - note: Do not rely on this function... it may be removed
+    ///         once testing is complete!
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-12
+    func loadSampleFiles() {
+        var files1 = [String]()
+        files1 = ["Test 1", "Text Document", "32/13/0000 11:20      323 KB"]
+        var files2 = [String]()
+        files2 = ["Test 2", "Word Document", "32/13/9999 23:59       1.2 MB"]
+        var files3 = [String]()
+        files3 = ["Test 3", "Image Document", "32/13/0929 03:32      300.00 Bytes"]
+        
+        files = [files1, files2, files3]
     }
 
     // MARK: - Segues
@@ -83,14 +110,21 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return objects.count
+        return files.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-
-        let object = objects[indexPath.row] as! NSDate
-        cell.textLabel!.text = object.description
+        // Table view cells are reused and should be dequeued using a cell identifier.
+        let cellIdentifier = "FileTableViewCell"
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! FileTableViewCell
+        
+        // Fetches the appropriate meal for the data source layout.
+        let file = files[indexPath.row]
+        
+        cell.lblFileName.text = file[0] as? String
+        cell.lblFileType.text = file[1] as? String
+        cell.lblFileDetails.text = file[2] as? String
+        
         return cell
     }
 
