@@ -98,15 +98,15 @@ class MasterViewController: UITableViewController {
     // MARK: - Segues
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "showDetail" {
-            if let indexPath = self.tableView.indexPathForSelectedRow {
-                let object = objects[indexPath.row] as! NSDate
-                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                controller.detailItem = object
-                controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                controller.navigationItem.leftItemsSupplementBackButton = true
-            }
-        }
+        //if segue.identifier == "showDetail" {
+            //if let indexPath = self.tableView.indexPathForSelectedRow {
+                //let object = objects[indexPath.row] as! NSDate
+                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                //controller.detailItem = object
+                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                //controller.navigationItem.leftItemsSupplementBackButton = true
+            //}
+        //}
     }
 
     // MARK: - Table View
@@ -147,6 +147,13 @@ class MasterViewController: UITableViewController {
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
+    }
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let row = indexPath.row //2
+        //let section = indexPath.section//3
+        let fileName = files[row][0] //4
+        navigationItem.title = fileName as? String
     }
 
 
