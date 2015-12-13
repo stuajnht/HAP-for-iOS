@@ -98,15 +98,27 @@ class MasterViewController: UITableViewController {
     // MARK: - Segues
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //if segue.identifier == "showDetail" {
-            //if let indexPath = self.tableView.indexPathForSelectedRow {
+        if segue.identifier == "showDetail" {
+            if let indexPath = self.tableView.indexPathForSelectedRow {
                 //let object = objects[indexPath.row] as! NSDate
                 //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
                 //controller.detailItem = object
                 //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 //controller.navigationItem.leftItemsSupplementBackButton = true
-            //}
-        //}
+                
+                let fileType = files[indexPath.row][3] as! String
+                if ((fileType == "") || (fileType == "Drive")) {
+                    // Stop the segue and follow the path
+                    let controller = (segue.destinationViewController as! UINavigationController).topViewController as! MasterViewController
+                } else {
+                    // Show the detail view with the file info
+                    let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                    controller.detailItem = fileType
+                    controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                    controller.navigationItem.leftItemsSupplementBackButton = true
+                }
+            }
+        }
     }
 
     // MARK: - Table View
