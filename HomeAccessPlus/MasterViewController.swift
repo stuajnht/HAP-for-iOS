@@ -111,6 +111,7 @@ class MasterViewController: UITableViewController {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
+                    controller.title = "Folder Browsed"
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
                     // Show the detail view with the file info
