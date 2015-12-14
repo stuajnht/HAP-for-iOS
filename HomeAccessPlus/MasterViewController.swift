@@ -109,7 +109,9 @@ class MasterViewController: UITableViewController {
                 let fileType = files[indexPath.row][3] as! String
                 if ((fileType == "") || (fileType == "Drive")) {
                     // Stop the segue and follow the path
-                    
+                    // See: http://stackoverflow.com/q/31909072
+                    let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
+                    self.navigationController?.pushViewController(controller, animated: true)
                 } else {
                     // Show the detail view with the file info
                     let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
