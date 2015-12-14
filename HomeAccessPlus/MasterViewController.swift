@@ -27,6 +27,9 @@ class MasterViewController: UITableViewController {
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
     
+    // Loading an instance of the HAPi
+    let api = HAPi()
+    
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
     var files = []
@@ -50,6 +53,10 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.translucent = false
         
         loadSampleFiles()
+        
+        // Getting the drives available to the user
+        api.getDrives({ (result: Bool) -> Void in
+        })
     }
 
     override func viewWillAppear(animated: Bool) {
