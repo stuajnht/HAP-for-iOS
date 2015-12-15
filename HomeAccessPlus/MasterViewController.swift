@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import SwiftyJSON
 
 class MasterViewController: UITableViewController {
 
@@ -39,7 +40,7 @@ class MasterViewController: UITableViewController {
     
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
-    var files = []
+    var files: [AnyObject] = []
 
 
     override func viewDidLoad() {
@@ -65,12 +66,26 @@ class MasterViewController: UITableViewController {
             // Getting the drives available to the user
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.debug("\(result): \(response)")
-                var files5 = [String]()
-                files5 = ["Home", "H:", "94.94% full", "Drive"]
-                var files6 = [String]()
-                files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
                 
-                self.files = [files5, files6]
+                var file: [AnyObject] = []
+                let json = JSON(response)
+                for (_,subJson) in json {
+                    let name = subJson["Name"].string
+                    let path = subJson["Path"].string
+                    let space = subJson["Space"].double
+                    logger.debug("Drive name: \(name)")
+                    logger.debug("Drive path: \(path)")
+                    logger.debug("Drive usage: \(space)")
+                    file = [name!, path!, String(space) + "% used", "Drive"]
+                    self.files.append(file)
+                }
+                
+                //var files5 = [String]()
+                //files5 = ["Home", "H:", "94.94% full", "Drive"]
+                //var files6 = [String]()
+                //files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
+                
+                //self.files = [files5, files6]
                 
                 self.tableView.reloadData()
             })
