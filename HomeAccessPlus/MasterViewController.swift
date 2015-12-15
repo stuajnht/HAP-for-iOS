@@ -98,7 +98,10 @@ class MasterViewController: UITableViewController {
         } else {
             // Show the files and folders in the path the
             // user has browsed to
-            loadSampleFiles()
+            //loadSampleFiles()
+            api.getFolder("H\\\\", callback: { (result: Bool, response: AnyObject) -> Void in
+                logger.debug("\(result): \(response)")
+            })
         }
         
     }
