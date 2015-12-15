@@ -59,12 +59,19 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
         
-        loadSampleFiles()
+        // Seeing if we are showing the user their available drives
+        // or if the user is browsing the folder hierarchy
+        if (currentPath == "") {
+            // Getting the drives available to the user
+            api.getDrives({ (result: Bool, response: AnyObject) -> Void in
+                logger.debug("\(result): \(response)")
+            })
+        } else {
+            // Show the files and folders in the path the
+            // user has browsed to
+            loadSampleFiles()
+        }
         
-        // Getting the drives available to the user
-        api.getDrives({ (result: Bool, response: AnyObject) -> Void in
-            logger.debug("\(result): \(response)")
-        })
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -127,6 +134,7 @@ class MasterViewController: UITableViewController {
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
                     controller.title = "Folder Browsed"
+                    controller.currentPath = "Folder"
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
                     // Show the detail view with the file info
