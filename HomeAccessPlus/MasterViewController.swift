@@ -111,9 +111,9 @@ class MasterViewController: UITableViewController {
                     let fileExtension = subJson["Extension"].string
                     let size = subJson["Size"].string
                     let path = subJson["Path"].string
-                    logger.debug("Name: \(name)")
-                    logger.debug("Type: \(type)")
-                    logger.debug("Drive usage: \(modified)")
+                    logger.verbose("Name: \(name)")
+                    logger.verbose("Type: \(type)")
+                    logger.verbose("Date modified: \(modified)")
                     file = [name!, type!, modified! + "    " + size!, fileExtension!, path!]
                     self.files.append(file)
                 }
