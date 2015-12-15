@@ -72,7 +72,7 @@ class FileTableViewCell: UITableViewCell {
     /// - parameter fileExtension: The extension of the file of the table cell
     func fileIcon(fileExtension: String) {
         var icon : FAType
-        logger.debug("Setting icon for the file type: \(fileExtension)")
+        logger.verbose("Setting icon for the file type: \(fileExtension)")
         
         // Seeing what icon should be displayed
         switch fileExtension.lowercaseString {
