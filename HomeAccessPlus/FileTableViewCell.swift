@@ -75,9 +75,9 @@ class FileTableViewCell: UITableViewCell {
         logger.debug("Setting icon for the file type: \(fileExtension)")
         
         // Seeing what icon should be displayed
-        switch fileExtension {
+        switch fileExtension.lowercaseString {
             // Network drive
-            case "Drive":
+            case "drive":
                 icon = FAType.FAHddO
             
             // File folder
@@ -101,23 +101,23 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAFileCodeO
             
             // Image documents
-            case ".jpg", ".png", ".gif":
+            case ".jpg", ".png", ".gif", ".bmp":
                 icon = FAType.FAFileImageO
             
             // Microsoft Excel documents
-            case ".xls", ".xlsx", ".csv":
+            case ".xls", ".xlsx", ".xlsm", ".csv":
                 icon = FAType.FAFileExcelO
             
             // Microsoft PowerPoint documents
-            case ".ppt", "pptx":
+            case ".ppt", ".pptx", ".pptm":
                 icon = FAType.FAFilePowerpointO
             
             // Microsoft Word documents
-            case ".doc", ".docx":
+            case ".doc", ".docx", ".dotm":
                 icon = FAType.FAFileWordO
             
             // Text documents
-            case ".txt", ".rtf":
+            case ".txt", ".rtf", ".log":
                 icon = FAType.FAFileTextO
             
             // Video documents
