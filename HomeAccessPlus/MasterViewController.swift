@@ -124,6 +124,30 @@ class MasterViewController: UITableViewController {
         
         files = [files1, files2, files3, files4, files5, files6]
     }
+    
+    /// Checks to see if the current item is a file or a folder/drive
+    ///
+    /// There are a number of functions in this class that perform a
+    /// different action if the current item is a file or a folder/drive
+    ///
+    /// This function checks the extension of the file that is passed to
+    /// it, and then lets the calling function know if the item is a
+    /// folder or not
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-15
+    ///
+    /// - parameter fileExtension: The file extension of the current item
+    /// - returns: Is the current item a file or a folder/drive
+    func isFile(fileExtension: String) -> Bool {
+        if ((fileExtension == "") || (fileExtension == "Drive")) {
+            return false
+        } else {
+            return true
+        }
+    }
 
     // MARK: - Segues
 
@@ -137,7 +161,7 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = files[indexPath.row][3] as! String
-                if ((fileType == "") || (fileType == "Drive")) {
+                if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -177,7 +201,7 @@ class MasterViewController: UITableViewController {
         cell.lblFileType.text = file[1] as? String
         cell.lblFileDetails.text = file[2] as? String
         cell.fileIcon((file[3] as? String)!)
-        if (((file[3] as? String)! == "") || ((file[3] as? String)! == "Drive")) {
+        if (!isFile((file[3] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         }
         
