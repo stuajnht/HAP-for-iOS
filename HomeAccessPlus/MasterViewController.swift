@@ -30,6 +30,13 @@ class MasterViewController: UITableViewController {
     // Loading an instance of the HAPi
     let api = HAPi()
     
+    // A listing to the current folder the user is in, or
+    // an empty string if the main drive listing is being
+    // shown
+    // - note: This variable should be set before the view
+    //         controller is called in the 'prepareForSegue'
+    var currentPath = ""
+    
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
     var files = []
@@ -55,7 +62,8 @@ class MasterViewController: UITableViewController {
         loadSampleFiles()
         
         // Getting the drives available to the user
-        api.getDrives({ (result: Bool) -> Void in
+        api.getDrives({ (result: Bool, response: AnyObject) -> Void in
+            logger.debug("\(result): \(response)")
         })
     }
 

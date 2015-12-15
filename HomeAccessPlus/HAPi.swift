@@ -288,7 +288,7 @@ class HAPi {
     /// - since: 0.3.0-alpha
     /// - version: 1
     /// - date: 2015-12-14
-    func getDrives(callback:(Bool) -> Void) -> Void {
+    func getDrives(callback:(result: Bool, response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -307,18 +307,18 @@ class HAPi {
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
-                        logger.debug("Response JSON for drive listing: \(JSON)")
+                        logger.verbose("Response JSON for drive listing: \(JSON)")
                         // Letting the callback know we have successfully logged in
-                        callback(true)
+                        callback(result: true, response: JSON)
                     
                     case .Failure(let error):
                         logger.warning("Request failed with error: \(error)")
-                        callback(false)
+                        callback(result: false, response: "")
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(false)
+            callback(result: false, response: "")
         }
     }
 }
