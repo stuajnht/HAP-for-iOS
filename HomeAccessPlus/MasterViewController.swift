@@ -38,6 +38,11 @@ class MasterViewController: UITableViewController {
     //         controller is called in the 'prepareForSegue'
     var currentPath = ""
     
+    // Setting the name of the folder that we are going to
+    // browse into, so that it appears in the nvaigation bar
+    // title. This should be called in the 'prepareForSegue'
+    var newFolder = ""
+    
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
     var files: [AnyObject] = []
@@ -63,6 +68,7 @@ class MasterViewController: UITableViewController {
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
         if (currentPath == "") {
+            navigationItem.title = "My Drives"
             // Getting the drives available to the user
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.debug("\(result): \(response)")
@@ -180,7 +186,7 @@ class MasterViewController: UITableViewController {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
-                    controller.title = "Folder Browsed"
+                    controller.title = newFolder
                     controller.currentPath = "Folder"
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
@@ -241,7 +247,7 @@ class MasterViewController: UITableViewController {
         let row = indexPath.row //2
         //let section = indexPath.section//3
         let fileName = files[row][0] //4
-        navigationItem.title = fileName as? String
+        newFolder = fileName as! String
     }
 
 
