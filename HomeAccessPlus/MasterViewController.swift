@@ -65,6 +65,14 @@ class MasterViewController: UITableViewController {
             // Getting the drives available to the user
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.debug("\(result): \(response)")
+                var files5 = [String]()
+                files5 = ["Home", "H:", "94.94% full", "Drive"]
+                var files6 = [String]()
+                files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
+                
+                self.files = [files5, files6]
+                
+                self.tableView.reloadData()
             })
         } else {
             // Show the files and folders in the path the
