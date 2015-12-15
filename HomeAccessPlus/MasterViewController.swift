@@ -101,6 +101,24 @@ class MasterViewController: UITableViewController {
             //loadSampleFiles()
             api.getFolder("H\\\\", callback: { (result: Bool, response: AnyObject) -> Void in
                 logger.debug("\(result): \(response)")
+                
+                var file: [AnyObject] = []
+                let json = JSON(response)
+                for (_,subJson) in json {
+                    let name = subJson["Name"].string
+                    let type = subJson["Type"].string
+                    let modified = subJson["ModifiedTime"].string
+                    let fileExtension = subJson["Extension"].string
+                    let size = subJson["Size"].string
+                    let path = subJson["Path"].string
+                    logger.debug("Name: \(name)")
+                    logger.debug("Type: \(type)")
+                    logger.debug("Drive usage: \(modified)")
+                    file = [name!, type!, modified! + "    " + size!, fileExtension!, path!]
+                    self.files.append(file)
+                }
+                
+                self.tableView.reloadData()
             })
         }
         
