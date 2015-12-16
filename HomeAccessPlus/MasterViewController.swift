@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import MBProgressHUD
 import SwiftyJSON
 
 class MasterViewController: UITableViewController {
@@ -30,6 +31,9 @@ class MasterViewController: UITableViewController {
     
     // Loading an instance of the HAPi
     let api = HAPi()
+    
+    // MBProgressHUD variable, so that the detail label can be updated as needed
+    var hud : MBProgressHUD = MBProgressHUD()
     
     // A listing of the current drive the user is browsing,
     // as the HAP myfiles API doesn't include this
@@ -72,6 +76,7 @@ class MasterViewController: UITableViewController {
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
         if (currentPath == "") {
+            hudShow("Loading drives")
             navigationItem.title = "My Drives"
             // Getting the drives available to the user
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
@@ -96,10 +101,11 @@ class MasterViewController: UITableViewController {
                 //files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
                 
                 //self.files = [files5, files6]
-                
+                self.hudHide()
                 self.tableView.reloadData()
             })
         } else {
+            hudShow("Loading folder")
             // Show the files and folders in the path the
             // user has browsed to
             //loadSampleFiles()
@@ -121,7 +127,7 @@ class MasterViewController: UITableViewController {
                     file = [name!, type!, modified! + "    " + size!, fileExtension!, path!]
                     self.files.append(file)
                 }
-                
+                self.hudHide()
                 self.tableView.reloadData()
             })
         }
@@ -194,6 +200,37 @@ class MasterViewController: UITableViewController {
         } else {
             return true
         }
+    }
+    
+    // MARK: MBProgressHUD
+    // The following functions look after showing the HUD during the login
+    // progress so that the user knows that something is happening
+    // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
+    // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
+    // See: http://stackoverflow.com/a/26882235
+    // See: http://stackoverflow.com/a/32285621
+    func hudShow(detailLabel: String) {
+        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.labelText = "Please wait..."
+        hud.detailsLabelText = detailLabel
+    }
+    
+    /// Updating the detail label that is shown in the HUD
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.2.0-beta
+    /// - version: 1
+    /// - date: 2015-12-08
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter labelText: The text that should be shown for the HUD label
+    func hudUpdateLabel(labelText: String) {
+        hud.detailsLabelText = labelText
+    }
+    
+    func hudHide() {
+        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
     }
 
     // MARK: - Segues
