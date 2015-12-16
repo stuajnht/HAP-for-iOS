@@ -103,7 +103,7 @@ class MasterViewController: UITableViewController {
             // Show the files and folders in the path the
             // user has browsed to
             //loadSampleFiles()
-            api.getFolder(currentDrive + currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
+            api.getFolder(currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
                 var file: [AnyObject] = []
@@ -130,6 +130,7 @@ class MasterViewController: UITableViewController {
 
     override func viewWillAppear(animated: Bool) {
         self.clearsSelectionOnViewWillAppear = true
+        logger.debug("Current path: \(currentPath)")
         super.viewWillAppear(animated)
     }
 
