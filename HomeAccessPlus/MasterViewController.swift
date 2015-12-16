@@ -31,6 +31,10 @@ class MasterViewController: UITableViewController {
     // Loading an instance of the HAPi
     let api = HAPi()
     
+    // A listing of the current drive the user is browsing,
+    // as the HAP myfiles API doesn't include this
+    var currentDrive = ""
+    
     // A listing to the current folder the user is in, or
     // an empty string if the main drive listing is being
     // shown
@@ -71,7 +75,7 @@ class MasterViewController: UITableViewController {
             navigationItem.title = "My Drives"
             // Getting the drives available to the user
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
-                logger.debug("\(result): \(response)")
+                logger.verbose("\(result): \(response)")
                 
                 var file: [AnyObject] = []
                 let json = JSON(response)
@@ -82,7 +86,7 @@ class MasterViewController: UITableViewController {
                     logger.debug("Drive name: \(name)")
                     logger.debug("Drive path: \(path)")
                     logger.debug("Drive usage: \(space)")
-                    file = [name!, path!, String(space) + "% used", "Drive"]
+                    file = [name!, path!, String(space) + "% used", "Drive", path!]
                     self.files.append(file)
                 }
                 
@@ -99,8 +103,8 @@ class MasterViewController: UITableViewController {
             // Show the files and folders in the path the
             // user has browsed to
             //loadSampleFiles()
-            api.getFolder("H\\\\", callback: { (result: Bool, response: AnyObject) -> Void in
-                logger.debug("\(result): \(response)")
+            api.getFolder(currentDrive + currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
+                logger.verbose("\(result): \(response)")
                 
                 var file: [AnyObject] = []
                 let json = JSON(response)
@@ -208,7 +212,8 @@ class MasterViewController: UITableViewController {
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
                     controller.title = newFolder
-                    controller.currentPath = "Folder"
+                    controller.currentPath = files[indexPath.row][4] as! String
+                    controller.currentDrive = currentDrive
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
                     // Show the detail view with the file info
@@ -269,6 +274,7 @@ class MasterViewController: UITableViewController {
         //let section = indexPath.section//3
         let fileName = files[row][0] //4
         newFolder = fileName as! String
+        currentDrive = files[row][4] as! String
     }
 
 

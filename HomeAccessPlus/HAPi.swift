@@ -347,7 +347,11 @@ class HAPi {
             ]
             
             // Replacing the escaped slashes with a forward slash
-            let formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            logger.debug("Folder being browsed raw path: \(folderPath)")
+            var formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString(" ", withString: "%20")
+            logger.debug("Folder being browsed formatted path: \(formattedPath)")
             
             // Connecting to the API to get the folder listing
             logger.debug("Attempting to get folder listing")
