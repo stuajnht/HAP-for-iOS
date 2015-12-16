@@ -204,13 +204,12 @@ class MasterViewController: UITableViewController {
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
-    // progress so that the user knows that something is happening
-    // See: http://www.raywenderlich.com/97014/use-cocoapods-with-swift
-    // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
-    // See: http://stackoverflow.com/a/26882235
-    // See: http://stackoverflow.com/a/32285621
+    // progress so that the user knows that something is happening. This
+    // is slightly different from the login view controller one, as we need
+    // to get it to show on top of the table view
+    // See: http://stackoverflow.com/a/26901328
     func hudShow(detailLabel: String) {
-        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
         hud.labelText = "Please wait..."
         hud.detailsLabelText = detailLabel
     }
@@ -230,7 +229,7 @@ class MasterViewController: UITableViewController {
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
+        MBProgressHUD.hideAllHUDsForView(self.navigationController!.view, animated: true)
     }
 
     // MARK: - Segues
