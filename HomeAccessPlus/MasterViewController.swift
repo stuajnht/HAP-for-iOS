@@ -207,20 +207,15 @@ class MasterViewController: UITableViewController {
     /// - version: 2
     /// - date: 2015-12-15
     ///
-    /// - parameter fileExtension: The file extension of the current item
     /// - parameter fileType: The type of file according to the HAP+ server
     /// - returns: Is the current item a file or a folder/drive
-    func isFile(fileExtension: String, fileType: String) -> Bool {
-        if ((fileExtension == "") || (fileExtension == "Drive")) {
+    func isFile(fileType: String) -> Bool {
+        // Seeing if this is a Directory based on the file type
+        // that has been passed - issue #13
+        if ((fileType == "") || (fileType == "Drive") || (fileType == "Directory")) {
             return false
         } else {
-            // Seeing if this is a Directory based on the file type
-            // that has been passed - issue #13
-            if (fileType == "Directory") {
-                return false
-            } else {
-                return true
-            }
+            return true
         }
     }
     
@@ -246,7 +241,7 @@ class MasterViewController: UITableViewController {
     func addFileItem(name: String, path: String, type: String, fileExtension: String, details: String) {
         // Creating an array to hold the current item that is being processed
         var currentItem: [AnyObject] = []
-        logger.debug("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
+        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
         
         // Adding the current item to the array
         currentItem = [name, path, type, fileExtension, details]
@@ -295,9 +290,8 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
-                let fileExtension = fileItems[indexPath.row][3] as! String
                 let fileType = fileItems[indexPath.row][2] as! String
-                if (!isFile(fileExtension, fileType: fileType)) {
+                if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -341,7 +335,7 @@ class MasterViewController: UITableViewController {
         cell.fileIcon((file[3] as? String)!)
         
         // Deciding if a disclosure indicator ("next arrow") should be shown
-        if (!isFile((file[3] as? String)!, fileType: (file[2] as? String)!)) {
+        if (!isFile((file[2] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         }
         
