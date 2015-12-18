@@ -94,7 +94,6 @@ class MasterViewController: UITableViewController {
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                var file: [AnyObject] = []
                 let json = JSON(response)
                 for (_,subJson) in json {
                     let name = subJson["Name"].string
@@ -103,8 +102,10 @@ class MasterViewController: UITableViewController {
                     logger.debug("Drive name: \(name)")
                     logger.debug("Drive path: \(path)")
                     logger.debug("Drive usage: \(space)")
-                    file = [name!, path!, String(space) + "% used", "Drive", path!]
-                    self.files.append(file)
+                    
+                    // Adding the current files and folders in the directory
+                    // to the fileItems array
+                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "", details: String(space) + "% used")
                 }
                 
                 //var files5 = [String]()
@@ -124,7 +125,6 @@ class MasterViewController: UITableViewController {
             api.getFolder(currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                var file: [AnyObject] = []
                 let json = JSON(response)
                 for (_,subJson) in json {
                     let name = subJson["Name"].string
@@ -133,11 +133,14 @@ class MasterViewController: UITableViewController {
                     let fileExtension = subJson["Extension"].string
                     let size = subJson["Size"].string
                     let path = subJson["Path"].string
+                    let details = modified! + "    " + size!
                     logger.verbose("Name: \(name)")
                     logger.verbose("Type: \(type)")
                     logger.verbose("Date modified: \(modified)")
-                    file = [name!, type!, modified! + "    " + size!, fileExtension!, path!]
-                    self.files.append(file)
+                    
+                    // Adding the current files and folders in the directory
+                    // to the fileItems array
+                    self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
                 }
                 self.hudHide()
                 self.tableView.reloadData()
