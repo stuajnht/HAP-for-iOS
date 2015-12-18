@@ -189,16 +189,23 @@ class MasterViewController: UITableViewController {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-15
     ///
     /// - parameter fileExtension: The file extension of the current item
+    /// - parameter fileType: The type of file according to the HAP+ server
     /// - returns: Is the current item a file or a folder/drive
-    func isFile(fileExtension: String) -> Bool {
+    func isFile(fileExtension: String, fileType: String) -> Bool {
         if ((fileExtension == "") || (fileExtension == "Drive")) {
             return false
         } else {
-            return true
+            // Seeing if this is a Directory based on the file type
+            // that has been passed - issue #13
+            if (fileType == "Directory") {
+                return false
+            } else {
+                return true
+            }
         }
     }
     
@@ -243,8 +250,9 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
-                let fileType = files[indexPath.row][3] as! String
-                if (!isFile(fileType)) {
+                let fileExtension = files[indexPath.row][3] as! String
+                let fileType = files[indexPath.row][1] as! String
+                if (!isFile(fileExtension, fileType: fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -285,7 +293,7 @@ class MasterViewController: UITableViewController {
         cell.lblFileType.text = file[1] as? String
         cell.lblFileDetails.text = file[2] as? String
         cell.fileIcon((file[3] as? String)!)
-        if (!isFile((file[3] as? String)!)) {
+        if (!isFile((file[3] as? String)!, fileType: (file[1] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         }
         
