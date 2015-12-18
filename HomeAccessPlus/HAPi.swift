@@ -350,7 +350,8 @@ class HAPi {
             logger.debug("Folder being browsed raw path: \(folderPath)")
             var formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
             formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
-            formattedPath = formattedPath.stringByReplacingOccurrencesOfString(" ", withString: "%20")
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("Folder being browsed formatted path: \(formattedPath)")
             
             // Connecting to the API to get the folder listing
