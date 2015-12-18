@@ -54,6 +54,18 @@ class MasterViewController: UITableViewController {
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
     var files: [AnyObject] = []
+    
+    /// Array to hold the items that are shown in the table that
+    /// is used to browse the files
+    ///
+    /// - note: The order of and data stored in this array is in
+    ///         the following order:
+    ///   1. File / folder name
+    ///   2. Path to the item
+    ///   3. The type of item this is (Drive, Directory, File Type)
+    ///   4. The extension of the file, or empty if it is a directory
+    ///   5. Additional details for the file (size, modified date, etc...)
+    var fileItems: [AnyObject] = []
 
 
     override func viewDidLoad() {
@@ -208,6 +220,36 @@ class MasterViewController: UITableViewController {
             }
         }
     }
+    
+    /// Adds the current item fetched from the JSON response to the array
+    /// of files in the directory
+    ///
+    /// To provide a standard interface to add items in the currently browsed
+    /// folder to the fileItems array, this function is called with data
+    /// so that the current item can be added
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-beta
+    /// - version: 1
+    /// - date: 2015-12-18
+    ///
+    /// - seealso: fileItems
+    ///
+    /// - parameter name: File / folder name
+    /// - parameter path: Path to the item
+    /// - parameter type: The type of item this is (Drive, Directory, File Type)
+    /// - parameter fileExtension: The extension of the file, or empty if it is a directory
+    /// - parameter details: Additional info for the file (size, modified date, etc...)
+    func addFileItem(name: String, path: String, type: String, fileExtension: String, details: String) {
+        // Creating an array to hold the current item that is being processed
+        var currentItem: [AnyObject] = []
+        logger.debug("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
+        
+        // Adding the current item to the array
+        currentItem = [name, path, type, fileExtension, details]
+        self.fileItems.append(currentItem)
+    }
+    
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
