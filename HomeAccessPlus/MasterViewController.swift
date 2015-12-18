@@ -54,6 +54,18 @@ class MasterViewController: UITableViewController {
     // Example array to be used for initial testing to hold files
     // TODO: Remove after testing?
     var files: [AnyObject] = []
+    
+    /// Array to hold the items that are shown in the table that
+    /// is used to browse the files
+    ///
+    /// - note: The order of and data stored in this array is in
+    ///         the following order:
+    ///   1. File / folder name
+    ///   2. Path to the item
+    ///   3. The type of item this is (Drive, Directory, File Type)
+    ///   4. The extension of the file, or empty if it is a directory
+    ///   5. Additional details for the file (size, modified date, etc...)
+    var fileItems: [AnyObject] = []
 
 
     override func viewDidLoad() {
@@ -82,7 +94,6 @@ class MasterViewController: UITableViewController {
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                var file: [AnyObject] = []
                 let json = JSON(response)
                 for (_,subJson) in json {
                     let name = subJson["Name"].string
@@ -91,8 +102,10 @@ class MasterViewController: UITableViewController {
                     logger.debug("Drive name: \(name)")
                     logger.debug("Drive path: \(path)")
                     logger.debug("Drive usage: \(space)")
-                    file = [name!, path!, String(space) + "% used", "Drive", path!]
-                    self.files.append(file)
+                    
+                    // Adding the current files and folders in the directory
+                    // to the fileItems array
+                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: String(space) + "% used")
                 }
                 
                 //var files5 = [String]()
@@ -112,7 +125,6 @@ class MasterViewController: UITableViewController {
             api.getFolder(currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                var file: [AnyObject] = []
                 let json = JSON(response)
                 for (_,subJson) in json {
                     let name = subJson["Name"].string
@@ -121,11 +133,14 @@ class MasterViewController: UITableViewController {
                     let fileExtension = subJson["Extension"].string
                     let size = subJson["Size"].string
                     let path = subJson["Path"].string
+                    let details = modified! + "    " + size!
                     logger.verbose("Name: \(name)")
                     logger.verbose("Type: \(type)")
                     logger.verbose("Date modified: \(modified)")
-                    file = [name!, type!, modified! + "    " + size!, fileExtension!, path!]
-                    self.files.append(file)
+                    
+                    // Adding the current files and folders in the directory
+                    // to the fileItems array
+                    self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
                 }
                 self.hudHide()
                 self.tableView.reloadData()
@@ -189,18 +204,50 @@ class MasterViewController: UITableViewController {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-15
     ///
-    /// - parameter fileExtension: The file extension of the current item
+    /// - parameter fileType: The type of file according to the HAP+ server
     /// - returns: Is the current item a file or a folder/drive
-    func isFile(fileExtension: String) -> Bool {
-        if ((fileExtension == "") || (fileExtension == "Drive")) {
+    func isFile(fileType: String) -> Bool {
+        // Seeing if this is a Directory based on the file type
+        // that has been passed - issue #13
+        if ((fileType == "") || (fileType == "Drive") || (fileType == "Directory")) {
             return false
         } else {
             return true
         }
     }
+    
+    /// Adds the current item fetched from the JSON response to the array
+    /// of files in the directory
+    ///
+    /// To provide a standard interface to add items in the currently browsed
+    /// folder to the fileItems array, this function is called with data
+    /// so that the current item can be added
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-beta
+    /// - version: 1
+    /// - date: 2015-12-18
+    ///
+    /// - seealso: fileItems
+    ///
+    /// - parameter name: File / folder name
+    /// - parameter path: Path to the item
+    /// - parameter type: The type of item this is (Drive, Directory, File Type)
+    /// - parameter fileExtension: The extension of the file, or empty if it is a directory
+    /// - parameter details: Additional info for the file (size, modified date, etc...)
+    func addFileItem(name: String, path: String, type: String, fileExtension: String, details: String) {
+        // Creating an array to hold the current item that is being processed
+        var currentItem: [AnyObject] = []
+        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
+        
+        // Adding the current item to the array
+        currentItem = [name, path, type, fileExtension, details]
+        self.fileItems.append(currentItem)
+    }
+    
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
@@ -243,13 +290,13 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
-                let fileType = files[indexPath.row][3] as! String
+                let fileType = fileItems[indexPath.row][2] as! String
                 if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
                     controller.title = newFolder
-                    controller.currentPath = files[indexPath.row][4] as! String
+                    controller.currentPath = fileItems[indexPath.row][1] as! String
                     controller.currentDrive = currentDrive
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
@@ -270,7 +317,7 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return files.count
+        return fileItems.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -278,15 +325,22 @@ class MasterViewController: UITableViewController {
         let cellIdentifier = "FileTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! FileTableViewCell
         
-        // Fetches the appropriate meal for the data source layout.
-        let file = files[indexPath.row]
+        // Fetches the current file from the fileItems array
+        let file = fileItems[indexPath.row]
         
+        // Updating the details for the cell
         cell.lblFileName.text = file[0] as? String
-        cell.lblFileType.text = file[1] as? String
-        cell.lblFileDetails.text = file[2] as? String
-        cell.fileIcon((file[3] as? String)!)
-        if (!isFile((file[3] as? String)!)) {
+        cell.lblFileType.text = file[2] as? String
+        cell.lblFileDetails.text = file[4] as? String
+        cell.fileIcon((file[2] as? String)!, fileExtension: (file[3] as? String)!)
+        
+        // Deciding if a disclosure indicator ("next arrow") should be shown
+        if (!isFile((file[2] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        } else {
+            // Removing the disclosure indicator if the current row
+            // is a file and not a folder - issue #13
+            cell.accessoryType = UITableViewCellAccessoryType.None
         }
         
         return cell
@@ -309,9 +363,9 @@ class MasterViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let row = indexPath.row //2
         //let section = indexPath.section//3
-        let fileName = files[row][0] //4
+        let fileName = fileItems[row][0] //4
         newFolder = fileName as! String
-        currentDrive = files[row][4] as! String
+        currentDrive = fileItems[row][1] as! String
     }
 
 

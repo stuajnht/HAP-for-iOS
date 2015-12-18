@@ -64,15 +64,36 @@ class FileTableViewCell: UITableViewCell {
     /// - note: All file types and names are trademarks of their
     ///         respective owners
     ///
+    /// - note: Due to the response from the HAP+ API, if a folder contains
+    ///         a '.' in it, then it incorrectly adds a folder extension
+    ///         into the JSON response, based on whatever is listed after
+    ///         the last '.' e.g. 'folder.example' returns '.example' - issue #13
+    ///         This may change in a future version of the HAP+ API, so bare
+    ///         in mind that someday this function may break!
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 3
     /// - date: 2015-12-13
     ///
-    /// - parameter fileExtension: The extension of the file of the table cell
-    func fileIcon(fileExtension: String) {
+    /// - parameter fileType: The type of the file of the table cell
+    /// - parameter fileExtension: The extension of the file in the table cell
+    func fileIcon(fileType: String, var fileExtension: String) {
         var icon : FAType
-        logger.verbose("Setting icon for the file type: \(fileExtension)")
+        logger.verbose("Setting icon for the file type: \(fileType)")
+        
+        // Setting the file extension to be "" if the file type is a folder,
+        // but contains a '.' in the name somewhere - issue #13
+        if (fileType == "Directory") {
+            fileExtension = ""
+        }
+        
+        // Setting the file extension to be something custom if the file type
+        // is a file, but it contains no extension in the name - issue #13
+        let emptyFileExtension = "uk.co.stuajnht.ios.HomeAccessPlus.fileTableViewCell.fileIcon.emptyFileExtension"
+        if ((fileType == "File") && (fileExtension == "")) {
+            fileExtension = emptyFileExtension
+        }
         
         // Seeing what icon should be displayed
         switch fileExtension.lowercaseString {
@@ -81,7 +102,7 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAHddO
             
             // File folder
-            case "":
+            case "", "directory":
                 icon = FAType.FAFolderO
             
             // Adobe Acrobat documents
@@ -123,6 +144,10 @@ class FileTableViewCell: UITableViewCell {
             // Video documents
             case ".avi", ".mp4":
                 icon = FAType.FAFileVideoO
+            
+            // Unknown file with no extension - issue #13
+            case emptyFileExtension:
+                icon = FAType.FAFileO
             
             // Unknown file type
             default:
