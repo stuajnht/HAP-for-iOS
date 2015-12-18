@@ -1,5 +1,11 @@
 # Home Access Plus+ iOS app change log
 
+## 0.3.0
+
+### New Stuff
+* Listed drives available to the user once they have logged on
+* Allowed the user to browse through the folder hierarchy on the network drives
+
 ## 0.2.0
 
 ### New Stuff
