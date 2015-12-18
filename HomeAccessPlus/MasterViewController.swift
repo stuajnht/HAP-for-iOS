@@ -105,7 +105,7 @@ class MasterViewController: UITableViewController {
                     
                     // Adding the current files and folders in the directory
                     // to the fileItems array
-                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "", details: String(space) + "% used")
+                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: String(space) + "% used")
                 }
                 
                 //var files5 = [String]()
