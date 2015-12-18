@@ -88,6 +88,13 @@ class FileTableViewCell: UITableViewCell {
             fileExtension = ""
         }
         
+        // Setting the file extension to be something custom if the file type
+        // is a file, but it contains no extension in the name - issue #13
+        let emptyFileExtension = "uk.co.stuajnht.ios.HomeAccessPlus.fileTableViewCell.fileIcon.emptyFileExtension"
+        if ((fileType == "File") && (fileExtension == "")) {
+            fileExtension = emptyFileExtension
+        }
+        
         // Seeing what icon should be displayed
         switch fileExtension.lowercaseString {
             // Network drive
@@ -137,6 +144,10 @@ class FileTableViewCell: UITableViewCell {
             // Video documents
             case ".avi", ".mp4":
                 icon = FAType.FAFileVideoO
+            
+            // Unknown file with no extension - issue #13
+            case emptyFileExtension:
+                icon = FAType.FAFileO
             
             // Unknown file type
             default:
