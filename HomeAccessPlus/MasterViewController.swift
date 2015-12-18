@@ -295,14 +295,14 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
-                let fileExtension = files[indexPath.row][3] as! String
-                let fileType = files[indexPath.row][1] as! String
+                let fileExtension = fileItems[indexPath.row][3] as! String
+                let fileType = fileItems[indexPath.row][2] as! String
                 if (!isFile(fileExtension, fileType: fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
                     controller.title = newFolder
-                    controller.currentPath = files[indexPath.row][4] as! String
+                    controller.currentPath = fileItems[indexPath.row][1] as! String
                     controller.currentDrive = currentDrive
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
@@ -331,14 +331,17 @@ class MasterViewController: UITableViewController {
         let cellIdentifier = "FileTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! FileTableViewCell
         
-        // Fetches the appropriate meal for the data source layout.
-        let file = files[indexPath.row]
+        // Fetches the current file from the fileItems array
+        let file = fileItems[indexPath.row]
         
+        // Updating the details for the cell
         cell.lblFileName.text = file[0] as? String
-        cell.lblFileType.text = file[1] as? String
-        cell.lblFileDetails.text = file[2] as? String
+        cell.lblFileType.text = file[2] as? String
+        cell.lblFileDetails.text = file[4] as? String
         cell.fileIcon((file[3] as? String)!)
-        if (!isFile((file[3] as? String)!, fileType: (file[1] as? String)!)) {
+        
+        // Deciding if a disclosure indicator ("next arrow") should be shown
+        if (!isFile((file[3] as? String)!, fileType: (file[2] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         }
         
@@ -362,9 +365,9 @@ class MasterViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let row = indexPath.row //2
         //let section = indexPath.section//3
-        let fileName = files[row][0] //4
+        let fileName = fileItems[row][0] //4
         newFolder = fileName as! String
-        currentDrive = files[row][4] as! String
+        currentDrive = fileItems[row][1] as! String
     }
 
 

@@ -66,22 +66,22 @@ class FileTableViewCell: UITableViewCell {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-13
     ///
-    /// - parameter fileExtension: The extension of the file of the table cell
-    func fileIcon(fileExtension: String) {
+    /// - parameter fileType: The type of the file of the table cell
+    func fileIcon(fileType: String) {
         var icon : FAType
-        logger.verbose("Setting icon for the file type: \(fileExtension)")
+        logger.verbose("Setting icon for the file type: \(fileType)")
         
         // Seeing what icon should be displayed
-        switch fileExtension.lowercaseString {
+        switch fileType.lowercaseString {
             // Network drive
             case "drive":
                 icon = FAType.FAHddO
             
             // File folder
-            case "":
+            case "", "directory":
                 icon = FAType.FAFolderO
             
             // Adobe Acrobat documents
