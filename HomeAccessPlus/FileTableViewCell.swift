@@ -64,18 +64,32 @@ class FileTableViewCell: UITableViewCell {
     /// - note: All file types and names are trademarks of their
     ///         respective owners
     ///
+    /// - note: Due to the response from the HAP+ API, if a folder contains
+    ///         a '.' in it, then it incorrectly adds a folder extension
+    ///         into the JSON response, based on whatever is listed after
+    ///         the last '.' e.g. 'folder.example' returns '.example' - issue #13
+    ///         This may change in a future version of the HAP+ API, so bare
+    ///         in mind that someday this function may break!
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2015-12-13
     ///
     /// - parameter fileType: The type of the file of the table cell
-    func fileIcon(fileType: String) {
+    /// - parameter fileExtension: The extension of the file in the table cell
+    func fileIcon(fileType: String, var fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
         
+        // Setting the file extension to be "" if the file type is a folder,
+        // but contains a '.' in the name somewhere - issue #13
+        if (fileType == "Directory") {
+            fileExtension = ""
+        }
+        
         // Seeing what icon should be displayed
-        switch fileType.lowercaseString {
+        switch fileExtension.lowercaseString {
             // Network drive
             case "drive":
                 icon = FAType.FAHddO

@@ -332,7 +332,7 @@ class MasterViewController: UITableViewController {
         cell.lblFileName.text = file[0] as? String
         cell.lblFileType.text = file[2] as? String
         cell.lblFileDetails.text = file[4] as? String
-        cell.fileIcon((file[3] as? String)!)
+        cell.fileIcon((file[2] as? String)!, fileExtension: (file[3] as? String)!)
         
         // Deciding if a disclosure indicator ("next arrow") should be shown
         if (!isFile((file[2] as? String)!)) {
