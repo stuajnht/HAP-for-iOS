@@ -337,6 +337,10 @@ class MasterViewController: UITableViewController {
         // Deciding if a disclosure indicator ("next arrow") should be shown
         if (!isFile((file[2] as? String)!)) {
             cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        } else {
+            // Removing the disclosure indicator if the current row
+            // is a file and not a folder - issue #13
+            cell.accessoryType = UITableViewCellAccessoryType.None
         }
         
         return cell
