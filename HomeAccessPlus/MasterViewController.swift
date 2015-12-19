@@ -76,11 +76,11 @@ class MasterViewController: UITableViewController {
         // user is at the top and pulls down, or if there was a problem
         // loading the folder and they want to try again
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
-        self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
+        //self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
         
         // Loading the contents in the folder that has been browsed
         // to, or lising the drives if no folder has been navigated to
-        loadFileBrowser(self.refreshControl!)
+        loadFileBrowser()
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -113,10 +113,10 @@ class MasterViewController: UITableViewController {
     /// - since: 0.3.0-beta
     /// - version: 1
     /// - date: 2015-12-19
-    func loadFileBrowser(refreshControl: UIRefreshControl) {
+    func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
         // HUD will replace the loading spinner
-        refreshControl.endRefreshing()
+        //refreshControl.endRefreshing()
         
         // Clearing out all items in the fileItems array, otherwise
         // then the table is refreshed all items are added again
@@ -168,7 +168,7 @@ class MasterViewController: UITableViewController {
                     let driveCheckProblemAlert = UIAlertController(title: "Unable to load drives", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
                     driveCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
                     driveCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
-                        self.loadFileBrowser(self.refreshControl!) }))
+                        self.loadFileBrowser() }))
                     self.presentViewController(driveCheckProblemAlert, animated: true, completion: nil)
                 }
             })
@@ -215,7 +215,7 @@ class MasterViewController: UITableViewController {
                     let folderCheckProblemAlert = UIAlertController(title: "Unable to load folder", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
                     folderCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
                     folderCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
-                        self.loadFileBrowser(self.refreshControl!) }))
+                        self.loadFileBrowser() }))
                     self.presentViewController(folderCheckProblemAlert, animated: true, completion: nil)
                 }
             })
