@@ -274,4 +274,104 @@ class HAPi {
                 }
         }
     }
+    
+    /// Lists the network drives that are available to the user
+    ///
+    /// The user is presented with a list of available network
+    /// drives that they have access to. This list will vary for
+    /// each user, depending on what has been set up for them in
+    /// the HAP+ config. From here, the user is then able to navigate
+    /// through the folder hierarchy to find the file or folder
+    /// that they are looking for
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-14
+    func getDrives(callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to get the drive listing
+            logger.debug("Attempting to get drives available")
+            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                .responseJSON { response in switch response.result {
+                    case .Success(let JSON):
+                        logger.verbose("Response JSON for drive listing: \(JSON)")
+                        // Letting the callback know we have successfully logged in
+                        callback(result: true, response: JSON)
+                    
+                    case .Failure(let error):
+                        logger.warning("Request failed with error: \(error)")
+                        callback(result: false, response: "")
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, response: "")
+        }
+    }
+    
+    /// Gets the contents of the selected folder
+    ///
+    /// The user has selected a folder to browse to and we need to
+    /// display the contents of it to them
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-15
+    ///
+    /// - parameter folderPath: The path of the folder the user has browsed to
+    func getFolder(folderPath: String, callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Replacing the escaped slashes with a forward slash
+            logger.debug("Folder being browsed raw path: \(folderPath)")
+            var formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("Folder being browsed formatted path: \(formattedPath)")
+            
+            // Connecting to the API to get the folder listing
+            logger.debug("Attempting to get folder listing")
+            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                .responseJSON { response in switch response.result {
+                case .Success(let JSON):
+                    logger.verbose("Response JSON for folder listing: \(JSON)")
+                    // Letting the callback know we have successfully logged in
+                    callback(result: true, response: JSON)
+                    
+                case .Failure(let error):
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: false, response: "")
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, response: "")
+        }
+    }
 }
