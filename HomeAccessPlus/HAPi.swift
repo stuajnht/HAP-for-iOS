@@ -374,4 +374,70 @@ class HAPi {
             callback(result: false, response: "")
         }
     }
+    
+    /// Downloads the selected file from the HAP+ server
+    ///
+    /// Once a user has selected a file that they would like
+    /// to use or view, it needs to be downloaded onto the device
+    /// so that the QuickLook controller can preview the file (if
+    /// supported) and for it to be shared to other apps
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-19
+    ///
+    /// - parameter fileLocation: The path to the file the user has selected
+    func downloadFile(fileLocation: String, callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Replacing the '../' navigation browsing up that the HAP+
+            // API adds to the file path, so that it removes the 'myfiles'
+            // section from the URL and replaces it with 'Download'
+            // e.g. <hapServer>/api/myfiles/H/file.txt had a path from the
+            // HAP+ server as <hapServer>/api/myfiles/../Download/H/file.txt
+            // but needs to be <hapServer>/api/Download/H/file.txt
+            logger.debug("File being downloaded raw path: \(fileLocation)")
+            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "/")
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("File being downloaded formatted path: \(formattedPath)")
+            
+            // Connecting to the API to download the file
+            let destination = Alamofire.Request.suggestedDownloadDestination(directory: .CachesDirectory, domain: .UserDomainMask)
+            logger.debug("Attempting to download the file to the on device location: \(destination)")
+            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, encoding: .JSON, destination: destination)
+                // Calculating the amount of the file downloaded
+                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                    logger.debug("Total bytes read for file '\(fileLocation)': \(totalBytesRead)")
+                    
+                    // This closure is NOT called on the main queue for performance
+                    // reasons. To update your ui, dispatch to the main queue.
+                    dispatch_async(dispatch_get_main_queue()) {
+                        logger.debug("Total bytes read on main queue: \(totalBytesRead)")
+                    }
+                }
+                
+                .response { _, _, _, error in
+                    if let error = error {
+                        logger.error("Failed with error: \(error)")
+                    } else {
+                        logger.info("Downloaded file successfully")
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, response: "")
+        }
+    }
 }
