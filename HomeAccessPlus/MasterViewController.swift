@@ -90,14 +90,17 @@ class MasterViewController: UITableViewController {
                 for (_,subJson) in json {
                     let name = subJson["Name"].string
                     let path = subJson["Path"].string
-                    let space = subJson["Space"].double
+                    // Removing the 'optional' text displayed when
+                    // converting the space available into a string
+                    // See: http://stackoverflow.com/a/25340084
+                    let space = String(format:"%.2f", subJson["Space"].double!)
                     logger.debug("Drive name: \(name)")
                     logger.debug("Drive path: \(path)")
                     logger.debug("Drive usage: \(space)")
                     
                     // Adding the current files and folders in the directory
                     // to the fileItems array
-                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: String(space) + "% used")
+                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space + "% used")
                 }
                 
                 // Hiding the HUD and adding the drives available to the table
