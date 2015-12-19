@@ -118,26 +118,44 @@ class MasterViewController: UITableViewController {
             api.getDrives({ (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                let json = JSON(response)
-                for (_,subJson) in json {
-                    let name = subJson["Name"].string
-                    let path = subJson["Path"].string
-                    // Removing the 'optional' text displayed when
-                    // converting the space available into a string
-                    // See: http://stackoverflow.com/a/25340084
-                    let space = String(format:"%.2f", subJson["Space"].double!)
-                    logger.debug("Drive name: \(name)")
-                    logger.debug("Drive path: \(path)")
-                    logger.debug("Drive usage: \(space)")
+                // Making sure that the request completed successfully, or
+                // let the user know if there was a problem (such as
+                // no connection to the Internet)
+                if (result) {
+                    logger.info("Successfully collected drive JSON data")
+                    let json = JSON(response)
+                    for (_,subJson) in json {
+                        let name = subJson["Name"].string
+                        let path = subJson["Path"].string
+                        // Removing the 'optional' text displayed when
+                        // converting the space available into a string
+                        // See: http://stackoverflow.com/a/25340084
+                        let space = String(format:"%.2f", subJson["Space"].double!)
+                        logger.debug("Drive name: \(name)")
+                        logger.debug("Drive path: \(path)")
+                        logger.debug("Drive usage: \(space)")
+                        
+                        // Adding the current files and folders in the directory
+                        // to the fileItems array
+                        self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space + "% used")
+                    }
                     
-                    // Adding the current files and folders in the directory
-                    // to the fileItems array
-                    self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space + "% used")
+                    // Hiding the HUD and adding the drives available to the table
+                    self.hudHide()
+                    self.tableView.reloadData()
+                } else {
+                    logger.warning("There was a problem getting the drive JSON data")
+                    self.hudHide()
+                    
+                    // The cancel and default action styles are back to front, as
+                    // the cancel option is bold, which we want the 'try again'
+                    // option to be chosen by the user
+                    let driveCheckProblemAlert = UIAlertController(title: "Unable to load drives", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                        self.loadFileBrowser() }))
+                    self.presentViewController(driveCheckProblemAlert, animated: true, completion: nil)
                 }
-                
-                // Hiding the HUD and adding the drives available to the table
-                self.hudHide()
-                self.tableView.reloadData()
             })
         } else {
             logger.debug("Loading the contents of the folder: \(currentPath)")
@@ -148,25 +166,43 @@ class MasterViewController: UITableViewController {
             api.getFolder(currentPath, callback: { (result: Bool, response: AnyObject) -> Void in
                 logger.verbose("\(result): \(response)")
                 
-                let json = JSON(response)
-                for (_,subJson) in json {
-                    let name = subJson["Name"].string
-                    let type = subJson["Type"].string
-                    let modified = subJson["ModifiedTime"].string
-                    let fileExtension = subJson["Extension"].string
-                    let size = subJson["Size"].string
-                    let path = subJson["Path"].string
-                    let details = modified! + "    " + size!
-                    logger.verbose("Name: \(name)")
-                    logger.verbose("Type: \(type)")
-                    logger.verbose("Date modified: \(modified)")
+                // Making sure that the request completed successfully, or
+                // let the user know if there was a problem (such as
+                // no connection to the Internet)
+                if (result) {
+                    logger.info("Successfully collected folder JSON data")
+                    let json = JSON(response)
+                    for (_,subJson) in json {
+                        let name = subJson["Name"].string
+                        let type = subJson["Type"].string
+                        let modified = subJson["ModifiedTime"].string
+                        let fileExtension = subJson["Extension"].string
+                        let size = subJson["Size"].string
+                        let path = subJson["Path"].string
+                        let details = modified! + "    " + size!
+                        logger.verbose("Name: \(name)")
+                        logger.verbose("Type: \(type)")
+                        logger.verbose("Date modified: \(modified)")
+                        
+                        // Adding the current files and folders in the directory
+                        // to the fileItems array
+                        self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
+                    }
+                    self.hudHide()
+                    self.tableView.reloadData()
+                } else {
+                    logger.warning("There was a problem getting the folder JSON data")
+                    self.hudHide()
                     
-                    // Adding the current files and folders in the directory
-                    // to the fileItems array
-                    self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
+                    // The cancel and default action styles are back to front, as
+                    // the cancel option is bold, which we want the 'try again'
+                    // option to be chosen by the user
+                    let folderCheckProblemAlert = UIAlertController(title: "Unable to load folder", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                        self.loadFileBrowser() }))
+                    self.presentViewController(folderCheckProblemAlert, animated: true, completion: nil)
                 }
-                self.hudHide()
-                self.tableView.reloadData()
             })
         }
     }
