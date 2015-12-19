@@ -388,7 +388,7 @@ class HAPi {
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+    func downloadFile(fileLocation: String, callback:(result: Bool, response: AnyObject, downloadLocation: String) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -408,7 +408,7 @@ class HAPi {
             // HAP+ server as <hapServer>/api/myfiles/../Download/H/file.txt
             // but needs to be <hapServer>/api/Download/H/file.txt
             logger.debug("File being downloaded raw path: \(fileLocation)")
-            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "/")
+            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
             formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
@@ -437,7 +437,7 @@ class HAPi {
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "")
+            callback(result: false, response: "", downloadLocation: "")
         }
     }
 }

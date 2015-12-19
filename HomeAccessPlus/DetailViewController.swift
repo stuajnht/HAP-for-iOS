@@ -26,6 +26,9 @@ class DetailViewController: UIViewController {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     
+    // Loading an instance of the HAPi
+    let api = HAPi()
+    
     // Holding the path that can be used to download
     // the file that the user has selected
     var fileDownloadPath = ""
@@ -69,6 +72,9 @@ class DetailViewController: UIViewController {
         // called again on each folder browse
         if (fileDownloadPath != "") {
             logger.debug("Downloading file from the following location: \(fileDownloadPath)")
+            api.downloadFile(fileDownloadPath, callback: { (result: Bool, response: AnyObject, downloadLocation: String) -> Void in
+                logger.debug("File downloaded to: \(downloadLocation)")
+            })
         }
     }
 
