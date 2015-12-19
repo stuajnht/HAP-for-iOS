@@ -35,25 +35,17 @@ class MasterViewController: UITableViewController {
     // MBProgressHUD variable, so that the detail label can be updated as needed
     var hud : MBProgressHUD = MBProgressHUD()
     
-    // A listing of the current drive the user is browsing,
-    // as the HAP myfiles API doesn't include this
-    var currentDrive = ""
-    
-    // A listing to the current folder the user is in, or
-    // an empty string if the main drive listing is being
-    // shown
-    // - note: This variable should be set before the view
-    //         controller is called in the 'prepareForSegue'
+    /// A listing to the current folder the user is in, or
+    /// an empty string if the main drive listing is being
+    /// shown
+    /// - note: This variable should be set before the view
+    ///         controller is called in the 'prepareForSegue'
     var currentPath = ""
     
     // Setting the name of the folder that we are going to
     // browse into, so that it appears in the nvaigation bar
     // title. This should be called in the 'prepareForSegue'
     var newFolder = ""
-    
-    // Example array to be used for initial testing to hold files
-    // TODO: Remove after testing?
-    var files: [AnyObject] = []
     
     /// Array to hold the items that are shown in the table that
     /// is used to browse the files
@@ -108,12 +100,7 @@ class MasterViewController: UITableViewController {
                     self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: String(space) + "% used")
                 }
                 
-                //var files5 = [String]()
-                //files5 = ["Home", "H:", "94.94% full", "Drive"]
-                //var files6 = [String]()
-                //files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
-                
-                //self.files = [files5, files6]
+                // Hiding the HUD and adding the drives available to the table
                 self.hudHide()
                 self.tableView.reloadData()
             })
@@ -164,33 +151,6 @@ class MasterViewController: UITableViewController {
         objects.insert(NSDate(), atIndex: 0)
         let indexPath = NSIndexPath(forRow: 0, inSection: 0)
         self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-    }
-    
-    /// A test function to check that the table cells are
-    /// set up correctly
-    ///
-    /// - note: Do not rely on this function... it may be removed
-    ///         once testing is complete!
-    ///
-    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
-    /// - since: 0.3.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-12
-    func loadSampleFiles() {
-        var files1 = [String]()
-        files1 = ["Test 1", "Text Document", "32/13/0000 11:20      323 KB", ".txt"]
-        var files2 = [String]()
-        files2 = ["Test 2", "Word Document", "32/13/9999 23:59       1.2 MB", ".avi"]
-        var files3 = [String]()
-        files3 = ["Test 3", "Image Document", "32/13/0929 03:32      300.00 Bytes", ".xlsx"]
-        var files4 = [String]()
-        files4 = ["My Folder", "Directory", "32/13/9210 06:22", ""]
-        var files5 = [String]()
-        files5 = ["Home", "H:", "94.94% full", "Drive"]
-        var files6 = [String]()
-        files6 = ["Super awesome sound file", "File", "98/16/9278 10:45      69.4 GB", ".au"]
-        
-        files = [files1, files2, files3, files4, files5, files6]
     }
     
     /// Checks to see if the current item is a file or a folder/drive
@@ -297,7 +257,6 @@ class MasterViewController: UITableViewController {
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
                     controller.title = newFolder
                     controller.currentPath = fileItems[indexPath.row][1] as! String
-                    controller.currentDrive = currentDrive
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
                     // Show the detail view with the file info
@@ -365,7 +324,6 @@ class MasterViewController: UITableViewController {
         //let section = indexPath.section//3
         let fileName = fileItems[row][0] //4
         newFolder = fileName as! String
-        currentDrive = fileItems[row][1] as! String
     }
 
 
