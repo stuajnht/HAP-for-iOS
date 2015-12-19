@@ -343,7 +343,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
             ]
             
             // Replacing the escaped slashes with a forward slash
@@ -398,7 +398,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
             ]
             
             // Replacing the '../' navigation browsing up that the HAP+
