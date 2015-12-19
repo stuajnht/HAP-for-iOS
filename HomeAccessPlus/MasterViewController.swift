@@ -72,9 +72,46 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
         
+        // Loading the contents in the folder that has been browsed
+        // to, or lising the drives if no folder has been navigated to
+        loadFileBrowser()
+    }
+
+    override func viewWillAppear(animated: Bool) {
+        self.clearsSelectionOnViewWillAppear = true
+        logger.debug("Current path: \(currentPath)")
+        super.viewWillAppear(animated)
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
+    func insertNewObject(sender: AnyObject) {
+        objects.insert(NSDate(), atIndex: 0)
+        let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+        self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+    }
+    
+    /// Gets the list of files, folders or drives to display
+    /// then in the file browser table in the master view
+    ///
+    /// This function is called when the folder is browsed to,
+    /// to generate a list of the folders and files contained in it.
+    /// This function is also called when the folder is refreshed,
+    /// such as pulling down on the table view, deleting a file or
+    /// adding a new folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.3.0-beta
+    /// - version: 1
+    /// - date: 2015-12-19
+    func loadFileBrowser() {
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
         if (currentPath == "") {
+            logger.debug("Loading the drives available to the user")
             hudShow("Loading drives")
             navigationItem.title = "My Drives"
             // Getting the drives available to the user
@@ -103,6 +140,7 @@ class MasterViewController: UITableViewController {
                 self.tableView.reloadData()
             })
         } else {
+            logger.debug("Loading the contents of the folder: \(currentPath)")
             hudShow("Loading folder")
             // Show the files and folders in the path the
             // user has browsed to
@@ -131,24 +169,6 @@ class MasterViewController: UITableViewController {
                 self.tableView.reloadData()
             })
         }
-        
-    }
-
-    override func viewWillAppear(animated: Bool) {
-        self.clearsSelectionOnViewWillAppear = true
-        logger.debug("Current path: \(currentPath)")
-        super.viewWillAppear(animated)
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-    func insertNewObject(sender: AnyObject) {
-        objects.insert(NSDate(), atIndex: 0)
-        let indexPath = NSIndexPath(forRow: 0, inSection: 0)
-        self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
     
     /// Checks to see if the current item is a file or a folder/drive
