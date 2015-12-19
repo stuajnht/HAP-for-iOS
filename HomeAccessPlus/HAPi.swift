@@ -428,11 +428,21 @@ class HAPi {
                     }
                 }
                 
-                .response { _, _, _, error in
+                .response { _, _, data, error in
                     if let error = error {
                         logger.error("Failed with error: \(error)")
                     } else {
                         logger.info("Downloaded file successfully")
+                    }
+                    if let
+                        data = data,
+                        resumeDataString = NSString(data: data, encoding: NSUTF8StringEncoding)
+                    {
+                        logger.debug("Data is: \(data)")
+                        logger.debug("Resume Data: \(resumeDataString)")
+                    } else {
+                        logger.debug("Data is: \(data)")
+                        logger.debug("Resume Data was empty")
                     }
             }
         } else {
