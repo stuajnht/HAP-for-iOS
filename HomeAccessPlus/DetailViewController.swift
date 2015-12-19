@@ -25,6 +25,10 @@ import ChameleonFramework
 class DetailViewController: UIViewController {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
+    
+    // Holding the path that can be used to download
+    // the file that the user has selected
+    var fileDownloadPath = ""
 
 
     var detailItem: AnyObject? {
@@ -58,6 +62,14 @@ class DetailViewController: UIViewController {
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
+        
+        // Downloading the file that the user has selected
+        // The 'if' is needed to prevent any attempts to download
+        // the folder the user has requested, as this class gets
+        // called again on each folder browse
+        if (fileDownloadPath != "") {
+            logger.debug("Downloading file from the following location: \(fileDownloadPath)")
+        }
     }
 
     override func didReceiveMemoryWarning() {
