@@ -42,11 +42,6 @@ class MasterViewController: UITableViewController {
     ///         controller is called in the 'prepareForSegue'
     var currentPath = ""
     
-    // Setting the name of the folder that we are going to
-    // browse into, so that it appears in the nvaigation bar
-    // title. This should be called in the 'prepareForSegue'
-    var newFolder = ""
-    
     /// Array to hold the items that are shown in the table that
     /// is used to browse the files
     ///
@@ -254,11 +249,13 @@ class MasterViewController: UITableViewController {
                 //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = fileItems[indexPath.row][2] as! String
+                let folderTitle = fileItems[indexPath.row][0] as! String
                 if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
-                    controller.title = newFolder
+                    controller.title = folderTitle
+                    logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     self.navigationController?.pushViewController(controller, animated: true)
                 } else {
@@ -323,10 +320,11 @@ class MasterViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let row = indexPath.row //2
-        //let section = indexPath.section//3
-        let fileName = fileItems[row][0] //4
-        newFolder = fileName as! String
+        //let row = indexPath.row //2
+        ////let section = indexPath.section//3
+        //let fileName = fileItems[row][0] //4
+        //newFolder = fileName as! String
+        //logger.debug("Folder heading to title: \(newFolder)")
     }
 
 
