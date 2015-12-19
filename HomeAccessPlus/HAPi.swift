@@ -413,9 +413,16 @@ class HAPi {
             formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
-            // Connecting to the API to download the file
+            // Setting up a location to download the file to
             let destination = Alamofire.Request.suggestedDownloadDestination(directory: .CachesDirectory, domain: .UserDomainMask)
+            // Deleting any files that exist in the folder currently with the same name
+            // See: http://stackoverflow.com/a/27311603
+            //if NSFileManager.defaultManager().fileExistsAtPath(destination) {
+            //    NSFileManager.defaultManager().removeItemAtPath(destination, error: nil)
+            //}
             logger.debug("Attempting to download the file to the on device location: \(destination)")
+            
+            // Connecting to the API to download the file
             Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, encoding: .JSON, destination: destination)
                 // Calculating the amount of the file downloaded
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
