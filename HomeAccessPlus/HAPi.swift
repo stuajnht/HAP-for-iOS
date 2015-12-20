@@ -417,9 +417,20 @@ class HAPi {
             let destination = Alamofire.Request.suggestedDownloadDestination(directory: .CachesDirectory, domain: .UserDomainMask)
             // Deleting any files that exist in the folder currently with the same name
             // See: http://stackoverflow.com/a/27311603
-            //if NSFileManager.defaultManager().fileExistsAtPath(destination) {
-            //    NSFileManager.defaultManager().removeItemAtPath(destination, error: nil)
-            //}
+            logger.debug("Removing file if it has been downloaded before")
+            let downloadDirectory = String(NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true) as [String])
+            // The file gets stored with '_' in place of '/'
+            var filePath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
+            filePath = filePath.stringByReplacingOccurrencesOfString("/", withString: "_")
+            let fileLocation = downloadDirectory + "/" + filePath
+            if NSFileManager.defaultManager().fileExistsAtPath(fileLocation) {
+                do {
+                    try NSFileManager.defaultManager().removeItemAtPath(fileLocation)
+                    logger.info("Removed file")
+                } catch {
+                    logger.error("Failed to remove the file")
+                }
+            }
             logger.debug("Attempting to download the file to the on device location: \(destination)")
             
             // Connecting to the API to download the file
