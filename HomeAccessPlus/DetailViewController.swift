@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import MBProgressHUD
 
 class DetailViewController: UIViewController {
 
@@ -28,6 +29,9 @@ class DetailViewController: UIViewController {
     
     // Loading an instance of the HAPi
     let api = HAPi()
+    
+    // MBProgressHUD variable, so that a download progress bar can be shown
+    var hud : MBProgressHUD = MBProgressHUD()
     
     // Holding the path that can be used to download
     // the file that the user has selected
@@ -72,8 +76,11 @@ class DetailViewController: UIViewController {
         // called again on each folder browse
         if (fileDownloadPath != "") {
             logger.debug("Downloading file from the following location: \(fileDownloadPath)")
+            detailDescriptionLabel.hidden = true
+            hudShow()
             api.downloadFile(fileDownloadPath, callback: { (result: Bool, response: AnyObject, downloadLocation: String) -> Void in
                 logger.debug("File downloaded to: \(downloadLocation)")
+                self.hudHide()
             })
         }
     }
@@ -81,6 +88,39 @@ class DetailViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    // MARK: MBProgressHUD
+    // The following functions look after showing the HUD during the download
+    // progress so that the user knows that something is happening.
+    // See: http://stackoverflow.com/a/26901328
+    func hudShow() {
+        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.detailsLabelText = "Downloading..."
+        // See: http://stackoverflow.com/a/26882235
+        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+    }
+    
+    /// Updating the progress bar that is shown in the HUD, so the user
+    /// knows how far along the download is
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-21
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter currentDownloadedBytes: The amount in bytes that has been downloaded
+    /// - parameter totalBytes: The total amount of bytes that is to be downloaded
+    func hudUpdateLabel(currentDownloadedBytes: String, totalBytes: String) {
+        let currentPercentage = (Float(currentDownloadedBytes)! / Float(totalBytes)!) * 100
+        logger.debug("Current downloaded percentage: \(currentPercentage)%")
+        hud.progress = currentPercentage
+    }
+    
+    func hudHide() {
+        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
     }
 
 
