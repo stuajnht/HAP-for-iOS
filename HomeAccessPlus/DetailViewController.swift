@@ -44,6 +44,18 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     
     // Setting the location on the device where the file is
     var fileDeviceLocation = NSURL(fileURLWithPath: "")
+    
+    var urlList : [NSURL]? = {
+        if let fileURL1 = NSBundle.mainBundle().URLForResource("Essay", withExtension:"txt"),
+            let fileURL2 = NSBundle.mainBundle().URLForResource("Image", withExtension:"jpg"),
+            let fileURL3 = NSBundle.mainBundle().URLForResource("Letter", withExtension:"docx"),
+            let fileURL4 = NSBundle.mainBundle().URLForResource("Newsletter", withExtension:"pages"),
+            let fileURL5 = NSBundle.mainBundle().URLForResource("Presentation", withExtension:"key"),
+            let fileURL6 = NSBundle.mainBundle().URLForResource("VisualReport", withExtension:"pdf") {
+                return [ fileURL1, fileURL2, fileURL3, fileURL4, fileURL5, fileURL6 ] //1
+        }
+        return nil
+    }()
 
 
     var detailItem: AnyObject? {
@@ -109,10 +121,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     logger.debug("Opening file from: \(downloadLocation)")
                     self.fileDeviceLocation = downloadLocation
                     
-                    // See: http://teemusk.com/blog.html?id=108645693475
-                    let ql = QLPreviewController()
-                    ql.dataSource = self
-                    self.presentViewController(ql, animated: true, completion: nil)
+                    // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+                    let previewQL = QLPreviewController() // 4
+                    previewQL.dataSource = self // 5
+                    previewQL.currentPreviewItemIndex = 0 // 6
+                    self.showViewController(previewQL, sender: nil) // 7
                 }
             })
         }
@@ -158,20 +171,19 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     
     // MARK: QuickLook
     
-    func numberOfPreviewItemsInPreviewController(controller: QLPreviewController) -> Int{
-        return 1
+    func numberOfPreviewItemsInPreviewController(controller: QLPreviewController!) -> Int {
+        if let list = urlList {
+            return list.count
+        }
+        return 0
     }
     
-    func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
-        // See: http://teemusk.com/blog.html?id=108645693475
-        let mainbundle = NSBundle.mainBundle()
-        let location = String(fileDeviceLocation)
-        logger.debug("QuickLook resource location: \(location)")
-        logger.debug("QuickLook resource extension: \(fileExtension)")
-        // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+    func previewController(controller: QLPreviewController!, previewItemAtIndex index: Int) -> QLPreviewItem! {
         var fileURL : NSURL?
-        fileURL = NSBundle.mainBundle().URLForResource(location, withExtension: nil)
-        return fileURL!
+        if let list = urlList, let filePath = list[0].lastPathComponent {
+            fileURL = NSBundle.mainBundle().URLForResource(filePath, withExtension:nil)
+        }
+        return fileURL
     }
 
 
