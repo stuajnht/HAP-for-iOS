@@ -382,6 +382,11 @@ class HAPi {
     /// so that the QuickLook controller can preview the file (if
     /// supported) and for it to be shared to other apps
     ///
+    /// - note: The download path to get the file from the HAP+ server
+    ///         is in the format <hapServer>/Download/Drive/Path/File.ext
+    ///         and doesn't need to have 'api' in the URL (a 404 is
+    ///         generated otherwise)
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
     /// - version: 1
@@ -422,7 +427,7 @@ class HAPi {
             )
             
             // Downloading the file
-            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, destination: destination)
+            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
                     print(totalBytesRead)
                 }
