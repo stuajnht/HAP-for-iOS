@@ -40,6 +40,9 @@ class DetailViewController: UIViewController {
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
     var fileExtension = ""
+    
+    // Setting the location on the device where the file is
+    var fileDeviceLocation = NSURL(fileURLWithPath: "")
 
 
     var detailItem: AnyObject? {
@@ -103,6 +106,7 @@ class DetailViewController: UIViewController {
                 if ((result == true) && (downloading == false)) {
                     self.hudHide()
                     logger.debug("Opening file from: \(downloadLocation)")
+                    self.fileDeviceLocation = downloadLocation
                 }
             })
         }
