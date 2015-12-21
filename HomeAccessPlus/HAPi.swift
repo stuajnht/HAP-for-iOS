@@ -382,13 +382,18 @@ class HAPi {
     /// so that the QuickLook controller can preview the file (if
     /// supported) and for it to be shared to other apps
     ///
+    /// - note: The download path to get the file from the HAP+ server
+    ///         is in the format <hapServer>/Download/Drive/Path/File.ext
+    ///         and doesn't need to have 'api' in the URL (a 404 is
+    ///         generated otherwise)
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
     /// - version: 1
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, response: AnyObject, downloadLocation: String) -> Void) -> Void {
+    func downloadFile(fileLocation: String, callback:(result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -413,59 +418,30 @@ class HAPi {
             formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
-            // Setting up a location to download the file to
-            let destination = Alamofire.Request.suggestedDownloadDestination(directory: .CachesDirectory, domain: .UserDomainMask)
-            // Deleting any files that exist in the folder currently with the same name
-            // See: http://stackoverflow.com/a/27311603
-            logger.debug("Removing file if it has been downloaded before")
-            let downloadDirectory = String(NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true) as [String])
-            // The file gets stored with '_' in place of '/'
-            var filePath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
-            filePath = filePath.stringByReplacingOccurrencesOfString("/", withString: "_")
-            let fileLocation = downloadDirectory + "/" + filePath
-            if NSFileManager.defaultManager().fileExistsAtPath(fileLocation) {
-                do {
-                    try NSFileManager.defaultManager().removeItemAtPath(fileLocation)
-                    logger.info("Removed file")
-                } catch {
-                    logger.error("Failed to remove the file")
-                }
-            }
-            logger.debug("Attempting to download the file to the on device location: \(destination)")
+            // Setting the download directory to be the caches folder on the
+            // device
+            // See: https://github.com/Alamofire/Alamofire/issues/907
+            let destination = Alamofire.Request.suggestedDownloadDestination(
+                directory: .CachesDirectory,
+                domain: .UserDomainMask
+            )
             
-            // Connecting to the API to download the file
-            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, encoding: .JSON, destination: destination)
-                // Calculating the amount of the file downloaded
+            // Downloading the file
+            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    logger.debug("Total bytes read for file '\(fileLocation)': \(totalBytesRead)")
-                    
-                    // This closure is NOT called on the main queue for performance
-                    // reasons. To update your ui, dispatch to the main queue.
-                    dispatch_async(dispatch_get_main_queue()) {
-                        logger.debug("Total bytes read on main queue: \(totalBytesRead)")
-                    }
+                    logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
+                    callback(result: false, downloading: true, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: NSURL(fileURLWithPath: ""))
                 }
-                
-                .response { _, _, data, error in
-                    if let error = error {
-                        logger.error("Failed with error: \(error)")
-                    } else {
-                        logger.info("Downloaded file successfully")
-                    }
-                    if let
-                        data = data,
-                        resumeDataString = NSString(data: data, encoding: NSUTF8StringEncoding)
-                    {
-                        logger.debug("Data is: \(data)")
-                        logger.debug("Resume Data: \(resumeDataString)")
-                    } else {
-                        logger.debug("Data is: \(data)")
-                        logger.debug("Resume Data was empty")
-                    }
+                .response { request, response, _, error in
+                    logger.verbose("Server response: \(response)")
+                    logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
             }
+            
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "", downloadLocation: "")
+            callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
         }
     }
 }
