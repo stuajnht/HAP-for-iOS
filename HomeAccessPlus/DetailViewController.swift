@@ -180,10 +180,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     
     func previewController(controller: QLPreviewController!, previewItemAtIndex index: Int) -> QLPreviewItem! {
         var fileURL : NSURL?
-        if let list = urlList, let filePath = list[0].lastPathComponent {
-            fileURL = NSBundle.mainBundle().URLForResource(filePath, withExtension:nil)
-        }
-        return fileURL
+        //if let list = urlList, let filePath = list[0].lastPathComponent {
+            //fileURL = NSBundle.mainBundle().URLForResource("test", withExtension:nil)
+        //}
+        fileURL = NSURL(string: fileDownloadPath)
+        return fileDeviceLocation
     }
 
 
