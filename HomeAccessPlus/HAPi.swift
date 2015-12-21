@@ -413,56 +413,8 @@ class HAPi {
             formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
-            // Setting up a location to download the file to
-            let destination = Alamofire.Request.suggestedDownloadDestination(directory: .CachesDirectory, domain: .UserDomainMask)
-            // Deleting any files that exist in the folder currently with the same name
-            // See: http://stackoverflow.com/a/27311603
-            logger.debug("Removing file if it has been downloaded before")
-            let downloadDirectory = String(NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true) as [String])
-            // The file gets stored with '_' in place of '/'
-            var filePath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
-            filePath = filePath.stringByReplacingOccurrencesOfString("/", withString: "_")
-            let fileLocation = downloadDirectory + "/" + filePath
-            if NSFileManager.defaultManager().fileExistsAtPath(fileLocation) {
-                do {
-                    try NSFileManager.defaultManager().removeItemAtPath(fileLocation)
-                    logger.info("Removed file")
-                } catch {
-                    logger.error("Failed to remove the file")
-                }
-            }
-            logger.debug("Attempting to download the file to the on device location: \(destination)")
+            // Download file here!
             
-            // Connecting to the API to download the file
-            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, encoding: .JSON, destination: destination)
-                // Calculating the amount of the file downloaded
-                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    logger.debug("Total bytes read for file '\(fileLocation)': \(totalBytesRead)")
-                    
-                    // This closure is NOT called on the main queue for performance
-                    // reasons. To update your ui, dispatch to the main queue.
-                    dispatch_async(dispatch_get_main_queue()) {
-                        logger.debug("Total bytes read on main queue: \(totalBytesRead)")
-                    }
-                }
-                
-                .response { _, _, data, error in
-                    if let error = error {
-                        logger.error("Failed with error: \(error)")
-                    } else {
-                        logger.info("Downloaded file successfully")
-                    }
-                    if let
-                        data = data,
-                        resumeDataString = NSString(data: data, encoding: NSUTF8StringEncoding)
-                    {
-                        logger.debug("Data is: \(data)")
-                        logger.debug("Resume Data: \(resumeDataString)")
-                    } else {
-                        logger.debug("Data is: \(data)")
-                        logger.debug("Resume Data was empty")
-                    }
-            }
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(result: false, response: "", downloadLocation: "")
