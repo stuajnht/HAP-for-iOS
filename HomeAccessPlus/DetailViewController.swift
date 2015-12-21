@@ -80,6 +80,14 @@ class DetailViewController: UIViewController {
             hudShow()
             api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
                 
+                // There was a problem with downloading the file, so let the
+                // user know about it
+                if ((result == false) && (downloading == false)) {
+                    let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                    loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                }
+                
                 // Seeing if the progress bar should update with the amount
                 // currently downloaded, if something is downloading
                 if ((result == false) && (downloading == true)) {
