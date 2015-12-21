@@ -393,7 +393,7 @@ class HAPi {
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: String) -> Void) -> Void {
+    func downloadFile(fileLocation: String, callback:(result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -429,18 +429,19 @@ class HAPi {
             // Downloading the file
             Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    logger.debug("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
-                    callback(result: false, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: "")
+                    callback(result: false, downloading: true, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: NSURL(fileURLWithPath: ""))
                 }
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
                     logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
             }
             
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: "")
+            callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
         }
     }
 }
