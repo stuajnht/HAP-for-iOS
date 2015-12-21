@@ -22,8 +22,9 @@
 import UIKit
 import ChameleonFramework
 import MBProgressHUD
+import QuickLook
 
-class DetailViewController: UIViewController {
+class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     
@@ -107,6 +108,11 @@ class DetailViewController: UIViewController {
                     self.hudHide()
                     logger.debug("Opening file from: \(downloadLocation)")
                     self.fileDeviceLocation = downloadLocation
+                    
+                    // See: http://teemusk.com/blog.html?id=108645693475
+                    let ql = QLPreviewController()
+                    ql.dataSource = self
+                    self.presentViewController(ql, animated: true, completion: nil)
                 }
             })
         }
@@ -148,6 +154,21 @@ class DetailViewController: UIViewController {
     
     func hudHide() {
         MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
+    }
+    
+    // MARK: QuickLook
+    
+    func numberOfPreviewItemsInPreviewController(controller: QLPreviewController) -> Int{
+        return 1
+    }
+    
+    func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
+        // See: http://teemusk.com/blog.html?id=108645693475
+        let mainbundle = NSBundle.mainBundle()
+        let url = mainbundle.pathForResource(String(fileDeviceLocation), ofType: fileExtension)!
+        print(url)
+        let doc = NSURL(fileURLWithPath: url)
+        return doc
     }
 
 
