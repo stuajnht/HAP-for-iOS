@@ -80,7 +80,7 @@ class DetailViewController: UIViewController {
             hudShow()
             api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: String) -> Void in
                 logger.debug("File downloaded to: \(downloadLocation)")
-                self.hudUpdateLabel(downloadedBytes, totalBytes: totalBytes)
+                self.hudUpdatePercentage(downloadedBytes, totalBytes: totalBytes)
             })
         }
     }
@@ -113,9 +113,9 @@ class DetailViewController: UIViewController {
     ///
     /// - parameter currentDownloadedBytes: The amount in bytes that has been downloaded
     /// - parameter totalBytes: The total amount of bytes that is to be downloaded
-    func hudUpdateLabel(currentDownloadedBytes: Int64, totalBytes: Int64) {
-        let currentPercentage = (Float(currentDownloadedBytes) / Float(totalBytes)) * 100
-        logger.debug("Current downloaded percentage: \(currentPercentage)%")
+    func hudUpdatePercentage(currentDownloadedBytes: Int64, totalBytes: Int64) {
+        let currentPercentage = Float(currentDownloadedBytes) / Float(totalBytes)
+        logger.debug("Current downloaded percentage: \(currentPercentage * 100)%")
         hud.progress = currentPercentage
     }
     
