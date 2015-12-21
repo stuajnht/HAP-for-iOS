@@ -36,6 +36,10 @@ class DetailViewController: UIViewController {
     // Holding the path that can be used to download
     // the file that the user has selected
     var fileDownloadPath = ""
+    
+    // Saving the extention of the file that is being downloaded
+    // so that the QuickLook preview knows what to show
+    var fileExtension = ""
 
 
     var detailItem: AnyObject? {

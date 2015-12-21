@@ -322,6 +322,7 @@ class MasterViewController: UITableViewController {
                 let fileType = fileItems[indexPath.row][2] as! String
                 let folderTitle = fileItems[indexPath.row][0] as! String
                 let filePath = fileItems[indexPath.row][1] as! String
+                let fileExtension = fileItems[indexPath.row][3] as! String
                 if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
@@ -335,6 +336,7 @@ class MasterViewController: UITableViewController {
                     let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
                     controller.detailItem = fileType
                     controller.fileDownloadPath = filePath
+                    controller.fileExtension = fileExtension
                     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                     controller.navigationItem.leftItemsSupplementBackButton = true
                     // Setting the title of the detail view to be the name of the document selected
