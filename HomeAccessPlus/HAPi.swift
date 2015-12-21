@@ -393,7 +393,7 @@ class HAPi {
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, response: AnyObject, downloadLocation: String) -> Void) -> Void {
+    func downloadFile(fileLocation: String, callback:(result: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: String) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -431,6 +431,7 @@ class HAPi {
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
                     logger.debug("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
+                    callback(result: false, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: "")
                 }
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
@@ -439,7 +440,7 @@ class HAPi {
             
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "", downloadLocation: "")
+            callback(result: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: "")
         }
     }
 }
