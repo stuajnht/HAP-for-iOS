@@ -413,7 +413,23 @@ class HAPi {
             formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
-            // Download file here!
+            // Setting the download directory to be the caches folder on the
+            // device
+            // See: https://github.com/Alamofire/Alamofire/issues/907
+            let destination = Alamofire.Request.suggestedDownloadDestination(
+                directory: .CachesDirectory,
+                domain: .UserDomainMask
+            )
+            
+            // Downloading the file
+            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/api/" + formattedPath, headers: httpHeaders, destination: destination)
+                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                    print(totalBytesRead)
+                }
+                .response { request, response, _, error in
+                    print(response)
+                    print("fileURL: \(destination(NSURL(string: "")!, response!))")
+            }
             
         } else {
             logger.warning("The connection to the Internet has been lost")
