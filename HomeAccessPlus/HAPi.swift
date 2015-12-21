@@ -429,11 +429,12 @@ class HAPi {
             // Downloading the file
             Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    print(totalBytesRead)
+                    logger.debug("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.debug("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
                 }
                 .response { request, response, _, error in
-                    print(response)
-                    print("fileURL: \(destination(NSURL(string: "")!, response!))")
+                    logger.debug("Server response: \(response)")
+                    logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
             }
             
         } else {
