@@ -165,10 +165,13 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
         // See: http://teemusk.com/blog.html?id=108645693475
         let mainbundle = NSBundle.mainBundle()
-        let url = mainbundle.pathForResource(String(fileDeviceLocation), ofType: fileExtension)!
-        print(url)
-        let doc = NSURL(fileURLWithPath: url)
-        return doc
+        let location = String(fileDeviceLocation)
+        logger.debug("QuickLook resource location: \(location)")
+        logger.debug("QuickLook resource extension: \(fileExtension)")
+        // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+        var fileURL : NSURL?
+        fileURL = NSBundle.mainBundle().URLForResource(location, withExtension: nil)
+        return fileURL!
     }
 
 
