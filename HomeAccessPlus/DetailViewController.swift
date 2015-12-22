@@ -38,12 +38,15 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // the file that the user has selected
     var fileDownloadPath = ""
     
+    // Holding the name of the file to use for the QuickLook controller
+     var fileName = ""
+    
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
     var fileExtension = ""
     
     // Setting the location on the device where the file is
-    var fileDeviceLocation = NSURL(fileURLWithPath: "")
+    var fileDeviceLocation = ""
     
     var urlList : [NSURL]? = {
         if let fileURL1 = NSBundle.mainBundle().URLForResource("Essay", withExtension:"txt"),
@@ -56,6 +59,8 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         }
         return nil
     }()
+    
+    
 
 
     var detailItem: AnyObject? {
@@ -119,13 +124,36 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                 if ((result == true) && (downloading == false)) {
                     self.hudHide()
                     logger.debug("Opening file from: \(downloadLocation)")
-                    self.fileDeviceLocation = downloadLocation
+                    self.fileDeviceLocation = String(downloadLocation)
                     
+                    // Presenting the QuickLook controller to the user
+                    // Thanks to the following sites for helping me eventually
+                    // figure it out
+                    // See: http://kratinmobile.com/blog/index.php/document-preview-in-ios-with-quick-look-framework/
+                    // See: http://robsprogramknowledge.blogspot.co.uk/2011/02/quick-look-for-ios_21.html
                     // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
-                    let previewQL = QLPreviewController() // 4
-                    previewQL.dataSource = self // 5
-                    previewQL.currentPreviewItemIndex = 0 // 6
-                    self.showViewController(previewQL, sender: nil) // 7
+                    // See: http://teemusk.com/blog.html?id=108645693475
+                    
+                    do {
+                        // Getting a list of documents in the caches folder
+                        // See: http://stackoverflow.com/a/24055475
+                        var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+                        logger.debug("Caches directories: \(cachesDirectories)")
+                        // See: http://stackoverflow.com/a/33055193
+                        let cachesDirectory: String = (cachesDirectories[0] as? String)!
+                        logger.debug("Cache directory: \(cachesDirectory)")
+                        let listOfFiles = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(cachesDirectory)
+                        logger.debug("Got list of files in directory: \(listOfFiles)")
+                        
+                        // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+                        let previewQL = QLPreviewController() // 4
+                        previewQL.dataSource = self // 5
+                        previewQL.currentPreviewItemIndex = 0 // 6
+                        self.showViewController(previewQL, sender: nil) // 7
+                        
+                    } catch {
+                        logger.error("Failed to get list of files in caches directory")
+                    }
                 }
             })
         }
@@ -172,10 +200,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // MARK: QuickLook
     
     func numberOfPreviewItemsInPreviewController(controller: QLPreviewController!) -> Int {
-        if let list = urlList {
-            return list.count
-        }
-        return 0
+        return 1
     }
     
     func previewController(controller: QLPreviewController!, previewItemAtIndex index: Int) -> QLPreviewItem! {
@@ -183,8 +208,22 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         //if let list = urlList, let filePath = list[0].lastPathComponent {
             //fileURL = NSBundle.mainBundle().URLForResource("test", withExtension:nil)
         //}
-        fileURL = NSURL(string: fileDownloadPath)
-        return fileDeviceLocation
+        //fileURL = NSURL(string: fileDownloadPath)
+        //return fileDeviceLocation
+        
+        // Below fails with: Couldn't issue file extension for path:
+        //return NSURL.fileURLWithPath(fileDeviceLocation)
+        
+        var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+        logger.debug("Caches directories: \(cachesDirectories)")
+        // See: http://stackoverflow.com/a/33055193
+        let cachesDirectory: String = (cachesDirectories[0] as? String)!
+        logger.debug("Cache directory: \(cachesDirectory)")
+        
+        // Generating a full path to the downloaded file
+        let fullPath = cachesDirectory + "/" + fileName + fileExtension
+        logger.debug("Attempting to open file located at: \(fullPath)")
+        return NSURL.fileURLWithPath(fullPath)
     }
 
 
