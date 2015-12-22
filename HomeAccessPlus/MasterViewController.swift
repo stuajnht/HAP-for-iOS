@@ -341,9 +341,6 @@ class MasterViewController: UITableViewController {
                     controller.fileExtension = fileExtension
                     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                     controller.navigationItem.leftItemsSupplementBackButton = true
-                    // Setting the title of the detail view to be the name of the document selected
-                    // See: http://stackoverflow.com/a/14959502
-                    controller.navigationController!.navigationBar.topItem!.title = folderTitle
                 }
             }
         }
