@@ -27,6 +27,7 @@ import QuickLook
 class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
+    @IBOutlet weak var btnPreview: UIButton!
     
     // Loading an instance of the HAPi
     let api = HAPi()
@@ -112,17 +113,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     logger.debug("Opening file from: \(downloadLocation)")
                     self.fileDeviceLocation = String(downloadLocation)
                     
-                    // Presenting the QuickLook controller to the user
-                    // Thanks to the following sites for helping me eventually
-                    // figure it out (here and other parts of this file)
-                    // See: http://kratinmobile.com/blog/index.php/document-preview-in-ios-with-quick-look-framework/
-                    // See: http://robsprogramknowledge.blogspot.co.uk/2011/02/quick-look-for-ios_21.html
-                    // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
-                    // See: http://teemusk.com/blog.html?id=108645693475
-                    let previewQL = QLPreviewController()
-                    previewQL.dataSource = self
-                    previewQL.currentPreviewItemIndex = 0
-                    self.showViewController(previewQL, sender: nil)
+                    // Loading and creating the QuickLook controller
+                    self.quickLookController()
+                    
+                    // Displaying the file properties controls
+                    self.btnPreview.hidden = false
                 }
             })
         }
@@ -131,6 +126,13 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    // Displaying the QuickLook preview of the file when
+    // the preview button is pressed, if the user pressed
+    // the back button when it was displayed previously
+    @IBAction func displayPreview(sender: AnyObject) {
+        quickLookController()
     }
     
     // MARK: MBProgressHUD
@@ -167,6 +169,22 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     // MARK: QuickLook
+    
+    /// Creating the QuickLook controller so the file the
+    /// user selected can be displayed
+    func quickLookController() {
+        // Presenting the QuickLook controller to the user
+        // Thanks to the following sites for helping me eventually
+        // figure it out (here and other parts of this file)
+        // See: http://kratinmobile.com/blog/index.php/document-preview-in-ios-with-quick-look-framework/
+        // See: http://robsprogramknowledge.blogspot.co.uk/2011/02/quick-look-for-ios_21.html
+        // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+        // See: http://teemusk.com/blog.html?id=108645693475
+        let previewQL = QLPreviewController()
+        previewQL.dataSource = self
+        previewQL.currentPreviewItemIndex = 0
+        self.showViewController(previewQL, sender: nil)
+    }
     
     func numberOfPreviewItemsInPreviewController(controller: QLPreviewController) -> Int {
         return 1
