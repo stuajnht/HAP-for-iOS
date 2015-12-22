@@ -22,8 +22,9 @@
 import UIKit
 import ChameleonFramework
 import MBProgressHUD
+import QuickLook
 
-class DetailViewController: UIViewController {
+class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     
@@ -37,12 +38,15 @@ class DetailViewController: UIViewController {
     // the file that the user has selected
     var fileDownloadPath = ""
     
+    // Holding the name of the file to use for the QuickLook controller
+     var fileName = ""
+    
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
     var fileExtension = ""
     
     // Setting the location on the device where the file is
-    var fileDeviceLocation = NSURL(fileURLWithPath: "")
+    var fileDeviceLocation = ""
 
 
     var detailItem: AnyObject? {
@@ -106,7 +110,19 @@ class DetailViewController: UIViewController {
                 if ((result == true) && (downloading == false)) {
                     self.hudHide()
                     logger.debug("Opening file from: \(downloadLocation)")
-                    self.fileDeviceLocation = downloadLocation
+                    self.fileDeviceLocation = String(downloadLocation)
+                    
+                    // Presenting the QuickLook controller to the user
+                    // Thanks to the following sites for helping me eventually
+                    // figure it out (here and other parts of this file)
+                    // See: http://kratinmobile.com/blog/index.php/document-preview-in-ios-with-quick-look-framework/
+                    // See: http://robsprogramknowledge.blogspot.co.uk/2011/02/quick-look-for-ios_21.html
+                    // See: https://www.invasivecode.com/weblog/quick-look-preview-controller-in-swift
+                    // See: http://teemusk.com/blog.html?id=108645693475
+                    let previewQL = QLPreviewController()
+                    previewQL.dataSource = self
+                    previewQL.currentPreviewItemIndex = 0
+                    self.showViewController(previewQL, sender: nil)
                 }
             })
         }
@@ -148,6 +164,19 @@ class DetailViewController: UIViewController {
     
     func hudHide() {
         MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
+    }
+    
+    // MARK: QuickLook
+    
+    func numberOfPreviewItemsInPreviewController(controller: QLPreviewController) -> Int {
+        return 1
+    }
+    
+    func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
+        // Returning the full path to the downloaded file
+        // after removing the 'file:/' from the beginning
+        let formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file:/", withString: "")
+        return NSURL.fileURLWithPath(formattedPath)
     }
 
 
