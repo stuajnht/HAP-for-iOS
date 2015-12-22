@@ -173,19 +173,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
-        // Below fails with: Couldn't issue file extension for path:
-        //return NSURL.fileURLWithPath(fileDeviceLocation)
-        
-        var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
-        logger.debug("Caches directories: \(cachesDirectories)")
-        // See: http://stackoverflow.com/a/33055193
-        let cachesDirectory: String = (cachesDirectories[0] as? String)!
-        logger.debug("Cache directory: \(cachesDirectory)")
-        
-        // Generating a full path to the downloaded file
-        let fullPath = cachesDirectory + "/" + fileName + fileExtension
-        logger.debug("Attempting to open file located at: \(fullPath)")
-        return NSURL.fileURLWithPath(fullPath)
+        // Returning the full path to the downloaded file
+        // after removing the 'file:/' from the beginning
+        let formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file:/", withString: "")
+        return NSURL.fileURLWithPath(formattedPath)
     }
 
 
