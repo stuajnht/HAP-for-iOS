@@ -175,7 +175,12 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
         // Returning the full path to the downloaded file
         // after removing the 'file:/' from the beginning
-        let formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file:/", withString: "")
+        var formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file:/", withString: "")
+        // Decoding any URL encoded characters, as the saved file
+        // doesn't contain them, so it won't be found by QuickLook
+        // See: http://stackoverflow.com/a/28310899
+        formattedPath = formattedPath.stringByRemovingPercentEncoding!
+        logger.debug("Formatted file location for preview: \(formattedPath)")
         return NSURL.fileURLWithPath(formattedPath)
     }
 
