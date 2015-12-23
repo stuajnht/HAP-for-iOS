@@ -28,6 +28,16 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var btnPreview: UIButton!
+    @IBOutlet weak var lblFileName: UILabel!
+    @IBOutlet weak var lblFileNameTitle: UILabel!
+    @IBOutlet weak var lblFileType: UILabel!
+    @IBOutlet weak var lblFileTypeTitle: UILabel!
+    @IBOutlet weak var lblFileSize: UILabel!
+    @IBOutlet weak var lblFileSizeTitle: UILabel!
+    @IBOutlet weak var lblFileModified: UILabel!
+    @IBOutlet weak var lblFileModifiedTitle: UILabel!
+    @IBOutlet weak var lblFileLocation: UILabel!
+    @IBOutlet weak var lblFileLocationTitle: UILabel!
     
     // Loading an instance of the HAPi
     let api = HAPi()
@@ -117,7 +127,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     self.quickLookController()
                     
                     // Displaying the file properties controls
-                    self.btnPreview.hidden = false
+                    self.showFileDetails()
                 }
             })
         }
@@ -133,6 +143,30 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // the back button when it was displayed previously
     @IBAction func displayPreview(sender: AnyObject) {
         quickLookController()
+    }
+    
+    /// Showing the details of the currently selected file
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2015-12-23
+    func showFileDetails() {
+        self.lblFileName.text = self.fileName
+        self.lblFileName.hidden = false
+        self.lblFileNameTitle.hidden = false
+        
+        self.lblFileTypeTitle.hidden = false
+        
+        self.lblFileSizeTitle.hidden = false
+        
+        self.lblFileModifiedTitle.hidden = false
+        
+        self.lblFileLocation.text = self.fileDownloadPath
+        self.lblFileLocation.hidden = false
+        self.lblFileLocationTitle.hidden = false
+        
+        self.btnPreview.hidden = false
     }
     
     // MARK: MBProgressHUD
@@ -172,6 +206,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     
     /// Creating the QuickLook controller so the file the
     /// user selected can be displayed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2015-12-23
     func quickLookController() {
         // Presenting the QuickLook controller to the user
         // Thanks to the following sites for helping me eventually
