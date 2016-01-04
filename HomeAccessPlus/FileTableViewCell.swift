@@ -122,7 +122,7 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAFileCodeO
             
             // Image documents
-            case ".jpg", ".png", ".gif", ".bmp":
+            case ".jpg", ".png", ".gif", ".bmp", ".ico", ".svg":
                 icon = FAType.FAFileImageO
             
             // Microsoft Excel documents
