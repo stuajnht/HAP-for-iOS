@@ -214,6 +214,18 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // presents file paths
         fileLocation = fileDownloadPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
         fileLocation = fileLocation.stringByReplacingOccurrencesOfString("/", withString: "\\")
+        
+        // If the file name or folder path contain characters that need to be
+        // escaped if put into a URL, then they need to be decoded before being
+        // shown to the user, as the HAP+ API will encode them. However, we cannot
+        // just attempt to decode them as a pipe symbol "|" is used in the HAP+ API
+        // instead of a percent "%". We can safely just replace the pipe with a
+        // percent, as a pipe is not a valid character in Windows file names
+        // (See: https://msdn.microsoft.com/en-us/library/aa365247#naming_conventions )
+        // and then decode the encoded string
+        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("|", withString: "%")
+        fileLocation = fileLocation.stringByRemovingPercentEncoding!
+        
         // Adding a ":" character after the drive letter, as it is not included
         // in the HAP+ API JSON data, and the user will possibly expect it to
         // be included in the file location path, as they are used to this
