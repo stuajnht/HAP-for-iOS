@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,6 +28,17 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var btnPreview: UIButton!
+    @IBOutlet weak var stkFileProperties: UIStackView!
+    @IBOutlet weak var lblFileName: UILabel!
+    @IBOutlet weak var lblFileNameTitle: UILabel!
+    @IBOutlet weak var lblFileType: UILabel!
+    @IBOutlet weak var lblFileTypeTitle: UILabel!
+    @IBOutlet weak var lblFileSize: UILabel!
+    @IBOutlet weak var lblFileSizeTitle: UILabel!
+    @IBOutlet weak var lblFileModified: UILabel!
+    @IBOutlet weak var lblFileModifiedTitle: UILabel!
+    @IBOutlet weak var lblFileLocation: UILabel!
+    @IBOutlet weak var lblFileLocationTitle: UILabel!
     
     // Loading an instance of the HAPi
     let api = HAPi()
@@ -40,7 +51,16 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     var fileDownloadPath = ""
     
     // Holding the name of the file to use for the QuickLook controller
-     var fileName = ""
+    var fileName = ""
+    
+    // Holding the type of file the user has selected, if it is a
+    // known format, or the extension if unknown
+    var fileType = ""
+    
+    // Holding the file "details" (date modified and size), which are
+    // separated in the showFileDetails function
+    /// - seealso: showFileDetails
+    var fileDetails = ""
     
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
@@ -89,6 +109,12 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         if (fileDownloadPath != "") {
             logger.debug("Downloading file from the following location: \(fileDownloadPath)")
             detailDescriptionLabel.hidden = true
+            
+            // Displaying the file properties controls. This is located
+            // here so there is something shown once a file has been
+            // selected from the file browser table
+            self.showFileDetails()
+            
             hudShow()
             api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
                 
@@ -115,9 +141,6 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     
                     // Loading and creating the QuickLook controller
                     self.quickLookController()
-                    
-                    // Displaying the file properties controls
-                    self.btnPreview.hidden = false
                 }
             })
         }
@@ -128,11 +151,92 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // Dispose of any resources that can be recreated.
     }
     
+    /// - todo: Find out a way to delete files from the device when
+    ///         they're finished with, to save space on the device
+    ///         See: https://github.com/stuajnht/HAP-for-iOS/issues/15
+    //override func viewWillDisappear(animated: Bool) {
+        //// Preventing attempting to delete any files if
+        //// none have been downloaded yet (such as browsing through
+        //// the file structure but not selecting a file)
+        //if (fileDeviceLocation != "") {
+            //// Getting a list of the files currently in the caches
+            //// directory before any deletion attempt happens
+            //getFolderFileListing()
+            //
+            //// As the view will be disappearing, we can delete the
+            //// file that the user has downloaded
+            //// See: http://stackoverflow.com/a/27628380
+            //logger.debug("Attempting to delete the preview file located at: \(fileDeviceLocation)")
+            //let fileManager:NSFileManager = NSFileManager.defaultManager()
+            //do {
+                //try fileManager.removeItemAtPath(fileDeviceLocation)
+                //logger.debug("Successfully deleted the preview file")
+            //} catch {
+                //logger.error("Failed to delete the preview file")
+            //}
+            //
+            //// Getting a file listing again, to make sure that the
+            //// file was deleted
+            //getFolderFileListing()
+        //}
+        //
+        //super.viewWillDisappear(animated)
+    //}
+    
     // Displaying the QuickLook preview of the file when
     // the preview button is pressed, if the user pressed
     // the back button when it was displayed previously
     @IBAction func displayPreview(sender: AnyObject) {
         quickLookController()
+    }
+    
+    /// Showing the details of the currently selected file
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2015-12-23
+    func showFileDetails() {
+        lblFileName.text = fileName
+        lblFileType.text = fileType
+        
+        // Splitting the file details string into the relevant date modified
+        // and file size parts. On the master view controller, these values
+        // are seperated with 4 spaces "    " so we can use this to split them
+        // The file modification date comes first, followed by the file size
+        // See: http://stackoverflow.com/a/25818228
+        let fileDetail = fileDetails.componentsSeparatedByString("    ")
+        lblFileSize.text = fileDetail[1]
+        lblFileModified.text = fileDetail[0]
+        
+        var fileLocation = ""
+        // The HAP+ server responds with a download path that has "../Download/"
+        // at the beginning, so it shoud be removed before the file location
+        // is shown to the user. Also, the path has forward slashes, so we should
+        // replace those with backslashes, to be consistent with how Windows
+        // presents file paths
+        fileLocation = fileDownloadPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("/", withString: "\\")
+        
+        // If the file name or folder path contain characters that need to be
+        // escaped if put into a URL, then they need to be decoded before being
+        // shown to the user, as the HAP+ API will encode them. However, we cannot
+        // just attempt to decode them as a pipe symbol "|" is used in the HAP+ API
+        // instead of a percent "%". We can safely just replace the pipe with a
+        // percent, as a pipe is not a valid character in Windows file names
+        // (See: https://msdn.microsoft.com/en-us/library/aa365247#naming_conventions )
+        // and then decode the encoded string
+        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("|", withString: "%")
+        fileLocation = fileLocation.stringByRemovingPercentEncoding!
+        
+        // Adding a ":" character after the drive letter, as it is not included
+        // in the HAP+ API JSON data, and the user will possibly expect it to
+        // be included in the file location path, as they are used to this
+        // See: http://stackoverflow.com/a/32466063
+        fileLocation = String(fileLocation.characters.prefix(1)) + ":" + String(fileLocation.characters.suffix(fileLocation.characters.count - 1))
+        lblFileLocation.text = fileLocation
+        
+        stkFileProperties.hidden = false
     }
     
     // MARK: MBProgressHUD
@@ -172,6 +276,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     
     /// Creating the QuickLook controller so the file the
     /// user selected can be displayed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2015-12-23
     func quickLookController() {
         // Presenting the QuickLook controller to the user
         // Thanks to the following sites for helping me eventually
@@ -200,6 +309,33 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         formattedPath = formattedPath.stringByRemovingPercentEncoding!
         logger.debug("Formatted file location for preview: \(formattedPath)")
         return NSURL.fileURLWithPath(formattedPath)
+    }
+    
+    /// Creates a listing of the files in the caches directory
+    /// to make sure that the files are removed
+    ///
+    /// While this function is called when the view is disappearing,
+    /// it is really only of use for debugging purposes to make sure
+    /// that things are being cleared up properly
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2016-01-04
+    func getFolderFileListing() {
+        do {
+            // Getting a list of documents in the caches folder
+            // See: http://stackoverflow.com/a/24055475
+            var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+            logger.debug("Caches directories: \(cachesDirectories)")
+            // See: http://stackoverflow.com/a/33055193
+            let cachesDirectory: String = (cachesDirectories[0] as? String)!
+            logger.debug("Cache directory: \(cachesDirectory)")
+            let listOfFiles = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(cachesDirectory)
+            logger.debug("List of files in directory: \(listOfFiles)")
+        } catch {
+            logger.error("Failed to get list of files in caches directory")
+        }
     }
 
 
