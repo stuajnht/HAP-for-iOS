@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAFileCodeO
             
             // Image documents
-            case ".jpg", ".png", ".gif", ".bmp":
+            case ".jpg", ".png", ".gif", ".bmp", ".ico", ".svg":
                 icon = FAType.FAFileImageO
             
             // Microsoft Excel documents

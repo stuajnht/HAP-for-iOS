@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -372,6 +372,76 @@ class HAPi {
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(result: false, response: "")
+        }
+    }
+    
+    /// Downloads the selected file from the HAP+ server
+    ///
+    /// Once a user has selected a file that they would like
+    /// to use or view, it needs to be downloaded onto the device
+    /// so that the QuickLook controller can preview the file (if
+    /// supported) and for it to be shared to other apps
+    ///
+    /// - note: The download path to get the file from the HAP+ server
+    ///         is in the format <hapServer>/Download/Drive/Path/File.ext
+    ///         and doesn't need to have 'api' in the URL (a 404 is
+    ///         generated otherwise)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-alpha
+    /// - version: 1
+    /// - date: 2015-12-19
+    ///
+    /// - parameter fileLocation: The path to the file the user has selected
+    func downloadFile(fileLocation: String, callback:(result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Replacing the '../' navigation browsing up that the HAP+
+            // API adds to the file path, so that it removes the 'myfiles'
+            // section from the URL and replaces it with 'Download'
+            // e.g. <hapServer>/api/myfiles/H/file.txt had a path from the
+            // HAP+ server as <hapServer>/api/myfiles/../Download/H/file.txt
+            // but needs to be <hapServer>/api/Download/H/file.txt
+            logger.debug("File being downloaded raw path: \(fileLocation)")
+            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("File being downloaded formatted path: \(formattedPath)")
+            
+            // Setting the download directory to be the caches folder on the
+            // device
+            // See: https://github.com/Alamofire/Alamofire/issues/907
+            let destination = Alamofire.Request.suggestedDownloadDestination(
+                directory: .CachesDirectory,
+                domain: .UserDomainMask
+            )
+            
+            // Downloading the file
+            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
+                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                    logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
+                    callback(result: false, downloading: true, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: NSURL(fileURLWithPath: ""))
+                }
+                .response { request, response, _, error in
+                    logger.verbose("Server response: \(response)")
+                    logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
+            }
+            
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
         }
     }
 }

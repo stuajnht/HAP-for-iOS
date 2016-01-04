@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -321,6 +321,10 @@ class MasterViewController: UITableViewController {
                 
                 let fileType = fileItems[indexPath.row][2] as! String
                 let folderTitle = fileItems[indexPath.row][0] as! String
+                let filePath = fileItems[indexPath.row][1] as! String
+                let fileName = fileItems[indexPath.row][0] as! String
+                let fileExtension = fileItems[indexPath.row][3] as! String
+                let fileDetails = fileItems[indexPath.row][4] as! String
                 if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
@@ -333,11 +337,13 @@ class MasterViewController: UITableViewController {
                     // Show the detail view with the file info
                     let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
                     controller.detailItem = fileType
+                    controller.fileName = fileName
+                    controller.fileType = fileType
+                    controller.fileDetails = fileDetails
+                    controller.fileDownloadPath = filePath
+                    controller.fileExtension = fileExtension
                     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                     controller.navigationItem.leftItemsSupplementBackButton = true
-                    // Setting the title of the detail view to be the name of the document selected
-                    // See: http://stackoverflow.com/a/14959502
-                    controller.navigationController!.navigationBar.topItem!.title = folderTitle
                 }
             }
         }

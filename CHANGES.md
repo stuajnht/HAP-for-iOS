@@ -1,5 +1,12 @@
 # Home Access Plus+ iOS app change log
 
+## 0.4.0
+
+### New Stuff
+* Selected file is downloaded onto the device
+* Supported files are displayed by QuickLook, so that they can be viewed and shared to other apps
+* Files downloaded are removed from the device once the preview has been finished with
+
 ## 0.3.0
 
 ### New Stuff
