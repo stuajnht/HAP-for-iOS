@@ -148,6 +148,30 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // Dispose of any resources that can be recreated.
     }
     
+    override func viewWillDisappear(animated: Bool) {
+        // Getting a list of the files currently in the caches
+        // directory before any deletion attempt happens
+        getFolderFileListing()
+        
+        // As the view will be disappearing, we can delete the
+        // file that the user has downloaded
+        // See: http://stackoverflow.com/a/27628380
+        logger.debug("Attempting to delete the preview file")
+        let fileManager:NSFileManager = NSFileManager.defaultManager()
+        do {
+            try fileManager.removeItemAtPath(fileDeviceLocation)
+            logger.debug("Successfully deleted the preview file")
+        } catch {
+            logger.error("Failed to delete the preview file")
+        }
+        
+        // Getting a file listing again, to make sure that the
+        // file was deleted
+        getFolderFileListing()
+        
+        super.viewWillDisappear(animated)
+    }
+    
     // Displaying the QuickLook preview of the file when
     // the preview button is pressed, if the user pressed
     // the back button when it was displayed previously
@@ -262,6 +286,33 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         formattedPath = formattedPath.stringByRemovingPercentEncoding!
         logger.debug("Formatted file location for preview: \(formattedPath)")
         return NSURL.fileURLWithPath(formattedPath)
+    }
+    
+    /// Creates a listing of the files in the caches directory
+    /// to make sure that the files are removed
+    ///
+    /// While this function is called when the view is disappearing,
+    /// it is really only of use for debugging purposes to make sure
+    /// that things are being cleared up properly
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2016-01-04
+    func getFolderFileListing() {
+        do {
+            // Getting a list of documents in the caches folder
+            // See: http://stackoverflow.com/a/24055475
+            var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+            logger.debug("Caches directories: \(cachesDirectories)")
+            // See: http://stackoverflow.com/a/33055193
+            let cachesDirectory: String = (cachesDirectories[0] as? String)!
+            logger.debug("Cache directory: \(cachesDirectory)")
+            let listOfFiles = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(cachesDirectory)
+            logger.debug("List of files in directory: \(listOfFiles)")
+        } catch {
+            logger.error("Failed to get list of files in caches directory")
+        }
     }
 
 
