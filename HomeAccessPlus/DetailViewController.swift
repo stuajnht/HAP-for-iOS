@@ -149,25 +149,30 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     override func viewWillDisappear(animated: Bool) {
-        // Getting a list of the files currently in the caches
-        // directory before any deletion attempt happens
-        getFolderFileListing()
-        
-        // As the view will be disappearing, we can delete the
-        // file that the user has downloaded
-        // See: http://stackoverflow.com/a/27628380
-        logger.debug("Attempting to delete the preview file")
-        let fileManager:NSFileManager = NSFileManager.defaultManager()
-        do {
-            try fileManager.removeItemAtPath(fileDeviceLocation)
-            logger.debug("Successfully deleted the preview file")
-        } catch {
-            logger.error("Failed to delete the preview file")
+        // Preventing attempting to delete any files if
+        // none have been downloaded yet (such as browsing through
+        // the file structure but not selecting a file)
+        if (fileDeviceLocation != "") {
+            // Getting a list of the files currently in the caches
+            // directory before any deletion attempt happens
+            getFolderFileListing()
+            
+            // As the view will be disappearing, we can delete the
+            // file that the user has downloaded
+            // See: http://stackoverflow.com/a/27628380
+            logger.debug("Attempting to delete the preview file")
+            let fileManager:NSFileManager = NSFileManager.defaultManager()
+            do {
+                try fileManager.removeItemAtPath(fileDeviceLocation)
+                logger.debug("Successfully deleted the preview file")
+            } catch {
+                logger.error("Failed to delete the preview file")
+            }
+            
+            // Getting a file listing again, to make sure that the
+            // file was deleted
+            getFolderFileListing()
         }
-        
-        // Getting a file listing again, to make sure that the
-        // file was deleted
-        getFolderFileListing()
         
         super.viewWillDisappear(animated)
     }
