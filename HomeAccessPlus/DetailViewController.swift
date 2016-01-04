@@ -155,7 +155,15 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     func showFileDetails() {
         lblFileName.text = fileName
         
-        lblFileLocation.text = fileDownloadPath
+        var fileLocation = ""
+        // The HAP+ server responds with a download path that has "../Download/"
+        // at the beginning, so it shoud be removed before the file location
+        // is shown to the user. Also, the path has forward slashes, so we should
+        // replace those with backslashes, to be consistent with how Windows
+        // presents file paths
+        fileLocation = fileDownloadPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("/", withString: "\\")
+        lblFileLocation.text = fileLocation
         
         stkFileProperties.hidden = false
     }
