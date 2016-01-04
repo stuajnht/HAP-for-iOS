@@ -163,6 +163,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // presents file paths
         fileLocation = fileDownloadPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
         fileLocation = fileLocation.stringByReplacingOccurrencesOfString("/", withString: "\\")
+        // Adding a ":" character after the drive letter, as it is not included
+        // in the HAP+ API JSON data, and the user will possibly expect it to
+        // be included in the file location path, as they are used to this
+        // See: http://stackoverflow.com/a/32466063
+        fileLocation = String(fileLocation.characters.prefix(1)) + ":" + String(fileLocation.characters.suffix(fileLocation.characters.count - 1))
         lblFileLocation.text = fileLocation
         
         stkFileProperties.hidden = false
