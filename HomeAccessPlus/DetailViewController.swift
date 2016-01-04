@@ -109,6 +109,12 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         if (fileDownloadPath != "") {
             logger.debug("Downloading file from the following location: \(fileDownloadPath)")
             detailDescriptionLabel.hidden = true
+            
+            // Displaying the file properties controls. This is located
+            // here so there is something shown once a file has been
+            // selected from the file browser table
+            self.showFileDetails()
+            
             hudShow()
             api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
                 
@@ -135,9 +141,6 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     
                     // Loading and creating the QuickLook controller
                     self.quickLookController()
-                    
-                    // Displaying the file properties controls
-                    self.showFileDetails()
                 }
             })
         }
