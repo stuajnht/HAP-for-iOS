@@ -174,8 +174,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     do {
                         // Checking to see if the file currently being
                         // deleted is the one the user is looking at
-                        if (localFilePath == formatLocalFilePath()) {
-                            logger.debug("Skipping deleting file as it is currently being previewed")
+                        // Also preventing attempts to delete the 'snapshots'
+                        // file as deleting it is not a premitted operation
+                        if ((localFilePath == formatLocalFilePath()) || (fileName == "Snapshots")) {
+                            logger.debug("Skipping deleting file: \(localFilePath)")
                         } else {
                             try NSFileManager.defaultManager().removeItemAtPath("\(localFilePath)")
                             logger.debug("Successfully deleted file: \(localFilePath)")
