@@ -324,6 +324,7 @@ class MasterViewController: UITableViewController {
                 let filePath = fileItems[indexPath.row][1] as! String
                 let fileName = fileItems[indexPath.row][0] as! String
                 let fileExtension = fileItems[indexPath.row][3] as! String
+                let fileDetails = fileItems[indexPath.row][4] as! String
                 if (!isFile(fileType)) {
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
@@ -338,6 +339,7 @@ class MasterViewController: UITableViewController {
                     controller.detailItem = fileType
                     controller.fileName = fileName
                     controller.fileType = fileType
+                    controller.fileDetails = fileDetails
                     controller.fileDownloadPath = filePath
                     controller.fileExtension = fileExtension
                     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()

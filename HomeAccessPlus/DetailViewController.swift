@@ -57,6 +57,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // known format, or the extension if unknown
     var fileType = ""
     
+    // Holding the file "details" (date modified and size), which are
+    // separated in the showFileDetails function
+    /// - seealso: showFileDetails
+    var fileDetails = ""
+    
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
     var fileExtension = ""
@@ -159,6 +164,15 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     func showFileDetails() {
         lblFileName.text = fileName
         lblFileType.text = fileType
+        
+        // Splitting the file details string into the relevant date modified
+        // and file size parts. On the master view controller, these values
+        // are seperated with 4 spaces "    " so we can use this to split them
+        // The file modification date comes first, followed by the file size
+        // See: http://stackoverflow.com/a/25818228
+        let fileDetail = fileDetails.componentsSeparatedByString("    ")
+        lblFileSize.text = fileDetail[1]
+        lblFileModified.text = fileDetail[0]
         
         var fileLocation = ""
         // The HAP+ server responds with a download path that has "../Download/"
