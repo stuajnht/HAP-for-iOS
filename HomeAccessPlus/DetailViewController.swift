@@ -169,10 +169,17 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // See: http://stackoverflow.com/a/32744011
             if let enumerator = NSFileManager.defaultManager().enumeratorAtPath(cacheDirectoryPath) {
                 while let fileName = enumerator.nextObject() as? String {
-                    logger.debug("Attempting to delete the file: \(cacheDirectoryPath)/\(fileName)")
+                    let localFilePath = cacheDirectoryPath + "/" + fileName
+                    logger.debug("Attempting to delete the file: \(localFilePath)")
                     do {
-                        try NSFileManager.defaultManager().removeItemAtPath("\(cacheDirectoryPath)/\(fileName)")
-                        logger.debug("Successfully deleted file")
+                        // Checking to see if the file currently being
+                        // deleted is the one the user is looking at
+                        if (localFilePath == formatLocalFilePath()) {
+                            logger.debug("Skipping deleting file as it is currently being previewed")
+                        } else {
+                            try NSFileManager.defaultManager().removeItemAtPath("\(localFilePath)")
+                            logger.debug("Successfully deleted file: \(localFilePath)")
+                        }
                     }
                     catch let errorMessage as NSError {
                         logger.error("There was a problem deleting the file. Error: \(errorMessage)")
@@ -308,15 +315,28 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
+        return NSURL.fileURLWithPath(formatLocalFilePath())
+    }
+    
+    /// Formats the path to the downloaded file from the path
+    /// that is returned when the file has been downloaded
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.4.0-beta
+    /// - version: 1
+    /// - date: 2016-01-04
+    ///
+    /// - returns: A formatted path to the local copy of the downloaded file
+    func formatLocalFilePath() -> String {
         // Returning the full path to the downloaded file
-        // after removing the 'file:/' from the beginning
-        var formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file:/", withString: "")
+        // after removing the 'file://' from the beginning
+        var formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file://", withString: "")
         // Decoding any URL encoded characters, as the saved file
         // doesn't contain them, so it won't be found by QuickLook
         // See: http://stackoverflow.com/a/28310899
         formattedPath = formattedPath.stringByRemovingPercentEncoding!
-        logger.debug("Formatted file location for preview: \(formattedPath)")
-        return NSURL.fileURLWithPath(formattedPath)
+        logger.verbose("Formatted file location for preview: \(formattedPath)")
+        return formattedPath
     }
     
     /// Creates a listing of the files in the caches directory
@@ -337,14 +357,14 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // Getting a list of documents in the caches folder
             // See: http://stackoverflow.com/a/24055475
             var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
-            logger.debug("Caches directories: \(cachesDirectories)")
+            logger.verbose("Caches directories: \(cachesDirectories)")
             
             // See: http://stackoverflow.com/a/33055193
             let cachesDirectory: String = (cachesDirectories[0] as? String)!
-            logger.debug("Cache directory: \(cachesDirectory)")
+            logger.verbose("Cache directory: \(cachesDirectory)")
             
             let listOfFiles = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(cachesDirectory)
-            logger.debug("List of files in directory: \(listOfFiles)")
+            logger.verbose("List of files in directory: \(listOfFiles)")
             
             // Returning the path to the caches directory
             return cachesDirectory
