@@ -337,6 +337,7 @@ class MasterViewController: UITableViewController {
                     let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
                     controller.detailItem = fileType
                     controller.fileName = fileName
+                    controller.fileType = fileType
                     controller.fileDownloadPath = filePath
                     controller.fileExtension = fileExtension
                     controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()

@@ -51,7 +51,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     var fileDownloadPath = ""
     
     // Holding the name of the file to use for the QuickLook controller
-     var fileName = ""
+    var fileName = ""
+    
+    // Holding the type of file the user has selected, if it is a
+    // known format, or the extension if unknown
+    var fileType = ""
     
     // Saving the extention of the file that is being downloaded
     // so that the QuickLook preview knows what to show
@@ -154,6 +158,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     /// - date: 2015-12-23
     func showFileDetails() {
         lblFileName.text = fileName
+        lblFileType.text = fileType
         
         var fileLocation = ""
         // The HAP+ server responds with a download path that has "../Download/"
