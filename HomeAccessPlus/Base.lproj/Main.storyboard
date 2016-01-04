@@ -36,7 +36,7 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZvH-q5-HkS">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" distribution="fillEqually" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="k3G-PJ-fG2">
+                                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" distribution="fillEqually" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="k3G-PJ-fG2">
                                         <rect key="frame" x="20" y="79" width="127" height="390"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gvc-kx-E59">
@@ -175,6 +175,7 @@
                         <outlet property="lblFileSizeTitle" destination="yhL-Xn-Rw9" id="ydH-Gb-uZQ"/>
                         <outlet property="lblFileType" destination="2Oy-U6-Htg" id="mag-eK-K1M"/>
                         <outlet property="lblFileTypeTitle" destination="pyb-ig-wAN" id="RlU-de-GSs"/>
+                        <outlet property="stkFileProperties" destination="k3G-PJ-fG2" id="Knr-zQ-wyd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FJe-Yq-33r" sceneMemberID="firstResponder"/>

@@ -28,6 +28,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var btnPreview: UIButton!
+    @IBOutlet weak var stkFileProperties: UIStackView!
     @IBOutlet weak var lblFileName: UILabel!
     @IBOutlet weak var lblFileNameTitle: UILabel!
     @IBOutlet weak var lblFileType: UILabel!
@@ -152,21 +153,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     /// - version: 1
     /// - date: 2015-12-23
     func showFileDetails() {
-        self.lblFileName.text = self.fileName
-        self.lblFileName.hidden = false
-        self.lblFileNameTitle.hidden = false
+        lblFileName.text = fileName
         
-        self.lblFileTypeTitle.hidden = false
+        lblFileLocation.text = fileDownloadPath
         
-        self.lblFileSizeTitle.hidden = false
-        
-        self.lblFileModifiedTitle.hidden = false
-        
-        self.lblFileLocation.text = self.fileDownloadPath
-        self.lblFileLocation.hidden = false
-        self.lblFileLocationTitle.hidden = false
-        
-        self.btnPreview.hidden = false
+        stkFileProperties.hidden = false
     }
     
     // MARK: MBProgressHUD
