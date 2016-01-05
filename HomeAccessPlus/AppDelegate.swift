@@ -80,6 +80,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+        // Called when an extrnal app sends a file to this app so that it can be uploaded to the HAP+ server
+        // See: https://dzone.com/articles/ios-file-association-preview
+        // See: http://www.infragistics.com/community/blogs/stevez/archive/2013/03/15/ios-tips-and-tricks-associate-a-file-type-with-your-app-part-3.aspx
+        logger.debug("App invoked with OpenURL by: \(sourceApplication)")
+        logger.debug("File passed from external app located at: \(url)")
+        return true
+    }
 
     // MARK: - Split view
 
