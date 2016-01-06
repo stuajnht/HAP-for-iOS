@@ -321,6 +321,17 @@ class MasterViewController: UITableViewController {
                 self.hudHide()
                 logger.debug("File has been uploaded to: \(self.currentPath)")
                 
+                // Hiding the 'add' button as it's not needed anymore in
+                // the current active view (but the user hasn't navigated
+                // anywhere else yet)
+                // See: http://stackoverflow.com/a/33390646
+                self.navigationItem.rightBarButtonItem?.customView?.hidden = true
+                
+                // Setting the "settingsUploadFileLocation" value to be nil
+                // so that when the user browses to another view the 'add'
+                // button is not shown
+                settings.setURL(nil, forKey: settingsUploadFileLocation)
+                
                 // Refreshing the file browser table
                 self.loadFileBrowser()
             }
