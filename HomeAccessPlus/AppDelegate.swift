@@ -43,6 +43,7 @@ let settingsToken2 = "token2"
 let settingsToken2Name = "token2Name"
 let settingsDeviceType = "deviceType"
 let settingsUserRoles = "userRoles"
+let settingsUploadFileLocation = "uploadFileLocation"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -87,6 +88,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // See: http://www.infragistics.com/community/blogs/stevez/archive/2013/03/15/ios-tips-and-tricks-associate-a-file-type-with-your-app-part-3.aspx
         logger.debug("App invoked with OpenURL by: \(sourceApplication)")
         logger.debug("File passed from external app located at: \(url)")
+        
+        // Saving the location of the file on the device so that it
+        // can be accessed later to upload to the HAP+ server
+        settings.setURL(url, forKey: settingsUploadFileLocation)
+        
         return true
     }
 

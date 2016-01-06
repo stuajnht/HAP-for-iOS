@@ -444,4 +444,76 @@ class HAPi {
             callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
         }
     }
+    
+    /// Uploads the selected file to the HAP+ server
+    ///
+    /// Once a user has browsed to the folder that they would like to
+    /// upload a file they have exported from an extrnal app, it can
+    /// be uploaded to the HAP+ server, so that it can be browsed from
+    /// other network devices that have access to the share / folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-05
+    ///
+    /// - parameter deviceFileLocation: The path to the file on the device (normally
+    ///                                 stored in a folder called "inbox" which can
+    ///                                 be found in the documents directory)
+    /// - parameter serverFileLocation: The location on the HAP+ server that the file
+    ///                                 is going to be uploaded to
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Getting the name of the file that is being uploaded from the
+            // location of the file on the device, which is needed when settings
+            // the httpHeaders
+            logger.debug("Location of file on device: \(deviceFileLocation)")
+            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+            
+            // Forcing an unwrap of the value, otherwise the file name
+            // is Optional("<nale>") which causes the HAP+ server to
+            // do a 500 HTTP error
+            // See: http://stackoverflow.com/a/25848016
+            var fileName = pathArray.last!
+            // Removing any encoded characters from the file name, so
+            // HAP+ saves the file with the correct file name
+            fileName = fileName.stringByRemovingPercentEncoding!
+            logger.debug("Name of file being uploaded: \(fileName)")
+            
+            // Setting the tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request, and creating a
+            // custom header so that the HAP+ server knows the name of the file
+            // (assuming here, as it's based on what is currently used in the
+            // Windows app, inside the "private async void upload()" function
+            // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
+            let httpHeaders = [
+                "X_FILENAME": fileName,
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Formatting the path that we are going to be using to upload
+            // to, so that it is a valid URL, and also swapping the backslashes '\'
+            // from the string passed with slashes '/'
+            logger.debug("Upload location raw path: \(serverFileLocation)")
+            var uploadLocation = serverFileLocation.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            uploadLocation = uploadLocation.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("Upload location formatted path: \(uploadLocation)")
+            
+            // Uploading the file
+            Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
+                .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
+                    logger.debug("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
+                    logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
+                    callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
+                }
+                .response { request, response, _, error in
+                    logger.verbose("Server response: \(response)")
+                    callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, uploading: false, uploadedBytes: 0, totalBytes: 0)
+        }
+    }
 }

@@ -72,6 +72,14 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
         
+        // Adding an 'add' button to the navigation bar to allow files
+        // passed to this app from an external one to be uploaded
+        if ((settings.stringForKey(settingsUploadFileLocation) != nil) && (currentPath != "")) {
+            logger.debug("Showing the upload 'add' button")
+            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "uploadFile")
+            self.navigationItem.rightBarButtonItem = addButton
+        }
+        
         // Setting up the ability to refresh the table view when the
         // user is at the top and pulls down, or if there was a problem
         // loading the folder and they want to try again
@@ -277,6 +285,63 @@ class MasterViewController: UITableViewController {
         self.fileItems.append(currentItem)
     }
     
+    /// Uploads the file from an external app to the HAP+ server,
+    /// in the current browsed to folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-06
+    func uploadFile() {
+        logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+        hudUploadingShow()
+        
+        // Attempting to upload the file that has been passed
+        // to the app
+        api.uploadFile(settings.URLForKey(settingsUploadFileLocation)!, serverFileLocation: currentPath, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+            
+            // There was a problem with uploading the file, so let the
+            // user know about it
+            if ((result == false) && (uploading == false)) {
+                let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(uploadFailController, animated: true, completion: nil)
+            }
+            
+            // Seeing if the progress bar should update with the amount
+            // currently uploaded, if something is uploading
+            if ((result == false) && (uploading == true)) {
+                self.hudUpdatePercentage(uploadedBytes, totalBytes: totalBytes)
+            }
+            
+            // The file has uploaded successfuly so we can present the
+            // refresh the current folder to show it, and delete the
+            // local copy of the file from the device
+            if ((result == true) && (uploading == false)) {
+                self.hudHide()
+                logger.debug("File has been uploaded to: \(self.currentPath)")
+                
+                // Hiding the 'add' button as it's not needed anymore in
+                // the current active view (but the user hasn't navigated
+                // anywhere else yet)
+                //
+                // Note: This may be removed in the future, as there needs to
+                //       be a permanent way for users to add in-app files & folders
+                //
+                // See: http://iostechsolutions.blogspot.co.uk/2014/11/swift-add-custom-left-bar-button-item.html
+                self.navigationItem.rightBarButtonItem = nil
+                
+                // Setting the "settingsUploadFileLocation" value to be nil
+                // so that when the user browses to another view the 'add'
+                // button is not shown
+                settings.setURL(nil, forKey: settingsUploadFileLocation)
+                
+                // Refreshing the file browser table
+                self.loadFileBrowser()
+            }
+        })
+    }
+    
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
@@ -302,6 +367,34 @@ class MasterViewController: UITableViewController {
     /// - parameter labelText: The text that should be shown for the HUD label
     func hudUpdateLabel(labelText: String) {
         hud.detailsLabelText = labelText
+    }
+    
+    // The following functions look after showing the HUD during the download
+    // progress so that the user knows that something is happening.
+    // See: http://stackoverflow.com/a/26901328
+    func hudUploadingShow() {
+        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
+        hud.detailsLabelText = "Uploading..."
+        // See: http://stackoverflow.com/a/26882235
+        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+    }
+    
+    /// Updating the progress bar that is shown in the HUD, so the user
+    /// knows how far along the download is
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-06
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter currentDownloadedBytes: The amount in bytes that has been uploaded
+    /// - parameter totalBytes: The total amount of bytes that is to be uploaded
+    func hudUpdatePercentage(currentUploadedBytes: Int64, totalBytes: Int64) {
+        let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
+        logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
+        hud.progress = currentPercentage
     }
     
     func hudHide() {
