@@ -501,11 +501,11 @@ class HAPi {
             Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
                 .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
                     logger.debug("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
-                    logger.debug("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
+                    logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
                     callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
                 }
                 .response { request, response, _, error in
-                    logger.debug("Server response: \(response)")
+                    logger.verbose("Server response: \(response)")
                     callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
             }
         } else {

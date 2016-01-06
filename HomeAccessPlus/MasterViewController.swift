@@ -389,7 +389,7 @@ class MasterViewController: UITableViewController {
     /// - parameter totalBytes: The total amount of bytes that is to be uploaded
     func hudUpdatePercentage(currentUploadedBytes: Int64, totalBytes: Int64) {
         let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
-        logger.debug("Current uploaded percentage: \(currentPercentage * 100)%")
+        logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
         hud.progress = currentPercentage
     }
     
