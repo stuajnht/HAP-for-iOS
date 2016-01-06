@@ -470,7 +470,12 @@ class HAPi {
             // the httpHeaders
             logger.debug("Location of file on device: \(deviceFileLocation)")
             let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
-            let fileName = pathArray.last
+            
+            // Forcing an unwrap of the value, otherwise the file name
+            // is Optional("<nale>") which causes the HAP+ server to
+            // do a 500 HTTP error
+            // See: http://stackoverflow.com/a/25848016
+            let fileName = pathArray.last!
             logger.debug("Name of file being uploaded: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
@@ -480,7 +485,7 @@ class HAPi {
             // Windows app, inside the "private async void upload()" function
             // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
             let httpHeaders = [
-                "X_FILENAME": String(fileName),
+                "X_FILENAME": fileName,
                 "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
             ]
             
