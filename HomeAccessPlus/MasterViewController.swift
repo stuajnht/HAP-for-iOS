@@ -74,7 +74,7 @@ class MasterViewController: UITableViewController {
         
         // Adding an 'add' button to the navigation bar to allow files
         // passed to this app from an external one to be uploaded
-        if (settings.stringForKey(settingsUploadFileLocation) != nil) {
+        if ((settings.stringForKey(settingsUploadFileLocation) != nil) && (currentPath != "")) {
             logger.debug("Showing the upload 'add' button")
             let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "uploadFile")
             self.navigationItem.rightBarButtonItem = addButton
