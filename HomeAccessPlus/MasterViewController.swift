@@ -76,7 +76,7 @@ class MasterViewController: UITableViewController {
         // passed to this app from an external one to be uploaded
         if ((settings.stringForKey(settingsUploadFileLocation) != nil) && (currentPath != "")) {
             logger.debug("Showing the upload 'add' button")
-            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover")
+            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
             self.navigationItem.rightBarButtonItem = addButton
         }
         
@@ -501,7 +501,7 @@ class MasterViewController: UITableViewController {
     }
     
     // MARK: Upload popover
-    func showUploadPopover() {
+    func showUploadPopover(sender: UIBarButtonItem) {
         // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-21-alerts-and-popovers
         // See: http://www.edumobile.org/ios/creating-grouped-table-views-in-swift/
         // See: http://useyourloaf.com/blog/static-table-views-with-storyboards.html
@@ -512,6 +512,8 @@ class MasterViewController: UITableViewController {
         let popoverController = popoverVC.popoverPresentationController
         //popoverController.sourceView = sender
         //popoverController.sourceRect = sender.bounds
+        // See: http://www.appcoda.com/presentation-controllers-tutorial/
+        popoverController!.barButtonItem = sender
         popoverController!.permittedArrowDirections = .Any
     }
 
