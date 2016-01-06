@@ -358,7 +358,7 @@ class MasterViewController: UITableViewController {
     // progress so that the user knows that something is happening.
     // See: http://stackoverflow.com/a/26901328
     func hudUploadingShow() {
-        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
         hud.detailsLabelText = "Uploading..."
         // See: http://stackoverflow.com/a/26882235
         hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
