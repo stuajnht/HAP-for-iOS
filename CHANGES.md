@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 0.5.0
+
+### New Stuff
+* Upload files from other apps to a folder on the HAP+ server
+
 ## 0.4.0
 
 ### New Stuff
