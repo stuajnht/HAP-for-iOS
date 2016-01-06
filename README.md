@@ -45,9 +45,10 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 ### 0.6.0
 * Create new folders
 * Delete files / folders
+* Over-write files that already exist, if the user confirms they want to (requires original file to be deleted first, then new file uploaded)
 
 ### 0.7.0
-* Auto re-login for devices that are in 'shared' or 'single' mode
+* Auto re-login for devices that are in 'personal' or 'single' mode
 * A settings menu of some sort (either in-app or the main settings app)
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
