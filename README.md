@@ -43,11 +43,11 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * Prevent auto-downloading files that are over a certain size
 
 ### 0.6.0
+* Create new folders
+* Delete files / folders
+
+### 0.7.0
 * Auto re-login for devices that are in 'shared' or 'single' mode
 * A settings menu of some sort (either in-app or the main settings app)
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
-
-### 0.7.0
-* Create new folders
-* Delete files / folders
