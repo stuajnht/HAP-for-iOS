@@ -324,8 +324,12 @@ class MasterViewController: UITableViewController {
                 // Hiding the 'add' button as it's not needed anymore in
                 // the current active view (but the user hasn't navigated
                 // anywhere else yet)
-                // See: http://stackoverflow.com/a/33390646
-                self.navigationItem.rightBarButtonItem?.customView?.hidden = true
+                //
+                // Note: This may be removed in the future, as there needs to
+                //       be a permanent way for users to add in-app files & folders
+                //
+                // See: http://iostechsolutions.blogspot.co.uk/2014/11/swift-add-custom-left-bar-button-item.html
+                self.navigationItem.rightBarButtonItem = nil
                 
                 // Setting the "settingsUploadFileLocation" value to be nil
                 // so that when the user browses to another view the 'add'
