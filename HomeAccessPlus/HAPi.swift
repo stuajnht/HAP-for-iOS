@@ -475,7 +475,10 @@ class HAPi {
             // is Optional("<nale>") which causes the HAP+ server to
             // do a 500 HTTP error
             // See: http://stackoverflow.com/a/25848016
-            let fileName = pathArray.last!
+            var fileName = pathArray.last!
+            // Removing any encoded characters from the file name, so
+            // HAP+ saves the file with the correct file name
+            fileName = fileName.stringByRemovingPercentEncoding!
             logger.debug("Name of file being uploaded: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
