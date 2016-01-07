@@ -94,6 +94,10 @@ class UploadPopoverTableViewController: UITableViewController {
         // The user has selected to upload the file from the app
         if ((section == 0) && (row == 1)) {
             logger.debug("Cell function: Uploading file from app")
+            
+            // Dismissing the popover as it's done what is needed
+            // See: http://stackoverflow.com/a/32521647
+            self.dismissViewControllerAnimated(true, completion: nil)
         }
     }
     
