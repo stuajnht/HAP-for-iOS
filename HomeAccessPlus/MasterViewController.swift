@@ -540,6 +540,10 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
         let btnDone = UIBarButtonItem(title: "Done", style: .Done, target: self, action: "dismiss")
         navigationController.topViewController!.navigationItem.rightBarButtonItem = btnDone
+        // Setting the navigation bar colour
+        navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        navigationController.topViewController!.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
+        navigationController.topViewController!.navigationController!.navigationBar.translucent = false
         return navigationController
     }
     
