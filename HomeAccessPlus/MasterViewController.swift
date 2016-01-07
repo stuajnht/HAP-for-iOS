@@ -507,6 +507,8 @@ class MasterViewController: UITableViewController {
         // See: http://useyourloaf.com/blog/static-table-views-with-storyboards.html
         let popoverVC = (storyboard?.instantiateViewControllerWithIdentifier("fileUploadPopover"))! as UIViewController
         popoverVC.modalPresentationStyle = .Popover
+        // See: http://stackoverflow.com/a/28158165
+        popoverVC.preferredContentSize = CGSize(width: 320, height: 320)
         presentViewController(popoverVC, animated: true, completion: nil)
         
         let popoverController = popoverVC.popoverPresentationController
