@@ -21,9 +21,30 @@
 
 import UIKit
 
+/// Delegate callback to master view controller to upload the
+/// file passed to this app
+///
+/// Using delegate callbacks to allow the file to be uploaded
+/// based on the user pressing the 'upload file' cell
+/// See: http://stackoverflow.com/a/29399294
+/// See: http://stackoverflow.com/a/30596358
+///
+/// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+/// - since: 0.5.0-beta
+/// - version: 1
+/// - date: 2016-01-07
+protocol uploadFileDelegate {
+    // This calls the uploadFile function in the master view
+    // controller
+    func uploadFile()
+}
+
 class UploadPopoverTableViewController: UITableViewController {
 
     @IBOutlet weak var lblUploadFile: UILabel!
+    
+    // Creating a reference to the upload file delegate
+    var delegate: uploadFileDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,6 +115,9 @@ class UploadPopoverTableViewController: UITableViewController {
         // The user has selected to upload the file from the app
         if ((section == 0) && (row == 1)) {
             logger.debug("Cell function: Uploading file from app")
+            
+            // Calling the upload file delegate to upload the file
+            delegate?.uploadFile()
             
             // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
