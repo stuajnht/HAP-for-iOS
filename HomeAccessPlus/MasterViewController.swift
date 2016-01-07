@@ -73,8 +73,11 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.translucent = false
         
         // Adding an 'add' button to the navigation bar to allow files
-        // passed to this app from an external one to be uploaded
-        if ((settings.stringForKey(settingsUploadFileLocation) != nil) && (currentPath != "")) {
+        // passed to this app from an external one to be uploaded, or
+        // for photo and video files to be added from the device gallery
+        // Note: This isn't shown if there is no path, i.e. we are looking
+        // at the drives listing
+        if (currentPath != "") {
             logger.debug("Showing the upload 'add' button")
             let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
             self.navigationItem.rightBarButtonItem = addButton
