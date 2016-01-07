@@ -38,7 +38,7 @@ class UploadPopoverTableViewController: UITableViewController {
         // file passed to the app, if any
         if (settings.stringForKey(settingsUploadFileLocation) != nil) {
             lblUploadFile.enabled = true
-            lblUploadFile.text = "Upload " + settings.stringForKey(settingsUploadFileLocation)!
+            lblUploadFile.text = "Upload \"" + getFileName() + "\""
         } else {
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
@@ -60,6 +60,32 @@ class UploadPopoverTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return 2
+    }
+    
+    /// Gets the file name from the location on the device of the file
+    ///
+    /// Gets the name of the file that has been passed to this app from
+    /// another external one, so that it can be shown to the user
+    ///
+    /// - note: This function is a simplified and less commented one as
+    ///         from the HAPi file -> uploadFile function
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-07
+    ///
+    /// - returns: The file name of the file on the device
+    func getFileName() -> String {
+        // Getting the name of the file that is being uploaded from the
+        // location of the file on the device
+        let pathArray = settings.stringForKey(settingsUploadFileLocation)!.componentsSeparatedByString("/")
+        var fileName = pathArray.last!
+        
+        // Removing any encoded characters from the file name
+        fileName = fileName.stringByRemovingPercentEncoding!
+        
+        return fileName
     }
 
     /*
