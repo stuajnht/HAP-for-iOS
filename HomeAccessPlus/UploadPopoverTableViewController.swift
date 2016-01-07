@@ -23,6 +23,8 @@ import UIKit
 
 class UploadPopoverTableViewController: UITableViewController {
 
+    @IBOutlet weak var lblUploadFile: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -31,6 +33,16 @@ class UploadPopoverTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        
+        // Setting the upload file label to display the name of the
+        // file passed to the app, if any
+        if (settings.stringForKey(settingsUploadFileLocation) != nil) {
+            lblUploadFile.enabled = true
+            lblUploadFile.text = "Upload " + settings.stringForKey(settingsUploadFileLocation)!
+        } else {
+            lblUploadFile.enabled = false
+            lblUploadFile.text = "Upload file"
+        }
     }
 
     override func didReceiveMemoryWarning() {

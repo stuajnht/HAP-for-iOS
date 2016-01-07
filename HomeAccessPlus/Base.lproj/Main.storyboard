@@ -453,6 +453,9 @@
                             <outlet property="delegate" destination="n4T-68-Xq7" id="sLr-yS-H7F"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="lblUploadFile" destination="8N2-V2-RSt" id="fKV-ud-ZP4"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4qV-7V-say" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
