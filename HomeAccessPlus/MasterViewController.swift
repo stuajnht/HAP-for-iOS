@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController {
+class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -505,21 +505,46 @@ class MasterViewController: UITableViewController {
     
     // MARK: Upload popover
     func showUploadPopover(sender: UIBarButtonItem) {
-        // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-21-alerts-and-popovers
-        // See: http://www.edumobile.org/ios/creating-grouped-table-views-in-swift/
-        // See: http://useyourloaf.com/blog/static-table-views-with-storyboards.html
-        let popoverVC = (storyboard?.instantiateViewControllerWithIdentifier("fileUploadPopover"))! as UIViewController
-        popoverVC.modalPresentationStyle = .Popover
-        // See: http://stackoverflow.com/a/28158165
-        popoverVC.preferredContentSize = CGSize(width: 320, height: 320)
-        presentViewController(popoverVC, animated: true, completion: nil)
+        //// See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-21-alerts-and-popovers
+        //// See: http://www.edumobile.org/ios/creating-grouped-table-views-in-swift/
+        //// See: http://useyourloaf.com/blog/static-table-views-with-storyboards.html
+        //let popoverVC = (storyboard?.instantiateViewControllerWithIdentifier("fileUploadPopover"))! as UIViewController
+        //popoverVC.modalPresentationStyle = .Popover
+        //// See: http://stackoverflow.com/a/28158165
+        //popoverVC.preferredContentSize = CGSize(width: 320, height: 320)
+        //presentViewController(popoverVC, animated: true, completion: nil)
         
-        let popoverController = popoverVC.popoverPresentationController
-        //popoverController.sourceView = sender
-        //popoverController.sourceRect = sender.bounds
+        //let popoverController = popoverVC.popoverPresentationController
+        ////popoverController.sourceView = sender
+        ////popoverController.sourceRect = sender.bounds
+        //// See: http://www.appcoda.com/presentation-controllers-tutorial/
+        //popoverController!.barButtonItem = sender
+        //popoverController!.permittedArrowDirections = .Any
+        
         // See: http://www.appcoda.com/presentation-controllers-tutorial/
-        popoverController!.barButtonItem = sender
-        popoverController!.permittedArrowDirections = .Any
+        let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover")
+        vc.modalPresentationStyle = UIModalPresentationStyle.Popover
+        vc.preferredContentSize = CGSize(width: 320, height: 320)
+        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+        popover.barButtonItem = sender
+        popover.delegate = self
+        presentViewController(vc, animated: true, completion:nil)
+    }
+    
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.FullScreen
+    }
+    
+    func presentationController(controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
+        let btnDone = UIBarButtonItem(title: "Done", style: .Done, target: self, action: "dismiss")
+        navigationController.topViewController!.navigationItem.rightBarButtonItem = btnDone
+        return navigationController
+    }
+    
+    func dismiss() {
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
 
 
