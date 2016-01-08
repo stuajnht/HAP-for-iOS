@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
+class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
