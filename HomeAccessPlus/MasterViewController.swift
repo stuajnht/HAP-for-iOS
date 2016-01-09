@@ -495,22 +495,6 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
     
     // MARK: Upload popover
     func showUploadPopover(sender: UIBarButtonItem) {
-        //// See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-21-alerts-and-popovers
-        //// See: http://www.edumobile.org/ios/creating-grouped-table-views-in-swift/
-        //// See: http://useyourloaf.com/blog/static-table-views-with-storyboards.html
-        //let popoverVC = (storyboard?.instantiateViewControllerWithIdentifier("fileUploadPopover"))! as UIViewController
-        //popoverVC.modalPresentationStyle = .Popover
-        //// See: http://stackoverflow.com/a/28158165
-        //popoverVC.preferredContentSize = CGSize(width: 320, height: 320)
-        //presentViewController(popoverVC, animated: true, completion: nil)
-        
-        //let popoverController = popoverVC.popoverPresentationController
-        ////popoverController.sourceView = sender
-        ////popoverController.sourceRect = sender.bounds
-        //// See: http://www.appcoda.com/presentation-controllers-tutorial/
-        //popoverController!.barButtonItem = sender
-        //popoverController!.permittedArrowDirections = .Any
-        
         // See: http://www.appcoda.com/presentation-controllers-tutorial/
         // See: http://stackoverflow.com/a/28291804
         let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
