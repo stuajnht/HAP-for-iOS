@@ -13,7 +13,7 @@ Before asking for help or reporting a bug, please read through these few Frequen
 
 ### When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder
 By default, your institutions Home Access Plus+ server is set to only accept a limited number of file types. The app that you are using probably saves in a format that is not common, so HAP+ doesn't allow the file to be added. You will need to speak to your institutions network manager to allow support for additional file types. Point them here for the instructions on how to do this:
-1. Log in to your HAP+ servers web interface and go to the setup page (something like: https://<domain>/hap/setup.aspx)
+1. Log in to your HAP+ servers web interface and go to the setup page (something like: https://&lt;_domain_&gt;/hap/setup.aspx)
 2. Go to the "My Files" tab
 3. Scroll to the "Filters" section on this page
 4. Perform the following steps (the first option on both steps is the 'easy' option, the second option is the 'safer for security' choice):
