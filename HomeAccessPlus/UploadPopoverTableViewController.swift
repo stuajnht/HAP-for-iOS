@@ -214,5 +214,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         dismissViewControllerAnimated(true, completion: nil)
     }
+    
+    /// Dismissing the image picker
+    ///
+    /// While not needed as pressing the image picker cancel button
+    /// works on it's own, but Apple says it's needed, so it's going in
+    /// See: https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImagePickerControllerDelegate_Protocol/index.html#//apple_ref/occ/intfm/UIImagePickerControllerDelegate/imagePickerControllerDidCancel:
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-09
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
 
 }
