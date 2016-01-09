@@ -503,7 +503,7 @@ class HAPi {
             // Uploading the file
             Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
                 .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
-                    logger.debug("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
+                    logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
                     logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
                     callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
                 }

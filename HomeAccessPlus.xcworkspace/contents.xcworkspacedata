@@ -8,6 +8,9 @@
       location = "group:CHANGES.md">
    </FileRef>
    <FileRef
+      location = "group:FAQ.md">
+   </FileRef>
+   <FileRef
       location = "group:LICENSE.md">
    </FileRef>
    <FileRef

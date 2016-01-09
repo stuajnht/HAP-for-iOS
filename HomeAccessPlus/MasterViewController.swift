@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController {
+class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -73,10 +73,13 @@ class MasterViewController: UITableViewController {
         self.navigationController!.navigationBar.translucent = false
         
         // Adding an 'add' button to the navigation bar to allow files
-        // passed to this app from an external one to be uploaded
-        if ((settings.stringForKey(settingsUploadFileLocation) != nil) && (currentPath != "")) {
+        // passed to this app from an external one to be uploaded, or
+        // for photo and video files to be added from the device gallery
+        // Note: This isn't shown if there is no path, i.e. we are looking
+        // at the drives listing
+        if (currentPath != "") {
             logger.debug("Showing the upload 'add' button")
-            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "uploadFile")
+            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
             self.navigationItem.rightBarButtonItem = addButton
         }
         
@@ -321,16 +324,6 @@ class MasterViewController: UITableViewController {
                 self.hudHide()
                 logger.debug("File has been uploaded to: \(self.currentPath)")
                 
-                // Hiding the 'add' button as it's not needed anymore in
-                // the current active view (but the user hasn't navigated
-                // anywhere else yet)
-                //
-                // Note: This may be removed in the future, as there needs to
-                //       be a permanent way for users to add in-app files & folders
-                //
-                // See: http://iostechsolutions.blogspot.co.uk/2014/11/swift-add-custom-left-bar-button-item.html
-                self.navigationItem.rightBarButtonItem = nil
-                
                 // Setting the "settingsUploadFileLocation" value to be nil
                 // so that when the user browses to another view the 'add'
                 // button is not shown
@@ -498,6 +491,41 @@ class MasterViewController: UITableViewController {
         //let fileName = fileItems[row][0] //4
         //newFolder = fileName as! String
         //logger.debug("Folder heading to title: \(newFolder)")
+    }
+    
+    // MARK: Upload popover
+    func showUploadPopover(sender: UIBarButtonItem) {
+        // See: http://www.appcoda.com/presentation-controllers-tutorial/
+        // See: http://stackoverflow.com/a/28291804
+        let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
+        vc.delegate = self
+        vc.modalPresentationStyle = UIModalPresentationStyle.Popover
+        vc.preferredContentSize = CGSize(width: 320, height: 320)
+        if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
+            popover.barButtonItem = sender
+            popover.delegate = self
+        }
+        presentViewController(vc, animated: true, completion:nil)
+    }
+    
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.FullScreen
+    }
+    
+    func presentationController(controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
+        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: "dismiss")
+        navigationController.topViewController!.navigationItem.rightBarButtonItem = btnCancelUploadPopover
+        // Setting the navigation bar colour
+        navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        navigationController.topViewController!.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
+        navigationController.topViewController!.navigationController!.navigationBar.translucent = false
+        return navigationController
+    }
+    
+    func dismiss() {
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
 
 
