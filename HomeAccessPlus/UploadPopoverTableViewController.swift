@@ -186,9 +186,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         let fileMediaType = info[UIImagePickerControllerMediaType]!
         logger.debug("The media file picked by the user is a: \(fileMediaType)")
         
-        // Getting the location of the image from the deivce
-        let fileDeviceLocation = info[UIImagePickerControllerOriginalImage]
+        // Getting the location of the image on the deivce. This is
+        // not a standard file:// url but a special assets-library://
+        let fileDeviceLocation = info[UIImagePickerControllerReferenceURL]!
         logger.debug("Picked image location on device: \(fileDeviceLocation)")
+        
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             
         }
