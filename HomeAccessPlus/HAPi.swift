@@ -454,31 +454,73 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-05
+    /// - version: 2
+    /// - date: 2016-01-09
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
     ///                                 stored in a folder called "inbox" which can
     ///                                 be found in the documents directory)
     /// - parameter serverFileLocation: The location on the HAP+ server that the file
     ///                                 is going to be uploaded to
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
-            // location of the file on the device, which is needed when settings
+            // location of the file on the device, which is needed when setting
             // the httpHeaders
             logger.debug("Location of file on device: \(deviceFileLocation)")
-            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+            logger.debug("File coming from photos library: \(fileFromPhotoLibrary)")
             
-            // Forcing an unwrap of the value, otherwise the file name
-            // is Optional("<nale>") which causes the HAP+ server to
-            // do a 500 HTTP error
-            // See: http://stackoverflow.com/a/25848016
-            var fileName = pathArray.last!
-            // Removing any encoded characters from the file name, so
-            // HAP+ saves the file with the correct file name
-            fileName = fileName.stringByRemovingPercentEncoding!
+            var fileName = ""
+            
+            if (fileFromPhotoLibrary == false) {
+                // As the file is coming from an external app, it will be saved
+                // on the device in a physical location with an extension. We
+                // can just split the path and get the file name from the last
+                // array value
+                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                
+                // Forcing an unwrap of the value, otherwise the file name
+                // is Optional("<nale>") which causes the HAP+ server to
+                // do a 500 HTTP error
+                // See: http://stackoverflow.com/a/25848016
+                fileName = pathArray.last!
+                
+                // Removing any encoded characters from the file name, so
+                // HAP+ saves the file with the correct file name
+                fileName = fileName.stringByRemovingPercentEncoding!
+            } else {
+                // The file is coming from the devices photo library, so the
+                // location of the file on the device is a virtual one, and
+                // the file name can not just be collected from the last
+                // value. The value passed to deviceFileLocation will be
+                // assets-library://asset/asset.JPG?id=<hex-string-of-file>&ext=JPG
+                // so we need to get the hex string and extension from this
+                // path. It's not the best file name in the world, but it's
+                // something
+                
+                // Splitting the string into before and after the '?', so we
+                // have the name and extension at fileNameQuery[1]
+                let fileNameQuery = String(deviceFileLocation).componentsSeparatedByString("?")
+                
+                // Splitting the string into before and after the '&', so we
+                // have the name at fileNameParameters[0] and extension at fileNameParameters[1]
+                let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
+                
+                // Splitting the string into before and after the '=', so we
+                // have the name at fileNameValue[1]
+                let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
+                
+                // Splitting the string into before and after the '=', so we
+                // have the name at fileExtension[1]
+                let fileExtension = String(fileNameParameters[1]).componentsSeparatedByString("=")
+                
+                // Joining the file name and extension to create the full file name
+                fileName = fileNameValue[1] + "." + fileExtension[1]
+            }
+            
             logger.debug("Name of file being uploaded: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+

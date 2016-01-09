@@ -44,6 +44,7 @@ let settingsToken2Name = "token2Name"
 let settingsDeviceType = "deviceType"
 let settingsUserRoles = "userRoles"
 let settingsUploadFileLocation = "uploadFileLocation"
+let settingsUploadPhotosLocation = "uploadPhotosLocation"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {

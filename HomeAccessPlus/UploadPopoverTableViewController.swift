@@ -37,7 +37,7 @@ import UIKit
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
-    func uploadFile()
+    func uploadFile(fileFromPhotoLibrary: Bool)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -156,7 +156,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             logger.debug("Cell function: Uploading file from app")
             
             // Calling the upload file delegate to upload the file
-            delegate?.uploadFile()
+            delegate?.uploadFile(false)
             
             // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
@@ -206,12 +206,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Getting the location of the image on the deivce. This is
         // not a standard file:// url but a special assets-library://
         let fileDeviceLocation = info[UIImagePickerControllerReferenceURL]!
-        logger.debug("Picked image location on device: \(fileDeviceLocation)")
+        logger.debug("Picked media file location on device: \(fileDeviceLocation)")
         
-        if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            
-        }
+        // Setting the location of the image file in the settings
+        settings.setURL(fileDeviceLocation as? NSURL, forKey: settingsUploadPhotosLocation)
         
+        // Uploading the file to the HAP+ server
+        delegate?.uploadFile(true)
+        
+        // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
     }
     

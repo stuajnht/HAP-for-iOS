@@ -293,15 +293,36 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-06
-    func uploadFile() {
-        logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+    /// - version: 2
+    /// - date: 2016-01-09
+    ///
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func uploadFile(fileFromPhotoLibrary: Bool) {
+        // Holding the location of the file on the device, that
+        // is going to be uploaded
+        var fileLocation = ""
+        
+        var fileDeviceLocation : NSURL
+        
+        // Seeing if we are uploading a file from another app
+        // or the local photo library
+        if (fileFromPhotoLibrary == false) {
+            logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings.stringForKey(settingsUploadFileLocation)!
+        } else {
+            logger.debug("Attempting to upload the photos file: \(settings.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings.stringForKey(settingsUploadPhotosLocation)!
+        }
+        
+        // Converting the fileLocation to be a valid NSURL variable
+        fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
+        
         hudUploadingShow()
         
         // Attempting to upload the file that has been passed
         // to the app
-        api.uploadFile(settings.URLForKey(settingsUploadFileLocation)!, serverFileLocation: currentPath, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+        api.uploadFile(fileDeviceLocation, serverFileLocation: currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
             
             // There was a problem with uploading the file, so let the
             // user know about it
@@ -326,8 +347,9 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                 
                 // Setting the "settingsUploadFileLocation" value to be nil
                 // so that when the user browses to another view the 'add'
-                // button is not shown
+                // button is not shown, and also the "settingsUploadPhotosLocation" too
                 settings.setURL(nil, forKey: settingsUploadFileLocation)
+                settings.setURL(nil, forKey: settingsUploadPhotosLocation)
                 
                 // Refreshing the file browser table
                 self.loadFileBrowser()
