@@ -172,5 +172,28 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         return fileName
     }
+    
+    /// Gets the location of the file the user has picked from the
+    /// image picker, so that it can be uploaded
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-09
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+        // Getting the type of file the user has selected, as it
+        // is stored in different locations based on what it is
+        let fileMediaType = info[UIImagePickerControllerMediaType]!
+        logger.debug("The media file picked by the user is a: \(fileMediaType)")
+        
+        // Getting the location of the image from the deivce
+        let fileDeviceLocation = info[UIImagePickerControllerOriginalImage]
+        logger.debug("Picked image location on device: \(fileDeviceLocation)")
+        if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            
+        }
+        
+        dismissViewControllerAnimated(true, completion: nil)
+    }
 
 }
