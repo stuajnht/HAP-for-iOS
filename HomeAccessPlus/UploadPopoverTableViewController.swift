@@ -19,6 +19,7 @@
 //  HomeAccessPlus
 //
 
+import MobileCoreServices
 import UIKit
 
 /// Delegate callback to master view controller to upload the
@@ -96,22 +97,25 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Returning the number of rows in the current table section
         // - todo: Create this number dynamically
         // - seealso: tableView
-        return 2
+        return 3
     }
     
     /// Seeing what cell the user has selected from the table, and
     /// perform the relevant action
     ///
     /// We need to know what cell the user has selected so that the
-    /// relevant action can be performed
+    /// relevant action can be performed. As there doesn't seem to
+    /// be any way to access both the photos and videos on the same
+    /// image picker, it is split into 2 cells
     ///
     /// - note: The table cells and sections are hardcoded, in the
     ///         following order. If there are any changes, make sure
     ///         to check this function first and make any modifications
     ///         | Section | Row |     Cell function    |
     ///         |---------|-----|----------------------|
-    ///         |    0    |  0  | Upload file / photo  |
-    ///         |    0    |  1  | Upload file from app |
+    ///         |    0    |  0  | Upload photo         |
+    ///         |    0    |  1  | Upload video         |
+    ///         |    0    |  2  | Upload file from app |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
@@ -123,19 +127,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         logger.debug("Cell tapped section: \(section)")
         logger.debug("Cell tapped row: \(row)")
         
-        // The user has selected to upload a photo or video
+        // The user has selected to upload a photo
         if ((section == 0) && (row == 0)) {
-            logger.debug("Cell function: Upload file / photo")
+            logger.debug("Cell function: Upload photo")
             
             // Calling the image picker
             imagePicker.allowsEditing = false
             imagePicker.sourceType = .PhotoLibrary
+            imagePicker.mediaTypes = [kUTTypeImage as String]
+            
+            presentViewController(imagePicker, animated: true, completion: nil)
+        }
+        
+        // The user has selected to upload a video
+        if ((section == 0) && (row == 1)) {
+            logger.debug("Cell function: Upload video")
+            
+            // Calling the image picker
+            imagePicker.allowsEditing = false
+            imagePicker.sourceType = .PhotoLibrary
+            imagePicker.mediaTypes = [kUTTypeMovie as String]
             
             presentViewController(imagePicker, animated: true, completion: nil)
         }
         
         // The user has selected to upload the file from the app
-        if ((section == 0) && (row == 1)) {
+        if ((section == 0) && (row == 2)) {
             logger.debug("Cell function: Uploading file from app")
             
             // Calling the upload file delegate to upload the file
