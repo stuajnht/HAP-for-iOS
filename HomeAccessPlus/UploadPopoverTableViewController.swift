@@ -39,10 +39,14 @@ protocol uploadFileDelegate {
     func uploadFile()
 }
 
-class UploadPopoverTableViewController: UITableViewController {
+class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
+    
+    // Creating an instance of an image picker controller
+    // See: http://www.codingexplorer.com/choosing-images-with-uiimagepickercontroller-in-swift/
+    let imagePicker = UIImagePickerController()
     
     // Creating a reference to the upload file delegate
     var delegate: uploadFileDelegate?
@@ -69,6 +73,9 @@ class UploadPopoverTableViewController: UITableViewController {
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
         }
+        
+        // Creating a delegate for the image picker
+        imagePicker.delegate = self
     }
 
     override func didReceiveMemoryWarning() {
@@ -119,6 +126,12 @@ class UploadPopoverTableViewController: UITableViewController {
         // The user has selected to upload a photo or video
         if ((section == 0) && (row == 0)) {
             logger.debug("Cell function: Upload file / photo")
+            
+            // Calling the image picker
+            imagePicker.allowsEditing = false
+            imagePicker.sourceType = .PhotoLibrary
+            
+            presentViewController(imagePicker, animated: true, completion: nil)
         }
         
         // The user has selected to upload the file from the app
