@@ -454,6 +454,7 @@
                         </connections>
                     </tableView>
                     <connections>
+                        <outlet property="celUploadFile" destination="oVx-8S-U0U" id="VcE-76-plH"/>
                         <outlet property="lblUploadFile" destination="8N2-V2-RSt" id="fKV-ud-ZP4"/>
                     </connections>
                 </tableViewController>

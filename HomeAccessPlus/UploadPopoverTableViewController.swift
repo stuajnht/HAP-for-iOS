@@ -42,6 +42,7 @@ protocol uploadFileDelegate {
 class UploadPopoverTableViewController: UITableViewController {
 
     @IBOutlet weak var lblUploadFile: UILabel!
+    @IBOutlet weak var celUploadFile: UITableViewCell!
     
     // Creating a reference to the upload file delegate
     var delegate: uploadFileDelegate?
@@ -56,11 +57,15 @@ class UploadPopoverTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         
         // Setting the upload file label to display the name of the
-        // file passed to the app, if any
+        // file passed to the app, if any, and disabling the user
+        // from pressing on the file upload cell if there isn't a file
+        // to upload from another app
         if (settings.stringForKey(settingsUploadFileLocation) != nil) {
+            celUploadFile.userInteractionEnabled = true
             lblUploadFile.enabled = true
             lblUploadFile.text = "Upload \"" + getFileName() + "\""
         } else {
+            celUploadFile.userInteractionEnabled = false
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
         }
