@@ -316,7 +316,7 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         }
         
         // Converting the fileLocation to be a valid NSURL variable
-        fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
+        fileDeviceLocation = NSURL(string: fileLocation)!
         
         hudUploadingShow()
         

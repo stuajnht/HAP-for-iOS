@@ -209,7 +209,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         logger.debug("Picked media file location on device: \(fileDeviceLocation)")
         
         // Setting the location of the image file in the settings
-        settings.setURL(fileDeviceLocation as? NSURL, forKey: settingsUploadPhotosLocation)
+        settings.setObject(String(fileDeviceLocation), forKey: settingsUploadPhotosLocation)
         
         // Uploading the file to the HAP+ server
         delegate?.uploadFile(true)
