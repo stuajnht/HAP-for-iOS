@@ -345,11 +345,17 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                 self.hudHide()
                 logger.debug("File has been uploaded to: \(self.currentPath)")
                 
-                // Setting the "settingsUploadFileLocation" value to be nil
-                // so that when the user browses to another view the 'add'
-                // button is not shown, and also the "settingsUploadPhotosLocation" too
-                settings.setURL(nil, forKey: settingsUploadFileLocation)
-                settings.setURL(nil, forKey: settingsUploadPhotosLocation)
+                // If the file uploaded is not a photo, then set the
+                // "settingsUploadFileLocation" value to be nil so that
+                // when the user presses the 'add' button again, they
+                // cannot re-upload the file. If they have passed a file
+                // to this app, but have only uploaded a photo, then it
+                // shouldn't be set as nil so they can upload the file at
+                // another time
+                if (fileFromPhotoLibrary == false) {
+                    logger.debug("Setting local file location to nil as it's been uploaded")
+                    settings.setURL(nil, forKey: settingsUploadFileLocation)
+                }
                 
                 // Refreshing the file browser table
                 self.loadFileBrowser()
