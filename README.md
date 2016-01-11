@@ -41,12 +41,12 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * ~~Accept files from other apps~~
 * ~~Upload files to the folder specified by the user on the HAP+ server~~
 * ~~Upload files from the photo gallery with a popover on the 'add' button~~
-* Check if the file being uploaded exists / has the same name and automatically append a number on the end
 * Prevent auto-downloading files that are over a certain size
 
 ### 0.6.0
 * Create new folders
 * Delete files / folders
+* Check if the file being uploaded exists / has the same name and automatically append a number on the end, or
 * Over-write files that already exist, if the user confirms they want to (requires original file to be deleted first, then new file uploaded)
 
 ### 0.7.0
