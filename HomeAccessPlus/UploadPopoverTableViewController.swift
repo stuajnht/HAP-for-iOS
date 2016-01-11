@@ -208,14 +208,53 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         let fileDeviceLocation = info[UIImagePickerControllerReferenceURL]!
         logger.debug("Picked media file location on device: \(fileDeviceLocation)")
         
+        // Writing the file that has been selected from the library
+        // to a file in the current Inbox folder in the Documents
+        // directory, as there's not an easy way to upload the file
+        // directly from the asset-library:// URL
+        // See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
+        var newImage: UIImage
+        
+        if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
+            newImage = possibleImage
+            logger.debug("Selected image from \"UIImagePickerControllerEditedImage\": \(possibleImage)")
+        } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
+            newImage = possibleImage
+            logger.debug("Selected image from \"UIImagePickerControllerOriginalImage\": \(possibleImage)")
+        } else {
+            logger.error("Unable to get the selected image")
+            return
+        }
+        
+        var imageName = NSUUID().UUIDString
+        logger.debug("UUID for selected image: \(imageName)")
+        // Getting the first hex string from the UUID, so that the name isn't
+        // too long to display
+        let imageArray = imageName.componentsSeparatedByString("-")
+        imageName = imageArray[0]
+        logger.debug("Short file name for image: \(imageName)")
+        
+        let imagePath = getDocumentsInboxDirectory().stringByAppendingPathComponent(imageName)
+        
+        if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
+            logger.debug("Before writing image to Inbox folder")
+            jpegData.writeToFile(imagePath, atomically: true)
+            logger.verbose("JPEG file: \(jpegData)")
+            logger.debug("After writing image to Inbox folder")
+        }
+        logger.debug("Selected media file written to: \(imagePath)")
+        
         // Setting the location of the image file in the settings
-        settings.setObject(String(fileDeviceLocation), forKey: settingsUploadPhotosLocation)
+        settings.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
         
         // Uploading the file to the HAP+ server
         delegate?.uploadFile(true)
         
         // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
+        
+        // Dismissing the popover as it's done what is needed
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
     
     /// Dismissing the image picker
@@ -230,6 +269,23 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// - date: 2016-01-09
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    /// Gets the Documents Inbox directory for the current app
+    ///
+    /// See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-10
+    func getDocumentsInboxDirectory() -> NSString {
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        var documentsDirectory = paths[0]
+        // Appending the Inbox directory to the documents path
+        //documentsDirectory = documentsDirectory + "/Inbox"
+        logger.debug("Documents directory inbox path: \(documentsDirectory)")
+        return documentsDirectory
     }
 
 }

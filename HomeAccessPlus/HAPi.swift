@@ -475,7 +475,7 @@ class HAPi {
             
             var fileName = ""
             
-            if (fileFromPhotoLibrary == false) {
+            //if (fileFromPhotoLibrary == false) {
                 // As the file is coming from an external app, it will be saved
                 // on the device in a physical location with an extension. We
                 // can just split the path and get the file name from the last
@@ -491,35 +491,35 @@ class HAPi {
                 // Removing any encoded characters from the file name, so
                 // HAP+ saves the file with the correct file name
                 fileName = fileName.stringByRemovingPercentEncoding!
-            } else {
-                // The file is coming from the devices photo library, so the
-                // location of the file on the device is a virtual one, and
-                // the file name can not just be collected from the last
-                // value. The value passed to deviceFileLocation will be
-                // assets-library://asset/asset.JPG?id=<hex-string-of-file>&ext=JPG
-                // so we need to get the hex string and extension from this
-                // path. It's not the best file name in the world, but it's
-                // something
+            //} else {
+                //// The file is coming from the devices photo library, so the
+                //// location of the file on the device is a virtual one, and
+                //// the file name can not just be collected from the last
+                //// value. The value passed to deviceFileLocation will be
+                //// assets-library://asset/asset.JPG?id=<hex-string-of-file>&ext=JPG
+                //// so we need to get the hex string and extension from this
+                //// path. It's not the best file name in the world, but it's
+                //// something
                 
-                // Splitting the string into before and after the '?', so we
-                // have the name and extension at fileNameQuery[1]
-                let fileNameQuery = String(deviceFileLocation).componentsSeparatedByString("?")
+                //// Splitting the string into before and after the '?', so we
+                //// have the name and extension at fileNameQuery[1]
+                //let fileNameQuery = String(deviceFileLocation).componentsSeparatedByString("?")
                 
-                // Splitting the string into before and after the '&', so we
-                // have the name at fileNameParameters[0] and extension at fileNameParameters[1]
-                let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
+                //// Splitting the string into before and after the '&', so we
+                //// have the name at fileNameParameters[0] and extension at fileNameParameters[1]
+                //let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
                 
-                // Splitting the string into before and after the '=', so we
-                // have the name at fileNameValue[1]
-                let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
+                //// Splitting the string into before and after the '=', so we
+                //// have the name at fileNameValue[1]
+                //let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
                 
-                // Splitting the string into before and after the '=', so we
-                // have the name at fileExtension[1]
-                let fileExtension = String(fileNameParameters[1]).componentsSeparatedByString("=")
+                //// Splitting the string into before and after the '=', so we
+                //// have the name at fileExtension[1]
+                //let fileExtension = String(fileNameParameters[1]).componentsSeparatedByString("=")
                 
-                // Joining the file name and extension to create the full file name
-                fileName = fileNameValue[1] + "." + fileExtension[1]
-            }
+                //// Joining the file name and extension to create the full file name
+                //fileName = fileNameValue[1] + "." + fileExtension[1]
+            //}
             
             logger.debug("Name of file being uploaded: \(fileName)")
             
