@@ -225,8 +225,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             logger.debug("Selected image from \"UIImagePickerControllerOriginalImage\": \(possibleImage)")
             imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
         } else {
-            logger.error("Unable to get the selected image")
-            return
+            if (fileMediaType as! String == "public.movie") {
+                logger.debug("Media file selected is a video")
+                imagePath = createLocalVideo(fileDeviceLocation as! NSURL)
+            } else {
+                logger.error("Unable to get the selected image")
+                return
+            }
         }
         
         // Setting the location of the image file in the settings
@@ -273,50 +278,99 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///                           the name of the file from
     /// - returns: The path to the image in the app
     func createLocalImage(newImage: UIImage, fileLocation: NSURL) -> String {
-        // The file is coming from the devices photo library, so the
-        // location of the file on the device is a virtual one, and
-        // the file name can not just be collected from the last
-        // value. The value passed to deviceFileLocation will be
-        // assets-library://asset/asset.JPG?id=<UUID>&ext=JPG
-        // so we need to get the hex string from this path. It's
-        // not the best file name in the world, but it's something
-        // The file extension will always be ".jpg" as we're creating
-        // a JPEG image later in this function
-        
-        // Splitting the string into before and after the '?', so we
-        // have the name and extension at fileNameQuery[1]
-        let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
-        
-        // Splitting the string into before and after the '&', so we
-        // have the name at fileNameParameters[0]
-        let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
-        
-        // Splitting the string into before and after the '=', so we
-        // have the name at fileNameValue[1]
-        let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
-        
-        // Getting the first hex string from the UUID, so that the name isn't
-        // too long to display
-        let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
-        
-        // Joining the file name and extension to create the full file name
-        let fileName = fileNameUUID[0] + ".jpg"
-        
-        logger.debug("File name for generated image: \(fileName)")
-        
-        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation))
         
         if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
             logger.verbose("Before writing image to documents folder")
             
             jpegData.writeToFile(imagePath, atomically: true)
             
-            logger.verbose("JPEG file: \(jpegData)")
+            logger.verbose("JPEG file raw data: \(jpegData)")
             logger.verbose("After writing image to documents folder")
         }
         
         logger.debug("Selected media file written to: \(imagePath)")
         return imagePath
+    }
+    
+    /// Creates a local copy of the selected video in the documents
+    /// directory, to upload it to the HAP+ server
+    ///
+    /// As the video in the asset library cannot be uploaded directly,
+    /// it needs to be created locally in the app before it can be
+    /// uploaded to the HAP+ server
+    /// See: http://stackoverflow.com/a/31853916
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-11
+    ///
+    /// - parameter fileLocation: The location in the asset library, to generate
+    ///                           the name of the file from
+    /// - returns: The path to the video in the app
+    func createLocalVideo(fileLocation: NSURL) -> String {
+        let videoData = NSData(contentsOfURL: fileLocation)
+        logger.debug("Location of video data: \(videoData)")
+        
+        let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation))
+        
+        logger.debug("Before writing video file")
+        
+        videoData?.writeToFile(dataPath, atomically: true)
+        
+        logger.debug("Video file raw data: \(videoData)")
+        logger.debug("After writing video file")
+        
+        logger.debug("Selected video file written to: \(dataPath)")
+        return dataPath
+    }
+    
+    /// Creating a usable file name from the photo library
+    ///
+    /// The file is coming from the devices photo library, so the
+    /// location of the file on the device is a virtual one, and
+    /// the file name can not just be collected from the last
+    /// value. The value passed to fileLocation will be
+    /// assets-library://asset/asset.<EXT>?id=<UUID>&ext=<EXT>
+    /// so we need to get the hex string from the UUID for the name
+    /// of the file, and the extention as well. It's not the best
+    /// file name in the world, but it's something
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-11
+    ///
+    /// - parameter fileLocation: The location in the asset library, to generate
+    ///                           the name of the file from
+    /// - returns: The name of the file
+    func createFileName(fileLocation: NSURL) -> String {
+        // Splitting the string into before and after the '?', so we
+        // have the name and extension at fileNameQuery[1]
+        let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
+        
+        // Splitting the string into before and after the '&', so we
+        // have the name at fileNameParameters[0] and extension at fileNameParameters[1]
+        let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
+        
+        // Splitting the string into before and after the '=', so we
+        // have the name at fileNameValue[1]
+        let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
+        
+        // Splitting the string into before and after the '=', so we
+        // have the name at fileExtension[1]
+        let fileExtension = String(fileNameParameters[1]).componentsSeparatedByString("=")
+        
+        // Getting the first hex string from the UUID, so that the name isn't
+        // too long to display
+        let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
+        
+        // Joining the file name and extension to create the full file name
+        let fileName = fileNameUUID[0] + "." + fileExtension[1]
+        
+        logger.debug("File name for generated media: \(fileName)")
+        return fileName
     }
     
     /// Gets the Documents directory for the current app
