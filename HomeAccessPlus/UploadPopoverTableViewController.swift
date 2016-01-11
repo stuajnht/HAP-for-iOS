@@ -278,7 +278,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///                           the name of the file from
     /// - returns: The path to the image in the app
     func createLocalImage(newImage: UIImage, fileLocation: NSURL) -> String {
-        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation))
+        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: true))
         
         if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
             logger.verbose("Before writing image to documents folder")
@@ -313,7 +313,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         let videoData = NSData(contentsOfURL: fileLocation)
         logger.debug("Location of video data: \(videoData)")
         
-        let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation))
+        let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: false))
         
         logger.debug("Before writing video file")
         
@@ -344,8 +344,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - parameter fileLocation: The location in the asset library, to generate
     ///                           the name of the file from
+    /// - parameter iamgeFile: If the file being processed is an image file, then
+    ///                        a hardcoded extension of ".jpg" needs to be added,
+    ///                        as the app is creating a JPEG file
     /// - returns: The name of the file
-    func createFileName(fileLocation: NSURL) -> String {
+    func createFileName(fileLocation: NSURL, imageFile: Bool) -> String {
         // Splitting the string into before and after the '?', so we
         // have the name and extension at fileNameQuery[1]
         let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
@@ -366,8 +369,17 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // too long to display
         let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
         
-        // Joining the file name and extension to create the full file name
-        let fileName = fileNameUUID[0] + "." + fileExtension[1]
+        // Seeing if the extension should be hardcoded for the image file
+        // or be created from the extension from the asset library
+        var fileName = ""
+        if (imageFile) {
+            // Hardcoding the extension, as we are generating JPEG images
+            fileName = fileNameUUID[0] + ".jpg"
+        } else {
+            // Joining the file name and extension to create the full file name
+            // for video files
+            fileName = fileNameUUID[0] + "." + fileExtension[1]
+        }
         
         logger.debug("File name for generated media: \(fileName)")
         return fileName
