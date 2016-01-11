@@ -163,12 +163,22 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 0) && (row == 1)) {
             logger.debug("Cell function: Upload video")
             
-            // Calling the image picker
-            imagePicker.allowsEditing = false
-            imagePicker.sourceType = .PhotoLibrary
-            imagePicker.mediaTypes = [kUTTypeMovie as String]
-            
-            presentViewController(imagePicker, animated: true, completion: nil)
+            // Showing the permissions request to access
+            // the photos library
+            pscope.show({ finished, results in
+                logger.debug("Got permission results: \(results)")
+                logger.debug("Permissions granted to access the photos library")
+                
+                // Calling the image picker
+                self.imagePicker.allowsEditing = false
+                self.imagePicker.sourceType = .PhotoLibrary
+                self.imagePicker.mediaTypes = [kUTTypeMovie as String]
+                
+                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                
+                }, cancelled: { (results) -> Void in
+                    logger.warning("Permissions to access the photos library were denied")
+            })
         }
         
         // The user has selected to upload the file from the app
