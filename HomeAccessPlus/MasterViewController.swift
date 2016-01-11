@@ -357,6 +357,10 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                     settings.setURL(nil, forKey: settingsUploadFileLocation)
                 }
                 
+                // Deleting the local copy of the file that was used to
+                // upload to the HAP+ server
+                self.deleteUploadedLocalFile(fileDeviceLocation)
+                
                 // Refreshing the file browser table
                 self.loadFileBrowser()
             }
@@ -519,6 +523,33 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         //let fileName = fileItems[row][0] //4
         //newFolder = fileName as! String
         //logger.debug("Folder heading to title: \(newFolder)")
+    }
+    
+    /// Delete the local version of the file on successful upload
+    ///
+    /// Once the file has been successfully uploaded, it is not needed
+    /// to be stored on the device, so can be deleted to save space
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-11
+    ///
+    /// - parameter deviceFileLocation: The path to the file on the device (either the
+    ///                                 Documents folder: photos, videos; Inbox folder: files)
+    func deleteUploadedLocalFile(fileDeviceLocation: NSURL) {
+        // See: http://stackoverflow.com/a/32744011
+        logger.debug("Attempting to delete the file: \(fileDeviceLocation)")
+        do {
+            try NSFileManager.defaultManager().removeItemAtPath("\(fileDeviceLocation)")
+                        logger.debug("Successfully deleted file: \(fileDeviceLocation)")
+        }
+        catch let errorMessage as NSError {
+            logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+        }
+        catch {
+            logger.error("There was an unknown problem when deleting the file.")
+        }
     }
     
     // MARK: Upload popover
