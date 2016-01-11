@@ -156,6 +156,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
+                    tableView.deselectRowAtIndexPath(indexPath, animated: true)
             })
         }
         
@@ -178,6 +179,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
+                    tableView.deselectRowAtIndexPath(indexPath, animated: true)
             })
         }
         
