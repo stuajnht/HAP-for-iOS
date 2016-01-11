@@ -20,6 +20,7 @@
 //
 
 import MobileCoreServices
+import PermissionScope
 import UIKit
 
 /// Delegate callback to master view controller to upload the
@@ -52,6 +53,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // Creating a reference to the upload file delegate
     var delegate: uploadFileDelegate?
     
+    // Creating an instance of the PermissionScope, so
+    // that we can ask the user for access to the photos
+    // library
+    let pscope = PermissionScope()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -77,6 +83,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         // Creating a delegate for the image picker
         imagePicker.delegate = self
+        
+        // Setting up the permissions needed to access the
+        // photos library
+        pscope.addPermission(PhotosPermission(), message: "This is used to upload your photos and videos from this device to the Home Access Plus+ server")
     }
 
     override func didReceiveMemoryWarning() {
@@ -131,12 +141,22 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 0) && (row == 0)) {
             logger.debug("Cell function: Upload photo")
             
-            // Calling the image picker
-            imagePicker.allowsEditing = false
-            imagePicker.sourceType = .PhotoLibrary
-            imagePicker.mediaTypes = [kUTTypeImage as String]
-            
-            presentViewController(imagePicker, animated: true, completion: nil)
+            // Showing the permissions request to access
+            // the photos library
+            pscope.show({ finished, results in
+                logger.debug("Got permission results: \(results)")
+                logger.debug("Permissions granted to access the photos library")
+                
+                // Calling the image picker
+                self.imagePicker.allowsEditing = false
+                self.imagePicker.sourceType = .PhotoLibrary
+                self.imagePicker.mediaTypes = [kUTTypeImage as String]
+                
+                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                
+                }, cancelled: { (results) -> Void in
+                    logger.warning("Permissions to access the photos library were denied")
+            })
         }
         
         // The user has selected to upload a video
