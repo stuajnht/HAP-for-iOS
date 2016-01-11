@@ -34,6 +34,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>PermissionScope.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-HomeAccessPlus.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -52,17 +57,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>00AA35A5B917ABB9357CB3E2FC97B22D</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>432ECC54282C84882B482CCB4CF227FC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>4780E79D0065E21A7A3FD0DDB06EF0D6</key>
+		<key>60E9B5B85107BB05033A275D05EE8823</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -82,17 +82,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>AD19AF81872ACF7D173D357F578929DE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C55E46AC6A1E70A6AA25E306AE545375</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CE588DF420E82E05D2B1986675952854</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>E5103AA3B86FD939D2C77DC3043B8AC4</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>E61CE3B6DFA1FE6B3E296965C76C0E10</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>F66053EEA26A8CB73A62225FCB22917E</key>
 		<dict>
 			<key>primary</key>
 			<true/>

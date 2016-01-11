@@ -9,6 +9,7 @@ target 'HomeAccessPlus' do
   pod 'Font-Awesome-Swift'
   pod 'Locksmith'
   pod 'MBProgressHUD'
+  pod 'PermissionScope'
   pod 'SwiftyJSON'
   pod 'XCGLogger'
 end

@@ -89,6 +89,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-HomeAccessPlus/Font_Awesome_Swift.framework"
   install_framework "Pods-HomeAccessPlus/Locksmith.framework"
   install_framework "Pods-HomeAccessPlus/MBProgressHUD.framework"
+  install_framework "Pods-HomeAccessPlus/PermissionScope.framework"
   install_framework "Pods-HomeAccessPlus/SwiftyJSON.framework"
   install_framework "Pods-HomeAccessPlus/XCGLogger.framework"
 fi
@@ -98,6 +99,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-HomeAccessPlus/Font_Awesome_Swift.framework"
   install_framework "Pods-HomeAccessPlus/Locksmith.framework"
   install_framework "Pods-HomeAccessPlus/MBProgressHUD.framework"
+  install_framework "Pods-HomeAccessPlus/PermissionScope.framework"
   install_framework "Pods-HomeAccessPlus/SwiftyJSON.framework"
   install_framework "Pods-HomeAccessPlus/XCGLogger.framework"
 fi
