@@ -234,7 +234,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         imageName = imageArray[0]
         logger.debug("Short file name for image: \(imageName)")
         
-        let imagePath = getDocumentsInboxDirectory().stringByAppendingPathComponent(imageName)
+        let imagePath = getDocumentsInboxDirectory().stringByAppendingPathComponent(imageName + ".jpg")
         
         if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
             logger.debug("Before writing image to Inbox folder")
