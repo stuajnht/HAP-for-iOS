@@ -342,25 +342,28 @@
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="79"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WD2-Zl-A4X">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WD2-Zl-A4X">
                                             <rect key="frame" x="8" y="8" width="64" height="64"/>
                                             <animations/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="64" id="uR8-72-Khk"/>
+                                            </constraints>
                                         </imageView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pAj-Mw-3WF">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pAj-Mw-3WF">
                                             <rect key="frame" x="80" y="8" width="512" height="21"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mh3-nw-UUT">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mh3-nw-UUT">
                                             <rect key="frame" x="80" y="31" width="512" height="21"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="98K-vO-NDy">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="98K-vO-NDy">
                                             <rect key="frame" x="80" y="51" width="512" height="21"/>
                                             <animations/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -369,6 +372,23 @@
                                         </label>
                                     </subviews>
                                     <animations/>
+                                    <constraints>
+                                        <constraint firstItem="pAj-Mw-3WF" firstAttribute="trailing" secondItem="37f-cq-3Eg" secondAttribute="trailingMargin" id="62L-Ve-wO5"/>
+                                        <constraint firstItem="mh3-nw-UUT" firstAttribute="leading" secondItem="WD2-Zl-A4X" secondAttribute="trailing" constant="8" symbolic="YES" id="GOd-3w-a7w"/>
+                                        <constraint firstItem="mh3-nw-UUT" firstAttribute="trailing" secondItem="37f-cq-3Eg" secondAttribute="trailingMargin" id="LXo-uo-5bc"/>
+                                        <constraint firstItem="98K-vO-NDy" firstAttribute="leading" secondItem="WD2-Zl-A4X" secondAttribute="trailing" constant="8" symbolic="YES" id="NYK-Er-mgJ"/>
+                                        <constraint firstItem="pAj-Mw-3WF" firstAttribute="leading" secondItem="WD2-Zl-A4X" secondAttribute="trailing" constant="8" symbolic="YES" id="Ppv-2j-m7i"/>
+                                        <constraint firstItem="98K-vO-NDy" firstAttribute="trailing" secondItem="37f-cq-3Eg" secondAttribute="trailingMargin" id="VtQ-aN-Ctz"/>
+                                        <constraint firstItem="WD2-Zl-A4X" firstAttribute="top" secondItem="pAj-Mw-3WF" secondAttribute="top" id="Wu0-rP-dEe"/>
+                                        <constraint firstItem="mh3-nw-UUT" firstAttribute="top" secondItem="pAj-Mw-3WF" secondAttribute="bottom" constant="2" id="ey3-du-J5d"/>
+                                        <constraint firstItem="WD2-Zl-A4X" firstAttribute="centerY" secondItem="37f-cq-3Eg" secondAttribute="centerY" id="j4Q-mu-LDL"/>
+                                        <constraint firstItem="mh3-nw-UUT" firstAttribute="top" secondItem="pAj-Mw-3WF" secondAttribute="bottom" constant="2" id="jR2-9Z-Dj3"/>
+                                        <constraint firstItem="pAj-Mw-3WF" firstAttribute="top" secondItem="37f-cq-3Eg" secondAttribute="topMargin" id="pn1-f5-ANS"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="98K-vO-NDy" secondAttribute="bottom" constant="-1" id="rBe-PT-tpw"/>
+                                        <constraint firstItem="WD2-Zl-A4X" firstAttribute="top" secondItem="37f-cq-3Eg" secondAttribute="topMargin" id="uyt-sM-C9P"/>
+                                        <constraint firstItem="WD2-Zl-A4X" firstAttribute="bottom" secondItem="98K-vO-NDy" secondAttribute="bottom" id="w2a-i9-kCB"/>
+                                        <constraint firstItem="WD2-Zl-A4X" firstAttribute="leading" secondItem="37f-cq-3Eg" secondAttribute="leadingMargin" id="z2c-BD-7Zd"/>
+                                    </constraints>
                                 </tableViewCellContentView>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -500,6 +520,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Tll-UG-LXB"/>
+        <segue reference="6S0-TO-JiA"/>
     </inferredMetricsTieBreakers>
 </document>
