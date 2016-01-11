@@ -315,12 +315,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: false))
         
-        logger.debug("Before writing video file")
+        logger.verbose("Before writing video file")
         
         videoData?.writeToFile(dataPath, atomically: true)
         
-        logger.debug("Video file raw data: \(videoData)")
-        logger.debug("After writing video file")
+        logger.verbose("Video file raw data: \(videoData)")
+        logger.verbose("After writing video file")
         
         logger.debug("Selected video file written to: \(dataPath)")
         return dataPath
@@ -337,10 +337,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// of the file, and the extention as well. It's not the best
     /// file name in the world, but it's something
     ///
+    /// However, if the user is uploading a video, its location on
+    /// the device is ~/tmp/trim.<UUID>.<EXT> which means that it
+    /// can be formatted as a file name just without the "trim" at
+    /// the beginning. Who knew it would be this... easy?!
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-11
+    /// - seealso: HAPi.uploadFile
     ///
     /// - parameter fileLocation: The location in the asset library, to generate
     ///                           the name of the file from
@@ -349,36 +355,51 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///                        as the app is creating a JPEG file
     /// - returns: The name of the file
     func createFileName(fileLocation: NSURL, imageFile: Bool) -> String {
-        // Splitting the string into before and after the '?', so we
-        // have the name and extension at fileNameQuery[1]
-        let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
-        
-        // Splitting the string into before and after the '&', so we
-        // have the name at fileNameParameters[0] and extension at fileNameParameters[1]
-        let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
-        
-        // Splitting the string into before and after the '=', so we
-        // have the name at fileNameValue[1]
-        let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
-        
-        // Splitting the string into before and after the '=', so we
-        // have the name at fileExtension[1]
-        let fileExtension = String(fileNameParameters[1]).componentsSeparatedByString("=")
-        
-        // Getting the first hex string from the UUID, so that the name isn't
-        // too long to display
-        let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
-        
-        // Seeing if the extension should be hardcoded for the image file
-        // or be created from the extension from the asset library
+        // Storing the name of the file that we will be showing the user
         var fileName = ""
+        
+        // Seeing if we are dealing with an image file or a video
         if (imageFile) {
+            // Splitting the string into before and after the '?', so we
+            // have the name and extension at fileNameQuery[1]
+            let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
+            
+            // Splitting the string into before and after the '&', so we
+            // have the name at fileNameParameters[0] and extension at fileNameParameters[1]
+            let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
+            
+            // Splitting the string into before and after the '=', so we
+            // have the name at fileNameValue[1]
+            let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
+            
+            // Getting the first hex string from the UUID, so that the name isn't
+            // too long to display
+            let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
+            
             // Hardcoding the extension, as we are generating JPEG images
             fileName = fileNameUUID[0] + ".jpg"
         } else {
+            // The below code is based on the HAPI.uploadFile function
+            let pathArray = String(fileLocation).componentsSeparatedByString("/")
+            
+            // Getting the last value from the path
+            var fullFileName = pathArray.last!
+            
+            // Removing the "trim." from the start of the string
+            fullFileName = fullFileName.stringByReplacingOccurrencesOfString("trim.", withString: "")
+            
+            // Getting the file name and extension from the fullFileName,
+            // with the name stored at fileNameParameters[0] and the extension at
+            // fileNameParameters[1]
+            let fileNameParameters = fullFileName.componentsSeparatedByString(".")
+            
+            // Getting the first hex string from the UUID, so that the name isn't
+            // too long to display
+            let fileNameUUID = String(fileNameParameters[0]).componentsSeparatedByString("-")
+            
             // Joining the file name and extension to create the full file name
             // for video files
-            fileName = fileNameUUID[0] + "." + fileExtension[1]
+            fileName = fileNameUUID[0] + "." + fileNameParameters[1]
         }
         
         logger.debug("File name for generated media: \(fileName)")
