@@ -40,7 +40,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 ### 0.5.0
 * ~~Accept files from other apps~~
 * ~~Upload files to the folder specified by the user on the HAP+ server~~
-* Upload files from the photo gallery with a popover on the 'add' button
+* ~~Upload files from the photo gallery with a popover on the 'add' button~~
 * Check if the file being uploaded exists / has the same name and automatically append a number on the end
 * Prevent auto-downloading files that are over a certain size
 

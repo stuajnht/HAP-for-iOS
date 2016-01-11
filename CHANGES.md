@@ -4,6 +4,7 @@
 
 ### New Stuff
 * Upload files from other apps to a folder on the HAP+ server
+* Upload photo and video files from iOS device to the HAP+ server
 
 ## 0.4.0
 
