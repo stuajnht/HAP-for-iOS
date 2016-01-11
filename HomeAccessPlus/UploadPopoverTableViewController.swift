@@ -86,7 +86,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         // Setting up the permissions needed to access the
         // photos library
-        pscope.addPermission(PhotosPermission(), message: "This is used to upload your photos and videos from this device to the Home Access Plus+ server")
+        pscope.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
     }
 
     override func didReceiveMemoryWarning() {
