@@ -214,35 +214,20 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // directly from the asset-library:// URL
         // See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
         var newImage: UIImage
+        var imagePath = ""
         
         if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerEditedImage\": \(possibleImage)")
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
         } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerOriginalImage\": \(possibleImage)")
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
         } else {
             logger.error("Unable to get the selected image")
             return
         }
-        
-        var imageName = NSUUID().UUIDString
-        logger.debug("UUID for selected image: \(imageName)")
-        // Getting the first hex string from the UUID, so that the name isn't
-        // too long to display
-        let imageArray = imageName.componentsSeparatedByString("-")
-        imageName = imageArray[0]
-        logger.debug("Short file name for image: \(imageName)")
-        
-        let imagePath = getDocumentsInboxDirectory().stringByAppendingPathComponent(imageName + ".jpg")
-        
-        if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
-            logger.debug("Before writing image to Inbox folder")
-            jpegData.writeToFile(imagePath, atomically: true)
-            logger.verbose("JPEG file: \(jpegData)")
-            logger.debug("After writing image to Inbox folder")
-        }
-        logger.debug("Selected media file written to: \(imagePath)")
         
         // Setting the location of the image file in the settings
         settings.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
@@ -271,20 +256,81 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         dismissViewControllerAnimated(true, completion: nil)
     }
     
-    /// Gets the Documents Inbox directory for the current app
+    /// Creates a local copy of the selected image in the documents
+    /// directory, to upload it to the HAP+ server
+    ///
+    /// As the image in the asset library cannot be uploaded directly,
+    /// it needs to be created locally in the app before it can be
+    /// uploaded to the HAP+ server
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-11
+    ///
+    /// - parameter newImage: A reference to the image from the asset library
+    /// - parameter fileLocation: The location in the asset library, to generate
+    ///                           the name of the file from
+    /// - returns: The path to the image in the app
+    func createLocalImage(newImage: UIImage, fileLocation: NSURL) -> String {
+        // The file is coming from the devices photo library, so the
+        // location of the file on the device is a virtual one, and
+        // the file name can not just be collected from the last
+        // value. The value passed to deviceFileLocation will be
+        // assets-library://asset/asset.JPG?id=<UUID>&ext=JPG
+        // so we need to get the hex string from this path. It's
+        // not the best file name in the world, but it's something
+        // The file extension will always be ".jpg" as we're creating
+        // a JPEG image later in this function
+        
+        // Splitting the string into before and after the '?', so we
+        // have the name and extension at fileNameQuery[1]
+        let fileNameQuery = String(fileLocation).componentsSeparatedByString("?")
+        
+        // Splitting the string into before and after the '&', so we
+        // have the name at fileNameParameters[0]
+        let fileNameParameters = String(fileNameQuery[1]).componentsSeparatedByString("&")
+        
+        // Splitting the string into before and after the '=', so we
+        // have the name at fileNameValue[1]
+        let fileNameValue = String(fileNameParameters[0]).componentsSeparatedByString("=")
+        
+        // Getting the first hex string from the UUID, so that the name isn't
+        // too long to display
+        let fileNameUUID = String(fileNameValue[1]).componentsSeparatedByString("-")
+        
+        // Joining the file name and extension to create the full file name
+        let fileName = fileNameUUID[0] + ".jpg"
+        
+        logger.debug("File name for generated image: \(fileName)")
+        
+        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+        
+        if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
+            logger.verbose("Before writing image to documents folder")
+            
+            jpegData.writeToFile(imagePath, atomically: true)
+            
+            logger.verbose("JPEG file: \(jpegData)")
+            logger.verbose("After writing image to documents folder")
+        }
+        
+        logger.debug("Selected media file written to: \(imagePath)")
+        return imagePath
+    }
+    
+    /// Gets the Documents directory for the current app
     ///
     /// See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
     /// - version: 1
-    /// - date: 2016-01-10
-    func getDocumentsInboxDirectory() -> NSString {
+    /// - date: 2016-01-11
+    func getDocumentsDirectory() -> NSString {
         let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-        var documentsDirectory = paths[0]
-        // Appending the Inbox directory to the documents path
-        //documentsDirectory = documentsDirectory + "/Inbox"
-        logger.debug("Documents directory inbox path: \(documentsDirectory)")
+        let documentsDirectory = paths[0]
+        logger.debug("Documents directory path: \(documentsDirectory)")
         return documentsDirectory
     }
 
