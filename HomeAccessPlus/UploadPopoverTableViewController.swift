@@ -227,7 +227,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         } else {
             if (fileMediaType as! String == "public.movie") {
                 logger.debug("Media file selected is a video")
-                imagePath = createLocalVideo(fileDeviceLocation as! NSURL)
+                imagePath = createLocalVideo(info[UIImagePickerControllerMediaURL] as! NSURL)
             } else {
                 logger.error("Unable to get the selected image")
                 return
@@ -311,7 +311,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// - returns: The path to the video in the app
     func createLocalVideo(fileLocation: NSURL) -> String {
         let videoData = NSData(contentsOfURL: fileLocation)
-        logger.debug("Location of video data: \(videoData)")
+        logger.debug("Location of video data: \(fileLocation)")
         
         let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: false))
         
