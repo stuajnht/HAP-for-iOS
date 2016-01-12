@@ -508,14 +508,16 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         return true
     }
 
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            objects.removeAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-        }
-    }
+    // Allowing deleting of the currently selected row
+    // TODO: Uncomment this code when this functionality is being created
+    //override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        //if editingStyle == .Delete {
+            //objects.removeAtIndex(indexPath.row)
+            //tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+        //} else if editingStyle == .Insert {
+            //// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+        //}
+    //}
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //let row = indexPath.row //2
