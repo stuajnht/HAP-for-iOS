@@ -169,9 +169,14 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                         logger.debug("Drive path: \(path)")
                         logger.debug("Drive usage: \(space)")
                         
+                        // Creating a drive letter to show under the name of the
+                        // drive, as this will be familiar to how drives are
+                        // presented with letters on Windows
+                        let driveLetter = path!.stringByReplacingOccurrencesOfString("\\", withString: ":")
+                        
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space)
+                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space)
                     }
                     
                     // Hiding the HUD and adding the drives available to the table
