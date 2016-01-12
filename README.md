@@ -27,6 +27,7 @@ This project uses Cocoapods. Their project source code pages and licenses can be
 * [Font Awesome Swift](https://github.com/Vaberer/Font-Awesome-Swift)
 * [Locksmith](https://github.com/matthewpalmer/Locksmith)
 * [MBProgressHUD](https://github.com/jdg/MBProgressHUD)
+* [PermissionScope](https://github.com/nickoneill/PermissionScope)
 * [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
 
