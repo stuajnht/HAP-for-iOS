@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
+class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -34,6 +34,11 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
     
     // MBProgressHUD variable, so that the detail label can be updated as needed
     var hud : MBProgressHUD = MBProgressHUD()
+    
+    // Seeing how the app should handle the collapse of the master
+    // view in relation to the detail view
+    // See: http://nshipster.com/uisplitviewcontroller/
+    private var collapseDetailViewController = true
     
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
@@ -66,6 +71,8 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         //    let controllers = split.viewControllers
         //    self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         //}
+        
+        splitViewController?.delegate = self
         
         // Setting the navigation bar colour
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
@@ -541,6 +548,15 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         //let fileName = fileItems[row][0] //4
         //newFolder = fileName as! String
         //logger.debug("Folder heading to title: \(newFolder)")
+        
+        // The user has selected something, so collapse the view
+        collapseDetailViewController = false
+    }
+    
+    // MARK: - UISplitViewControllerDelegate
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
+        logger.debug("Master view being shown: \(collapseDetailViewController)")
+        return collapseDetailViewController
     }
     
     /// Delete the local version of the file on successful upload
