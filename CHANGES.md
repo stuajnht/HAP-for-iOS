@@ -6,6 +6,10 @@
 * Upload files from other apps to a folder on the HAP+ server
 * Upload photo and video files from iOS device to the HAP+ server
 
+### Changes
+* Stopped showing the drive space if the HAP+ server reports it as a negative value - #17
+* Included the drive letter under the name of the drive, to help the user identify the one they need
+
 ## 0.4.0
 
 ### New Stuff
