@@ -265,7 +265,10 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
     func isFile(fileType: String) -> Bool {
         // Seeing if this is a Directory based on the file type
         // that has been passed - issue #13
-        if ((fileType == "") || (fileType == "Drive") || (fileType == "Directory")) {
+        // The "Drive" value is looked for in any part of the
+        // fileType string, as we include the drive letter in
+        // the array value - issue #17
+        if ((fileType == "") || (fileType.rangeOfString("Drive") != nil) || (fileType == "Directory")) {
             return false
         } else {
             return true
