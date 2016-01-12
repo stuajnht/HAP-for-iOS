@@ -153,17 +153,25 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
                         let path = subJson["Path"].string
-                        // Removing the 'optional' text displayed when
-                        // converting the space available into a string
-                        // See: http://stackoverflow.com/a/25340084
-                        let space = String(format:"%.2f", subJson["Space"].double!)
+                        // Seeing if the value returned for the drive from the HAP+
+                        // server is a minus value, which should not be displayed
+                        // See: https://github.com/stuajnht/HAP-for-iOS/issues/17
+                        var space = ""
+                        if (subJson["Space"].double! < 0) {
+                            logger.debug("Available drive space is reported as less than 0")
+                        } else {
+                            // Removing the 'optional' text displayed when
+                            // converting the space available into a string
+                            // See: http://stackoverflow.com/a/25340084
+                            space = String(format:"%.2f", subJson["Space"].double!) + "% used"
+                        }
                         logger.debug("Drive name: \(name)")
                         logger.debug("Drive path: \(path)")
                         logger.debug("Drive usage: \(space)")
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space + "% used")
+                        self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space)
                     }
                     
                     // Hiding the HUD and adding the drives available to the table
