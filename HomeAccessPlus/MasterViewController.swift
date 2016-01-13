@@ -451,6 +451,20 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
 
     // MARK: - Segues
 
+    /// Performs the segue to the detail view
+    ///
+    /// If the suer has selected a file, then we can perform the
+    /// segue that shows the file properties (detail) view so
+    /// the user can preview and share the file to other apps
+    ///
+    /// This function will not be called if the selected table
+    /// row item is not a file, as the user is still browsing
+    /// the folder hierarchy - issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: shouldPerformSegueWithIdentifier
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Showing the file properties view and segue, as long as
         // it's a file that has been selected, otherwise the segue
@@ -459,35 +473,42 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             if let indexPath = self.tableView.indexPathForSelectedRow {
                 
                 let fileType = fileItems[indexPath.row][2] as! String
-                let folderTitle = fileItems[indexPath.row][0] as! String
                 let filePath = fileItems[indexPath.row][1] as! String
                 let fileName = fileItems[indexPath.row][0] as! String
                 let fileExtension = fileItems[indexPath.row][3] as! String
                 let fileDetails = fileItems[indexPath.row][4] as! String
-                if (!isFile(fileType)) {
-                    // Stop the segue and follow the path
-                    // See: http://stackoverflow.com/q/31909072
-                    let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
-                    controller.title = folderTitle
-                    logger.debug("Set title to: \(folderTitle)")
-                    controller.currentPath = fileItems[indexPath.row][1] as! String
-                    self.navigationController?.pushViewController(controller, animated: true)
-                } else {
-                    // Show the detail view with the file info
-                    let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                    controller.detailItem = fileType
-                    controller.fileName = fileName
-                    controller.fileType = fileType
-                    controller.fileDetails = fileDetails
-                    controller.fileDownloadPath = filePath
-                    controller.fileExtension = fileExtension
-                    controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                    controller.navigationItem.leftItemsSupplementBackButton = true
-                }
+                
+                // Show the detail view with the file info
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                controller.detailItem = fileType
+                controller.fileName = fileName
+                controller.fileType = fileType
+                controller.fileDetails = fileDetails
+                controller.fileDownloadPath = filePath
+                controller.fileExtension = fileExtension
+                controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                controller.navigationItem.leftItemsSupplementBackButton = true
             }
         }
     }
     
+    /// Preventing the segue to the detail view if a file
+    /// has not been selected
+    ///
+    /// If a file has not yet been selected by the user, then
+    /// they must still be browsing the folder hierarchy. We
+    /// do not want to display the file properties (detail)
+    /// view yet, as it will push over the current folder,
+    /// impeding navigation as the user will constantly keep
+    /// having to press the back button to see the folder
+    /// issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: prepareForSegue
     override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
         // Preventing the detail view being shown on small screen
         // devices if a file has not yet been selected by the user
