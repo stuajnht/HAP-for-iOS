@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
+class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -34,6 +34,11 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
     
     // MBProgressHUD variable, so that the detail label can be updated as needed
     var hud : MBProgressHUD = MBProgressHUD()
+    
+    // Seeing how the app should handle the collapse of the master
+    // view in relation to the detail view
+    // See: http://nshipster.com/uisplitviewcontroller/
+    private var collapseDetailViewController = true
     
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
@@ -60,12 +65,10 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.navigationItem.backBarButtonItem
 
-        //let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
-        //self.navigationItem.rightBarButtonItem = addButton
-        //if let split = self.splitViewController {
-        //    let controllers = split.viewControllers
-        //    self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
-        //}
+        // Setting a delegate for the split view, to see if the file
+        // browser master view should be shown instead of the detail
+        // view - see: http://nshipster.com/uisplitviewcontroller/
+        splitViewController?.delegate = self
         
         // Setting the navigation bar colour
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
@@ -444,22 +447,77 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
 
     // MARK: - Segues
 
+    /// Performs the segue to the detail view
+    ///
+    /// If the suer has selected a file, then we can perform the
+    /// segue that shows the file properties (detail) view so
+    /// the user can preview and share the file to other apps
+    ///
+    /// This function will not be called if the selected table
+    /// row item is not a file, as the user is still browsing
+    /// the folder hierarchy - issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: shouldPerformSegueWithIdentifier
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Showing the file properties view and segue, as long as
+        // it's a file that has been selected, otherwise the segue
+        // is cancelled in shouldPerformSegueWithIdentifier
         if segue.identifier == "showDetail" {
             if let indexPath = self.tableView.indexPathForSelectedRow {
-                //let object = objects[indexPath.row] as! NSDate
-                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                //controller.detailItem = object
-                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = fileItems[indexPath.row][2] as! String
-                let folderTitle = fileItems[indexPath.row][0] as! String
                 let filePath = fileItems[indexPath.row][1] as! String
                 let fileName = fileItems[indexPath.row][0] as! String
                 let fileExtension = fileItems[indexPath.row][3] as! String
                 let fileDetails = fileItems[indexPath.row][4] as! String
+                
+                // Show the detail view with the file info
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                controller.fileName = fileName
+                controller.fileType = fileType
+                controller.fileDetails = fileDetails
+                controller.fileDownloadPath = filePath
+                controller.fileExtension = fileExtension
+                controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                controller.navigationItem.leftItemsSupplementBackButton = true
+            }
+        }
+    }
+    
+    /// Preventing the segue to the detail view if a file
+    /// has not been selected
+    ///
+    /// If a file has not yet been selected by the user, then
+    /// they must still be browsing the folder hierarchy. We
+    /// do not want to display the file properties (detail)
+    /// view yet, as it will push over the current folder,
+    /// impeding navigation as the user will constantly keep
+    /// having to press the back button to see the folder
+    /// issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: prepareForSegue
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        // Preventing the detail view being shown on small screen
+        // devices if a file has not yet been selected by the user
+        // See: https://github.com/stuajnht/HAP-for-iOS/issues/16
+        if identifier == "showDetail" {
+            logger.debug("Seeing if detail segue should be performed")
+            
+            if let indexPath = self.tableView.indexPathForSelectedRow {
+                
+                let fileType = fileItems[indexPath.row][2] as! String
+                let folderTitle = fileItems[indexPath.row][0] as! String
                 if (!isFile(fileType)) {
+                    logger.debug("Detail view segue is not being performed")
+                    
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -467,22 +525,19 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     self.navigationController?.pushViewController(controller, animated: true)
+                    return false
                 } else {
-                    // Show the detail view with the file info
-                    let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                    controller.detailItem = fileType
-                    controller.fileName = fileName
-                    controller.fileType = fileType
-                    controller.fileDetails = fileDetails
-                    controller.fileDownloadPath = filePath
-                    controller.fileExtension = fileExtension
-                    controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                    controller.navigationItem.leftItemsSupplementBackButton = true
+                    // A file has been selected, so perform the segue
+                    logger.debug("Detail view segue will be performed")
+                    return true
                 }
             }
         }
+        
+        // By default, perform the transition
+        return true
     }
-
+    
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -541,6 +596,29 @@ class MasterViewController: UITableViewController, UIPopoverPresentationControll
         //let fileName = fileItems[row][0] //4
         //newFolder = fileName as! String
         //logger.debug("Folder heading to title: \(newFolder)")
+        
+        // The user has selected something, so collapse the view
+        collapseDetailViewController = false
+    }
+    
+    // MARK: - UISplitViewControllerDelegate
+    
+    /// Sees if the master view should be shown instead of the detail
+    /// view on small screen devices
+    ///
+    /// For devices that have a small screen, we want the file browser
+    /// to always be shown to the user before the detail view, which
+    /// is shown once a user selects a file to preview. This function
+    /// looks after that happening - issue #16
+    /// See: http://nshipster.com/uisplitviewcontroller/
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
+        logger.debug("Master view being shown: \(collapseDetailViewController)")
+        return collapseDetailViewController
     }
     
     /// Delete the local version of the file on successful upload
