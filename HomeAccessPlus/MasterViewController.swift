@@ -476,7 +476,6 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 
                 // Show the detail view with the file info
                 let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                controller.detailItem = fileType
                 controller.fileName = fileName
                 controller.fileType = fileType
                 controller.fileDetails = fileDetails
