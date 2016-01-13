@@ -65,13 +65,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.navigationItem.backBarButtonItem
 
-        //let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
-        //self.navigationItem.rightBarButtonItem = addButton
-        //if let split = self.splitViewController {
-        //    let controllers = split.viewControllers
-        //    self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
-        //}
-        
+        // Setting a delegate for the split view, to see if the file
+        // browser master view should be shown instead of the detail
+        // view - see: http://nshipster.com/uisplitviewcontroller/
         splitViewController?.delegate = self
         
         // Setting the navigation bar colour
@@ -539,6 +535,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             }
         }
         
+        // By default, perform the transition
         return true
     }
     
@@ -606,6 +603,20 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     }
     
     // MARK: - UISplitViewControllerDelegate
+    
+    /// Sees if the master view should be shown instead of the detail
+    /// view on small screen devices
+    ///
+    /// For devices that have a small screen, we want the file browser
+    /// to always be shown to the user before the detail view, which
+    /// is shown once a user selects a file to preview. This function
+    /// looks after that happening - issue #16
+    /// See: http://nshipster.com/uisplitviewcontroller/
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
     func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
         logger.debug("Master view being shown: \(collapseDetailViewController)")
         return collapseDetailViewController
