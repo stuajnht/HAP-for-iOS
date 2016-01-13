@@ -16,7 +16,7 @@ Thanks for your interest in contributing to this project. You can contribute or 
 * [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
 
 ## License Terms
-Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](https://github.com/stuajnht/HAP-for-iOS/blob/master/LICENSE.md) file for more information.
+Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
 
 The name "Home Access Plus+" and all server side code are copyright Nick Brown ([nb development](https://nbdev.uk/projects/hap.aspx))
 
