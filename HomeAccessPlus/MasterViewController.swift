@@ -489,7 +489,40 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             }
         }
     }
-
+    
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        if identifier == "showDetail" {
+            if let indexPath = self.tableView.indexPathForSelectedRow {
+                //let object = objects[indexPath.row] as! NSDate
+                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                //controller.detailItem = object
+                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                //controller.navigationItem.leftItemsSupplementBackButton = true
+                
+                let fileType = fileItems[indexPath.row][2] as! String
+                let folderTitle = fileItems[indexPath.row][0] as! String
+                let filePath = fileItems[indexPath.row][1] as! String
+                let fileName = fileItems[indexPath.row][0] as! String
+                let fileExtension = fileItems[indexPath.row][3] as! String
+                let fileDetails = fileItems[indexPath.row][4] as! String
+                if (!isFile(fileType)) {
+                    // Stop the segue and follow the path
+                    // See: http://stackoverflow.com/q/31909072
+                    let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
+                    controller.title = folderTitle
+                    logger.debug("Set title to: \(folderTitle)")
+                    controller.currentPath = fileItems[indexPath.row][1] as! String
+                    self.navigationController?.pushViewController(controller, animated: true)
+                    return false
+                } else {
+                    return true
+                }
+            }
+        }
+        
+        return true
+    }
+    
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
