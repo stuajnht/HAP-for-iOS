@@ -452,13 +452,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // MARK: - Segues
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Showing the file properties view and segue, as long as
+        // it's a file that has been selected, otherwise the segue
+        // is cancelled in shouldPerformSegueWithIdentifier
         if segue.identifier == "showDetail" {
             if let indexPath = self.tableView.indexPathForSelectedRow {
-                //let object = objects[indexPath.row] as! NSDate
-                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                //controller.detailItem = object
-                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = fileItems[indexPath.row][2] as! String
                 let folderTitle = fileItems[indexPath.row][0] as! String
@@ -491,21 +489,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     }
     
     override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        // Preventing the detail view being shown on small screen
+        // devices if a file has not yet been selected by the user
+        // See: https://github.com/stuajnht/HAP-for-iOS/issues/16
         if identifier == "showDetail" {
+            logger.debug("Seeing if detail segue should be performed")
+            
             if let indexPath = self.tableView.indexPathForSelectedRow {
-                //let object = objects[indexPath.row] as! NSDate
-                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                //controller.detailItem = object
-                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = fileItems[indexPath.row][2] as! String
                 let folderTitle = fileItems[indexPath.row][0] as! String
-                let filePath = fileItems[indexPath.row][1] as! String
-                let fileName = fileItems[indexPath.row][0] as! String
-                let fileExtension = fileItems[indexPath.row][3] as! String
-                let fileDetails = fileItems[indexPath.row][4] as! String
                 if (!isFile(fileType)) {
+                    logger.debug("Detail view segue is not being performed")
+                    
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -515,6 +511,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
+                    // A file has been selected, so perform the segue
+                    logger.debug("Detail view segue will be performed")
                     return true
                 }
             }
