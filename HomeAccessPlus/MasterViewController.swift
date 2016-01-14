@@ -449,7 +449,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
 
     /// Performs the segue to the detail view
     ///
-    /// If the suer has selected a file, then we can perform the
+    /// If the user has selected a file, then we can perform the
     /// segue that shows the file properties (detail) view so
     /// the user can preview and share the file to other apps
     ///
