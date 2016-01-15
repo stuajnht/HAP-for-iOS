@@ -84,6 +84,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Creating a delegate for the image picker
         imagePicker.delegate = self
         
+        // Setting the image picker to show inside the popover
+        // and not full screen on large screen devices
+        // See: https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImagePickerController_Class/
+        imagePicker.modalPresentationStyle = .CurrentContext
+        
         // Formatting the image picker navigation bar so the colours
         // are the same as the rest of the app
         // See: http://stackoverflow.com/a/32011882
