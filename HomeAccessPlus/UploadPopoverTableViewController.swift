@@ -84,6 +84,14 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Creating a delegate for the image picker
         imagePicker.delegate = self
         
+        // Formatting the image picker navigation bar so the colours
+        // are the same as the rest of the app
+        // See: http://stackoverflow.com/a/32011882
+        imagePicker.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        imagePicker.navigationBar.tintColor = UIColor.flatWhiteColor()
+        imagePicker.navigationBar.translucent = false
+        imagePicker.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.flatWhiteColor()]
+        
         // Setting up the permissions needed to access the
         // photos library
         pscope.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
