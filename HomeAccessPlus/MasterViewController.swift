@@ -631,20 +631,44 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-11
+    /// - version: 2
+    /// - date: 2016-01-16
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (either the
     ///                                 Documents folder: photos, videos; Inbox folder: files)
     func deleteUploadedLocalFile(fileDeviceLocation: NSURL) {
+        // If the file is coming from an external app, the value
+        // in fileDeviceLocation may contain encoded characters
+        // in the file name, which the "removeItemAtPath" function
+        // doesn't like and can't find the file. These characters
+        // need to be decoded before attempting to delete the file
+        logger.debug("Original raw path of file to delete: \(fileDeviceLocation)")
+        var pathArray = String(fileDeviceLocation).componentsSeparatedByString("/")
+        
+        // Getting the name of the file, which is the last item
+        // in the pathArray array
+        let fileName = pathArray.last!
+        
+        // Removing any encoded characters from the file name, so
+        // the file can be deleted successfully, and saving back
+        // into the array in the last position
+        let newFileName = fileName.stringByRemovingPercentEncoding!
+        pathArray.removeAtIndex(pathArray.indexOf(fileName)!)
+        pathArray.append(newFileName)
+        
+        // Joining the items in the array back together, and removing
+        // the file:// protocol at the start
+        var filePath = pathArray.joinWithSeparator("/")
+        filePath = filePath.stringByReplacingOccurrencesOfString("file://", withString: "")
+        
         // See: http://stackoverflow.com/a/32744011
-        logger.debug("Attempting to delete the file: \(fileDeviceLocation)")
+        logger.debug("Attempting to delete the file at location: \(filePath)")
         do {
-            try NSFileManager.defaultManager().removeItemAtPath("\(fileDeviceLocation)")
-                        logger.debug("Successfully deleted file: \(fileDeviceLocation)")
+            try NSFileManager.defaultManager().removeItemAtPath("\(filePath)")
+                        logger.debug("Successfully deleted file: \(filePath)")
         }
         catch let errorMessage as NSError {
-            logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+            logger.error("There was a problem deleting the file: \(errorMessage)")
         }
         catch {
             logger.error("There was an unknown problem when deleting the file.")
