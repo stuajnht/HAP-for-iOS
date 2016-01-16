@@ -407,7 +407,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // maximum set for the device
             if (largeFileSize()) {
                 // Requesting from the user if the file can be downloaded
-                let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "Do you want to download this large file", preferredStyle: UIAlertControllerStyle.Alert)
+                let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.Alert)
                 confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
                     return true }))
                 confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
