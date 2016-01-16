@@ -37,7 +37,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <subviews>
                                     <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" distribution="fillEqually" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="k3G-PJ-fG2">
-                                        <rect key="frame" x="20" y="79" width="127" height="390"/>
+                                        <rect key="frame" x="20" y="79" width="560" height="390"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gvc-kx-E59">
                                                 <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -46,8 +46,8 @@
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yw5-CQ-hX7">
-                                                <rect key="frame" x="0.0" y="36" width="43" height="30"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" misplaced="YES" text="name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yw5-CQ-hX7">
+                                                <rect key="frame" x="0.0" y="36" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -103,7 +103,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MMs-Vq-riG">
-                                                <rect key="frame" x="0.0" y="324" width="61" height="30"/>
+                                                <rect key="frame" x="0.0" y="324" width="560" height="30"/>
                                                 <animations/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -119,6 +119,10 @@
                                             </button>
                                         </subviews>
                                         <animations/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="MMs-Vq-riG" secondAttribute="trailing" id="YrI-aD-Kt3"/>
+                                            <constraint firstAttribute="trailing" secondItem="Yw5-CQ-hX7" secondAttribute="trailing" id="odC-QD-5hE"/>
+                                        </constraints>
                                     </stackView>
                                     <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" misplaced="YES" text="Please browse to and select a file to preview and share" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="0XM-y9-sOw">
                                         <rect key="frame" x="20" y="292" width="560" height="17"/>
@@ -132,6 +136,7 @@
                                 <animations/>
                                 <constraints>
                                     <constraint firstItem="0XM-y9-sOw" firstAttribute="top" secondItem="ZvH-q5-HkS" secondAttribute="top" constant="20" id="1ap-vR-jYn"/>
+                                    <constraint firstAttribute="trailing" secondItem="k3G-PJ-fG2" secondAttribute="trailing" constant="20" id="7UB-lK-UjP"/>
                                     <constraint firstItem="k3G-PJ-fG2" firstAttribute="leading" secondItem="ZvH-q5-HkS" secondAttribute="leading" constant="40" id="Km5-t9-QTV"/>
                                     <constraint firstAttribute="bottom" secondItem="k3G-PJ-fG2" secondAttribute="bottom" constant="67" id="Krl-17-0H4"/>
                                     <constraint firstItem="0XM-y9-sOw" firstAttribute="leading" secondItem="ZvH-q5-HkS" secondAttribute="leading" constant="20" id="NkT-uA-Kau"/>
