@@ -38,12 +38,6 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 ## To-Do List
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
-### 0.5.0
-* ~~Accept files from other apps~~
-* ~~Upload files to the folder specified by the user on the HAP+ server~~
-* ~~Upload files from the photo gallery with a popover on the 'add' button~~
-* ~~Prevent auto-downloading files that are over a certain size~~
-
 ### 0.6.0
 * Create new folders
 * Delete files / folders
