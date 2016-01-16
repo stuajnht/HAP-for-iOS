@@ -329,13 +329,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if (fileFromPhotoLibrary == false) {
             logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
             fileLocation = settings.stringForKey(settingsUploadFileLocation)!
+            
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
         } else {
             logger.debug("Attempting to upload the photos file: \(settings.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
             fileLocation = settings.stringForKey(settingsUploadPhotosLocation)!
+            
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(string: fileLocation)!
         }
-        
-        // Converting the fileLocation to be a valid NSURL variable
-        fileDeviceLocation = NSURL(string: fileLocation)!
         
         hudUploadingShow()
         
