@@ -109,39 +109,8 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             logger.debug("File selected allowed to be downloaded: \(allowFileDownload)")
             
             if (allowFileDownload) {
-                hudShow()
-                api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
-                    
-                    // There was a problem with downloading the file, so let the
-                    // user know about it
-                    if ((result == false) && (downloading == false)) {
-                        let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                        loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(loginUserFailController, animated: true, completion: nil)
-                    }
-                    
-                    // Seeing if the progress bar should update with the amount
-                    // currently downloaded, if something is downloading
-                    if ((result == false) && (downloading == true)) {
-                        self.hudUpdatePercentage(downloadedBytes, totalBytes: totalBytes)
-                    }
-                    
-                    // The file has downloaded successfuly so we can present the
-                    // file to the user
-                    if ((result == true) && (downloading == false)) {
-                        self.hudHide()
-                        logger.debug("Opening file from: \(downloadLocation)")
-                        self.fileDeviceLocation = String(downloadLocation)
-                        
-                        // Preventing the user being asked if the file
-                        // should be downloaded again, if they click the
-                        // preview button
-                        self.fileDownloaded = true
-                        
-                        // Loading and creating the QuickLook controller
-                        self.quickLookController()
-                    }
-                })
+                // The file is allowed to be downloaded, so do so
+                downloadFile()
             }
         }
     }
@@ -204,7 +173,72 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // the preview button is pressed, if the user pressed
     // the back button when it was displayed previously
     @IBAction func displayPreview(sender: AnyObject) {
-        quickLookController()
+        // Seeing if the file has already been downloaded. If it
+        // has, then we can just present the QuickLook controller,
+        // otherwise we'll need to ask the user if the file can be
+        // downloaded to the device, as it is a large file size
+        if (fileDownloaded) {
+            logger.verbose("Showing the QuickLook controller")
+            quickLookController()
+        } else {
+            // Asking the user if we can download the file from the
+            // HAP+ server, as it is larger than what is allowed.
+            // This is the only function that needs to be called, as
+            // either the file has already been downloaded due to a
+            // small file size (so the above "if" will be true) or
+            // we need to ask the user if the file can be downloaded,
+            // whereby the alert actions call the downloadFile function
+            logger.verbose("Asking the user if the large file can be downloaded to show it")
+            downloadLargeFile()
+        }
+    }
+    
+    /// Downloads the file selected by the user onto the device
+    ///
+    /// Once a user has selected a file to be downloaded, and it
+    /// is either a small file or been allowed to download if it's
+    /// a big file, then this function is called to download the
+    /// file from the HAP+ server onto the device, and then call
+    /// the QuickLook preview controller on a successful download
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-16
+    func downloadFile() ->Void {
+        hudShow()
+        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
+            
+            // There was a problem with downloading the file, so let the
+            // user know about it
+            if ((result == false) && (downloading == false)) {
+                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+            }
+            
+            // Seeing if the progress bar should update with the amount
+            // currently downloaded, if something is downloading
+            if ((result == false) && (downloading == true)) {
+                self.hudUpdatePercentage(downloadedBytes, totalBytes: totalBytes)
+            }
+            
+            // The file has downloaded successfuly so we can present the
+            // file to the user
+            if ((result == true) && (downloading == false)) {
+                self.hudHide()
+                logger.debug("Opening file from: \(downloadLocation)")
+                self.fileDeviceLocation = String(downloadLocation)
+                
+                // Preventing the user being asked if the file
+                // should be downloaded again, if they click the
+                // preview button
+                self.fileDownloaded = true
+                
+                // Loading and creating the QuickLook controller
+                self.quickLookController()
+            }
+        })
     }
     
     /// Showing the details of the currently selected file
@@ -400,35 +434,31 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - returns: Can the selected file be downloaded
     func downloadLargeFile() -> Bool {
-        // Seeing if the file has already been downloaded, in which
-        // case just return true
-        if (!fileDownloaded) {
-            // Seeing if the currently selected file is larger than the
-            // maximum set for the device
-            if (largeFileSize()) {
-                // Requesting from the user if the file can be downloaded
-                let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.Alert)
-                confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
-                    return true }))
-                confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
-                    return false }))
-                self.presentViewController(confirmDownloadLargeFile, animated: true, completion: nil)
-            } else {
-                // The size of the file is smaller than the maximum for
-                // the currently connected network, so it can be downloaded
-                return true
-            }
+        // Seeing if the currently selected file is larger than the
+        // maximum set for the device
+        if (largeFileSize()) {
+            // Requesting from the user if the file can be downloaded
+            let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.Alert)
+            confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                self.downloadFile() }))
+            confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                return false }))
+            self.presentViewController(confirmDownloadLargeFile, animated: true, completion: nil)
+            
+            // The alert view is shown, and then the code continues, as
+            // the choice of the user is only run once a callback from
+            // the alert has executed. Therefore, the only option here
+            // is to return false so the file isn't downloaded, and when
+            // the user has selected the relevant alert action, then
+            // the file can be downloaded if allowed
+            return false
         } else {
-            // The file has already been downloaded, so carry on with
-            // the rest of the calling function
+            // The size of the file is smaller than the maximum for
+            // the currently connected network, so it can be downloaded
             return true
         }
-        
-        // Just in case something doesn't work out correctly above, it's
-        // safer to not allow the file to be downloaded
-        return false
     }
-    
+
     /// Sees if the file the user has selected is larger than the
     /// maximum sizes set to auto-download the file
     ///
