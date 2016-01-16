@@ -8,6 +8,7 @@
 
 ### Changes
 * Included the drive letter under the name of the drive, to help the user identify the one they need
+* Files that are over a certain size (20MB on mobile connections, 100MB on WiFi) need to be allowed by the user before they are downloaded
 
 ### Bug Fixes
 * Stopped the file properties view appearing over the newly browsed to folder on small devices - #16

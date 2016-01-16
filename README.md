@@ -42,12 +42,12 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * ~~Accept files from other apps~~
 * ~~Upload files to the folder specified by the user on the HAP+ server~~
 * ~~Upload files from the photo gallery with a popover on the 'add' button~~
-* Prevent auto-downloading files that are over a certain size
+* ~~Prevent auto-downloading files that are over a certain size~~
 
 ### 0.6.0
 * Create new folders
 * Delete files / folders
-* Check if the file being uploaded exists / has the same name and automatically append a number on the end, or
+* Check if the file being uploaded exists / has the same name and automatically append a number on the end, or;
 * Over-write files that already exist, if the user confirms they want to (requires original file to be deleted first, then new file uploaded)
 
 ### 0.7.0
@@ -58,5 +58,5 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
 ### 0.8.0
-* Swipe table item left to select it or choose cut / copy functions, and paste into new folder
+* Swipe table item right to select it or choose cut / copy functions, and paste into new folder
 * Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover
