@@ -1,5 +1,19 @@
 # Home Access Plus+ iOS app change log
 
+## 0.5.0
+
+### New Stuff
+* Upload files from other apps to a folder on the HAP+ server
+* Upload photo and video files from iOS device to the HAP+ server
+
+### Changes
+* Included the drive letter under the name of the drive, to help the user identify the one they need
+* Files that are over a certain size (20MB on mobile connections, 100MB on WiFi) need to be allowed by the user before they are downloaded
+
+### Bug Fixes
+* Stopped the file properties view appearing over the newly browsed to folder on small devices - #16
+* Stopped showing the drive space if the HAP+ server reports it as a negative value - #17
+
 ## 0.4.0
 
 ### New Stuff

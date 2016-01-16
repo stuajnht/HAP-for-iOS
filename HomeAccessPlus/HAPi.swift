@@ -444,4 +444,142 @@ class HAPi {
             callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
         }
     }
+    
+    /// Uploads the selected file to the HAP+ server
+    ///
+    /// Once a user has browsed to the folder that they would like to
+    /// upload a file they have exported from an extrnal app, it can
+    /// be uploaded to the HAP+ server, so that it can be browsed from
+    /// other network devices that have access to the share / folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 2
+    /// - date: 2016-01-09
+    ///
+    /// - parameter deviceFileLocation: The path to the file on the device (normally
+    ///                                 stored in a folder called "inbox" which can
+    ///                                 be found in the documents directory)
+    /// - parameter serverFileLocation: The location on the HAP+ server that the file
+    ///                                 is going to be uploaded to
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Getting the name of the file that is being uploaded from the
+            // location of the file on the device, which is needed when setting
+            // the httpHeaders
+            logger.debug("Location of file on device: \(deviceFileLocation)")
+            logger.debug("File coming from photos library: \(fileFromPhotoLibrary)")
+            
+            var fileName = ""
+            
+            // As the file is coming from an external app, it will be saved
+            // on the device in a physical location with an extension. We
+            // can just split the path and get the file name from the last
+            // array value
+            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+            
+            // Forcing an unwrap of the value, otherwise the file name
+            // is Optional("<nale>") which causes the HAP+ server to
+            // do a 500 HTTP error
+            // See: http://stackoverflow.com/a/25848016
+            fileName = pathArray.last!
+            
+            // Removing any encoded characters from the file name, so
+            // HAP+ saves the file with the correct file name
+            fileName = fileName.stringByRemovingPercentEncoding!
+            
+            // Formatting the name of the file to make sure that it is
+            // valid for storing on Windows file systems
+            fileName = formatInvalidFileName(fileName)
+            
+            logger.debug("Name of file being uploaded: \(fileName)")
+            
+            // Setting the tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request, and creating a
+            // custom header so that the HAP+ server knows the name of the file
+            // (assuming here, as it's based on what is currently used in the
+            // Windows app, inside the "private async void upload()" function
+            // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
+            let httpHeaders = [
+                "X_FILENAME": fileName,
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Formatting the path that we are going to be using to upload
+            // to, so that it is a valid URL, and also swapping the backslashes '\'
+            // from the string passed with slashes '/'
+            logger.debug("Upload location raw path: \(serverFileLocation)")
+            var uploadLocation = serverFileLocation.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            uploadLocation = uploadLocation.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("Upload location formatted path: \(uploadLocation)")
+            
+            // Uploading the file
+            Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
+                .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
+                    logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
+                    logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
+                    callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
+                }
+                .response { request, response, _, error in
+                    logger.verbose("Server response: \(response)")
+                    callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false, uploading: false, uploadedBytes: 0, totalBytes: 0)
+        }
+    }
+    
+    /// Checking to make sure that the file name doesn't contain
+    /// any names not allowed by Windows
+    ///
+    /// Apps allow you to name files whatever you want to, as they
+    /// are not under the same restrictions as Windows. However, if
+    /// one of these files is uploaded via HAP+, then the file will
+    /// not be accessable to the user, meaning they may loose some
+    /// of their work, which shouldn't happen
+    ///
+    /// The name of the file should be checked to make sure that it
+    /// is not one of the invalid file names, and if so, append an
+    /// underscore "_" to the end of it
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-15
+    ///
+    /// - parameter fullFileName: The full file name and extension that
+    ///                           is going to be given to the HAP+ server
+    /// - returns: The file name with invalid file names modified
+    func formatInvalidFileName(fullFileName: String) -> String {
+        // Making sure that the file name doesn't contain any reserved
+        // names, which Windows forbids, meaning the file will be
+        // inaccessable. See: https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
+        let reservedNames = ["CON","PRN","AUX","NUL",
+            "COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9",
+            "LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9"]
+        
+        // Invalid file names are in the format <reservedNames>.<ext>
+        // but <anything><reservedNames><anything>.<ext> are allowed
+        // so we only really need to check if fileName[0] is invalid
+        var fileName = fullFileName.componentsSeparatedByString(".")
+        
+        // Looping around each item in the reserved names array to see
+        // if fileName[0] matches any of the items
+        for reservedName in reservedNames {
+            if (reservedName.lowercaseString == fileName[0].lowercaseString) {
+                // An invalid file name has been found, so modify it to
+                // contain an underscore at the end
+                logger.warning("Reserved file name found: \(fullFileName)")
+                fileName[0] = fileName[0] + "_"
+            }
+        }
+        
+        // Joining the file name array back up to pass it back to the
+        // calling function
+        return fileName.joinWithSeparator(".")
+    }
 }

@@ -6,6 +6,19 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Home Access Plus+</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>Any File</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.item</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,11 +30,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.4.0</string>
+	<string>0.5.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>410</string>
+	<string>555</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

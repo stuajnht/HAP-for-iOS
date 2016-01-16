@@ -43,9 +43,11 @@ let settingsToken2 = "token2"
 let settingsToken2Name = "token2Name"
 let settingsDeviceType = "deviceType"
 let settingsUserRoles = "userRoles"
+let settingsUploadFileLocation = "uploadFileLocation"
+let settingsUploadPhotosLocation = "uploadPhotosLocation"
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
@@ -80,17 +82,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-    // MARK: - Split view
-
-    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController:UIViewController, ontoPrimaryViewController primaryViewController:UIViewController) -> Bool {
-        guard let secondaryAsNavController = secondaryViewController as? UINavigationController else { return false }
-        guard let topAsDetailController = secondaryAsNavController.topViewController as? DetailViewController else { return false }
-        if topAsDetailController.detailItem == nil {
-            // Return true to indicate that we have handled the collapse by doing nothing; the secondary controller will be discarded.
-            return true
-        }
-        return false
+    
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+        // Called when an extrnal app sends a file to this app so that it can be uploaded to the HAP+ server
+        // See: https://dzone.com/articles/ios-file-association-preview
+        // See: http://www.infragistics.com/community/blogs/stevez/archive/2013/03/15/ios-tips-and-tricks-associate-a-file-type-with-your-app-part-3.aspx
+        logger.debug("App invoked with OpenURL by: \(sourceApplication)")
+        logger.debug("File passed from external app located at: \(url)")
+        
+        // Saving the location of the file on the device so that it
+        // can be accessed later to upload to the HAP+ server
+        settings.setURL(url, forKey: settingsUploadFileLocation)
+        
+        return true
     }
 
 }

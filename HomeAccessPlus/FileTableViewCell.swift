@@ -142,7 +142,7 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAFileTextO
             
             // Video documents
-            case ".avi", ".mp4":
+            case ".avi", ".mp4", ".mov":
                 icon = FAType.FAFileVideoO
             
             // Unknown file with no extension - issue #13

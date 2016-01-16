@@ -24,7 +24,7 @@ import ChameleonFramework
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController {
+class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -34,6 +34,11 @@ class MasterViewController: UITableViewController {
     
     // MBProgressHUD variable, so that the detail label can be updated as needed
     var hud : MBProgressHUD = MBProgressHUD()
+    
+    // Seeing how the app should handle the collapse of the master
+    // view in relation to the detail view
+    // See: http://nshipster.com/uisplitviewcontroller/
+    private var collapseDetailViewController = true
     
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
@@ -60,17 +65,26 @@ class MasterViewController: UITableViewController {
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.navigationItem.backBarButtonItem
 
-        //let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
-        //self.navigationItem.rightBarButtonItem = addButton
-        //if let split = self.splitViewController {
-        //    let controllers = split.viewControllers
-        //    self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
-        //}
+        // Setting a delegate for the split view, to see if the file
+        // browser master view should be shown instead of the detail
+        // view - see: http://nshipster.com/uisplitviewcontroller/
+        splitViewController?.delegate = self
         
         // Setting the navigation bar colour
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
+        
+        // Adding an 'add' button to the navigation bar to allow files
+        // passed to this app from an external one to be uploaded, or
+        // for photo and video files to be added from the device gallery
+        // Note: This isn't shown if there is no path, i.e. we are looking
+        // at the drives listing
+        if (currentPath != "") {
+            logger.debug("Showing the upload 'add' button")
+            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
+            self.navigationItem.rightBarButtonItem = addButton
+        }
         
         // Setting up the ability to refresh the table view when the
         // user is at the top and pulls down, or if there was a problem
@@ -142,17 +156,30 @@ class MasterViewController: UITableViewController {
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
                         let path = subJson["Path"].string
-                        // Removing the 'optional' text displayed when
-                        // converting the space available into a string
-                        // See: http://stackoverflow.com/a/25340084
-                        let space = String(format:"%.2f", subJson["Space"].double!)
+                        // Seeing if the value returned for the drive from the HAP+
+                        // server is a minus value, which should not be displayed
+                        // See: https://github.com/stuajnht/HAP-for-iOS/issues/17
+                        var space = ""
+                        if (subJson["Space"].double! < 0) {
+                            logger.debug("Available drive space is reported as less than 0")
+                        } else {
+                            // Removing the 'optional' text displayed when
+                            // converting the space available into a string
+                            // See: http://stackoverflow.com/a/25340084
+                            space = String(format:"%.2f", subJson["Space"].double!) + "% used"
+                        }
                         logger.debug("Drive name: \(name)")
                         logger.debug("Drive path: \(path)")
                         logger.debug("Drive usage: \(space)")
                         
+                        // Creating a drive letter to show under the name of the
+                        // drive, as this will be familiar to how drives are
+                        // presented with letters on Windows
+                        let driveLetter = path!.stringByReplacingOccurrencesOfString("\\", withString: ":")
+                        
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: "Drive", fileExtension: "Drive", details: space + "% used")
+                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space)
                     }
                     
                     // Hiding the HUD and adding the drives available to the table
@@ -241,7 +268,10 @@ class MasterViewController: UITableViewController {
     func isFile(fileType: String) -> Bool {
         // Seeing if this is a Directory based on the file type
         // that has been passed - issue #13
-        if ((fileType == "") || (fileType == "Drive") || (fileType == "Directory")) {
+        // The "Drive" value is looked for in any part of the
+        // fileType string, as we include the drive letter in
+        // the array value - issue #17
+        if ((fileType == "") || (fileType.rangeOfString("Drive") != nil) || (fileType == "Directory")) {
             return false
         } else {
             return true
@@ -277,6 +307,88 @@ class MasterViewController: UITableViewController {
         self.fileItems.append(currentItem)
     }
     
+    /// Uploads the file from an external app to the HAP+ server,
+    /// in the current browsed to folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 2
+    /// - date: 2016-01-09
+    ///
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func uploadFile(fileFromPhotoLibrary: Bool) {
+        // Holding the location of the file on the device, that
+        // is going to be uploaded
+        var fileLocation = ""
+        
+        var fileDeviceLocation : NSURL
+        
+        // Seeing if we are uploading a file from another app
+        // or the local photo library
+        if (fileFromPhotoLibrary == false) {
+            logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings.stringForKey(settingsUploadFileLocation)!
+            
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
+        } else {
+            logger.debug("Attempting to upload the photos file: \(settings.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings.stringForKey(settingsUploadPhotosLocation)!
+            
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(string: fileLocation)!
+        }
+        
+        hudUploadingShow()
+        
+        // Attempting to upload the file that has been passed
+        // to the app
+        api.uploadFile(fileDeviceLocation, serverFileLocation: currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+            
+            // There was a problem with uploading the file, so let the
+            // user know about it
+            if ((result == false) && (uploading == false)) {
+                let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(uploadFailController, animated: true, completion: nil)
+            }
+            
+            // Seeing if the progress bar should update with the amount
+            // currently uploaded, if something is uploading
+            if ((result == false) && (uploading == true)) {
+                self.hudUpdatePercentage(uploadedBytes, totalBytes: totalBytes)
+            }
+            
+            // The file has uploaded successfuly so we can present the
+            // refresh the current folder to show it, and delete the
+            // local copy of the file from the device
+            if ((result == true) && (uploading == false)) {
+                self.hudHide()
+                logger.debug("File has been uploaded to: \(self.currentPath)")
+                
+                // If the file uploaded is not a photo, then set the
+                // "settingsUploadFileLocation" value to be nil so that
+                // when the user presses the 'add' button again, they
+                // cannot re-upload the file. If they have passed a file
+                // to this app, but have only uploaded a photo, then it
+                // shouldn't be set as nil so they can upload the file at
+                // another time
+                if (fileFromPhotoLibrary == false) {
+                    logger.debug("Setting local file location to nil as it's been uploaded")
+                    settings.setURL(nil, forKey: settingsUploadFileLocation)
+                }
+                
+                // Deleting the local copy of the file that was used to
+                // upload to the HAP+ server
+                self.deleteUploadedLocalFile(fileDeviceLocation)
+                
+                // Refreshing the file browser table
+                self.loadFileBrowser()
+            }
+        })
+    }
+    
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
@@ -304,28 +416,111 @@ class MasterViewController: UITableViewController {
         hud.detailsLabelText = labelText
     }
     
+    // The following functions look after showing the HUD during the download
+    // progress so that the user knows that something is happening.
+    // See: http://stackoverflow.com/a/26901328
+    func hudUploadingShow() {
+        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
+        hud.detailsLabelText = "Uploading..."
+        // See: http://stackoverflow.com/a/26882235
+        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+    }
+    
+    /// Updating the progress bar that is shown in the HUD, so the user
+    /// knows how far along the download is
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-06
+    /// - seealso: hudShow
+    /// - seealso: hudHide
+    ///
+    /// - parameter currentDownloadedBytes: The amount in bytes that has been uploaded
+    /// - parameter totalBytes: The total amount of bytes that is to be uploaded
+    func hudUpdatePercentage(currentUploadedBytes: Int64, totalBytes: Int64) {
+        let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
+        logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
+        hud.progress = currentPercentage
+    }
+    
     func hudHide() {
         MBProgressHUD.hideAllHUDsForView(self.navigationController!.view, animated: true)
     }
 
     // MARK: - Segues
 
+    /// Performs the segue to the detail view
+    ///
+    /// If the user has selected a file, then we can perform the
+    /// segue that shows the file properties (detail) view so
+    /// the user can preview and share the file to other apps
+    ///
+    /// This function will not be called if the selected table
+    /// row item is not a file, as the user is still browsing
+    /// the folder hierarchy - issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: shouldPerformSegueWithIdentifier
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Showing the file properties view and segue, as long as
+        // it's a file that has been selected, otherwise the segue
+        // is cancelled in shouldPerformSegueWithIdentifier
         if segue.identifier == "showDetail" {
             if let indexPath = self.tableView.indexPathForSelectedRow {
-                //let object = objects[indexPath.row] as! NSDate
-                //let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                //controller.detailItem = object
-                //controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                //controller.navigationItem.leftItemsSupplementBackButton = true
                 
                 let fileType = fileItems[indexPath.row][2] as! String
-                let folderTitle = fileItems[indexPath.row][0] as! String
                 let filePath = fileItems[indexPath.row][1] as! String
                 let fileName = fileItems[indexPath.row][0] as! String
                 let fileExtension = fileItems[indexPath.row][3] as! String
                 let fileDetails = fileItems[indexPath.row][4] as! String
+                
+                // Show the detail view with the file info
+                let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
+                controller.fileName = fileName
+                controller.fileType = fileType
+                controller.fileDetails = fileDetails
+                controller.fileDownloadPath = filePath
+                controller.fileExtension = fileExtension
+                controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+                controller.navigationItem.leftItemsSupplementBackButton = true
+            }
+        }
+    }
+    
+    /// Preventing the segue to the detail view if a file
+    /// has not been selected
+    ///
+    /// If a file has not yet been selected by the user, then
+    /// they must still be browsing the folder hierarchy. We
+    /// do not want to display the file properties (detail)
+    /// view yet, as it will push over the current folder,
+    /// impeding navigation as the user will constantly keep
+    /// having to press the back button to see the folder
+    /// issue #16
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
+    ///
+    /// - seealso: prepareForSegue
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        // Preventing the detail view being shown on small screen
+        // devices if a file has not yet been selected by the user
+        // See: https://github.com/stuajnht/HAP-for-iOS/issues/16
+        if identifier == "showDetail" {
+            logger.debug("Seeing if detail segue should be performed")
+            
+            if let indexPath = self.tableView.indexPathForSelectedRow {
+                
+                let fileType = fileItems[indexPath.row][2] as! String
+                let folderTitle = fileItems[indexPath.row][0] as! String
                 if (!isFile(fileType)) {
+                    logger.debug("Detail view segue is not being performed")
+                    
                     // Stop the segue and follow the path
                     // See: http://stackoverflow.com/q/31909072
                     let controller: MasterViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! MasterViewController
@@ -333,22 +528,19 @@ class MasterViewController: UITableViewController {
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     self.navigationController?.pushViewController(controller, animated: true)
+                    return false
                 } else {
-                    // Show the detail view with the file info
-                    let controller = (segue.destinationViewController as! UINavigationController).topViewController as! DetailViewController
-                    controller.detailItem = fileType
-                    controller.fileName = fileName
-                    controller.fileType = fileType
-                    controller.fileDetails = fileDetails
-                    controller.fileDownloadPath = filePath
-                    controller.fileExtension = fileExtension
-                    controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                    controller.navigationItem.leftItemsSupplementBackButton = true
+                    // A file has been selected, so perform the segue
+                    logger.debug("Detail view segue will be performed")
+                    return true
                 }
             }
         }
+        
+        // By default, perform the transition
+        return true
     }
-
+    
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -390,14 +582,16 @@ class MasterViewController: UITableViewController {
         return true
     }
 
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            objects.removeAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-        }
-    }
+    // Allowing deleting of the currently selected row
+    // TODO: Uncomment this code when this functionality is being created
+    //override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        //if editingStyle == .Delete {
+            //objects.removeAtIndex(indexPath.row)
+            //tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+        //} else if editingStyle == .Insert {
+            //// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+        //}
+    //}
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //let row = indexPath.row //2
@@ -405,6 +599,115 @@ class MasterViewController: UITableViewController {
         //let fileName = fileItems[row][0] //4
         //newFolder = fileName as! String
         //logger.debug("Folder heading to title: \(newFolder)")
+        
+        // The user has selected something, so collapse the view
+        collapseDetailViewController = false
+    }
+    
+    // MARK: - UISplitViewControllerDelegate
+    
+    /// Sees if the master view should be shown instead of the detail
+    /// view on small screen devices
+    ///
+    /// For devices that have a small screen, we want the file browser
+    /// to always be shown to the user before the detail view, which
+    /// is shown once a user selects a file to preview. This function
+    /// looks after that happening - issue #16
+    /// See: http://nshipster.com/uisplitviewcontroller/
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 1
+    /// - date: 2016-01-13
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
+        logger.debug("Master view being shown: \(collapseDetailViewController)")
+        return collapseDetailViewController
+    }
+    
+    /// Delete the local version of the file on successful upload
+    ///
+    /// Once the file has been successfully uploaded, it is not needed
+    /// to be stored on the device, so can be deleted to save space
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 2
+    /// - date: 2016-01-16
+    ///
+    /// - parameter deviceFileLocation: The path to the file on the device (either the
+    ///                                 Documents folder: photos, videos; Inbox folder: files)
+    func deleteUploadedLocalFile(fileDeviceLocation: NSURL) {
+        // If the file is coming from an external app, the value
+        // in fileDeviceLocation may contain encoded characters
+        // in the file name, which the "removeItemAtPath" function
+        // doesn't like and can't find the file. These characters
+        // need to be decoded before attempting to delete the file
+        logger.debug("Original raw path of file to delete: \(fileDeviceLocation)")
+        var pathArray = String(fileDeviceLocation).componentsSeparatedByString("/")
+        
+        // Getting the name of the file, which is the last item
+        // in the pathArray array
+        let fileName = pathArray.last!
+        
+        // Removing any encoded characters from the file name, so
+        // the file can be deleted successfully, and saving back
+        // into the array in the last position
+        let newFileName = fileName.stringByRemovingPercentEncoding!
+        pathArray.removeAtIndex(pathArray.indexOf(fileName)!)
+        pathArray.append(newFileName)
+        
+        // Joining the items in the array back together, and removing
+        // the file:// protocol at the start
+        var filePath = pathArray.joinWithSeparator("/")
+        filePath = filePath.stringByReplacingOccurrencesOfString("file://", withString: "")
+        
+        // See: http://stackoverflow.com/a/32744011
+        logger.debug("Attempting to delete the file at location: \(filePath)")
+        do {
+            try NSFileManager.defaultManager().removeItemAtPath("\(filePath)")
+                        logger.debug("Successfully deleted file: \(filePath)")
+        }
+        catch let errorMessage as NSError {
+            logger.error("There was a problem deleting the file: \(errorMessage)")
+        }
+        catch {
+            logger.error("There was an unknown problem when deleting the file.")
+        }
+    }
+    
+    // MARK: Upload popover
+    func showUploadPopover(sender: UIBarButtonItem) {
+        // See: http://www.appcoda.com/presentation-controllers-tutorial/
+        // See: http://stackoverflow.com/a/28291804
+        let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
+        vc.delegate = self
+        vc.modalPresentationStyle = UIModalPresentationStyle.Popover
+        vc.preferredContentSize = CGSize(width: 320, height: 320)
+        if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
+            popover.barButtonItem = sender
+            popover.delegate = self
+        }
+        presentViewController(vc, animated: true, completion:nil)
+    }
+    
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.FullScreen
+    }
+    
+    func presentationController(controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
+        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: "dismiss")
+        navigationController.topViewController!.navigationItem.rightBarButtonItem = btnCancelUploadPopover
+        // Setting the navigation bar colour
+        navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        navigationController.topViewController!.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
+        navigationController.topViewController!.navigationController!.navigationBar.translucent = false
+        return navigationController
+    }
+    
+    func dismiss() {
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
 
 

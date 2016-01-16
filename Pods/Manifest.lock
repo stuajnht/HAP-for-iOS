@@ -6,6 +6,7 @@ PODS:
   - Font-Awesome-Swift (1.4.5)
   - Locksmith (2.0.2)
   - MBProgressHUD (0.9.1)
+  - PermissionScope (1.0.1)
   - SwiftyJSON (2.3.1)
   - XCGLogger (3.1.1)
 
@@ -15,6 +16,7 @@ DEPENDENCIES:
   - Font-Awesome-Swift
   - Locksmith
   - MBProgressHUD
+  - PermissionScope
   - SwiftyJSON
   - XCGLogger
 
@@ -24,6 +26,7 @@ SPEC CHECKSUMS:
   Font-Awesome-Swift: 0af30357ab68dbcfa2d211254a5c11a158261112
   Locksmith: 7f2b68448449a7712348f9a4ed60604c1cc8dfa6
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
+  PermissionScope: 9767066cedefd211d90a8c4f92f6f1a987085ee8
   SwiftyJSON: 592b53bee5ef3dd9b3bebc6b9cb7ee35426ae8c3
   XCGLogger: e111a313f609432394c3ae378d99511634fd2e3c
 
