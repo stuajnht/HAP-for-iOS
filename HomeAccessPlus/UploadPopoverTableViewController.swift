@@ -58,6 +58,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // library
     let pscope = PermissionScope()
     
+    // Holding a reference to the currently selected table
+    // row, so that if the user cancels the image picker,
+    // it can be deselected
+    var currentlySelectedRow : NSIndexPath?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -150,13 +155,17 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-07
+    /// - version: 2
+    /// - date: 2016-01-16
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
         logger.debug("Cell tapped section: \(section)")
         logger.debug("Cell tapped row: \(row)")
+        
+        // Saving the currently selected row, so that if the user
+        // presses cancel on the image picker, it can be deselected
+        currentlySelectedRow = indexPath
         
         // The user has selected to upload a photo
         if ((section == 0) && (row == 0)) {
@@ -306,12 +315,20 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// works on it's own, but Apple says it's needed, so it's going in
     /// See: https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImagePickerControllerDelegate_Protocol/index.html#//apple_ref/occ/intfm/UIImagePickerControllerDelegate/imagePickerControllerDidCancel:
     ///
+    /// However, if the user cancels the image picker, then we use this
+    /// function to deselect the table row, so that they know something
+    /// else can be chosen
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-09
+    /// - version: 2
+    /// - date: 2016-01-16
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: {
+            // Deselecting the selected row, so that it is not kept
+            // selected if the user cancels the image picker
+            self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+        })
     }
     
     /// Creates a local copy of the selected image in the documents
