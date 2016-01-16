@@ -89,17 +89,25 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // See: https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImagePickerController_Class/
         imagePicker.modalPresentationStyle = .CurrentContext
         
-        // Formatting the image picker navigation bar so the colours
-        // are the same as the rest of the app
-        // See: http://stackoverflow.com/a/32011882
-        imagePicker.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
-        imagePicker.navigationBar.tintColor = UIColor.flatWhiteColor()
-        imagePicker.navigationBar.translucent = false
-        imagePicker.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.flatWhiteColor()]
-        
         // Setting up the permissions needed to access the
         // photos library
         pscope.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Formatting the image picker navigation bar so the colours
+        // are the same as the rest of the app, but only if this view
+        // controller is inside a modal view, and not a popover
+        // See: http://stackoverflow.com/a/31656088
+        let popoverPresentationController = self.parentViewController?.popoverPresentationController
+        if (UIPopoverArrowDirection.Unknown == popoverPresentationController?.arrowDirection) {
+            logger.verbose("Current view is inside a modal window, so formatting image picker navigation bar colours")
+            // See: http://stackoverflow.com/a/32011882
+            imagePicker.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+            imagePicker.navigationBar.tintColor = UIColor.flatWhiteColor()
+            imagePicker.navigationBar.translucent = false
+            imagePicker.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.flatWhiteColor()]
+        }
     }
 
     override func didReceiveMemoryWarning() {
