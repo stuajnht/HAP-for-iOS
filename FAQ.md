@@ -14,7 +14,7 @@ While HAP+ server contains [support for a large number of common file types](htt
 
 > :warning: This involves modifying a core file in HAP+ that may get over-written when HAP+ is updated. If you find that support for certain file types has stopped working after an update, complete the steps below again. You do this at your own risk&hellip; create a copy of the file before modifying, just to be safe.
 
-> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file may be [found here](http://www.freeformatter.com/mime-types-list.html), otherwise it should be `application/octetstream`
+> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file may be found [here](http://www.freeformatter.com/mime-types-list.html) or [here](http://www.sitepoint.com/web-foundations/mime-types-complete-list/), otherwise it should be `application/octetstream`
 
 1. On your HAP+ webserver, browse to and open the following file `~\images\icons\knownicons.xml` (where `~` is the root directory of your HAP+ install, usually `C:\inetpub\wwwroot\hap\images\icons\knownicons.xml`)
 2. Above the final line that ends with `</Icons>` add the following lines:
@@ -23,6 +23,7 @@ While HAP+ server contains [support for a large number of common file types](htt
 <Icon icon="docx.png" extension="epub" type="Electronic Publication" contenttype="application/epub+zip" />
 <Icon icon="pptx.png" extension="keynote" type="Apple iWorks Keynote" contenttype="application/octetstream" />
 <Icon icon="xlsx.png" extension="numbers" type="Apple iWorks Numbers" contenttype="application/octetstream" />
+<Icon icon="vid.png" extension="mov" type="QuickTime Movie" contenttype="video/quicktime" />
 <Icon icon="docx.png" extension="pages" type="Apple iWorks Pages" contenttype="application/octetstream" />
 ```
 3. Save the file
