@@ -552,14 +552,16 @@ class HAPi {
             // API adds to the file path, so that it can be used to locate
             // the file item directly to be able to delete it
             logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
-            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download", withString: "")
-            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            // The HTTP request body need to have the file name enclosed in
+            // square brackets and quotes, e.g. ["<filePath>"]
+            formattedPath = "[\"" + formattedPath + "\"]"
             logger.debug("Item being deleted formatted path: \(formattedPath)")
             
             // Setting the tokens that are collected from the login, so the HAP+
             // server knows which user has sent this request
             let httpHeaders = [
+                "Content-Type": "application/json",
                 "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
             ]
             
@@ -569,8 +571,9 @@ class HAPi {
             // and the string passed to this URL is the name of the file
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
+            // See: http://allocinit.io/ios/gzip-alamofire/
             logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete/", headers: httpHeaders, encoding: .Custom({
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", headers: httpHeaders, encoding: .Custom({
                     (convertible, params) in
                     let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
                     mutableRequest.HTTPBody = formattedPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
