@@ -553,6 +553,11 @@ class HAPi {
             // the file item directly to be able to delete it
             logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
             var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            
+            // Converting any backslashes from a folder path into forward
+            // slashes, so that the HAP+ server is able to delete folders
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
             // The HTTP request body need to have the file name enclosed in
             // square brackets and quotes, e.g. ["<filePath>"]
             formattedPath = "[\"" + formattedPath + "\"]"
