@@ -582,16 +582,32 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         return true
     }
 
-    // Allowing deleting of the currently selected row
-    // TODO: Uncomment this code when this functionality is being created
-    //override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        //if editingStyle == .Delete {
+    // Deleting the file item on the currently selected row
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
+            api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
+                
+                // There was a problem with deleting the file item,
+                // so let the user know about it
+                if (result == false) {
+                    logger.error("There was a problem deleting the file item: \(deleteItemAtLocation)")
+                }
+                
+                // The file was deleted, so remove the item from the
+                // table with an animation, instead of reloading the
+                // whole folder from the HAP+ server
+                if (result == false) {
+                    logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
+                    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+                }
+            })
             //objects.removeAtIndex(indexPath.row)
             //tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         //} else if editingStyle == .Insert {
             //// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-        //}
-    //}
+        }
+    }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //let row = indexPath.row //2

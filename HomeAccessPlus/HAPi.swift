@@ -533,6 +533,59 @@ class HAPi {
         }
     }
     
+    /// Deletes the selected file or folder
+    ///
+    /// If a user has requested that a file or folder should be deleted,
+    /// then this needs to be sent to the HAP+ server.
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-18
+    ///
+    /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
+    ///                               that the user has requested to be deleted
+    func deleteFile(deleteItemAtPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Replacing the '../Download' navigation path that the HAP+
+            // API adds to the file path, so that it can be used to locate
+            // the file item directly to be able to delete it
+            logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
+            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download", withString: "")
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            logger.debug("Item being deleted formatted path: \(formattedPath)")
+            
+            // Setting the tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Connecting to the API to delete the file item
+            // The file that is to be deleted is passed to the API in the
+            // request body, i.e. the URL is <hapServer>/api/myfiles/Delete
+            // and the string passed to this URL is the name of the file
+            // item to delete e.g. H/file.txt
+            // See: http://stackoverflow.com/a/28552198
+            logger.debug("Attempting to delete the selected file item")
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete/", headers: httpHeaders, encoding: .Custom({
+                    (convertible, params) in
+                    let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
+                    mutableRequest.HTTPBody = formattedPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+                    return (mutableRequest, nil)
+                }))
+                // Parsing the response
+                .response { request, response, data, error in
+                    logger.debug("Request: \(request)")
+                    logger.debug("Response: \(response)")
+                    logger.debug("Data: \(data)")
+                    logger.debug("Error: \(error)")
+                }
+        }
+    }
+    
     /// Checking to make sure that the file name doesn't contain
     /// any names not allowed by Windows
     ///
