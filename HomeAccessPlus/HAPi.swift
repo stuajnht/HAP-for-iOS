@@ -571,9 +571,8 @@ class HAPi {
             // and the string passed to this URL is the name of the file
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
-            // See: http://allocinit.io/ios/gzip-alamofire/
             logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", headers: httpHeaders, encoding: .Custom({
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
                     (convertible, params) in
                     let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
                     mutableRequest.HTTPBody = formattedPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
