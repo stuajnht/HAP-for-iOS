@@ -3,11 +3,22 @@ Before asking for help or reporting a bug, please read through these Frequently 
 
 ## Contents
 * [I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect](#i-am-typing-in-a-correct-home-access-plus-server-address-but-i-am-being-told-it-is-incorrect)
+* [What option should I choose after the initial setup: "Personal", "Shared" or "Single"?](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single)
+* [When browsing files, the app downloads and previews a "_login.aspx_" file](#when-browsing-files-the-app-downloads-and-previews-a-login.aspx-file)
 * [Files from &lt;_app name_&gt; are showing their extension and "File" as the document type](#files-from-app-name-are-showing-their-extension-and-file-as-the-document-type)
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
 You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
+
+## What option should I choose after the initial setup: "Personal", "Shared" or "Single"?
+The app is designed to be used in a number of setups, namely Personal, Shared or Single. Which option you should choose is the one that best matches how the device you're installing it on to is being used. If you're still not sure, a more thorough description of each option is given below:
+* *Personal* - This is the option that should be chosen if you have bought the device for your own use, such as your mobile phone. If you are a student, this is most likely the option that you'll choose
+* *Shared* - If the iOS device is part of a class set or shared between departments. The app will log the user out once the lesson ends, to prevent other students being able to access work that isn't theirs (requires the HAP+ timetable plugin). Note: This is currently not implemented yet
+* *Single* - The device that the app has been installed on is part of a 1:1 scheme, whereby the device is not shared between students and a single student will always log in to the same device
+
+## When browsing files, the app downloads and previews a "_login.aspx_" file
+This is due to the logon tokens for the app expiring, so the HAP+ server attempts to show the login page that is used when browsing using an Internet browser. Currently, the app doesn't automatically re-login, so you'll need to close the app and open it again. This will be fixed in a future build.
 
 ## Files from &lt;_app name_&gt; are showing their extension and "File" as the document type
 While HAP+ server contains [support for a large number of common file types](http://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Web/images/icons/knownicons.xml), apps for iOS may include their own extensions which are not commonly known. If you are uploading files from &lt;_app name_&gt; and they are showing the file name and extension, instead of just the file name, and the description of the file type is "File" then you will need to include these additional file types for HAP+ to be able to understand them. Follow the steps below to complete this:
