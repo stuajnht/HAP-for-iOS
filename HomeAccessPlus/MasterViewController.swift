@@ -581,6 +581,29 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Return false if you do not want the specified item to be editable.
         return true
     }
+    
+    /// Preventing the swipe to delete action if "My Drives" is
+    /// the currenty active view
+    ///
+    /// As users cannot delete their drives, if they are on the
+    /// "My Drives" view then the ability to swipe to delete
+    /// should be disabled
+    /// See: http://stackoverflow.com/a/31040496
+    ///
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-20
+    override func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        // Seeing if we are showing the user their available drives
+        // or if the user is browsing the folder hierarchy
+        if (currentPath == "") {
+            return UITableViewCellEditingStyle.None
+        } else {
+            return UITableViewCellEditingStyle.Delete
+        }
+    }
 
     // Deleting the file item on the currently selected row
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
