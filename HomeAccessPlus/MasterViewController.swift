@@ -585,23 +585,24 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // Deleting the file item on the currently selected row
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
-            api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
-                
-                // There was a problem with deleting the file item,
-                // so let the user know about it
-                if (result == false) {
-                    logger.error("There was a problem deleting the file item: \(deleteItemAtLocation)")
-                }
-                
-                // The file was deleted, so remove the item from the
-                // table with an animation, instead of reloading the
-                // whole folder from the HAP+ server
-                if (result == false) {
-                    logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
-                    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-                }
-            })
+            // Fetches the current file from the fileItems array
+            let file = fileItems[indexPath.row]
+            
+            // Seeing if the item selected is a file or folder, so
+            // that the alert to the user is customised
+            var fileOrFolder = "file"
+            if (!isFile((file[2] as? String)!)) {
+                fileOrFolder = "folder"
+            }
+            
+            // Checking with the user that they actually want to
+            // delete the file item that they have selected
+            let deleteConfirmation = UIAlertController(title: "Delete " + fileOrFolder, message: "Are you sure that you want to delete this " + fileOrFolder + "?", preferredStyle: UIAlertControllerStyle.Alert)
+            deleteConfirmation.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: {(alertAction) -> Void in
+                self.deleteFile(indexPath) }))
+            deleteConfirmation.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(deleteConfirmation, animated: true, completion: nil)
+            
             //objects.removeAtIndex(indexPath.row)
             //tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         //} else if editingStyle == .Insert {
@@ -618,6 +619,47 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         
         // The user has selected something, so collapse the view
         collapseDetailViewController = false
+    }
+    
+    /// Deletes the file item selected by the user, once they have
+    /// confirmed that that actually want to
+    ///
+    /// Once a user has selected to delete a file, they are alerted
+    /// and need to confirm that they are actially sure the file item
+    /// is to be deleted. If they confirm so, then this function is
+    /// called, which in turn calls the deleteFile function from the
+    /// HAPi
+    ///
+    /// Once a file has been deleted from the HAP+ server, the row
+    /// is removed from the table list and file items array, so as
+    /// to avoid having to reload the whole folder again
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-20
+    ///
+    /// - parameter indexPath: The index in the table and file items array
+    ///                        that we are deleting the file item from
+    func deleteFile(indexPath: NSIndexPath) {
+        let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
+        api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
+            
+            // There was a problem with deleting the file item,
+            // so let the user know about it
+            if (result == false) {
+                logger.error("There was a problem deleting the file item: \(deleteItemAtLocation)")
+            }
+            
+            // The file was deleted, so remove the item from the
+            // table with an animation, instead of reloading the
+            // whole folder from the HAP+ server
+            if (result == true) {
+                logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
+                self.fileItems.removeAtIndex(indexPath.row)
+                self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            }
+        })
     }
     
     // MARK: - UISplitViewControllerDelegate
