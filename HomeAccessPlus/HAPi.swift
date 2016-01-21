@@ -540,8 +540,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-18
+    /// - version: 2
+    /// - date: 2016-01-21
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
@@ -562,6 +562,17 @@ class HAPi {
             // square brackets and quotes, e.g. ["<filePath>"]
             formattedPath = "[\"" + formattedPath + "\"]"
             logger.debug("Item being deleted formatted path: \(formattedPath)")
+            
+            // Getting the name of the file or folder that is being deleted,
+            // so that it can be checked against the response from the HAP+
+            // server if the file item has been deleted properly
+            // - seealso: uploadFile
+            var fileName = ""
+            let pathArray = String(formattedPath).componentsSeparatedByString("/")
+            fileName = pathArray.last!
+            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = formatInvalidFileName(fileName)
+            logger.debug("Name of file item being deleted: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
             // server knows which user has sent this request
@@ -585,10 +596,23 @@ class HAPi {
                 }))
                 // Parsing the response
                 .response { request, response, data, error in
-                    logger.debug("Request: \(request)")
-                    logger.debug("Response: \(response)")
-                    logger.debug("Data: \(data)")
-                    logger.debug("Error: \(error)")
+                    logger.verbose("Request: \(request)")
+                    logger.verbose("Response: \(response)")
+                    logger.verbose("Data: \(data)")
+                    logger.verbose("Error: \(error)")
+                    
+                    // The response body that the HAP+ server responds
+                    // with is ["Deleted <file item name>"] so we need
+                    // to check to see if this is returned. If it is,
+                    // then let the user know the file was deleted
+                    // otherwise let them know there was a problem
+                    let deletionResponse = data!
+                    logger.debug("Response from server from deleting file: \(deletionResponse)")
+                    if (deletionResponse == "[\"Deleted \(fileName)\"]") {
+                        logger.debug("\(fileName) was successfully deleted from the server")
+                    } else {
+                        logger.error("There was a problem deleting the file from the server")
+                    }
                 }
         }
     }
