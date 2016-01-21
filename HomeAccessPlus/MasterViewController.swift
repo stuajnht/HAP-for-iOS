@@ -623,7 +623,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             let deleteConfirmation = UIAlertController(title: "Delete " + fileOrFolder, message: "Are you sure that you want to delete this " + fileOrFolder + "?", preferredStyle: UIAlertControllerStyle.Alert)
             deleteConfirmation.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: {(alertAction) -> Void in
                 self.deleteFile(indexPath) }))
-            deleteConfirmation.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+            deleteConfirmation.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                    // Removing the delete button being shown
+                    // See: http://stackoverflow.com/a/22063692
+                    self.tableView.setEditing(false, animated: true)
+                }))
             self.presentViewController(deleteConfirmation, animated: true, completion: nil)
             
             //objects.removeAtIndex(indexPath.row)
