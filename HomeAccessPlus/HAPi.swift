@@ -607,8 +607,55 @@ class HAPi {
                     // then let the user know the file was deleted
                     // otherwise let them know there was a problem
                     let deletionResponse = data!
-                    logger.debug("Response from server from deleting file: \(deletionResponse)")
-                    if (deletionResponse == "[\"Deleted \(fileName)\"]") {
+                    logger.debug("Raw response from server from deleting file item: \(deletionResponse)")
+                    
+                    // For some reason, the response body data is also
+                    // hex encoded, which means it needs to be decoded
+                    // first before any checks can be done to see if the
+                    // file item has been successfully deleted
+                    // See: http://stackoverflow.com/a/31817292
+                    // See: http://stackoverflow.com/a/27880748
+                    // See: http://stackoverflow.com/q/27067508
+                    let pattern = "(0x)?([0-9a-f]{2})"
+                    let regex = try! NSRegularExpression(pattern: pattern, options: .CaseInsensitive)
+                    let nsString = String(deletionResponse)
+                    let matches = regex.matchesInString(String(deletionResponse), options: [], range: NSMakeRange(0,  nsString.characters.count))
+                    logger.debug("Number of regex matches: \(matches.count)")
+                    
+                    var collectMatches: Array<String> = []
+                    for match in matches {
+                        // range at index 0: full match
+                        // range at index 1: first capture group
+                        var substring = (String(deletionResponse) as NSString).substringWithRange(match.rangeAtIndex(0))
+                        substring = String(Character(UnicodeScalar(UInt32(substring)!)))
+                        logger.debug("Substring value: \(substring)")
+                        collectMatches.append(substring)
+                    }
+                    
+                    logger.debug("Result from matches: \(collectMatches)")
+                    //let formattedDeletionResponse = matches.map {
+                        //Character(UnicodeScalar(UInt32(nsString.substringWithRange($0.rangeAtIndex(2)), radix: 16)!))
+                    //}
+                    //let characters = matches.map {
+                        //Character(UnicodeScalar(UInt32(nsString.substringWithRange($0.rangeAtIndex(2)), radix: 16)!))
+                    //}
+                    
+                    
+                    //let regex = try NSRegularExpression(pattern: "(0x)?([0-9a-f]{2})", options: .CaseInsensitive)
+                    //let nsString = deletionResponse as NSString
+                    //let results = regex.matchesInString(deletionResponse, options: [], range: NSMakeRange(0, nsString.length))
+                    //let formattedDeletionResponse = results.map { nsString.substringWithRange($0.range)}
+                    
+                    // Getting the output from the matches array/
+                    // See: http://stackoverflow.com/a/25827087
+                    let formattedDeletionResponse = collectMatches.description
+                    logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
+                    
+                    // Seeing if the file was deleted successfully or not
+                    // Note: There is no ending \"] after the fileName as
+                    //       this is added when we get the name of the file
+                    //       earlier in this function
+                    if (formattedDeletionResponse == "[\"Deleted \(fileName)") {
                         logger.debug("\(fileName) was successfully deleted from the server")
                     } else {
                         logger.error("There was a problem deleting the file from the server")
