@@ -165,11 +165,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
     ///         |    0    |  2  | Upload file from app |
+    ///         |---------|-----|----------------------|
+    ///         |    1    |  0  | New folder           |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
-    /// - date: 2016-01-16
+    /// - version: 3
+    /// - date: 2016-01-22
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -236,6 +238,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
             self.dismissViewControllerAnimated(true, completion: nil)
+        }
+        
+        // The user has selected to create a new folder
+        if ((section == 1) && (row == 0)) {
+            logger.debug("Cell function: Create new folder")
         }
     }
     
