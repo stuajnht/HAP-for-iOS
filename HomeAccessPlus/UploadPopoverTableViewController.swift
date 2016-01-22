@@ -261,11 +261,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         let enteredText = theTextFields[0].text
                         if (enteredText! != "") {
                             logger.debug("New folder name: \(enteredText!)")
+                        } else {
+                            self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
                         }
                     }
                 })
             
-            newFolderAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+            newFolderAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { Void in
+                self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            }))
             
             newFolderAlert?.addAction(action)
             self.presentViewController(newFolderAlert!, animated: true, completion: nil)
