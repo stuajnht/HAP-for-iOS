@@ -622,7 +622,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // delete the file item that they have selected
             let deleteConfirmation = UIAlertController(title: "Delete " + fileOrFolder, message: "Are you sure that you want to delete this " + fileOrFolder + "?", preferredStyle: UIAlertControllerStyle.Alert)
             deleteConfirmation.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: {(alertAction) -> Void in
-                self.deleteFile(indexPath) }))
+                self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
             deleteConfirmation.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
                     // Removing the delete button being shown
                     // See: http://stackoverflow.com/a/22063692
@@ -663,12 +663,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-20
+    /// - version: 2
+    /// - date: 2016-01-22
     ///
     /// - parameter indexPath: The index in the table and file items array
     ///                        that we are deleting the file item from
-    func deleteFile(indexPath: NSIndexPath) {
+    /// - parameter fileOrFolder: Whether the item being deleted is a file
+    ///                           or a folder, so that the error message can
+    ///                           be customised correctly
+    func deleteFile(indexPath: NSIndexPath, fileOrFolder: String) {
         let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
         api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
             
@@ -676,6 +679,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // so let the user know about it
             if (result == false) {
                 logger.error("There was a problem deleting the file item: \(deleteItemAtLocation)")
+                
+                // The cancel and default action styles are back to front, as
+                // the cancel option is bold, which we want the 'try again'
+                // option to be chosen by the user
+                let deletionProblemAlert = UIAlertController(title: "Unable to delete " + fileOrFolder, message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                    self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
+                self.presentViewController(deletionProblemAlert, animated: true, completion: nil)
             }
             
             // The file was deleted, so remove the item from the

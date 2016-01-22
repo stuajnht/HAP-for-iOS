@@ -540,8 +540,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-21
+    /// - version: 3
+    /// - date: 2016-01-22
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
@@ -657,8 +657,10 @@ class HAPi {
                     //       earlier in this function
                     if (formattedDeletionResponse == "[\"Deleted \(fileName)") {
                         logger.debug("\(fileName) was successfully deleted from the server")
+                        callback(result: true)
                     } else {
                         logger.error("There was a problem deleting the file from the server")
+                        callback(result: false)
                     }
                 }
         }
