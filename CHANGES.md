@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 0.6.0
+
+### New Stuff
+* Files and folders can be deleted by swiping them to the left
+
 ## 0.5.0
 
 ### New Stuff

@@ -533,6 +533,139 @@ class HAPi {
         }
     }
     
+    /// Deletes the selected file or folder
+    ///
+    /// If a user has requested that a file or folder should be deleted,
+    /// then this needs to be sent to the HAP+ server.
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 3
+    /// - date: 2016-01-22
+    ///
+    /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
+    ///                               that the user has requested to be deleted
+    func deleteFile(deleteItemAtPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Replacing the '../Download' navigation path that the HAP+
+            // API adds to the file path, so that it can be used to locate
+            // the file item directly to be able to delete it
+            logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
+            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            
+            // Converting any backslashes from a folder path into forward
+            // slashes, so that the HAP+ server is able to delete folders
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // The HTTP request body need to have the file name enclosed in
+            // square brackets and quotes, e.g. ["<filePath>"]
+            formattedPath = "[\"" + formattedPath + "\"]"
+            logger.debug("Item being deleted formatted path: \(formattedPath)")
+            
+            // Getting the name of the file or folder that is being deleted,
+            // so that it can be checked against the response from the HAP+
+            // server if the file item has been deleted properly
+            // - seealso: uploadFile
+            var fileName = ""
+            let pathArray = String(formattedPath).componentsSeparatedByString("/")
+            fileName = pathArray.last!
+            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = formatInvalidFileName(fileName)
+            logger.debug("Name of file item being deleted: \(fileName)")
+            
+            // Setting the tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Connecting to the API to delete the file item
+            // The file that is to be deleted is passed to the API in the
+            // request body, i.e. the URL is <hapServer>/api/myfiles/Delete
+            // and the string passed to this URL is the name of the file
+            // item to delete e.g. H/file.txt
+            // See: http://stackoverflow.com/a/28552198
+            logger.debug("Attempting to delete the selected file item")
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
+                    (convertible, params) in
+                    let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
+                    mutableRequest.HTTPBody = formattedPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+                    return (mutableRequest, nil)
+                }))
+                // Parsing the response
+                .response { request, response, data, error in
+                    logger.verbose("Request: \(request)")
+                    logger.verbose("Response: \(response)")
+                    logger.verbose("Data: \(data)")
+                    logger.verbose("Error: \(error)")
+                    
+                    // The response body that the HAP+ server responds
+                    // with is ["Deleted <file item name>"] so we need
+                    // to check to see if this is returned. If it is,
+                    // then let the user know the file was deleted
+                    // otherwise let them know there was a problem
+                    let deletionResponse = data!
+                    logger.debug("Raw response from server from deleting file item: \(deletionResponse)")
+                    
+                    // For some reason, the response body data is also
+                    // hex encoded, which means it needs to be decoded
+                    // first before any checks can be done to see if the
+                    // file item has been successfully deleted
+                    
+                    // Removing any characters from the string that shouldn't
+                    // be there, namely '<', '>' and ' ', as these cause
+                    // problems parsing the string result
+                    var deletionString = String(deletionResponse)
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString("<", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(">", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(" ", withString: "")
+                    
+                    // Converting the hex string into Unicode values, to check
+                    // that the file item from the server has been successfully
+                    // deleted
+                    // See: http://stackoverflow.com/a/30795372
+                    var deletionStringCharacters = [Character]()
+                    
+                    for characterPosition in deletionString.characters {
+                        deletionStringCharacters.append(characterPosition)
+                    }
+                    
+                    // This version of Swift is different from the
+                    // hex to ascii example used above, so we need
+                    // to call a different function
+                    // See: http://stackoverflow.com/a/24372631
+                    let characterMap =  0.stride(to: deletionStringCharacters.count, by: 2).map{
+                        strtoul(String(deletionStringCharacters[$0 ..< $0+2]), nil, 16)
+                    }
+                    
+                    var decodedString = ""
+                    var characterMapPosition = 0
+                    
+                    while characterMapPosition < characterMap.count {
+                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
+                        characterMapPosition++
+                    }
+                    
+                    let formattedDeletionResponse = decodedString
+                    logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
+                    
+                    // Seeing if the file was deleted successfully or not
+                    // Note: There is no ending \"] after the fileName as
+                    //       this is added when we get the name of the file
+                    //       earlier in this function
+                    if (formattedDeletionResponse == "[\"Deleted \(fileName)") {
+                        logger.debug("\(fileName) was successfully deleted from the server")
+                        callback(result: true)
+                    } else {
+                        logger.error("There was a problem deleting the file from the server")
+                        callback(result: false)
+                    }
+                }
+        }
+    }
+    
     /// Checking to make sure that the file name doesn't contain
     /// any names not allowed by Windows
     ///
