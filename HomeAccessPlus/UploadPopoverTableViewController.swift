@@ -243,6 +243,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user has selected to create a new folder
         if ((section == 1) && (row == 0)) {
             logger.debug("Cell function: Create new folder")
+            
+            // Displaying an alert view with a textbox for the
+            // user to type in the name of the folder
+            // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+            var newFolderAlert:UIAlertController?
+            newFolderAlert = UIAlertController(title: "New folder", message: "Please enter the name of the folder", preferredStyle: .Alert)
+            
+            newFolderAlert!.addTextFieldWithConfigurationHandler(
+                {(textField: UITextField!) in
+                    textField.placeholder = "Folder name"
+            })
+            
+            let action = UIAlertAction(title: "Create", style: UIAlertActionStyle.Default, handler: {(paramAction:UIAlertAction!) in
+                    if let textFields = newFolderAlert?.textFields{
+                        let theTextFields = textFields as [UITextField]
+                        let enteredText = theTextFields[0].text
+                        if (enteredText! != "") {
+                            logger.debug("New folder name: \(enteredText!)")
+                        }
+                    }
+                })
+            
+            newFolderAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+            
+            newFolderAlert?.addAction(action)
+            self.presentViewController(newFolderAlert!, animated: true, completion: nil)
         }
     }
     
