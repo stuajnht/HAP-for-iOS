@@ -672,8 +672,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///                           or a folder, so that the error message can
     ///                           be customised correctly
     func deleteFile(indexPath: NSIndexPath, fileOrFolder: String) {
+        hudShow("Deleting " + fileOrFolder)
         let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
         api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
+            self.hudHide()
             
             // There was a problem with deleting the file item,
             // so let the user know about it
