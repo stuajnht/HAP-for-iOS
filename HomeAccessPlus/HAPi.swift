@@ -616,23 +616,23 @@ class HAPi {
                     // See: http://stackoverflow.com/a/31817292
                     // See: http://stackoverflow.com/a/27880748
                     // See: http://stackoverflow.com/q/27067508
-                    let pattern = "(0x)?([0-9a-f]{2})"
-                    let regex = try! NSRegularExpression(pattern: pattern, options: .CaseInsensitive)
-                    let nsString = String(deletionResponse)
-                    let matches = regex.matchesInString(String(deletionResponse), options: [], range: NSMakeRange(0,  nsString.characters.count))
-                    logger.debug("Number of regex matches: \(matches.count)")
+                    //let pattern = "(0x)?([0-9a-f]{2})"
+                    //let regex = try! NSRegularExpression(pattern: pattern, options: .CaseInsensitive)
+                    //let nsString = String(deletionResponse)
+                    //let matches = regex.matchesInString(String(deletionResponse), options: [], range: NSMakeRange(0,  nsString.characters.count))
+                    //logger.debug("Number of regex matches: \(matches.count)")
                     
-                    var collectMatches: Array<String> = []
-                    for match in matches {
-                        // range at index 0: full match
-                        // range at index 1: first capture group
-                        var substring = (String(deletionResponse) as NSString).substringWithRange(match.rangeAtIndex(0))
-                        substring = String(Character(UnicodeScalar(UInt32(substring)!)))
-                        logger.debug("Substring value: \(substring)")
-                        collectMatches.append(substring)
-                    }
+                    //var collectMatches: Array<String> = []
+                    //for match in matches {
+                        //// range at index 0: full match
+                        //// range at index 1: first capture group
+                        //var substring = (String(deletionResponse) as NSString).substringWithRange(match.rangeAtIndex(0))
+                        //substring = String(Character(UnicodeScalar(UInt32(substring)!)))
+                        //logger.debug("Substring value: \(substring)")
+                        //collectMatches.append(substring)
+                    //}
                     
-                    logger.debug("Result from matches: \(collectMatches)")
+                    //logger.debug("Result from matches: \(collectMatches)")
                     //let formattedDeletionResponse = matches.map {
                         //Character(UnicodeScalar(UInt32(nsString.substringWithRange($0.rangeAtIndex(2)), radix: 16)!))
                     //}
@@ -646,9 +646,39 @@ class HAPi {
                     //let results = regex.matchesInString(deletionResponse, options: [], range: NSMakeRange(0, nsString.length))
                     //let formattedDeletionResponse = results.map { nsString.substringWithRange($0.range)}
                     
+                    // Removing any characters from the string that shouldn't
+                    // be there, namely '<', '>' and ' ', as these cause
+                    // problems parsing the string result
+                    var deletionString = String(deletionResponse)
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString("<", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(">", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(" ", withString: "")
+                    
+                    // See: http://stackoverflow.com/a/30795372
+                    var chars = [Character]()
+                    
+                    for c in deletionString.characters
+                    {
+                        chars.append(c)
+                    }
+                    
+                    // See: http://stackoverflow.com/a/24372631
+                    let numbers =  0.stride(to: chars.count, by: 2).map{
+                        strtoul(String(chars[$0 ..< $0+2]), nil, 16)
+                    }
+                    
+                    var final = ""
+                    var i = 0
+                    
+                    while i < numbers.count {
+                        final.append(Character(UnicodeScalar(Int(numbers[i]))))
+                        i++
+                    }
+                    
+                    
                     // Getting the output from the matches array/
                     // See: http://stackoverflow.com/a/25827087
-                    let formattedDeletionResponse = collectMatches.description
+                    let formattedDeletionResponse = final
                     logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
                     
                     // Seeing if the file was deleted successfully or not
