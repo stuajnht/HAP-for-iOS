@@ -39,6 +39,10 @@ protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
     func uploadFile(fileFromPhotoLibrary: Bool)
+    
+    // This calls the newFolder function in the master view
+    // controller
+    func newFolder(folderName: String)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -261,6 +265,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         let enteredText = theTextFields[0].text
                         if (enteredText! != "") {
                             logger.debug("New folder name: \(enteredText!)")
+                            
+                            // Calling the newFolder delegate function, so that
+                            // the folder can be created
+                            self.delegate?.newFolder(enteredText!)
+                            
+                            // Dismissing the popover as it's done what is needed
+                            self.dismissViewControllerAnimated(true, completion: nil)
                         } else {
                             self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
                         }

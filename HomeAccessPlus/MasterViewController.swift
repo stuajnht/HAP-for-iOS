@@ -389,6 +389,24 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         })
     }
     
+    /// Creates a new folder inside the currently browsed to folder
+    ///
+    /// This function will be called from the upload popover delegate
+    /// once the user has named the folder. This function will then
+    /// format the folder name, pass it to the HAPi to create the
+    /// folder, then reload the file browser table on successful
+    /// folder creation
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-22
+    ///
+    /// - parameter folderName: The name of the folder to be created
+    func newFolder(folderName: String) {
+        logger.debug("Folder name from delegate callback: \(folderName)")
+    }
+    
     
     // MARK: MBProgressHUD
     // The following functions look after showing the HUD during the login
