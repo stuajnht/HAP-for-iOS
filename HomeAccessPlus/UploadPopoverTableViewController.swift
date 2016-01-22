@@ -63,6 +63,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // it can be deselected
     var currentlySelectedRow : NSIndexPath?
     
+    /// Array to hold the number of table sections and rows
+    /// shown in the popover
+    ///
+    /// This nested array should hold the names of the table
+    /// sections, along with the number of rows in that section.
+    /// When numberOfSectionsInTableView is called, it uses this
+    /// array to generate the correct number of rows to display
+    ///
+    /// If there are any additional sections or rows added to
+    /// the table, then this array needs to also be updated to
+    /// allow them to be shown to the user
+    let tableSections : [[String]] = [["Upload", "3"], ["Create", "1"]]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -124,16 +137,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // Returning the number of sections that are in the table
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 1
+        logger.verbose("Number of sections in upload popover: \(tableSections.count)")
+        return tableSections.count
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Returning the number of rows in the current table section
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 3
+        logger.verbose("Number of rows in table section \(section): \(Int(tableSections[section][1])!)")
+        return Int(tableSections[section][1])!
     }
     
     /// Seeing what cell the user has selected from the table, and
