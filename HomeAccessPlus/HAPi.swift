@@ -493,7 +493,7 @@ class HAPi {
             
             // Formatting the name of the file to make sure that it is
             // valid for storing on Windows file systems
-            fileName = formatInvalidFileName(fileName)
+            fileName = formatInvalidName(fileName)
             
             logger.debug("Name of file being uploaded: \(fileName)")
             
@@ -571,7 +571,7 @@ class HAPi {
             let pathArray = String(formattedPath).componentsSeparatedByString("/")
             fileName = pathArray.last!
             fileName = fileName.stringByRemovingPercentEncoding!
-            fileName = formatInvalidFileName(fileName)
+            fileName = formatInvalidName(fileName)
             logger.debug("Name of file item being deleted: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
@@ -711,8 +711,8 @@ class HAPi {
         }
     }
     
-    /// Checking to make sure that the file name doesn't contain
-    /// any names not allowed by Windows
+    /// Checking to make sure that the file or folder name doesn't
+    /// contain any names not allowed by Windows
     ///
     /// Apps allow you to name files whatever you want to, as they
     /// are not under the same restrictions as Windows. However, if
@@ -724,26 +724,43 @@ class HAPi {
     /// is not one of the invalid file names, and if so, append an
     /// underscore "_" to the end of it
     ///
+    /// Since 0.6.0-aplha new folders can also be created via the app,
+    /// and this function is also called to make sure that the name
+    /// of the folder does also not contain any invalid characters
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-15
+    /// - version: 2
+    /// - date: 2016-01-23
     ///
-    /// - parameter fullFileName: The full file name and extension that
-    ///                           is going to be given to the HAP+ server
-    /// - returns: The file name with invalid file names modified
-    func formatInvalidFileName(fullFileName: String) -> String {
+    /// - parameter fullName: The full name (and extension for files)
+    ///                       that is going to be given to the HAP+
+    ///                       server to create the resource
+    /// - returns: The item name with reserved characters modified
+    func formatInvalidName(fullName: String) -> String {
         // Making sure that the file name doesn't contain any reserved
         // names, which Windows forbids, meaning the file will be
         // inaccessable. See: https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
         let reservedNames = ["CON","PRN","AUX","NUL",
             "COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9",
             "LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9"]
+        let reservedCharacters = ["<",">",":","\"","/","\\","|","?","*"]
+        
+        // Looping around the full name to check that there aren't
+        // any reserved characters in the name. This should be done
+        // before the file name is checked for reserved characters
+        // as any part of the file or folder name should not contain
+        // any reserved characters. Any reserved character that are
+        // found are replaced with an underscore "_"
+        var formattedFullName = fullName
+        for reservedCharacter in reservedCharacters {
+            formattedFullName = formattedFullName.stringByReplacingOccurrencesOfString(reservedCharacter, withString: "_")
+        }
         
         // Invalid file names are in the format <reservedNames>.<ext>
         // but <anything><reservedNames><anything>.<ext> are allowed
         // so we only really need to check if fileName[0] is invalid
-        var fileName = fullFileName.componentsSeparatedByString(".")
+        var fileName = formattedFullName.componentsSeparatedByString(".")
         
         // Looping around each item in the reserved names array to see
         // if fileName[0] matches any of the items
@@ -751,7 +768,7 @@ class HAPi {
             if (reservedName.lowercaseString == fileName[0].lowercaseString) {
                 // An invalid file name has been found, so modify it to
                 // contain an underscore at the end
-                logger.warning("Reserved file name found: \(fullFileName)")
+                logger.warning("Reserved file name found: \(fullName)")
                 fileName[0] = fileName[0] + "_"
             }
         }
