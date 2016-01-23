@@ -399,12 +399,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-22
+    /// - version: 2
+    /// - date: 2016-01-23
     ///
     /// - parameter folderName: The name of the folder to be created
     func newFolder(folderName: String) {
+        hudShow("Creating \"" + folderName + "\" folder")
         logger.debug("Folder name from delegate callback: \(folderName)")
+        
+        // Calling the HAPi to create the new folder
+        api.newFolder(currentPath, newFolderName: folderName, callback: { (result: Bool) -> Void in
+            self.hudHide()
+        })
     }
     
     

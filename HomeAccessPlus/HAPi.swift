@@ -666,6 +666,51 @@ class HAPi {
         }
     }
     
+    /// Creates a new folder in the currently viewed folder
+    ///
+    /// The user can create a folder in the currently browsed
+    /// to folder from the upload popover, and this function
+    /// calls the relevant HAP+ API to create the folder. It also
+    /// checks to make sure there are no forbidden characters in
+    /// the name of the folder, and converts the current folder
+    /// and new folder name into URL encoded strings, so that the
+    /// HAP+ server can create the folder correctly
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-23
+    ///
+    /// - parameter currentFolder: Path to the folder that is currently
+    ///                            being shown to the user
+    /// - parameter newFolderName: The name of the new folder that is to
+    ///                            be created
+    func newFolder(currentFolder: String, newFolderName: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            logger.debug("New folder to be created in location: \(currentFolder)")
+            logger.debug("New folder raw name: \(newFolderName)")
+            
+            // Removing invalid characters from the new folder name
+            var formattedNewFolderName = newFolderName.stringByReplacingOccurrencesOfString("\\", withString: "_")
+            formattedNewFolderName = formattedNewFolderName.stringByReplacingOccurrencesOfString("/", withString: "_")
+            
+            // Replacing the escaped slashes with a forward slash
+            // from the current folder path
+            var folderFormattedPath = currentFolder.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            folderFormattedPath = folderFormattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // Combining the path of the current folder with the name
+            // of the new folder
+            var fullNewFolderPath = folderFormattedPath + "/" + formattedNewFolderName
+            
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            
+            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
+        }
+    }
+    
     /// Checking to make sure that the file name doesn't contain
     /// any names not allowed by Windows
     ///
