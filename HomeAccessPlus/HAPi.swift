@@ -692,8 +692,7 @@ class HAPi {
             logger.debug("New folder raw name: \(newFolderName)")
             
             // Removing invalid characters from the new folder name
-            var formattedNewFolderName = newFolderName.stringByReplacingOccurrencesOfString("\\", withString: "_")
-            formattedNewFolderName = formattedNewFolderName.stringByReplacingOccurrencesOfString("/", withString: "_")
+            let formattedNewFolderName = formatInvalidName(newFolderName)
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
@@ -707,7 +706,34 @@ class HAPi {
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
             fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             
-            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
+            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")// Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to create the new folder
+            logger.debug("Attempting to create the new folder")
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                .responseJSON { response in switch response.result {
+                case .Success:
+                    logger.debug("Response from creating new folder: \(response.data)")
+                    // Letting the callback know we have successfully logged in
+                    callback(result: true)
+                    
+                case .Failure(let error):
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: false)
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false)
         }
     }
     

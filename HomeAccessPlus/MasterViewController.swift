@@ -410,6 +410,23 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Calling the HAPi to create the new folder
         api.newFolder(currentPath, newFolderName: folderName, callback: { (result: Bool) -> Void in
             self.hudHide()
+            
+            // There was a problem with creating the folder, so let the
+            // user know about it
+            if (result == false) {
+                let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(uploadFailController, animated: true, completion: nil)
+            }
+            
+            // The folder has been created successfuly so we can present and
+            // refresh the current folder to show it
+            if (result == true) {
+                logger.debug("A new folder has been created in: \(self.currentPath)")
+                
+                // Refreshing the file browser table
+                self.loadFileBrowser()
+            }
         })
     }
     
