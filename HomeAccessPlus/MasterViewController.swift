@@ -733,6 +733,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // See: http://stackoverflow.com/a/22063692
                     self.tableView.setEditing(false, animated: true)
                 }))
+                // Setting the try again button style to be cancel, so
+                // that it is emboldened in the alert and looks like
+                // the default button to press
                 deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
                     self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
                 self.presentViewController(deletionProblemAlert, animated: true, completion: nil)

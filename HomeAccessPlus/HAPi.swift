@@ -607,7 +607,7 @@ class HAPi {
                     // then let the user know the file was deleted
                     // otherwise let them know there was a problem
                     let deletionResponse = data!
-                    logger.debug("Raw response from server from deleting file item: \(deletionResponse)")
+                    logger.verbose("Raw response from server from deleting file item: \(deletionResponse)")
                     
                     // For some reason, the response body data is also
                     // hex encoded, which means it needs to be decoded

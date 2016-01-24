@@ -259,7 +259,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     textField.placeholder = "Folder name"
             })
             
-            let action = UIAlertAction(title: "Create", style: UIAlertActionStyle.Default, handler: {(paramAction:UIAlertAction!) in
+            // Setting the create button style to be cancel, so
+            // that it is emboldened in the alert and looks like
+            // the default button to press
+            let action = UIAlertAction(title: "Create", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
                     if let textFields = newFolderAlert?.textFields{
                         let theTextFields = textFields as [UITextField]
                         let enteredText = theTextFields[0].text
