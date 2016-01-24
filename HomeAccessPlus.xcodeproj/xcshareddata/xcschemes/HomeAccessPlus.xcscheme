@@ -14,6 +14,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AD19AF81872ACF7D173D357F578929DE"
+               BuildableName = "Pods_HomeAccessPlus.framework"
+               BlueprintName = "Pods-HomeAccessPlus"
+               ReferencedContainer = "container:Pods/Pods.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "FCB1D9E51C09F54C00DEC02E"
                BuildableName = "HomeAccessPlus.app"
                BlueprintName = "HomeAccessPlus"
