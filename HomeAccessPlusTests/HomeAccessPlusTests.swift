@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,6 +44,41 @@ class HomeAccessPlusTests: XCTestCase {
         self.measureBlock {
             // Put the code you want to measure the time of here.
         }
+    }
+    
+    /// Testing the HAPi formatting of invalid file and
+    /// folder names completes successfully
+    func testHAPiFormatInvalidFileName() {
+        // Loading an instance of the HAPi
+        let api = HAPi()
+        
+        // A valid file name
+        let validFileName = "Hello world.txt"
+        XCTAssert(api.formatInvalidName(validFileName) == validFileName, validFileName + " contains no invalid characters, so shouldn't be formatted")
+        
+        // A valid file name less extention
+        let validFileNameLessExtension = "Hello world"
+        XCTAssert(api.formatInvalidName(validFileNameLessExtension) == validFileNameLessExtension, validFileNameLessExtension + " contains no invalid characters, so shouldn't be formatted")
+        
+        // An invalid file name
+        let invalidFileName = "CON.txt"
+        XCTAssert(api.formatInvalidName(invalidFileName) == "CON_.txt", invalidFileName + " should have an underscore before the file extention")
+        
+        // An invalid file name less extention
+        let invalidFileNameLessExtention = "CON"
+        XCTAssert(api.formatInvalidName(invalidFileNameLessExtention) == "CON_", invalidFileNameLessExtention + " should have an underscore after the file name")
+        
+        // A valid file name that begins with a forbidden name
+        let validFileNameWithForbiddenString = "Console.txt"
+        XCTAssert(api.formatInvalidName(validFileNameWithForbiddenString) == validFileNameWithForbiddenString, validFileNameWithForbiddenString + " contains no invalid characters, so shouldn't be formatted")
+        
+        // A valid folder name
+        let validFolderName = "My folder"
+        XCTAssert(api.formatInvalidName(validFolderName) == validFolderName, validFolderName + " contains no invalid characters, so shouldn't be formatted")
+        
+        // An invalid folder name
+        let invalidFolderName = "My*folder"
+        XCTAssert(api.formatInvalidName(invalidFolderName) == "My_folder", invalidFolderName + " should have an underscore between 'My' and 'folder'")
     }
     
 }

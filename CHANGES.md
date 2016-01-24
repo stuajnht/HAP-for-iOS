@@ -4,6 +4,7 @@
 
 ### New Stuff
 * Files and folders can be deleted by swiping them to the left
+* New folders can be created in the currently viewed folder
 
 ## 0.5.0
 

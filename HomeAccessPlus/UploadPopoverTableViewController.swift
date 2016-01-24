@@ -39,6 +39,10 @@ protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
     func uploadFile(fileFromPhotoLibrary: Bool)
+    
+    // This calls the newFolder function in the master view
+    // controller
+    func newFolder(folderName: String)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -62,6 +66,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // row, so that if the user cancels the image picker,
     // it can be deselected
     var currentlySelectedRow : NSIndexPath?
+    
+    /// Array to hold the number of table sections and rows
+    /// shown in the popover
+    ///
+    /// This nested array should hold the names of the table
+    /// sections, along with the number of rows in that section.
+    /// When numberOfSectionsInTableView is called, it uses this
+    /// array to generate the correct number of rows to display
+    ///
+    /// If there are any additional sections or rows added to
+    /// the table, then this array needs to also be updated to
+    /// allow them to be shown to the user
+    let tableSections : [[String]] = [["Upload", "3"], ["Create", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,16 +141,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // Returning the number of sections that are in the table
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 1
+        logger.verbose("Number of sections in upload popover: \(tableSections.count)")
+        return tableSections.count
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Returning the number of rows in the current table section
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 3
+        logger.verbose("Number of rows in table section \(section): \(Int(tableSections[section][1])!)")
+        return Int(tableSections[section][1])!
     }
     
     /// Seeing what cell the user has selected from the table, and
@@ -152,11 +169,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
     ///         |    0    |  2  | Upload file from app |
+    ///         |---------|-----|----------------------|
+    ///         |    1    |  0  | New folder           |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
-    /// - date: 2016-01-16
+    /// - version: 3
+    /// - date: 2016-01-22
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -223,6 +242,48 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
             self.dismissViewControllerAnimated(true, completion: nil)
+        }
+        
+        // The user has selected to create a new folder
+        if ((section == 1) && (row == 0)) {
+            logger.debug("Cell function: Create new folder")
+            
+            // Displaying an alert view with a textbox for the
+            // user to type in the name of the folder
+            // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+            var newFolderAlert:UIAlertController?
+            newFolderAlert = UIAlertController(title: "New folder", message: "Please enter the name of the folder", preferredStyle: .Alert)
+            
+            newFolderAlert!.addTextFieldWithConfigurationHandler(
+                {(textField: UITextField!) in
+                    textField.placeholder = "Folder name"
+            })
+            
+            let action = UIAlertAction(title: "Create", style: UIAlertActionStyle.Default, handler: {(paramAction:UIAlertAction!) in
+                    if let textFields = newFolderAlert?.textFields{
+                        let theTextFields = textFields as [UITextField]
+                        let enteredText = theTextFields[0].text
+                        if (enteredText! != "") {
+                            logger.debug("New folder name: \(enteredText!)")
+                            
+                            // Calling the newFolder delegate function, so that
+                            // the folder can be created
+                            self.delegate?.newFolder(enteredText!)
+                            
+                            // Dismissing the popover as it's done what is needed
+                            self.dismissViewControllerAnimated(true, completion: nil)
+                        } else {
+                            self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                        }
+                    }
+                })
+            
+            newFolderAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { Void in
+                self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            }))
+            
+            newFolderAlert?.addAction(action)
+            self.presentViewController(newFolderAlert!, animated: true, completion: nil)
         }
     }
     
