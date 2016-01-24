@@ -727,7 +727,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // the cancel option is bold, which we want the 'try again'
                 // option to be chosen by the user
                 let deletionProblemAlert = UIAlertController(title: "Unable to delete " + fileOrFolder, message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                    // Removing the delete button being shown, if the
+                    // user cancels the deletion attempt
+                    // See: http://stackoverflow.com/a/22063692
+                    self.tableView.setEditing(false, animated: true)
+                }))
                 deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
                     self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
                 self.presentViewController(deletionProblemAlert, animated: true, completion: nil)

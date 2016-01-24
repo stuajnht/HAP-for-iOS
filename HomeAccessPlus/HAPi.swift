@@ -540,8 +540,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 3
-    /// - date: 2016-01-22
+    /// - version: 4
+    /// - date: 2016-01-24
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
@@ -560,8 +560,8 @@ class HAPi {
             
             // The HTTP request body need to have the file name enclosed in
             // square brackets and quotes, e.g. ["<filePath>"]
-            formattedPath = "[\"" + formattedPath + "\"]"
-            logger.debug("Item being deleted formatted path: \(formattedPath)")
+            let formattedJSONPath = "[\"" + formattedPath + "\"]"
+            logger.debug("Item being deleted formatted path: \(formattedJSONPath)")
             
             // Getting the name of the file or folder that is being deleted,
             // so that it can be checked against the response from the HAP+
@@ -591,7 +591,7 @@ class HAPi {
             Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
                     (convertible, params) in
                     let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
-                    mutableRequest.HTTPBody = formattedPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+                    mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
                     return (mutableRequest, nil)
                 }))
                 // Parsing the response
@@ -652,10 +652,7 @@ class HAPi {
                     logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
                     
                     // Seeing if the file was deleted successfully or not
-                    // Note: There is no ending \"] after the fileName as
-                    //       this is added when we get the name of the file
-                    //       earlier in this function
-                    if (formattedDeletionResponse == "[\"Deleted \(fileName)") {
+                    if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
                         logger.debug("\(fileName) was successfully deleted from the server")
                         callback(result: true)
                     } else {
