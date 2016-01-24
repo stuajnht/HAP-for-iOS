@@ -46,6 +46,31 @@ class HomeAccessPlusTests: XCTestCase {
         }
     }
     
+    /// Testing the MasterViewController isFile function
+    /// returns the correct value based on what is passed
+    func testMasterViewControllerIsFile() {
+        // Loading an instance of the master view controller
+        let mvc = MasterViewController()
+        
+        // An empty string
+        XCTAssertFalse(mvc.isFile(""), "An empty string should return false for being a file")
+        
+        // A drive with a letter
+        XCTAssertFalse(mvc.isFile("H: Drive"), "A drive with a letter should return flase for being a file")
+        
+        // A drive without a letter
+        XCTAssertFalse(mvc.isFile("Drive"), "A drive without a letter should return false for being a file")
+        
+        // A directory from the file browser
+        XCTAssertFalse(mvc.isFile("Directory"), "A directory should return false for being a file")
+        
+        // A known file type
+        XCTAssertTrue(mvc.isFile("JPEG Image"), "A known file type should return true for being a file")
+        
+        // A unknown file type
+        XCTAssertTrue(mvc.isFile("File"), "An unknown file type should return true for being a file")
+    }
+    
     /// Testing the HAPi formatting of invalid file and
     /// folder names completes successfully
     func testHAPiFormatInvalidFileName() {
