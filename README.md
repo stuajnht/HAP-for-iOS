@@ -12,6 +12,7 @@ Before asking for help or reporting a bug, please read through the [Frequently A
 
 ## Contributing
 Thanks for your interest in contributing to this project. You can contribute or report issues in the following ways:
+* [Sign up for beta testing](http://www.edugeek.net/forums/home-access-plus/164699-home-access-plus-ios-app-request-testers.html) to explore and test the app
 * [Report a bug](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/bug) if something isn't working as you expect it to
 * [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
 
