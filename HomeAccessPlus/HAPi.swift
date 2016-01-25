@@ -768,16 +768,66 @@ class HAPi {
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
-            var folderItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            folderItemPath = folderItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var fileItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            fileItemPath = fileItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
             
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            folderItemPath = folderItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            fileItemPath = fileItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             
-            logger.debug("Checking to see if a file item exists at formatted path: \(folderItemPath)")
+            logger.debug("Checking to see if a file item exists at formatted path: \(fileItemPath)")
+            
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to log in the user with the credentials
+            logger.debug("Attempting to check if the file item already exists")
+            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseJSON { response in switch response.result {
+                case .Success(let JSON):
+                    logger.debug("Response JSON for file item existing: \(JSON)")
+                    
+                    // Seeing if there is a valid name from the returned JSON
+                    let validFileItemName = JSON["Name"]!!.stringValue
+                    logger.debug("API 'name' response for checking if file exists: \(validFileItemName)")
+                    if (validFileItemName == "null") {
+                        // Letting the callback know that there isn't
+                        // a file item in the current location, so any
+                        // functions called after this can continue
+                        logger.debug("File item doesn't currently exist in the current folder")
+                        callback(result: false)
+                    } else {
+                        // A file item exists in the current folder with
+                        // the same name as what is attempting to be
+                        // uploaded or created, so any functions called
+                        // after this need to be confirmed by the user
+                        callback(result: true)
+                    }
+                    
+                case .Failure(let error):
+                    // There was a problem checking to see if there
+                    // is a file item existing in the current folder
+                    // so assume that there is to prevent any accidental
+                    // overwriting of files
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: true)
+                    }
+            }
         } else {
+            // There was a problem checking to see if there
+            // is a file item existing in the current folder
+            // so assume that there is to prevent any accidental
+            // overwriting of files
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false)
+            callback(result: true)
         }
     }
     
