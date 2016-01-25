@@ -312,8 +312,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-09
+    /// - version: 3
+    /// - date: 2016-01-25
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -342,49 +342,74 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         
         hudUploadingShow()
         
-        // Attempting to upload the file that has been passed
-        // to the app
-        api.uploadFile(fileDeviceLocation, serverFileLocation: currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
-            
-            // There was a problem with uploading the file, so let the
-            // user know about it
-            if ((result == false) && (uploading == false)) {
-                let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(uploadFailController, animated: true, completion: nil)
+        // Checking to make sure that a file doesn't already
+        // exist in the current folder with the same name
+        let fileExistsPath = currentPath + "/" + String(fileLocation).componentsSeparatedByString("/").last!
+        api.itemExists(fileExistsPath, callback: { (result: Bool) -> Void in
+            // The file doesn't currently exist in the current
+            // folder, so the new one can be created here
+            if (result == false) {
+                logger.debug("\"\(fileExistsPath)\" file doesn't exist in \"\(self.currentPath)\", so it can be created")
+                
+                // Attempting to upload the file that has been passed
+                // to the app
+                self.api.uploadFile(fileDeviceLocation, serverFileLocation: self.currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+                    
+                    // There was a problem with uploading the file, so let the
+                    // user know about it
+                    if ((result == false) && (uploading == false)) {
+                        let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                        self.presentViewController(uploadFailController, animated: true, completion: nil)
+                    }
+                    
+                    // Seeing if the progress bar should update with the amount
+                    // currently uploaded, if something is uploading
+                    if ((result == false) && (uploading == true)) {
+                        self.hudUpdatePercentage(uploadedBytes, totalBytes: totalBytes)
+                    }
+                    
+                    // The file has uploaded successfuly so we can present the
+                    // refresh the current folder to show it, and delete the
+                    // local copy of the file from the device
+                    if ((result == true) && (uploading == false)) {
+                        self.hudHide()
+                        logger.debug("File has been uploaded to: \(self.currentPath)")
+                        
+                        // If the file uploaded is not a photo, then set the
+                        // "settingsUploadFileLocation" value to be nil so that
+                        // when the user presses the 'add' button again, they
+                        // cannot re-upload the file. If they have passed a file
+                        // to this app, but have only uploaded a photo, then it
+                        // shouldn't be set as nil so they can upload the file at
+                        // another time
+                        if (fileFromPhotoLibrary == false) {
+                            logger.debug("Setting local file location to nil as it's been uploaded")
+                            settings.setURL(nil, forKey: settingsUploadFileLocation)
+                        }
+                        
+                        // Deleting the local copy of the file that was used to
+                        // upload to the HAP+ server
+                        self.deleteUploadedLocalFile(fileDeviceLocation)
+                        
+                        // Refreshing the file browser table
+                        self.loadFileBrowser()
+                    }
+                })
             }
             
-            // Seeing if the progress bar should update with the amount
-            // currently uploaded, if something is uploading
-            if ((result == false) && (uploading == true)) {
-                self.hudUpdatePercentage(uploadedBytes, totalBytes: totalBytes)
-            }
-            
-            // The file has uploaded successfuly so we can present the
-            // refresh the current folder to show it, and delete the
-            // local copy of the file from the device
-            if ((result == true) && (uploading == false)) {
+            // A file currently exists with the same name,
+            // so ask the user what they want to do now:
+            // overwrite, create a new file or cancel
+            if (result == true) {
                 self.hudHide()
-                logger.debug("File has been uploaded to: \(self.currentPath)")
+                logger.info("The \"\(fileExistsPath)\" file already exists in \"\(self.currentPath)\"")
                 
-                // If the file uploaded is not a photo, then set the
-                // "settingsUploadFileLocation" value to be nil so that
-                // when the user presses the 'add' button again, they
-                // cannot re-upload the file. If they have passed a file
-                // to this app, but have only uploaded a photo, then it
-                // shouldn't be set as nil so they can upload the file at
-                // another time
-                if (fileFromPhotoLibrary == false) {
-                    logger.debug("Setting local file location to nil as it's been uploaded")
-                    settings.setURL(nil, forKey: settingsUploadFileLocation)
-                }
-                
-                // Deleting the local copy of the file that was used to
-                // upload to the HAP+ server
-                self.deleteUploadedLocalFile(fileDeviceLocation)
-                
-                // Refreshing the file browser table
-                self.loadFileBrowser()
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler: nil))
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler: nil))
+                fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(fileExistsController, animated: true, completion: nil)
             }
         })
     }
