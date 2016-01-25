@@ -413,7 +413,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // The folder doesn't currently exist in the current
             // folder, so the new one can be created here
             if (result == false) {
-                logger.debug("\"\(folderName)\" doesn't exist in \"\(self.currentPath)\", so it can be created")
+                logger.debug("\"\(folderName)\" folder doesn't exist in \"\(self.currentPath)\", so it can be created")
                 // Calling the HAPi to create the new folder
                 self.api.newFolder(self.currentPath, newFolderName: folderName, callback: { (result: Bool) -> Void in
                     self.hudHide()
@@ -442,7 +442,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // another one in it
             if (result == true) {
                 self.hudHide()
-                logger.info("The \"\(folderName)\" already exists in \"\(self.currentPath)\"")
+                logger.info("The \"\(folderName)\" folder already exists in \"\(self.currentPath)\"")
                 
                 let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
                 folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
