@@ -441,7 +441,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // so let the user know that they can't create
             // another one in it
             if (result == true) {
+                self.hudHide()
                 logger.info("The \"\(folderName)\" already exists in \"\(self.currentPath)\"")
+                
                 let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
                 folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(folderExistsController, animated: true, completion: nil)
