@@ -793,7 +793,7 @@ class HAPi {
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
-                    logger.debug("Response JSON for file item existing: \(JSON)")
+                    logger.verbose("Response JSON for file item existing: \(JSON)")
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
