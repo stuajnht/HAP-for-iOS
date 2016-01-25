@@ -703,7 +703,9 @@ class HAPi {
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
             fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             
-            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")// Setting the json http content type header, as the HAP+
+            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
+            
+            // Setting the json http content type header, as the HAP+
             // API expects incomming messages in "xml" or "json"
             // As the user is logged in, we also need to send the
             // tokens that are collected from the login, so the HAP+
@@ -728,6 +730,51 @@ class HAPi {
                     callback(result: false)
                     }
             }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false)
+        }
+    }
+    
+    /// Checks to see if the file item exists in the current folder
+    /// before uploading a file or creating a folder
+    ///
+    /// As a user may attempt to upload a same named file item into
+    /// the currently viewed folder, it needs to be checked if there
+    /// is something currently there that matches the same name, and
+    /// ask the user if it can be overwritten or should it be created
+    /// as a new file item
+    ///
+    /// - note: Looking at the response from the HAP+ API calls to the
+    ///         exists function <hapServer>/api/MyFiles/Exists/<path>
+    ///         only the JSON values of "DateCreated", "Icon", "Location",
+    ///         "Name", "Size" give different values for folders and
+    ///         files, and for ones that exist or don't. It is decided
+    ///         to check the value of "Name" to make sure if it's
+    ///         null (doesn't exist) or not null (item exists)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-25
+    ///
+    /// - parameter itemPath: Path to the file item that is currently
+    ///                       being checked to see if it exists in the
+    ///                       current folder already
+    func itemExists(itemPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            logger.debug("Checking to see if a file item exists at: \(itemPath)")
+            
+            // Replacing the escaped slashes with a forward slash
+            // from the current folder path
+            var folderItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            folderItemPath = folderItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            folderItemPath = folderItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            
+            logger.debug("Checking to see if a file item exists at formatted path: \(folderItemPath)")
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(result: false)
