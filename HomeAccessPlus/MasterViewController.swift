@@ -399,33 +399,52 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-23
+    /// - version: 3
+    /// - date: 2016-01-25
     ///
     /// - parameter folderName: The name of the folder to be created
     func newFolder(folderName: String) {
         hudShow("Creating \"" + folderName + "\" folder")
         logger.debug("Folder name from delegate callback: \(folderName)")
         
-        // Calling the HAPi to create the new folder
-        api.newFolder(currentPath, newFolderName: folderName, callback: { (result: Bool) -> Void in
-            self.hudHide()
-            
-            // There was a problem with creating the folder, so let the
-            // user know about it
+        // Checking to make sure that a folder doesn't already
+        // exist in the current folder with the same name
+        api.itemExists(currentPath + "/" + api.formatInvalidName(folderName), callback: { (result: Bool) -> Void in
+            // The folder doesn't currently exist in the current
+            // folder, so the new one can be created here
             if (result == false) {
-                let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(uploadFailController, animated: true, completion: nil)
+                logger.debug("\"\(folderName)\" doesn't exist in \"\(self.currentPath)\", so it can be created")
+                // Calling the HAPi to create the new folder
+                self.api.newFolder(self.currentPath, newFolderName: folderName, callback: { (result: Bool) -> Void in
+                    self.hudHide()
+                    
+                    // There was a problem with creating the folder, so let the
+                    // user know about it
+                    if (result == false) {
+                        let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                        self.presentViewController(uploadFailController, animated: true, completion: nil)
+                    }
+                    
+                    // The folder has been created successfuly so we can present and
+                    // refresh the current folder to show it
+                    if (result == true) {
+                        logger.debug("A new folder has been created in: \(self.currentPath)")
+                        
+                        // Refreshing the file browser table
+                        self.loadFileBrowser()
+                    }
+                })
             }
             
-            // The folder has been created successfuly so we can present and
-            // refresh the current folder to show it
+            // A folder currently exists with the same name,
+            // so let the user know that they can't create
+            // another one in it
             if (result == true) {
-                logger.debug("A new folder has been created in: \(self.currentPath)")
-                
-                // Refreshing the file browser table
-                self.loadFileBrowser()
+                logger.info("The \"\(folderName)\" already exists in \"\(self.currentPath)\"")
+                let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(folderExistsController, animated: true, completion: nil)
             }
         })
     }

@@ -798,7 +798,7 @@ class HAPi {
                     // Seeing if there is a valid name from the returned JSON
                     let validFileItemName = JSON["Name"]!!.stringValue
                     logger.debug("API 'name' response for checking if file exists: \(validFileItemName)")
-                    if (validFileItemName == "null") {
+                    if (validFileItemName == nil) {
                         // Letting the callback know that there isn't
                         // a file item in the current location, so any
                         // functions called after this can continue
