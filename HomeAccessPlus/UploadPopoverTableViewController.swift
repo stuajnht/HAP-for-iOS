@@ -43,6 +43,11 @@ protocol uploadFileDelegate {
     // This calls the newFolder function in the master view
     // controller
     func newFolder(folderName: String)
+    
+    // This calls the showFileExistsMessage function to see
+    // if the user needs to confirm what to do with a file
+    // that already exists in the current folder
+    func showFileExistsMessage()
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -239,9 +244,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Calling the upload file delegate to upload the file
             delegate?.uploadFile(false)
             
-            // Dismissing the popover as it's done what is needed
+            // Dismissing the popover as it's done what is needed,
+            // and seeing if the user needs to confirm what to do
+            // if the file currently exists
             // See: http://stackoverflow.com/a/32521647
-            self.dismissViewControllerAnimated(true, completion: nil)
+            self.dismissViewControllerAnimated(true, completion: { Void in
+                self.delegate?.showFileExistsMessage()
+            })
         }
         
         // The user has selected to create a new folder
@@ -369,8 +378,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
         
-        // Dismissing the popover as it's done what is needed
-        self.dismissViewControllerAnimated(true, completion: nil)
+        // Dismissing the popover as it's done what is needed,
+        // and seeing if the user needs to confirm what to do
+        // if the file currently exists
+        self.dismissViewControllerAnimated(true, completion: { Void in
+            self.delegate?.showFileExistsMessage()
+        })
     }
     
     /// Dismissing the image picker
