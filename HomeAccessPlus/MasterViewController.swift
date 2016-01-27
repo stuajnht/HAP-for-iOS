@@ -910,9 +910,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-27
-    func showFileExistsMessage() {
+    ///
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func showFileExistsMessage(fileFromPhotoLibrary: Bool) {
         // Seeing if the overwrite file alert needs to
         // be shown to the user, once the upload popover
         // has been dismissed
@@ -935,8 +938,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 logger.debug("Overwriting file alert is to be shown")
                 
                 let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
-                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler: nil))
-                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler: nil))
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler:  {(alertAction) -> Void in
+                    self.overwriteFile(true, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler:  {(alertAction) -> Void in
+                    self.overwriteFile(false, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
                 fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(fileExistsController, animated: true, completion: nil)
                 
@@ -945,6 +950,31 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 self.showFileExistsAlert = false
             }
         }
+    }
+    
+    /// Overwrites the file that the user is attempting to
+    /// upload, or creates a new file name if they want to
+    /// keep both copies
+    ///
+    /// Based on what the user chooses from the showFileExistsMessage
+    /// alert, we either need to delete the previous file in
+    /// the current folder then upload the new file, or rename
+    /// the file we are attempting to upload so that it doesn't
+    /// conflict with any other file in the currently browsed to
+    /// folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-27
+    ///
+    /// - parameter overwriteFile: Has the user chosen to overwrite the
+    ///                            current file or create a new one
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func overwriteFile(overwriteFile: Bool, fileFromPhotoLibrary: Bool) {
+        logger.debug("Overwriting file: \(overwriteFile)")
+        logger.debug("File exists in photo library: \(fileFromPhotoLibrary)")
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {

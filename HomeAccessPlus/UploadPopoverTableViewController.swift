@@ -47,7 +47,7 @@ protocol uploadFileDelegate {
     // This calls the showFileExistsMessage function to see
     // if the user needs to confirm what to do with a file
     // that already exists in the current folder
-    func showFileExistsMessage()
+    func showFileExistsMessage(fileFromPhotoLibrary: Bool)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -179,7 +179,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-01-27
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
@@ -247,7 +247,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             // Calling the upload file delegate to upload the file
             delegate?.uploadFile(false, fileExistsCallback: { Void in
-                self.delegate?.showFileExistsMessage()
+                self.delegate?.showFileExistsMessage(false)
             })
         }
         
@@ -328,7 +328,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-27
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Getting the type of file the user has selected, as it
@@ -378,7 +378,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         // Uploading the file to the HAP+ server
         delegate?.uploadFile(true, fileExistsCallback: { Void in
-            self.delegate?.showFileExistsMessage()
+            self.delegate?.showFileExistsMessage(true)
         })
     }
     
