@@ -324,12 +324,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 3
-    /// - date: 2016-01-25
+    /// - version: 4
+    /// - date: 2016-01-27
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func uploadFile(fileFromPhotoLibrary: Bool) {
+    func uploadFile(fileFromPhotoLibrary: Bool, fileExistsCallback:(fileExists: Bool) -> Void) -> Void {
         // Holding the location of the file on the device, that
         // is going to be uploaded
         var fileLocation = ""
@@ -414,13 +414,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // so ask the user what they want to do now:
             // overwrite, create a new file or cancel
             if (result == true) {
-                self.hudHide()
                 logger.info("The \"\(fileExistsPath)\" file already exists in \"\(self.currentPath)\"")
                 
                 // Setting the alert to be shown when this
                 // view controller is shown again to the user,
                 // after the upload popover has completed
                 self.showFileExistsAlert = true
+                
+                // Calling the showFileExists alert from the
+                // upload popover callback
+                fileExistsCallback(fileExists: true)
             }
         })
     }
@@ -907,23 +910,40 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
-    /// - date: 2016-01-26
+    /// - version: 2
+    /// - date: 2016-01-27
     func showFileExistsMessage() {
         // Seeing if the overwrite file alert needs to
         // be shown to the user, once the upload popover
         // has been dismissed
         if (showFileExistsAlert) {
-            logger.debug("Overwriting file alert is to be shown")
-            let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
-            fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler: nil))
-            fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler: nil))
-            fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(fileExistsController, animated: true, completion: nil)
-            
-            // Preventing the alert being shown on each
-            // time the view controller is shown
-            showFileExistsAlert = false
+            // Forcing a delay to happen before showing the
+            // alert to the user. This is in part due to a
+            // race condition between the upload popover
+            // disappearing and the asynchronous uploadFile
+            // returning the callback to call this function,
+            // and depends on the speed of the API return.
+            // We can do this as the user doesn't know if
+            // the delay is due to the uploading of the file
+            // starting or a delay in the network connection.
+            // If there is something that is likely to break,
+            // this is probably the most likely place to check
+            // See: http://stackoverflow.com/a/32696605
+            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+            dispatch_after(time, dispatch_get_main_queue()) {
+                self.hudHide()
+                logger.debug("Overwriting file alert is to be shown")
+                
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler: nil))
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler: nil))
+                fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(fileExistsController, animated: true, completion: nil)
+                
+                // Preventing the alert being shown on each
+                // time the view controller is shown
+                self.showFileExistsAlert = false
+            }
         }
     }
     

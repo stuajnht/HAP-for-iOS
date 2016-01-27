@@ -38,7 +38,7 @@ import UIKit
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
-    func uploadFile(fileFromPhotoLibrary: Bool)
+    func uploadFile(fileFromPhotoLibrary: Bool, fileExistsCallback:(fileExists: Bool) -> Void)
     
     // This calls the newFolder function in the master view
     // controller
@@ -179,8 +179,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 3
-    /// - date: 2016-01-22
+    /// - version: 4
+    /// - date: 2016-01-27
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -241,14 +241,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 0) && (row == 2)) {
             logger.debug("Cell function: Uploading file from app")
             
-            // Calling the upload file delegate to upload the file
-            delegate?.uploadFile(false)
-            
-            // Dismissing the popover as it's done what is needed,
-            // and seeing if the user needs to confirm what to do
-            // if the file currently exists
+            // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
-            self.dismissViewControllerAnimated(true, completion: { Void in
+            self.dismissViewControllerAnimated(true, completion: nil)
+            
+            // Calling the upload file delegate to upload the file
+            delegate?.uploadFile(false, fileExistsCallback: { Void in
                 self.delegate?.showFileExistsMessage()
             })
         }
@@ -330,8 +328,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-09
+    /// - version: 2
+    /// - date: 2016-01-27
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Getting the type of file the user has selected, as it
         // is stored in different locations based on what it is
@@ -372,16 +370,14 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Setting the location of the image file in the settings
         settings.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
         
-        // Uploading the file to the HAP+ server
-        delegate?.uploadFile(true)
-        
         // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
         
-        // Dismissing the popover as it's done what is needed,
-        // and seeing if the user needs to confirm what to do
-        // if the file currently exists
-        self.dismissViewControllerAnimated(true, completion: { Void in
+        // Dismissing the popover as it's done what is needed
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
+        // Uploading the file to the HAP+ server
+        delegate?.uploadFile(true, fileExistsCallback: { Void in
             self.delegate?.showFileExistsMessage()
         })
     }
