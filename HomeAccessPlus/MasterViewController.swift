@@ -324,12 +324,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-01-27
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func uploadFile(fileFromPhotoLibrary: Bool, fileExistsCallback:(fileExists: Bool) -> Void) -> Void {
+    /// - parameter customFileName: If the file currently exists in the current folder,
+    ///                             and the user has chosen to create a new file and
+    ///                             not overwrite it, then this is the custom file name
+    ///                             that should be used
+    func uploadFile(fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(fileExists: Bool) -> Void) -> Void {
         // Holding the location of the file on the device, that
         // is going to be uploaded
         var fileLocation = ""
@@ -365,7 +369,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 
                 // Attempting to upload the file that has been passed
                 // to the app
-                self.api.uploadFile(fileDeviceLocation, serverFileLocation: self.currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+                self.api.uploadFile(fileDeviceLocation, serverFileLocation: self.currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, customFileName: customFileName, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
                     
                     // There was a problem with uploading the file, so let the
                     // user know about it
@@ -975,6 +979,22 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     func overwriteFile(overwriteFile: Bool, fileFromPhotoLibrary: Bool) {
         logger.debug("Overwriting file: \(overwriteFile)")
         logger.debug("File exists in photo library: \(fileFromPhotoLibrary)")
+        
+        // Seeing if the file should overwrite the currently
+        // existing one, or to create a new one
+        if (overwriteFile) {
+            
+        } else {
+            // Seeing if we are uploading a file from another app
+            // or the local photo library
+            if (fileFromPhotoLibrary == false) {
+                logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
+                let currentFileName = settings.stringForKey(settingsUploadFileLocation)!
+            } else {
+                logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
+                let currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+            }
+        }
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {

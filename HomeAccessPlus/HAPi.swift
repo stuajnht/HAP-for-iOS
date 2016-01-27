@@ -454,8 +454,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-09
+    /// - version: 3
+    /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
     ///                                 stored in a folder called "inbox" which can
@@ -464,7 +464,11 @@ class HAPi {
     ///                                 is going to be uploaded to
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    /// - parameter customFileName: If the file currently exists in the current folder,
+    ///                             and the user has chosen to create a new file and
+    ///                             not overwrite it, then this is the custom file name
+    ///                             that should be used
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
@@ -475,25 +479,34 @@ class HAPi {
             
             var fileName = ""
             
-            // As the file is coming from an external app, it will be saved
-            // on the device in a physical location with an extension. We
-            // can just split the path and get the file name from the last
-            // array value
-            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
-            
-            // Forcing an unwrap of the value, otherwise the file name
-            // is Optional("<nale>") which causes the HAP+ server to
-            // do a 500 HTTP error
-            // See: http://stackoverflow.com/a/25848016
-            fileName = pathArray.last!
-            
-            // Removing any encoded characters from the file name, so
-            // HAP+ saves the file with the correct file name
-            fileName = fileName.stringByRemovingPercentEncoding!
-            
-            // Formatting the name of the file to make sure that it is
-            // valid for storing on Windows file systems
-            fileName = formatInvalidName(fileName)
+            // Seeing if a name for the file needs to be generated
+            // or one has already been created from the user choosing
+            // to not overwrite a file
+            if (customFileName == "") {
+                // As the file is coming from an external app, it will be saved
+                // on the device in a physical location with an extension. We
+                // can just split the path and get the file name from the last
+                // array value
+                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                
+                // Forcing an unwrap of the value, otherwise the file name
+                // is Optional("<nale>") which causes the HAP+ server to
+                // do a 500 HTTP error
+                // See: http://stackoverflow.com/a/25848016
+                fileName = pathArray.last!
+                
+                // Removing any encoded characters from the file name, so
+                // HAP+ saves the file with the correct file name
+                fileName = fileName.stringByRemovingPercentEncoding!
+                
+                // Formatting the name of the file to make sure that it is
+                // valid for storing on Windows file systems
+                fileName = formatInvalidName(fileName)
+            } else {
+                // A custom file name has already been created and formatted,
+                // so that should be used instead
+                fileName = customFileName
+            }
             
             logger.debug("Name of file being uploaded: \(fileName)")
             

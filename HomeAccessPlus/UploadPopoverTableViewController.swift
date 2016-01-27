@@ -38,7 +38,7 @@ import UIKit
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
-    func uploadFile(fileFromPhotoLibrary: Bool, fileExistsCallback:(fileExists: Bool) -> Void)
+    func uploadFile(fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(fileExists: Bool) -> Void)
     
     // This calls the newFolder function in the master view
     // controller
@@ -246,7 +246,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             self.dismissViewControllerAnimated(true, completion: nil)
             
             // Calling the upload file delegate to upload the file
-            delegate?.uploadFile(false, fileExistsCallback: { Void in
+            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
                 self.delegate?.showFileExistsMessage(false)
             })
         }
@@ -377,7 +377,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         self.dismissViewControllerAnimated(true, completion: nil)
         
         // Uploading the file to the HAP+ server
-        delegate?.uploadFile(true, fileExistsCallback: { Void in
+        delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
             self.delegate?.showFileExistsMessage(true)
         })
     }
