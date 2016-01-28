@@ -1061,7 +1061,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 
                 logger.debug("\(newFileName) doesn't exist in \(self.currentPath) so it can be uploaded there")
                 self.uploadFile(fileFromPhotoLibrary, customFileName: newFileName, fileExistsCallback: { Void in
+                    // This callback shouldn't need to be called
+                    // from this "checkGeneratedFileName" function
+                    // as we should have already ascertained that
+                    // the file we're uploading doesn't exist
+                    // Still, best to let the user know something
+                    // hasn't worked
+                    logger.error("Generated file name checking succeeded but failed when uploading the file")
                     
+                    let generatedFileNameUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                    generatedFileNameUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(generatedFileNameUploadFailedController, animated: true, completion: nil)
                 })
             }
             
