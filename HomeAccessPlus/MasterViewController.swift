@@ -1024,11 +1024,30 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // the local fileItems array, so that it can be used
             // in the deleteFile function
             // See: http://www.dotnetperls.com/2d-array-swift
+            var indexPosition = -1
             for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
                 if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
-                    let indexPosition = arrayPosition
+                    indexPosition = arrayPosition
                 }
+            }
+            
+            // Making sure that the file was found in the fileItems
+            // array, before we attempt to delete anything, as a
+            // fail safe
+            if (indexPosition > -1) {
+                // Deleting the file from the current folder
+                // See: http://stackoverflow.com/a/29428205
+                let indexPath = NSIndexPath(forRow: indexPosition, inSection: 0)
+                deleteFile(indexPath, fileOrFolder: "file")
+            } else {
+                // Letting the user know there was a problem when
+                // trying to find the file in the array
+                logger.error("\(fileName) was not found in the current folder")
+                
+                let fileNotFoundController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                fileNotFoundController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(fileNotFoundController, animated: true, completion: nil)
             }
         } else {
             // Showing the HUD so that the user knows that something
