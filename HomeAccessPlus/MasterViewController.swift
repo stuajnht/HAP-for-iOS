@@ -739,7 +739,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // delete the file item that they have selected
             let deleteConfirmation = UIAlertController(title: "Delete " + fileOrFolder, message: "Are you sure that you want to delete this " + fileOrFolder + "?", preferredStyle: UIAlertControllerStyle.Alert)
             deleteConfirmation.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: {(alertAction) -> Void in
-                self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
+                self.deleteFile(indexPath, fileOrFolder: fileOrFolder, fileDeletedCallback: { (fileDeleted: Bool) -> Void in
+                    // The code in here shouldn't run, as this is only
+                    // used for the overwriting file function
+                })
+            }))
             deleteConfirmation.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
                     // Removing the delete button being shown
                     // See: http://stackoverflow.com/a/22063692
@@ -780,15 +784,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-22
+    /// - version: 3
+    /// - date: 2016-01-28
     ///
     /// - parameter indexPath: The index in the table and file items array
     ///                        that we are deleting the file item from
     /// - parameter fileOrFolder: Whether the item being deleted is a file
     ///                           or a folder, so that the error message can
     ///                           be customised correctly
-    func deleteFile(indexPath: NSIndexPath, fileOrFolder: String) {
+    func deleteFile(indexPath: NSIndexPath, fileOrFolder: String, fileDeletedCallback:(fileDeleted: Bool) -> Void) -> Void {
         hudShow("Deleting " + fileOrFolder)
         let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
         api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
@@ -813,7 +817,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // that it is emboldened in the alert and looks like
                 // the default button to press
                 deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
-                    self.deleteFile(indexPath, fileOrFolder: fileOrFolder) }))
+                    self.deleteFile(indexPath, fileOrFolder: fileOrFolder, fileDeletedCallback: { (fileDeleted: Bool) -> Void in
+                        // The code in here shouldn't run, as this is only
+                        // used for the overwriting file function
+                    })
+                }))
                 self.presentViewController(deletionProblemAlert, animated: true, completion: nil)
             }
             
@@ -824,6 +832,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
                 self.fileItems.removeAtIndex(indexPath.row)
                 self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+                
+                // Letting the callback know that the file has been deleted
+                fileDeletedCallback(fileDeleted: true)
             }
         })
     }
@@ -1039,7 +1050,30 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // Deleting the file from the current folder
                 // See: http://stackoverflow.com/a/29428205
                 let indexPath = NSIndexPath(forRow: indexPosition, inSection: 0)
-                deleteFile(indexPath, fileOrFolder: "file")
+                deleteFile(indexPath, fileOrFolder: "file", fileDeletedCallback: { (fileDeleted: Bool) -> Void in
+                    // Waiting to make sure that the file has been
+                    // successfully deleted before uploading the
+                    // replacement file
+                    // NOTE: There is no 'false' here as the deleteFile
+                    //       function looks after letting the user know
+                    //       that there was a problem
+                    if (fileDeleted == true) {
+                        // Uploading the file to the HAP+ server
+                        self.uploadFile(fileFromPhotoLibrary, customFileName: "", fileExistsCallback: { (fileExists) -> Void in
+                            // This callback shouldn't need to be called
+                            // from this "checkGeneratedFileName" function
+                            // as we should have already ascertained that
+                            // the file we're uploading doesn't exist
+                            // Still, best to let the user know something
+                            // hasn't worked
+                            logger.error("Overwriting file deletion succeeded but failed when uploading the file")
+                            
+                            let overwriteUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                            overwriteUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                            self.presentViewController(overwriteUploadFailedController, animated: true, completion: nil)
+                        })
+                    }
+                })
             } else {
                 // Letting the user know there was a problem when
                 // trying to find the file in the array
