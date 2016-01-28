@@ -7,6 +7,7 @@
 * New folders can be created in the currently viewed folder
 * When uploading a file, if it already exists in the current folder the user is given the choice to:
   * Create a new version of the file and keep the old version too
+  * Replace the original file with the one being uploaded from the app
 
 ## 0.5.0
 
