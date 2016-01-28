@@ -324,8 +324,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 5
-    /// - date: 2016-01-27
+    /// - version: 6
+    /// - date: 2016-01-28
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -358,9 +358,21 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         
         hudUploadingShow()
         
-        // Checking to make sure that a file doesn't already
-        // exist in the current folder with the same name
-        let fileExistsPath = currentPath + "/" + String(fileLocation).componentsSeparatedByString("/").last!
+        // Seeing if a name for the file needs to be generated
+        // or one has already been created from the user choosing
+        // to not overwrite a file
+        var fileExistsPath = ""
+        if (customFileName == "") {
+            // Checking to make sure that a file doesn't already
+            // exist in the current folder with the same name
+            fileExistsPath = currentPath + "/" + String(fileLocation).componentsSeparatedByString("/").last!
+        } else {
+            // Use the generated file name with the current file
+            // path
+            // - NOTE: This shouldn't fail as we've already checked it
+            fileExistsPath = currentPath + "/" + customFileName
+        }
+        
         api.itemExists(fileExistsPath, callback: { (result: Bool) -> Void in
             // The file doesn't currently exist in the current
             // folder, so the new one can be created here
@@ -996,8 +1008,70 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
             }
             
-            let fileName = generateFileName(currentFileName)
+            // Showing the HUD so that the user knows that something
+            // is happening while the file name is being generated
+            // and checked
+            hudShow("Generating file name")
+            
+            // Generating a new file name and seeing
+            // if that can be uploaded
+            checkGeneratedFileName(currentFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
         }
+    }
+    
+    /// Checks to see if the file currently exists in the current
+    /// folder location, and generates an updated name if so
+    ///
+    /// While this API call is used in uploadFile and deleteFile,
+    /// this function is mainly to be used by the overwriteFile
+    /// function to check that creating a new file doesn't lead
+    /// to another file matching the same name. This function
+    /// is designed to be called recursively until there isn't
+    /// a matching file name, by repeatedly calling the generateFileName
+    /// function on each call of this function
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-28
+    ///
+    /// - seealso: overwriteFile
+    /// - seealso: generateFileName
+    /// - seealso: uploadFile
+    /// - seealso: deleteFile
+    ///
+    /// - parameter fileName: The updated name of the file that
+    ///                       is to be checked to see if it exists
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func checkGeneratedFileName(fileName: String, fileFromPhotoLibrary: Bool) {
+        // Creating a new file name for the file being uploaded
+        let newFileName = generateFileName(fileName)
+        
+        // Checking to make sure that a file doesn't already
+        // exist in the current folder with the same name
+        logger.debug("Checking that the new file name \"\(newFileName)\" doesn't exist in the current folder")
+        api.itemExists(currentPath + "/" + newFileName, callback: { (result: Bool) -> Void in
+            // The new file doesn't currently exist in the current
+            // folder, so it can be created here
+            if (result == false) {
+                // Stopping the "please wait" HUD from running, so
+                // the upload HUD can be shown instead
+                self.hudHide()
+                
+                logger.debug("\(newFileName) doesn't exist in \(self.currentPath) so it can be uploaded there")
+                self.uploadFile(fileFromPhotoLibrary, customFileName: newFileName, fileExistsCallback: { Void in
+                    
+                })
+            }
+            
+            // This newly generated file name also exists in
+            // this folder, so try again with an increased number
+            if (result == true) {
+                logger.debug("\(newFileName) does exist in \(self.currentPath) so trying again with an updated name")
+                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
+            }
+        })
     }
     
     /// Generating a custom file name for the file being uploaded
