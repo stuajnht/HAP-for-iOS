@@ -981,8 +981,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
-    /// - date: 2016-01-27
+    /// - version: 2
+    /// - date: 2016-01-28
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
     ///                            current file or create a new one
@@ -992,22 +992,45 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Overwriting file: \(overwriteFile)")
         logger.debug("File exists in photo library: \(fileFromPhotoLibrary)")
         
+        // Seeing if we are uploading a file from another app
+        // or the local photo library, and getting the location
+        // of the file to generate the file name
+        var currentFileName = ""
+        if (fileFromPhotoLibrary == false) {
+            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
+            currentFileName = settings.stringForKey(settingsUploadFileLocation)!
+        } else {
+            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
+            currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+        }
+        
         // Seeing if the file should overwrite the currently
         // existing one, or to create a new one
         if (overwriteFile) {
+            // Getting the file name from the uploaded path
+            let pathArray = String(currentFileName).componentsSeparatedByString("/")
             
-        } else {
-            // Seeing if we are uploading a file from another app
-            // or the local photo library
-            var currentFileName = ""
-            if (fileFromPhotoLibrary == false) {
-                logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
-                currentFileName = settings.stringForKey(settingsUploadFileLocation)!
-            } else {
-                logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
-                currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+            // Getting just the file name
+            var fileName = pathArray.last!
+            
+            // Removing any encoded characters from the file name
+            fileName = fileName.stringByRemovingPercentEncoding!
+            
+            // Formatting the name of the file to make sure that it is
+            // valid for storing on Windows file systems
+            fileName = api.formatInvalidName(fileName)
+            
+            // Finding the index of the file being uploaded on
+            // the local fileItems array, so that it can be used
+            // in the deleteFile function
+            // See: http://www.dotnetperls.com/2d-array-swift
+            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+                if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
+                    logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
+                    let indexPosition = arrayPosition
+                }
             }
-            
+        } else {
             // Showing the HUD so that the user knows that something
             // is happening while the file name is being generated
             // and checked
