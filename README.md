@@ -42,8 +42,8 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 ### 0.6.0
 * ~~Create new folders~~
 * ~~Delete files / folders~~
-* Check if the file being uploaded exists / has the same name and automatically append a number on the end, or;
-* Over-write files that already exist, if the user confirms they want to (requires original file to be deleted first, then new file uploaded)
+* ~~Check if the file being uploaded exists / has the same name and automatically append a number on the end, or;~~
+* ~~Over-write files that already exist, if the user confirms they want to (requires original file to be deleted first, then new file uploaded)~~
 
 ### 0.7.0
 * Auto re-login for devices that are in 'personal' or 'single' mode

@@ -71,6 +71,77 @@ class HomeAccessPlusTests: XCTestCase {
         XCTAssertTrue(mvc.isFile("File"), "An unknown file type should return true for being a file")
     }
     
+    /// Testing that file names generated if the user wants to
+    /// upload a new file have a number prepended
+    func testMasterViewControllergenerateFileName() {
+        // Loading an instance of the master view controller
+        let mvc = MasterViewController()
+        
+        // Setting up a file path, to save typing it again
+        let filePath = "/var/path/to/file/"
+        
+        // A simple file with no number attached
+        var fileName = "file.txt"
+        var fileNameExpected = "file-1.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A simple file with a number already generated
+        fileName = "file-1.txt"
+        fileNameExpected = "file-2.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A simple file with a high number already generated
+        fileName = "file-14.txt"
+        fileNameExpected = "file-15.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A simple file with no number or path attached
+        fileName = "file.txt"
+        fileNameExpected = "file-1.txt"
+        XCTAssertEqual(mvc.generateFileName(fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A simple file with a number already generated but no path
+        fileName = "file-1.txt"
+        fileNameExpected = "file-2.txt"
+        XCTAssertEqual(mvc.generateFileName(fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A complex file with no number attached
+        fileName = "file name with spaces.txt"
+        fileNameExpected = "file name with spaces-1.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A complex file with a number already generated
+        fileName = "file name with spaces-1.txt"
+        fileNameExpected = "file name with spaces-2.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A very complex file with no number attached
+        fileName = "file*name\\with|characters.txt"
+        fileNameExpected = "file_name_with_characters-1.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A very complex file with a number already generated
+        fileName = "file*name\\with|characters-1.txt"
+        fileNameExpected = "file_name_with_characters-2.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A '.' file name with no number attached
+        // TODO: This is incorrect, as we should look
+        // at the last part of the file name
+        // It should be: "file.name with.dots-1.txt"
+        fileName = "file.name with.dots.txt"
+        fileNameExpected = "file-1.name with.dots.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A '.' file name with a number already generated
+        // TODO: This is incorrect, as we should look
+        // at the last part of the file name
+        // It should be: "file.name with.dots-2.txt"
+        fileName = "file-1.name with.dots.txt"
+        fileNameExpected = "file-2.name with.dots.txt"
+        XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+    }
+    
     /// Testing the HAPi formatting of invalid file and
     /// folder names completes successfully
     func testHAPiFormatInvalidFileName() {

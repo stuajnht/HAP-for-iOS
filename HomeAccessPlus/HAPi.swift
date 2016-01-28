@@ -454,8 +454,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-09
+    /// - version: 3
+    /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
     ///                                 stored in a folder called "inbox" which can
@@ -464,7 +464,11 @@ class HAPi {
     ///                                 is going to be uploaded to
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    /// - parameter customFileName: If the file currently exists in the current folder,
+    ///                             and the user has chosen to create a new file and
+    ///                             not overwrite it, then this is the custom file name
+    ///                             that should be used
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
@@ -475,25 +479,34 @@ class HAPi {
             
             var fileName = ""
             
-            // As the file is coming from an external app, it will be saved
-            // on the device in a physical location with an extension. We
-            // can just split the path and get the file name from the last
-            // array value
-            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
-            
-            // Forcing an unwrap of the value, otherwise the file name
-            // is Optional("<nale>") which causes the HAP+ server to
-            // do a 500 HTTP error
-            // See: http://stackoverflow.com/a/25848016
-            fileName = pathArray.last!
-            
-            // Removing any encoded characters from the file name, so
-            // HAP+ saves the file with the correct file name
-            fileName = fileName.stringByRemovingPercentEncoding!
-            
-            // Formatting the name of the file to make sure that it is
-            // valid for storing on Windows file systems
-            fileName = formatInvalidName(fileName)
+            // Seeing if a name for the file needs to be generated
+            // or one has already been created from the user choosing
+            // to not overwrite a file
+            if (customFileName == "") {
+                // As the file is coming from an external app, it will be saved
+                // on the device in a physical location with an extension. We
+                // can just split the path and get the file name from the last
+                // array value
+                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                
+                // Forcing an unwrap of the value, otherwise the file name
+                // is Optional("<nale>") which causes the HAP+ server to
+                // do a 500 HTTP error
+                // See: http://stackoverflow.com/a/25848016
+                fileName = pathArray.last!
+                
+                // Removing any encoded characters from the file name, so
+                // HAP+ saves the file with the correct file name
+                fileName = fileName.stringByRemovingPercentEncoding!
+                
+                // Formatting the name of the file to make sure that it is
+                // valid for storing on Windows file systems
+                fileName = formatInvalidName(fileName)
+            } else {
+                // A custom file name has already been created and formatted,
+                // so that should be used instead
+                fileName = customFileName
+            }
             
             logger.debug("Name of file being uploaded: \(fileName)")
             
@@ -703,7 +716,9 @@ class HAPi {
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
             fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
             
-            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")// Setting the json http content type header, as the HAP+
+            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
+            
+            // Setting the json http content type header, as the HAP+
             // API expects incomming messages in "xml" or "json"
             // As the user is logged in, we also need to send the
             // tokens that are collected from the login, so the HAP+
@@ -731,6 +746,103 @@ class HAPi {
         } else {
             logger.warning("The connection to the Internet has been lost")
             callback(result: false)
+        }
+    }
+    
+    /// Checks to see if the file item exists in the current folder
+    /// before uploading a file or creating a folder
+    ///
+    /// As a user may attempt to upload a same named file item into
+    /// the currently viewed folder, it needs to be checked if there
+    /// is something currently there that matches the same name, and
+    /// ask the user if it can be overwritten or should it be created
+    /// as a new file item
+    ///
+    /// - note: Looking at the response from the HAP+ API calls to the
+    ///         exists function <hapServer>/api/MyFiles/Exists/<path>
+    ///         only the JSON values of "DateCreated", "Icon", "Location",
+    ///         "Name", "Size" give different values for folders and
+    ///         files, and for ones that exist or don't. It is decided
+    ///         to check the value of "Name" to make sure if it's
+    ///         null (doesn't exist) or not null (item exists)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-25
+    ///
+    /// - parameter itemPath: Path to the file item that is currently
+    ///                       being checked to see if it exists in the
+    ///                       current folder already
+    func itemExists(itemPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            logger.debug("Checking to see if a file item exists at: \(itemPath)")
+            
+            // Replacing the escaped slashes with a forward slash
+            // from the current folder path
+            var fileItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            fileItemPath = fileItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            fileItemPath = fileItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            
+            logger.debug("Checking to see if a file item exists at formatted path: \(fileItemPath)")
+            
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to log in the user with the credentials
+            logger.debug("Attempting to check if the file item already exists")
+            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseJSON { response in switch response.result {
+                case .Success(let JSON):
+                    logger.verbose("Response JSON for file item existing: \(JSON)")
+                    
+                    // Seeing if there is a valid name from the returned JSON
+                    // The JSON returns "null" if the file item doesn't exist
+                    // See: http://stackoverflow.com/a/24128720
+                    let validFileItemName = JSON["Name"] as? String
+                    logger.debug("API 'Name' response for checking if file exists: \(validFileItemName)")
+                    if (validFileItemName == nil) {
+                        // Letting the callback know that there isn't
+                        // a file item in the current location, so any
+                        // functions called after this can continue
+                        logger.debug("File item doesn't currently exist in the current folder")
+                        callback(result: false)
+                    } else {
+                        // A file item exists in the current folder with
+                        // the same name as what is attempting to be
+                        // uploaded or created, so any functions called
+                        // after this need to be confirmed by the user
+                        callback(result: true)
+                    }
+                    
+                case .Failure(let error):
+                    // There was a problem checking to see if there
+                    // is a file item existing in the current folder
+                    // so assume that there is to prevent any accidental
+                    // overwriting of files
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: true)
+                    }
+            }
+        } else {
+            // There was a problem checking to see if there
+            // is a file item existing in the current folder
+            // so assume that there is to prevent any accidental
+            // overwriting of files
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: true)
         }
     }
     
