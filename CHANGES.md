@@ -5,6 +5,8 @@
 ### New Stuff
 * Files and folders can be deleted by swiping them to the left
 * New folders can be created in the currently viewed folder
+* When uploading a file, if it already exists in the current folder the user is given the choice to:
+  * Create a new version of the file and keep the old version too
 
 ## 0.5.0
 
