@@ -179,8 +179,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 5
-    /// - date: 2016-01-27
+    /// - version: 6
+    /// - date: 2016-01-28
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -264,6 +264,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             newFolderAlert!.addTextFieldWithConfigurationHandler(
                 {(textField: UITextField!) in
                     textField.placeholder = "Folder name"
+                    textField.keyboardType = .ASCIICapable
             })
             
             // Setting the create button style to be cancel, so
