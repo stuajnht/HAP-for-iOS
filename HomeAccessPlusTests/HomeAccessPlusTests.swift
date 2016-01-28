@@ -95,6 +95,16 @@ class HomeAccessPlusTests: XCTestCase {
         fileNameExpected = "file-15.txt"
         XCTAssertEqual(mvc.generateFileName(filePath + fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
         
+        // A simple file with no number or path attached
+        fileName = "file.txt"
+        fileNameExpected = "file-1.txt"
+        XCTAssertEqual(mvc.generateFileName(fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
+        // A simple file with a number already generated but no path
+        fileName = "file-1.txt"
+        fileNameExpected = "file-2.txt"
+        XCTAssertEqual(mvc.generateFileName(fileName), fileNameExpected, fileName + " should equal " + fileNameExpected)
+        
         // A complex file with no number attached
         fileName = "file name with spaces.txt"
         fileNameExpected = "file name with spaces-1.txt"
