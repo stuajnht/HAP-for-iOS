@@ -987,14 +987,105 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         } else {
             // Seeing if we are uploading a file from another app
             // or the local photo library
+            var currentFileName = ""
             if (fileFromPhotoLibrary == false) {
                 logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
-                let currentFileName = settings.stringForKey(settingsUploadFileLocation)!
+                currentFileName = settings.stringForKey(settingsUploadFileLocation)!
             } else {
                 logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
-                let currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+                currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
             }
+            
+            let fileName = generateFileName(currentFileName)
         }
+    }
+    
+    /// Generating a custom file name for the file being uploaded
+    /// as there is already a file in the current folder with
+    /// the same name
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-27
+    ///
+    /// - parameter currentFileName: The current name of the file
+    ///                              is to renamed
+    func generateFileName(currentFileName: String) -> String {
+        logger.debug("currentFileName: \(currentFileName)")
+        // Getting the name of the file from the device location. We
+        // can just split the path and get the file name from the last
+        // array value
+        // fullFileName = ["path", "to", "file-1.ext"]
+        let fullFileName = currentFileName.componentsSeparatedByString("/")
+        logger.debug("fullFileName: \(fullFileName)")
+        
+        // Getting the name of the file from the full file name
+        // fileNameExtension = ["file-1.ext"]
+        let fileNameExtension = fullFileName.last!
+        logger.debug("fileNameExtension: \(fileNameExtension)")
+        
+        // Getting the name of the file less extension
+        // fileNameArray = ["file-1", "ext"]
+        var fileNameArray = fileNameExtension.componentsSeparatedByString(".")
+        logger.debug("fileNameArray: \(fileNameArray)")
+        
+        // Splitting the file name on any hyphenated last characters,
+        // to get the number at the end of the name
+        // fileNameNumber = ["file", "1"]
+        var fileNameNumber = fileNameArray.first!.componentsSeparatedByString("-")
+        logger.debug("fileNameNumber: \(fileNameNumber)")
+        
+        // Trying to add 1 to the number at the end, or put a 1
+        // if it fails
+        // See: http://stackoverflow.com/a/28766901
+        var number = 1
+        if let myNumber = NSNumberFormatter().numberFromString(fileNameNumber.last!) {
+            // number = 2
+            number = myNumber.integerValue + 1
+            logger.debug("number: \(number)")
+            
+            // Removing the last value of the array, as there was
+            // a number in its place
+            // fileNameNumber = ["file"]
+            fileNameNumber.removeLast()
+            logger.debug("fileNameNumber: \(fileNameNumber)")
+        }
+        
+        // Putting the number into the last element of the array
+        // fileNameNumber = ["file", "2"]
+        fileNameNumber.append(String(number))
+        logger.debug("fileNameNumber: \(fileNameNumber)")
+        
+        // Joining the file name with the number at the end
+        // fileNameAppended = ["file-2"]
+        let fileNameAppended = fileNameNumber.joinWithSeparator("-")
+        logger.debug("fileNameAppended: \(fileNameAppended)")
+        
+        // Joining the file name with the extension
+        // fileNameArray = ["file-2", "ext"]
+        fileNameArray.removeFirst()
+        fileNameArray.insert(fileNameAppended, atIndex: 0)
+        logger.debug("fileNameArray: \(fileNameArray)")
+        
+        // Combining the full name of the file
+        // fileName = "file-2.ext"
+        var fileName = fileNameArray.joinWithSeparator(".")
+        logger.debug("fileName: \(fileName)")
+        
+        // Removing any encoded characters from the file name, so
+        // HAP+ saves the file with the correct file name
+        // fileName = "file-2.ext"
+        fileName = fileName.stringByRemovingPercentEncoding!
+        logger.debug("fileName: \(fileName)")
+        
+        // Formatting the name of the file to make sure that it is
+        // valid for storing on Windows file systems
+        // fileName = "file-2.ext"
+        fileName = api.formatInvalidName(fileName)
+        logger.debug("Formatted fileName: \(fileName)")
+        
+        return fileName
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
