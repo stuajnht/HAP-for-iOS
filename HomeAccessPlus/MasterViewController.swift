@@ -1012,29 +1012,29 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter currentFileName: The current name of the file
     ///                              is to renamed
     func generateFileName(currentFileName: String) -> String {
-        logger.debug("currentFileName: \(currentFileName)")
+        logger.debug("Current file name and path: \(currentFileName)")
         // Getting the name of the file from the device location. We
         // can just split the path and get the file name from the last
         // array value
         // fullFileName = ["path", "to", "file-1.ext"]
         let fullFileName = currentFileName.componentsSeparatedByString("/")
-        logger.debug("fullFileName: \(fullFileName)")
+        logger.verbose("fullFileName: \(fullFileName)")
         
         // Getting the name of the file from the full file name
         // fileNameExtension = ["file-1.ext"]
         let fileNameExtension = fullFileName.last!
-        logger.debug("fileNameExtension: \(fileNameExtension)")
+        logger.verbose("fileNameExtension: \(fileNameExtension)")
         
         // Getting the name of the file less extension
         // fileNameArray = ["file-1", "ext"]
         var fileNameArray = fileNameExtension.componentsSeparatedByString(".")
-        logger.debug("fileNameArray: \(fileNameArray)")
+        logger.verbose("fileNameArray: \(fileNameArray)")
         
         // Splitting the file name on any hyphenated last characters,
         // to get the number at the end of the name
         // fileNameNumber = ["file", "1"]
         var fileNameNumber = fileNameArray.first!.componentsSeparatedByString("-")
-        logger.debug("fileNameNumber: \(fileNameNumber)")
+        logger.verbose("fileNameNumber: \(fileNameNumber)")
         
         // Trying to add 1 to the number at the end, or put a 1
         // if it fails
@@ -1043,47 +1043,47 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if let myNumber = NSNumberFormatter().numberFromString(fileNameNumber.last!) {
             // number = 2
             number = myNumber.integerValue + 1
-            logger.debug("number: \(number)")
+            logger.verbose("number: \(number)")
             
             // Removing the last value of the array, as there was
             // a number in its place
             // fileNameNumber = ["file"]
             fileNameNumber.removeLast()
-            logger.debug("fileNameNumber: \(fileNameNumber)")
+            logger.verbose("fileNameNumber: \(fileNameNumber)")
         }
         
         // Putting the number into the last element of the array
         // fileNameNumber = ["file", "2"]
         fileNameNumber.append(String(number))
-        logger.debug("fileNameNumber: \(fileNameNumber)")
+        logger.verbose("fileNameNumber: \(fileNameNumber)")
         
         // Joining the file name with the number at the end
         // fileNameAppended = ["file-2"]
         let fileNameAppended = fileNameNumber.joinWithSeparator("-")
-        logger.debug("fileNameAppended: \(fileNameAppended)")
+        logger.verbose("fileNameAppended: \(fileNameAppended)")
         
         // Joining the file name with the extension
         // fileNameArray = ["file-2", "ext"]
         fileNameArray.removeFirst()
         fileNameArray.insert(fileNameAppended, atIndex: 0)
-        logger.debug("fileNameArray: \(fileNameArray)")
+        logger.verbose("fileNameArray: \(fileNameArray)")
         
         // Combining the full name of the file
         // fileName = "file-2.ext"
         var fileName = fileNameArray.joinWithSeparator(".")
-        logger.debug("fileName: \(fileName)")
+        logger.verbose("fileName: \(fileName)")
         
         // Removing any encoded characters from the file name, so
         // HAP+ saves the file with the correct file name
         // fileName = "file-2.ext"
         fileName = fileName.stringByRemovingPercentEncoding!
-        logger.debug("fileName: \(fileName)")
+        logger.verbose("fileName: \(fileName)")
         
         // Formatting the name of the file to make sure that it is
         // valid for storing on Windows file systems
         // fileName = "file-2.ext"
         fileName = api.formatInvalidName(fileName)
-        logger.debug("Formatted fileName: \(fileName)")
+        logger.debug("Formatted new file name: \(fileName)")
         
         return fileName
     }
