@@ -50,7 +50,7 @@ protocol uploadFileDelegate {
     func showFileExistsMessage(fileFromPhotoLibrary: Bool)
 }
 
-class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
@@ -179,8 +179,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 6
-    /// - date: 2016-01-28
+    /// - version: 7
+    /// - date: 2016-01-29
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -269,6 +269,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     textField.enablesReturnKeyAutomatically = true
                     textField.keyboardAppearance = .Dark
                     textField.returnKeyType = .Continue
+                    textField.delegate = self
             })
             
             // Setting the create button style to be cancel, so
@@ -282,14 +283,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         let theTextFields = textFields as [UITextField]
                         let enteredText = theTextFields[0].text
                         if (enteredText! != "") {
-                            logger.debug("New folder name: \(enteredText!)")
-                            
-                            // Calling the newFolder delegate function, so that
-                            // the folder can be created
-                            self.delegate?.newFolder(enteredText!)
-                            
-                            // Dismissing the popover as it's done what is needed
-                            self.dismissViewControllerAnimated(true, completion: nil)
+                            // Creating the new folder from the
+                            // Master View Controller
+                            self.createFolder(enteredText!)
                         } else {
                             self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
                         }
@@ -557,6 +553,33 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         return fileName
     }
     
+    /// Gets the value from the textfield in the new folder alert
+    /// controller, to pass it back via delegates to the Master
+    /// View Controller to create it in the current folder
+    ///
+    /// As the user can type in the name of the new folder and
+    /// press "Continue" on the keyboard, or the "Continue" button
+    /// on the alert, both routes need to come here so that there
+    /// is a standardised function for it
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-29
+    ///
+    /// - parameter folderName: The name of the folder that is to
+    ///                         be created
+    func createFolder(folderName: String) {
+        logger.debug("New folder name: \(folderName)")
+        
+        // Calling the newFolder delegate function, so that
+        // the folder can be created
+        self.delegate?.newFolder(folderName)
+        
+        // Dismissing the popover as it's done what is needed
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
     /// Gets the Documents directory for the current app
     ///
     /// See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
@@ -570,6 +593,27 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         let documentsDirectory = paths[0]
         logger.debug("Documents directory path: \(documentsDirectory)")
         return documentsDirectory
+    }
+    
+    /// Calling the "createFolder" function when the user
+    /// presses the return key on the keyboard
+    ///
+    /// If the user presses the return key on the keyboard,
+    /// by default it dismisses the alert for typing in the
+    /// name of the new folder. This function looks after
+    /// calling the "createFolder" function
+    /// See: http://stackoverflow.com/a/26288341
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-29
+    ///
+    /// - seealso: createFolder
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        createFolder(textField.text!)
+        return true
     }
 
 }
