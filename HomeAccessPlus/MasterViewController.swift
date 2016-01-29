@@ -937,8 +937,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 3
-    /// - date: 2016-01-27
+    /// - version: 4
+    /// - date: 2016-01-29
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -959,7 +959,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // If there is something that is likely to break,
             // this is probably the most likely place to check
             // See: http://stackoverflow.com/a/32696605
-            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 2 * Int64(NSEC_PER_SEC))
             dispatch_after(time, dispatch_get_main_queue()) {
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")

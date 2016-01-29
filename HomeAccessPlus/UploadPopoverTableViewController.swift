@@ -606,13 +606,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-29
     ///
     /// - seealso: createFolder
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         createFolder(textField.text!)
+        
+        // We need to dismiss the view controller here, as it
+        // doesn't seem to remove the popover when the return
+        // key is pressed
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
         return true
     }
 
