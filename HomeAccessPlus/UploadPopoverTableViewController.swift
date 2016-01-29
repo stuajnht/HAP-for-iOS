@@ -265,12 +265,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 {(textField: UITextField!) in
                     textField.placeholder = "Folder name"
                     textField.keyboardType = .ASCIICapable
+                    textField.autocapitalizationType = .Words
+                    textField.enablesReturnKeyAutomatically = true
+                    textField.keyboardAppearance = .Dark
+                    textField.returnKeyType = .Continue
             })
             
             // Setting the create button style to be cancel, so
             // that it is emboldened in the alert and looks like
             // the default button to press
-            let action = UIAlertAction(title: "Create", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
+            // Note: Continue is used instead of create, as it
+            //       then keeps the same description as the
+            //       keyboard return key
+            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
                     if let textFields = newFolderAlert?.textFields{
                         let theTextFields = textFields as [UITextField]
                         let enteredText = theTextFields[0].text
