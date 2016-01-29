@@ -454,8 +454,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 3
-    /// - date: 2016-01-25
+    /// - version: 4
+    /// - date: 2016-01-29
     ///
     /// - parameter folderName: The name of the folder to be created
     func newFolder(folderName: String) {
@@ -476,9 +476,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // There was a problem with creating the folder, so let the
                     // user know about it
                     if (result == false) {
-                        let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(uploadFailController, animated: true, completion: nil)
+                        // Forcing a delay to happen before showing the
+                        // alert to the user. See explanation further down
+                        // in this function (where result==false) for more
+                        // information on why this is needed
+                        let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+                        dispatch_after(time, dispatch_get_main_queue()) {
+                            let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                            uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                            self.presentViewController(uploadFailController, animated: true, completion: nil)
+                        }
                     }
                     
                     // The folder has been created successfuly so we can present and
@@ -496,12 +503,28 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // so let the user know that they can't create
             // another one in it
             if (result == true) {
-                self.hudHide()
-                logger.info("The \"\(folderName)\" folder already exists in \"\(self.currentPath)\"")
-                
-                let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
-                folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(folderExistsController, animated: true, completion: nil)
+                // Forcing a delay to happen before showing the
+                // alert to the user. This is in part due to a
+                // race condition between the upload popover
+                // disappearing and the asynchronous newFolder
+                // returning the callback to call this function,
+                // and depends on the speed of the API return.
+                // We can do this as the user doesn't know if
+                // the delay is due to the creation of the folder
+                // starting or a delay in the network connection.
+                // If there is something that is likely to break,
+                // this is probably the most likely place to check
+                // Seealso: showFileExistsMessage
+                // See: http://stackoverflow.com/a/32696605
+                let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+                dispatch_after(time, dispatch_get_main_queue()) {
+                    self.hudHide()
+                    logger.info("The \"\(folderName)\" folder already exists in \"\(self.currentPath)\"")
+                    
+                    let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                    folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(folderExistsController, animated: true, completion: nil)
+                }
             }
         })
     }
@@ -959,7 +982,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // If there is something that is likely to break,
             // this is probably the most likely place to check
             // See: http://stackoverflow.com/a/32696605
-            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 2 * Int64(NSEC_PER_SEC))
+            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
             dispatch_after(time, dispatch_get_main_queue()) {
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")
