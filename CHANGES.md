@@ -9,6 +9,9 @@
   * Create a new version of the file and keep the old version too
   * Replace the original file with the one being uploaded from the app
 
+### Changes
+* Keyboards on the login screen and new folder alert only allow letters and numbers, to prevent emojis being used
+
 ## 0.5.0
 
 ### New Stuff
