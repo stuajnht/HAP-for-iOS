@@ -46,4 +46,24 @@ class HomeAccessPlusUITests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
+    
+    //MARK: LoginViewController Tests
+    
+    /// Checks to make sure that an alert is shown if there
+    /// isn't any text in the login text fields
+    ///
+    /// If there isn't anything typed into any of the login
+    /// view text fields, an alert is shown to the user
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-30
+    func testUILoginViewControllerTextboxesValid() {
+        let app = XCUIApplication()
+        let scrollViewsQuery = app.scrollViews
+        scrollViewsQuery.otherElements.buttons["Login"].tap()
+        app.alerts["Incorrect Information"].collectionViews.buttons["OK"].tap()
+    }
+    
 }
