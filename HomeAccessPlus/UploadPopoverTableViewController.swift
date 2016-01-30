@@ -38,10 +38,19 @@ import UIKit
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
-    func uploadFile(fileFromPhotoLibrary: Bool)
+    func uploadFile(fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(fileExists: Bool) -> Void)
+    
+    // This calls the newFolder function in the master view
+    // controller
+    func newFolder(folderName: String)
+    
+    // This calls the showFileExistsMessage function to see
+    // if the user needs to confirm what to do with a file
+    // that already exists in the current folder
+    func showFileExistsMessage(fileFromPhotoLibrary: Bool)
 }
 
-class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
@@ -62,6 +71,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // row, so that if the user cancels the image picker,
     // it can be deselected
     var currentlySelectedRow : NSIndexPath?
+    
+    /// Array to hold the number of table sections and rows
+    /// shown in the popover
+    ///
+    /// This nested array should hold the names of the table
+    /// sections, along with the number of rows in that section.
+    /// When numberOfSectionsInTableView is called, it uses this
+    /// array to generate the correct number of rows to display
+    ///
+    /// If there are any additional sections or rows added to
+    /// the table, then this array needs to also be updated to
+    /// allow them to be shown to the user
+    let tableSections : [[String]] = [["Upload", "3"], ["Create", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,16 +146,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // Returning the number of sections that are in the table
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 1
+        logger.verbose("Number of sections in upload popover: \(tableSections.count)")
+        return tableSections.count
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Returning the number of rows in the current table section
-        // - todo: Create this number dynamically
         // - seealso: tableView
-        return 3
+        logger.verbose("Number of rows in table section \(section): \(Int(tableSections[section][1])!)")
+        return Int(tableSections[section][1])!
     }
     
     /// Seeing what cell the user has selected from the table, and
@@ -152,11 +174,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
     ///         |    0    |  2  | Upload file from app |
+    ///         |---------|-----|----------------------|
+    ///         |    1    |  0  | New folder           |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
-    /// - date: 2016-01-16
+    /// - version: 7
+    /// - date: 2016-01-29
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -217,12 +241,63 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 0) && (row == 2)) {
             logger.debug("Cell function: Uploading file from app")
             
-            // Calling the upload file delegate to upload the file
-            delegate?.uploadFile(false)
-            
             // Dismissing the popover as it's done what is needed
             // See: http://stackoverflow.com/a/32521647
             self.dismissViewControllerAnimated(true, completion: nil)
+            
+            // Calling the upload file delegate to upload the file
+            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(false)
+            })
+        }
+        
+        // The user has selected to create a new folder
+        if ((section == 1) && (row == 0)) {
+            logger.debug("Cell function: Create new folder")
+            
+            // Displaying an alert view with a textbox for the
+            // user to type in the name of the folder
+            // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+            var newFolderAlert:UIAlertController?
+            newFolderAlert = UIAlertController(title: "New folder", message: "Please enter the name of the folder", preferredStyle: .Alert)
+            
+            newFolderAlert!.addTextFieldWithConfigurationHandler(
+                {(textField: UITextField!) in
+                    textField.placeholder = "Folder name"
+                    textField.keyboardType = .ASCIICapable
+                    textField.autocapitalizationType = .Words
+                    textField.enablesReturnKeyAutomatically = true
+                    textField.keyboardAppearance = .Dark
+                    textField.returnKeyType = .Continue
+                    textField.delegate = self
+            })
+            
+            // Setting the create button style to be cancel, so
+            // that it is emboldened in the alert and looks like
+            // the default button to press
+            // Note: Continue is used instead of create, as it
+            //       then keeps the same description as the
+            //       keyboard return key
+            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
+                    if let textFields = newFolderAlert?.textFields{
+                        let theTextFields = textFields as [UITextField]
+                        let enteredText = theTextFields[0].text
+                        if (enteredText! != "") {
+                            // Creating the new folder from the
+                            // Master View Controller
+                            self.createFolder(enteredText!)
+                        } else {
+                            self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                        }
+                    }
+                })
+            
+            newFolderAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { Void in
+                self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            }))
+            
+            newFolderAlert?.addAction(action)
+            self.presentViewController(newFolderAlert!, animated: true, completion: nil)
         }
     }
     
@@ -257,8 +332,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-09
+    /// - version: 3
+    /// - date: 2016-01-27
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Getting the type of file the user has selected, as it
         // is stored in different locations based on what it is
@@ -299,14 +374,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Setting the location of the image file in the settings
         settings.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
         
-        // Uploading the file to the HAP+ server
-        delegate?.uploadFile(true)
-        
         // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
         
         // Dismissing the popover as it's done what is needed
         self.dismissViewControllerAnimated(true, completion: nil)
+        
+        // Uploading the file to the HAP+ server
+        delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+            self.delegate?.showFileExistsMessage(true)
+        })
     }
     
     /// Dismissing the image picker
@@ -476,6 +553,33 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         return fileName
     }
     
+    /// Gets the value from the textfield in the new folder alert
+    /// controller, to pass it back via delegates to the Master
+    /// View Controller to create it in the current folder
+    ///
+    /// As the user can type in the name of the new folder and
+    /// press "Continue" on the keyboard, or the "Continue" button
+    /// on the alert, both routes need to come here so that there
+    /// is a standardised function for it
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-29
+    ///
+    /// - parameter folderName: The name of the folder that is to
+    ///                         be created
+    func createFolder(folderName: String) {
+        logger.debug("New folder name: \(folderName)")
+        
+        // Calling the newFolder delegate function, so that
+        // the folder can be created
+        self.delegate?.newFolder(folderName)
+        
+        // Dismissing the popover as it's done what is needed
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
     /// Gets the Documents directory for the current app
     ///
     /// See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
@@ -489,6 +593,33 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         let documentsDirectory = paths[0]
         logger.debug("Documents directory path: \(documentsDirectory)")
         return documentsDirectory
+    }
+    
+    /// Calling the "createFolder" function when the user
+    /// presses the return key on the keyboard
+    ///
+    /// If the user presses the return key on the keyboard,
+    /// by default it dismisses the alert for typing in the
+    /// name of the new folder. This function looks after
+    /// calling the "createFolder" function
+    /// See: http://stackoverflow.com/a/26288341
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 2
+    /// - date: 2016-01-29
+    ///
+    /// - seealso: createFolder
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        createFolder(textField.text!)
+        
+        // We need to dismiss the view controller here, as it
+        // doesn't seem to remove the popover when the return
+        // key is pressed
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
+        return true
     }
 
 }

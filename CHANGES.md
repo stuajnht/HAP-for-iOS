@@ -1,5 +1,17 @@
 # Home Access Plus+ iOS app change log
 
+## 0.6.0
+
+### New Stuff
+* Files and folders can be deleted by swiping them to the left
+* New folders can be created in the currently viewed folder
+* When uploading a file, if it already exists in the current folder the user is given the choice to:
+  * Create a new version of the file and keep the old version too
+  * Replace the original file with the one being uploaded from the app
+
+### Changes
+* Keyboards on the login screen and new folder alert only allow letters and numbers, to prevent emojis being used
+
 ## 0.5.0
 
 ### New Stuff

@@ -5,6 +5,9 @@
       location = "group:.gitignore">
    </FileRef>
    <FileRef
+      location = "group:.travis.yml">
+   </FileRef>
+   <FileRef
       location = "group:CHANGES.md">
    </FileRef>
    <FileRef

@@ -454,8 +454,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 2
-    /// - date: 2016-01-09
+    /// - version: 3
+    /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
     ///                                 stored in a folder called "inbox" which can
@@ -464,7 +464,11 @@ class HAPi {
     ///                                 is going to be uploaded to
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    /// - parameter customFileName: If the file currently exists in the current folder,
+    ///                             and the user has chosen to create a new file and
+    ///                             not overwrite it, then this is the custom file name
+    ///                             that should be used
+    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
@@ -475,25 +479,34 @@ class HAPi {
             
             var fileName = ""
             
-            // As the file is coming from an external app, it will be saved
-            // on the device in a physical location with an extension. We
-            // can just split the path and get the file name from the last
-            // array value
-            let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
-            
-            // Forcing an unwrap of the value, otherwise the file name
-            // is Optional("<nale>") which causes the HAP+ server to
-            // do a 500 HTTP error
-            // See: http://stackoverflow.com/a/25848016
-            fileName = pathArray.last!
-            
-            // Removing any encoded characters from the file name, so
-            // HAP+ saves the file with the correct file name
-            fileName = fileName.stringByRemovingPercentEncoding!
-            
-            // Formatting the name of the file to make sure that it is
-            // valid for storing on Windows file systems
-            fileName = formatInvalidFileName(fileName)
+            // Seeing if a name for the file needs to be generated
+            // or one has already been created from the user choosing
+            // to not overwrite a file
+            if (customFileName == "") {
+                // As the file is coming from an external app, it will be saved
+                // on the device in a physical location with an extension. We
+                // can just split the path and get the file name from the last
+                // array value
+                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                
+                // Forcing an unwrap of the value, otherwise the file name
+                // is Optional("<nale>") which causes the HAP+ server to
+                // do a 500 HTTP error
+                // See: http://stackoverflow.com/a/25848016
+                fileName = pathArray.last!
+                
+                // Removing any encoded characters from the file name, so
+                // HAP+ saves the file with the correct file name
+                fileName = fileName.stringByRemovingPercentEncoding!
+                
+                // Formatting the name of the file to make sure that it is
+                // valid for storing on Windows file systems
+                fileName = formatInvalidName(fileName)
+            } else {
+                // A custom file name has already been created and formatted,
+                // so that should be used instead
+                fileName = customFileName
+            }
             
             logger.debug("Name of file being uploaded: \(fileName)")
             
@@ -533,8 +546,308 @@ class HAPi {
         }
     }
     
-    /// Checking to make sure that the file name doesn't contain
-    /// any names not allowed by Windows
+    /// Deletes the selected file or folder
+    ///
+    /// If a user has requested that a file or folder should be deleted,
+    /// then this needs to be sent to the HAP+ server.
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 4
+    /// - date: 2016-01-24
+    ///
+    /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
+    ///                               that the user has requested to be deleted
+    func deleteFile(deleteItemAtPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Replacing the '../Download' navigation path that the HAP+
+            // API adds to the file path, so that it can be used to locate
+            // the file item directly to be able to delete it
+            logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
+            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            
+            // Converting any backslashes from a folder path into forward
+            // slashes, so that the HAP+ server is able to delete folders
+            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // The HTTP request body need to have the file name enclosed in
+            // square brackets and quotes, e.g. ["<filePath>"]
+            let formattedJSONPath = "[\"" + formattedPath + "\"]"
+            logger.debug("Item being deleted formatted path: \(formattedJSONPath)")
+            
+            // Getting the name of the file or folder that is being deleted,
+            // so that it can be checked against the response from the HAP+
+            // server if the file item has been deleted properly
+            // - seealso: uploadFile
+            var fileName = ""
+            let pathArray = String(formattedPath).componentsSeparatedByString("/")
+            fileName = pathArray.last!
+            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = formatInvalidName(fileName)
+            logger.debug("Name of file item being deleted: \(fileName)")
+            
+            // Setting the tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+            ]
+            
+            // Connecting to the API to delete the file item
+            // The file that is to be deleted is passed to the API in the
+            // request body, i.e. the URL is <hapServer>/api/myfiles/Delete
+            // and the string passed to this URL is the name of the file
+            // item to delete e.g. H/file.txt
+            // See: http://stackoverflow.com/a/28552198
+            logger.debug("Attempting to delete the selected file item")
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
+                    (convertible, params) in
+                    let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
+                    mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+                    return (mutableRequest, nil)
+                }))
+                // Parsing the response
+                .response { request, response, data, error in
+                    logger.verbose("Request: \(request)")
+                    logger.verbose("Response: \(response)")
+                    logger.verbose("Data: \(data)")
+                    logger.verbose("Error: \(error)")
+                    
+                    // The response body that the HAP+ server responds
+                    // with is ["Deleted <file item name>"] so we need
+                    // to check to see if this is returned. If it is,
+                    // then let the user know the file was deleted
+                    // otherwise let them know there was a problem
+                    let deletionResponse = data!
+                    logger.verbose("Raw response from server from deleting file item: \(deletionResponse)")
+                    
+                    // For some reason, the response body data is also
+                    // hex encoded, which means it needs to be decoded
+                    // first before any checks can be done to see if the
+                    // file item has been successfully deleted
+                    
+                    // Removing any characters from the string that shouldn't
+                    // be there, namely '<', '>' and ' ', as these cause
+                    // problems parsing the string result
+                    var deletionString = String(deletionResponse)
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString("<", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(">", withString: "")
+                    deletionString = deletionString.stringByReplacingOccurrencesOfString(" ", withString: "")
+                    
+                    // Converting the hex string into Unicode values, to check
+                    // that the file item from the server has been successfully
+                    // deleted
+                    // See: http://stackoverflow.com/a/30795372
+                    var deletionStringCharacters = [Character]()
+                    
+                    for characterPosition in deletionString.characters {
+                        deletionStringCharacters.append(characterPosition)
+                    }
+                    
+                    // This version of Swift is different from the
+                    // hex to ascii example used above, so we need
+                    // to call a different function
+                    // See: http://stackoverflow.com/a/24372631
+                    let characterMap =  0.stride(to: deletionStringCharacters.count, by: 2).map{
+                        strtoul(String(deletionStringCharacters[$0 ..< $0+2]), nil, 16)
+                    }
+                    
+                    var decodedString = ""
+                    var characterMapPosition = 0
+                    
+                    while characterMapPosition < characterMap.count {
+                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
+                        characterMapPosition++
+                    }
+                    
+                    let formattedDeletionResponse = decodedString
+                    logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
+                    
+                    // Seeing if the file was deleted successfully or not
+                    if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
+                        logger.debug("\(fileName) was successfully deleted from the server")
+                        callback(result: true)
+                    } else {
+                        logger.error("There was a problem deleting the file from the server")
+                        callback(result: false)
+                    }
+                }
+        }
+    }
+    
+    /// Creates a new folder in the currently viewed folder
+    ///
+    /// The user can create a folder in the currently browsed
+    /// to folder from the upload popover, and this function
+    /// calls the relevant HAP+ API to create the folder. It also
+    /// checks to make sure there are no forbidden characters in
+    /// the name of the folder, and converts the current folder
+    /// and new folder name into URL encoded strings, so that the
+    /// HAP+ server can create the folder correctly
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-23
+    ///
+    /// - parameter currentFolder: Path to the folder that is currently
+    ///                            being shown to the user
+    /// - parameter newFolderName: The name of the new folder that is to
+    ///                            be created
+    func newFolder(currentFolder: String, newFolderName: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            logger.debug("New folder to be created in location: \(currentFolder)")
+            logger.debug("New folder raw name: \(newFolderName)")
+            
+            // Removing invalid characters from the new folder name
+            let formattedNewFolderName = formatInvalidName(newFolderName)
+            
+            // Replacing the escaped slashes with a forward slash
+            // from the current folder path
+            var folderFormattedPath = currentFolder.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            folderFormattedPath = folderFormattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // Combining the path of the current folder with the name
+            // of the new folder
+            var fullNewFolderPath = folderFormattedPath + "/" + formattedNewFolderName
+            
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            
+            logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
+            
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to create the new folder
+            logger.debug("Attempting to create the new folder")
+            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                .responseJSON { response in switch response.result {
+                case .Success:
+                    logger.debug("Response from creating new folder: \(response.data)")
+                    // Letting the callback know we have successfully logged in
+                    callback(result: true)
+                    
+                case .Failure(let error):
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: false)
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: false)
+        }
+    }
+    
+    /// Checks to see if the file item exists in the current folder
+    /// before uploading a file or creating a folder
+    ///
+    /// As a user may attempt to upload a same named file item into
+    /// the currently viewed folder, it needs to be checked if there
+    /// is something currently there that matches the same name, and
+    /// ask the user if it can be overwritten or should it be created
+    /// as a new file item
+    ///
+    /// - note: Looking at the response from the HAP+ API calls to the
+    ///         exists function <hapServer>/api/MyFiles/Exists/<path>
+    ///         only the JSON values of "DateCreated", "Icon", "Location",
+    ///         "Name", "Size" give different values for folders and
+    ///         files, and for ones that exist or don't. It is decided
+    ///         to check the value of "Name" to make sure if it's
+    ///         null (doesn't exist) or not null (item exists)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-25
+    ///
+    /// - parameter itemPath: Path to the file item that is currently
+    ///                       being checked to see if it exists in the
+    ///                       current folder already
+    func itemExists(itemPath: String, callback:(result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            logger.debug("Checking to see if a file item exists at: \(itemPath)")
+            
+            // Replacing the escaped slashes with a forward slash
+            // from the current folder path
+            var fileItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
+            fileItemPath = fileItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            
+            // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
+            fileItemPath = fileItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            
+            logger.debug("Checking to see if a file item exists at formatted path: \(fileItemPath)")
+            
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+            ]
+            
+            // Connecting to the API to log in the user with the credentials
+            logger.debug("Attempting to check if the file item already exists")
+            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseJSON { response in switch response.result {
+                case .Success(let JSON):
+                    logger.verbose("Response JSON for file item existing: \(JSON)")
+                    
+                    // Seeing if there is a valid name from the returned JSON
+                    // The JSON returns "null" if the file item doesn't exist
+                    // See: http://stackoverflow.com/a/24128720
+                    let validFileItemName = JSON["Name"] as? String
+                    logger.debug("API 'Name' response for checking if file exists: \(validFileItemName)")
+                    if (validFileItemName == nil) {
+                        // Letting the callback know that there isn't
+                        // a file item in the current location, so any
+                        // functions called after this can continue
+                        logger.debug("File item doesn't currently exist in the current folder")
+                        callback(result: false)
+                    } else {
+                        // A file item exists in the current folder with
+                        // the same name as what is attempting to be
+                        // uploaded or created, so any functions called
+                        // after this need to be confirmed by the user
+                        callback(result: true)
+                    }
+                    
+                case .Failure(let error):
+                    // There was a problem checking to see if there
+                    // is a file item existing in the current folder
+                    // so assume that there is to prevent any accidental
+                    // overwriting of files
+                    logger.warning("Request failed with error: \(error)")
+                    callback(result: true)
+                    }
+            }
+        } else {
+            // There was a problem checking to see if there
+            // is a file item existing in the current folder
+            // so assume that there is to prevent any accidental
+            // overwriting of files
+            logger.warning("The connection to the Internet has been lost")
+            callback(result: true)
+        }
+    }
+    
+    /// Checking to make sure that the file or folder name doesn't
+    /// contain any names not allowed by Windows
     ///
     /// Apps allow you to name files whatever you want to, as they
     /// are not under the same restrictions as Windows. However, if
@@ -546,26 +859,43 @@ class HAPi {
     /// is not one of the invalid file names, and if so, append an
     /// underscore "_" to the end of it
     ///
+    /// Since 0.6.0-aplha new folders can also be created via the app,
+    /// and this function is also called to make sure that the name
+    /// of the folder does also not contain any invalid characters
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-15
+    /// - version: 2
+    /// - date: 2016-01-23
     ///
-    /// - parameter fullFileName: The full file name and extension that
-    ///                           is going to be given to the HAP+ server
-    /// - returns: The file name with invalid file names modified
-    func formatInvalidFileName(fullFileName: String) -> String {
+    /// - parameter fullName: The full name (and extension for files)
+    ///                       that is going to be given to the HAP+
+    ///                       server to create the resource
+    /// - returns: The item name with reserved characters modified
+    func formatInvalidName(fullName: String) -> String {
         // Making sure that the file name doesn't contain any reserved
         // names, which Windows forbids, meaning the file will be
         // inaccessable. See: https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
         let reservedNames = ["CON","PRN","AUX","NUL",
             "COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9",
             "LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9"]
+        let reservedCharacters = ["<",">",":","\"","/","\\","|","?","*"]
+        
+        // Looping around the full name to check that there aren't
+        // any reserved characters in the name. This should be done
+        // before the file name is checked for reserved characters
+        // as any part of the file or folder name should not contain
+        // any reserved characters. Any reserved character that are
+        // found are replaced with an underscore "_"
+        var formattedFullName = fullName
+        for reservedCharacter in reservedCharacters {
+            formattedFullName = formattedFullName.stringByReplacingOccurrencesOfString(reservedCharacter, withString: "_")
+        }
         
         // Invalid file names are in the format <reservedNames>.<ext>
         // but <anything><reservedNames><anything>.<ext> are allowed
         // so we only really need to check if fileName[0] is invalid
-        var fileName = fullFileName.componentsSeparatedByString(".")
+        var fileName = formattedFullName.componentsSeparatedByString(".")
         
         // Looping around each item in the reserved names array to see
         // if fileName[0] matches any of the items
@@ -573,7 +903,7 @@ class HAPi {
             if (reservedName.lowercaseString == fileName[0].lowercaseString) {
                 // An invalid file name has been found, so modify it to
                 // contain an underscore at the end
-                logger.warning("Reserved file name found: \(fullFileName)")
+                logger.warning("Reserved file name found: \(fullName)")
                 fileName[0] = fileName[0] + "_"
             }
         }
