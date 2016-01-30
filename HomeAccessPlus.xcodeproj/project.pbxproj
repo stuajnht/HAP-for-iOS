@@ -10,6 +10,7 @@
 		35C2786884C1B3BC821AEB83 /* Pods_HomeAccessPlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */; };
 		FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC364A751C0BACB30085DC7E /* LoginViewController.swift */; };
 		FC3C6E2C1C3DC46A00B48383 /* UploadPopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */; };
+		FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */; };
 		FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */; };
 		FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
 		FCB1D9EC1C09F54C00DEC02E /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9EB1C09F54C00DEC02E /* MasterViewController.swift */; };
@@ -23,6 +24,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		FC78D30E1C5D7E5E00254B07 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FCB1D9E51C09F54C00DEC02E;
+			remoteInfo = HomeAccessPlus;
+		};
 		FCB1D9FD1C09F54C00DEC02E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
@@ -38,6 +46,9 @@
 		385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HomeAccessPlus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC364A751C0BACB30085DC7E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadPopoverTableViewController.swift; sourceTree = "<group>"; };
+		FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusUITests.swift; sourceTree = "<group>"; };
+		FC78D30D1C5D7E5E00254B07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
 		FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeAccessPlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -55,6 +66,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FC78D3061C5D7E5E00254B07 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1D9E31C09F54C00DEC02E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -90,11 +108,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FC78D30A1C5D7E5E00254B07 /* HomeAccessPlusUITests */ = {
+			isa = PBXGroup;
+			children = (
+				FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */,
+				FC78D30D1C5D7E5E00254B07 /* Info.plist */,
+			);
+			path = HomeAccessPlusUITests;
+			sourceTree = "<group>";
+		};
 		FCB1D9DD1C09F54B00DEC02E = {
 			isa = PBXGroup;
 			children = (
 				FCB1D9E81C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FF1C09F54C00DEC02E /* HomeAccessPlusTests */,
+				FC78D30A1C5D7E5E00254B07 /* HomeAccessPlusUITests */,
 				FCB1D9E71C09F54C00DEC02E /* Products */,
 				F05941D6A9177313791730CE /* Pods */,
 				F764C4F5629690132DD516AB /* Frameworks */,
@@ -106,6 +134,7 @@
 			children = (
 				FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */,
 				FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */,
+				FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -141,6 +170,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC78D3121C5D7E5E00254B07 /* Build configuration list for PBXNativeTarget "HomeAccessPlusUITests" */;
+			buildPhases = (
+				FC78D3051C5D7E5E00254B07 /* Sources */,
+				FC78D3061C5D7E5E00254B07 /* Frameworks */,
+				FC78D3071C5D7E5E00254B07 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FC78D30F1C5D7E5E00254B07 /* PBXTargetDependency */,
+			);
+			name = HomeAccessPlusUITests;
+			productName = HomeAccessPlusUITests;
+			productReference = FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FCB1DA051C09F54C00DEC02E /* Build configuration list for PBXNativeTarget "HomeAccessPlus" */;
@@ -190,6 +237,10 @@
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Jonathan Hart";
 				TargetAttributes = {
+					FC78D3081C5D7E5E00254B07 = {
+						CreatedOnToolsVersion = 7.1.1;
+						TestTargetID = FCB1D9E51C09F54C00DEC02E;
+					};
 					FCB1D9E51C09F54C00DEC02E = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
@@ -215,11 +266,19 @@
 			targets = (
 				FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FB1C09F54C00DEC02E /* HomeAccessPlusTests */,
+				FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FC78D3071C5D7E5E00254B07 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1D9E41C09F54C00DEC02E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -301,6 +360,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FC78D3051C5D7E5E00254B07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1D9E21C09F54C00DEC02E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -327,6 +394,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FC78D30F1C5D7E5E00254B07 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */;
+			targetProxy = FC78D30E1C5D7E5E00254B07 /* PBXContainerItemProxy */;
+		};
 		FCB1D9FE1C09F54C00DEC02E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */;
@@ -354,6 +426,30 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		FC78D3101C5D7E5E00254B07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = HomeAccessPlusUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = HomeAccessPlus;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		FC78D3111C5D7E5E00254B07 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = HomeAccessPlusUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = HomeAccessPlus;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
 		FCB1DA031C09F54C00DEC02E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -496,6 +592,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FC78D3121C5D7E5E00254B07 /* Build configuration list for PBXNativeTarget "HomeAccessPlusUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC78D3101C5D7E5E00254B07 /* Debug */,
+				FC78D3111C5D7E5E00254B07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		FCB1D9E11C09F54B00DEC02E /* Build configuration list for PBXProject "HomeAccessPlus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
