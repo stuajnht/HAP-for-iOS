@@ -66,4 +66,45 @@ class HomeAccessPlusUITests: XCTestCase {
         app.alerts["Incorrect Information"].collectionViews.buttons["OK"].tap()
     }
     
+    /// Testing to make sure that an invalid HAP+ URL entered
+    /// alerts the user
+    ///
+    /// If the user types something incorrect in the HAP+ URL
+    /// then we need to let them know that there was a problem
+    /// with it, and we couldn't connect to the HAP+ server
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-30
+    func testLoginViewControllerInvalidURL() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText("https://hap.example.com")
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText("teststudent")
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText("123456")
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        // Pausing for a number of seconds to let the
+        // checks take place, as they're asynchronous, and
+        // the test would fail otherwise
+        let exists = NSPredicate(format: "exists == 1")
+        let alert = app.alerts["Invalid HAP+ Address"]
+        expectationForPredicate(exists, evaluatedWithObject: alert, handler: nil)
+        waitForExpectationsWithTimeout(20, handler: nil)
+        
+        alert.collectionViews.buttons["OK"].tap()
+    }
+    
 }
