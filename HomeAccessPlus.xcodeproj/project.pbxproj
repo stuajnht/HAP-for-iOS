@@ -599,6 +599,7 @@
 				FC78D3111C5D7E5E00254B07 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FCB1D9E11C09F54B00DEC02E /* Build configuration list for PBXProject "HomeAccessPlus" */ = {
 			isa = XCConfigurationList;

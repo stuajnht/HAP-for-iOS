@@ -31,7 +31,12 @@ class HomeAccessPlusUITests: XCTestCase {
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
-        XCUIApplication().launch()
+        // Resetting all of the settings for the app, so
+        // that it starts in a 'clean' state
+        // See: http://stackoverflow.com/a/33774166
+        let app = XCUIApplication()
+        app.launchArguments = ["UI_TESTING_RESET_SETTINGS"]
+        app.launch()
 
         // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
     }
@@ -106,5 +111,110 @@ class HomeAccessPlusUITests: XCTestCase {
         
         alert.collectionViews.buttons["OK"].tap()
     }
+    
+    /// Decoding the HAP+ server, username and password
+    /// that are used for testing
+    ///
+    /// *** THIS IS NOT PASSWORD ENCRYPTION ***
+    ///
+    /// The encrypted strings are quite easilly decodable, as
+    /// is shown by running this function. The point of it is
+    /// to stop the password being shown in plain text to any
+    /// bots that are scraping the web to find addresses and
+    /// passwords, while being quickly decodable for the tests
+    ///
+    /// Most of this function is copied directly from the HAPi
+    /// deleteFile function. It converts the reversed hex encoded
+    /// string into normal text
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-31
+    func decryptString(encryptedString: String) -> String {
+        // Removing any characters from the string that shouldn't
+        // be there, namely '<', '>' and ' '
+        var formattedString = String(encryptedString)
+        formattedString = formattedString.stringByReplacingOccurrencesOfString(" ", withString: "")
+        
+        // Converting the hex string into Unicode values, to check
+        // that the file item from the server has been successfully
+        // deleted
+        // See: http://stackoverflow.com/a/30795372
+        var formattedStringCharacters = [Character]()
+        
+        for characterPosition in formattedString.characters {
+            formattedStringCharacters.append(characterPosition)
+        }
+        
+        // This version of Swift is different from the
+        // hex to ascii example used above, so we need
+        // to call a different function
+        // See: http://stackoverflow.com/a/24372631
+        let characterMap =  0.stride(to: formattedStringCharacters.count, by: 2).map{
+            strtoul(String(formattedStringCharacters[$0 ..< $0+2]), nil, 16)
+        }
+        
+        var decodedString = ""
+        var characterMapPosition = 0
+        
+        while characterMapPosition < characterMap.count {
+            decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
+            characterMapPosition++
+        }
+        
+        // Reversing the string, just to obscure it a bit more
+        decodedString = String(decodedString.characters.reverse())
+        
+        return decodedString
+    }
+    
+    /// Performs a login to the HAP+ server using the full
+    /// HAP+ server address
+    ///
+    /// A full address to the HAP+ server is given and an
+    /// attempt to login with the username and password takes
+    /// place.
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-31
+    func testLoginViewControllerSuccessfulFullURLLogin() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText(decryptString("7061682F6B 752E6F632E 74686E6A61 7574732E70 61682F2F3A 7370747468"))
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText(decryptString("736976 617274"))
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText(decryptString("58535732 7A617131"))
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        let exists = NSPredicate(format: "exists == 1")
+        
+        let deviceTypeAlert = app.alerts["Please Select Device Type"]
+        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
+        waitForExpectationsWithTimeout(20, handler: nil)
+        deviceTypeAlert.collectionViews.buttons["Personal"].tap()
+        
+        let tablesQuery2 = app.tables
+        let tablesQuery = tablesQuery2
+        
+        // See: http://stackoverflow.com/a/32228104
+        let labelHome = tablesQuery.staticTexts["Home"]
+        expectationForPredicate(exists, evaluatedWithObject: labelHome, handler: nil)
+        waitForExpectationsWithTimeout(20, handler: nil)
+        labelHome.tap()
+    }
+
     
 }
