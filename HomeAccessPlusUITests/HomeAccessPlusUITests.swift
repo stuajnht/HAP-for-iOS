@@ -22,6 +22,24 @@
 import XCTest
 
 class HomeAccessPlusUITests: XCTestCase {
+    
+    // Setting the correct encoded values for the
+    // HAP+ server, username and password for use
+    // with the login tests. They're hex encoded
+    // and reversed to obscure them
+    let hapServerFull = "7061682F6B 752E6F632E 74686E6A61 7574732E70 61682F2F3A 7370747468"
+    let hapServerPartial = "6B752E6F632E 74686E6A6175 74732E706168"
+    let hapUsername = "736976 617274"
+    let hapPassword = "58535732 7A617131"
+    
+    // Setting up the predicate to wait for an object
+    // to be available before the test continues.
+    // This is needed as asynchronous calls may take
+    // some time, but the test will carry on straight
+    // away without waiting long enough
+    // See: http://stackoverflow.com/a/32228104
+    let exists = NSPredicate(format: "exists == 1")
+    let expectationsTimeout : NSTimeInterval = 30
         
     override func setUp() {
         super.setUp()
@@ -52,65 +70,7 @@ class HomeAccessPlusUITests: XCTestCase {
     }
     
     
-    //MARK: LoginViewController Tests
-    
-    /// Checks to make sure that an alert is shown if there
-    /// isn't any text in the login text fields
-    ///
-    /// If there isn't anything typed into any of the login
-    /// view text fields, an alert is shown to the user
-    ///
-    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
-    /// - since: 0.7.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-30
-    func testUILoginViewControllerTextboxesValid() {
-        let app = XCUIApplication()
-        let scrollViewsQuery = app.scrollViews
-        scrollViewsQuery.otherElements.buttons["Login"].tap()
-        app.alerts["Incorrect Information"].collectionViews.buttons["OK"].tap()
-    }
-    
-    /// Testing to make sure that an invalid HAP+ URL entered
-    /// alerts the user
-    ///
-    /// If the user types something incorrect in the HAP+ URL
-    /// then we need to let them know that there was a problem
-    /// with it, and we couldn't connect to the HAP+ server
-    ///
-    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
-    /// - since: 0.7.0-alpha
-    /// - version: 1
-    /// - date: 2016-01-30
-    func testLoginViewControllerInvalidURL() {
-        let app = XCUIApplication()
-        let elementsQuery = app.scrollViews.otherElements
-        
-        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
-        enterServerTextField.tap()
-        enterServerTextField.typeText("https://hap.example.com")
-        
-        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
-        enterUsernameTextField.tap()
-        enterUsernameTextField.typeText("teststudent")
-        
-        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
-        enterPasswordSecureTextField.tap()
-        enterPasswordSecureTextField.typeText("123456")
-        
-        let loginButton = elementsQuery.buttons["Login"]
-        loginButton.tap()
-        
-        // Pausing for a number of seconds to let the
-        // checks take place, as they're asynchronous, and
-        // the test would fail otherwise
-        let exists = NSPredicate(format: "exists == 1")
-        let alert = app.alerts["Invalid HAP+ Address"]
-        expectationForPredicate(exists, evaluatedWithObject: alert, handler: nil)
-        waitForExpectationsWithTimeout(20, handler: nil)
-        
-        alert.collectionViews.buttons["OK"].tap()
-    }
+    //MARK: Helper functions
     
     /// Decoding the HAP+ server, username and password
     /// that are used for testing
@@ -169,6 +129,184 @@ class HomeAccessPlusUITests: XCTestCase {
         return decodedString
     }
     
+    
+    //MARK: LoginViewController Tests
+    
+    /// Checks to make sure that an alert is shown if there
+    /// isn't any text in the login text fields
+    ///
+    /// If there isn't anything typed into any of the login
+    /// view text fields, an alert is shown to the user
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-30
+    func testUILoginViewControllerTextboxesValid() {
+        let app = XCUIApplication()
+        let scrollViewsQuery = app.scrollViews
+        scrollViewsQuery.otherElements.buttons["Login"].tap()
+        app.alerts["Incorrect Information"].collectionViews.buttons["OK"].tap()
+    }
+    
+    /// Testing to make sure that an invalid HAP+ URL entered
+    /// alerts the user
+    ///
+    /// If the user types something incorrect in the HAP+ URL
+    /// then we need to let them know that there was a problem
+    /// with it, and we couldn't connect to the HAP+ server
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 2
+    /// - date: 2016-01-30
+    func testLoginViewControllerInvalidURL() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText("hap.example.com")
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText(decryptString(hapUsername))
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText(decryptString(hapPassword))
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        // Pausing for a number of seconds to let the
+        // checks take place, as they're asynchronous, and
+        // the test would fail otherwise
+        let invalidAddressAlert = app.alerts["Invalid HAP+ Address"]
+        expectationForPredicate(exists, evaluatedWithObject: invalidAddressAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        
+        invalidAddressAlert.collectionViews.buttons["OK"].tap()
+    }
+    
+    /// Testing to make sure that an invalid username entered
+    /// alerts the user
+    ///
+    /// If the user types something incorrect in the username
+    /// then we need to let them know that there was a problem
+    /// with it, and we couldn't log in to the HAP+ server
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-30
+    func testLoginViewControllerInvalidUsername() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText(decryptString(hapServerFull))
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText("incorrect")
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText(decryptString(hapPassword))
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        // Pausing for a number of seconds to let the
+        // checks take place, as they're asynchronous, and
+        // the test would fail otherwise
+        let invalidUsernameAlert = app.alerts["Invalid Username or Password"]
+        expectationForPredicate(exists, evaluatedWithObject: invalidUsernameAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        
+        invalidUsernameAlert.collectionViews.buttons["OK"].tap()
+    }
+    
+    /// Testing to make sure that an invalid password entered
+    /// alerts the user
+    ///
+    /// If the user types something incorrect in the password
+    /// then we need to let them know that there was a problem
+    /// with it, and we couldn't log in to the HAP+ server
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-30
+    func testLoginViewControllerInvalidPassword() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText(decryptString(hapServerFull))
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText(decryptString(hapUsername))
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText("incorrect")
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        // Pausing for a number of seconds to let the
+        // checks take place, as they're asynchronous, and
+        // the test would fail otherwise
+        let invalidPasswordAlert = app.alerts["Invalid Username or Password"]
+        expectationForPredicate(exists, evaluatedWithObject: invalidPasswordAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        
+        invalidPasswordAlert.collectionViews.buttons["OK"].tap()
+    }
+    
+    /// Performs a login to the HAP+ server using the partial
+    /// HAP+ server address
+    ///
+    /// A partial address to the HAP+ server is given and an
+    /// attempt to login with the username and password takes
+    /// place. The address should be formatted to the full
+    /// address too
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-31
+    func testLoginViewControllerSuccessfulPartialURLLogin() {
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        
+        let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
+        enterServerTextField.tap()
+        enterServerTextField.typeText(decryptString(hapServerPartial))
+        
+        let enterUsernameTextField = elementsQuery.textFields["Enter username"]
+        enterUsernameTextField.tap()
+        enterUsernameTextField.typeText(decryptString(hapUsername))
+        
+        let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
+        enterPasswordSecureTextField.tap()
+        enterPasswordSecureTextField.typeText(decryptString(hapPassword))
+        
+        let loginButton = elementsQuery.buttons["Login"]
+        loginButton.tap()
+        
+        // The login is successful if the alert asking for
+        // the device type is presented
+        let deviceTypeAlert = app.alerts["Please Select Device Type"]
+        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+    }
+    
     /// Performs a login to the HAP+ server using the full
     /// HAP+ server address
     ///
@@ -186,34 +324,25 @@ class HomeAccessPlusUITests: XCTestCase {
         
         let enterServerTextField = elementsQuery.textFields["Enter HAP+ server address"]
         enterServerTextField.tap()
-        enterServerTextField.typeText(decryptString("7061682F6B 752E6F632E 74686E6A61 7574732E70 61682F2F3A 7370747468"))
+        enterServerTextField.typeText(decryptString(hapServerFull))
         
         let enterUsernameTextField = elementsQuery.textFields["Enter username"]
         enterUsernameTextField.tap()
-        enterUsernameTextField.typeText(decryptString("736976 617274"))
+        enterUsernameTextField.typeText(decryptString(hapUsername))
         
         let enterPasswordSecureTextField = elementsQuery.secureTextFields["Enter password"]
         enterPasswordSecureTextField.tap()
-        enterPasswordSecureTextField.typeText(decryptString("58535732 7A617131"))
+        enterPasswordSecureTextField.typeText(decryptString(hapPassword))
         
         let loginButton = elementsQuery.buttons["Login"]
         loginButton.tap()
         
-        let exists = NSPredicate(format: "exists == 1")
-        
+        // The login is successful if the alert asking for
+        // the device type is presented
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
         expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(20, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Personal"].tap()
-        
-        let tablesQuery2 = app.tables
-        let tablesQuery = tablesQuery2
-        
-        // See: http://stackoverflow.com/a/32228104
-        let labelHome = tablesQuery.staticTexts["Home"]
-        expectationForPredicate(exists, evaluatedWithObject: labelHome, handler: nil)
-        waitForExpectationsWithTimeout(20, handler: nil)
-        labelHome.tap()
     }
 
     
