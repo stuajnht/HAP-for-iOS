@@ -49,6 +49,7 @@
 		FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusUITests.swift; sourceTree = "<group>"; };
 		FC78D30D1C5D7E5E00254B07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC7E324A1C601B1A008C8087 /* HomeAccessPlus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HomeAccessPlus.entitlements; sourceTree = "<group>"; };
 		FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
 		FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeAccessPlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -142,6 +143,7 @@
 		FCB1D9E81C09F54C00DEC02E /* HomeAccessPlus */ = {
 			isa = PBXGroup;
 			children = (
+				FC7E324A1C601B1A008C8087 /* HomeAccessPlus.entitlements */,
 				FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */,
 				FCB1D9EB1C09F54C00DEC02E /* MasterViewController.swift */,
 				FCB1D9ED1C09F54C00DEC02E /* DetailViewController.swift */,
@@ -244,6 +246,11 @@
 					FCB1D9E51C09F54C00DEC02E = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
+						SystemCapabilities = {
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					FCB1D9FB1C09F54C00DEC02E = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -538,6 +545,7 @@
 			baseConfigurationReference = 1D0DF93B88C5F660330ECD54 /* Pods-HomeAccessPlus.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlus/HomeAccessPlus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = HomeAccessPlus/Info.plist;
@@ -554,6 +562,7 @@
 			baseConfigurationReference = 127D1DAD81B4B64260F357E8 /* Pods-HomeAccessPlus.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlus/HomeAccessPlus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = HomeAccessPlus/Info.plist;
