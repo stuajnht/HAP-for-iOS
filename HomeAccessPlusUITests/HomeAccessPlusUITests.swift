@@ -27,8 +27,8 @@ class HomeAccessPlusUITests: XCTestCase {
     // HAP+ server, username and password for use
     // with the login tests. They're hex encoded
     // and reversed to obscure them
-    let hapServerFull = "7061682F6B 752E6F632E 74686E6A61 7574732E70 61682F2F3A 7370747468"
-    let hapServerPartial = "6B752E6F632E 74686E6A6175 74732E706168"
+    let hapServerFull = "7061682F6B 752E6F632E 657367732E 7061682F2F 3A7370747468"
+    let hapServerPartial = "6B752E6F63 2E65736773 2E706168"
     let hapUsername = "736976 617274"
     let hapPassword = "58535732 7A617131"
     
