@@ -142,7 +142,7 @@ class HomeAccessPlusUITests: XCTestCase {
     /// - since: 0.7.0-alpha
     /// - version: 1
     /// - date: 2016-01-30
-    func testUILoginViewControllerTextboxesValid() {
+    func testUILoginViewControllerInvalidTextboxes() {
         let app = XCUIApplication()
         let scrollViewsQuery = app.scrollViews
         scrollViewsQuery.otherElements.buttons["Login"].tap()
