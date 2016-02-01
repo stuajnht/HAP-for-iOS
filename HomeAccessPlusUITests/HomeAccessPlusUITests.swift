@@ -344,6 +344,38 @@ class HomeAccessPlusUITests: XCTestCase {
         waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Personal"].tap()
     }
+    
+    
+    //MARK: MasterViewController Tests
+    
+    /// Browsing though a pre-defined list of folders and use
+    /// of the navigation 'back' button
+    ///
+    /// One of the main functions of the HAP+ app is to browse
+    /// through folders and drives on the network. This function
+    /// looks after browsing through a number of drives on the
+    /// HAP+ server
+    ///
+    /// To preform the login to the testLoginViewControllerSuccessfulFullURLLogin
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-01
+    ///
+    /// - seealso: testLoginViewControllerSuccessfulFullURLLogin
+    func testMasterViewControllerBrowseDrive() {
+        testLoginViewControllerSuccessfulFullURLLogin()
+        
+        let app = XCUIApplication()
+        let tablesQuery = app.tables
+        
+        let drive = tablesQuery.staticTexts["H: Drive"]
+        expectationForPredicate(exists, evaluatedWithObject: drive, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        drive.tap()
+    }
 
     
 }
