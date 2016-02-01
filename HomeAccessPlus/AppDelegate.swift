@@ -58,6 +58,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configuring the logger options
         logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
         
+        // Clearing any settings that are set when UI Testing
+        // is taking place, to start the app in a 'clean' state
+        // See: http://stackoverflow.com/a/33774166
+        // See: http://stackoverflow.com/a/29413957
+        let args = NSProcessInfo.processInfo().arguments
+        if args.contains("UI_TESTING_RESET_SETTINGS") {
+            logger.info("App has been launched in UI testing mode. Clearing all settings")
+            let appDomain = NSBundle.mainBundle().bundleIdentifier!
+            settings.removePersistentDomainForName(appDomain)
+        }
+        
         return true
     }
 
