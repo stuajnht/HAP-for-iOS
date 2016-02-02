@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 0.7.0
+
+### Bug Fixes
+* Fixed typo in upload popover description text from 'curent' to 'current' - #19 credit: @TestValleySchool
+
 ## 0.6.0
 
 ### New Stuff
