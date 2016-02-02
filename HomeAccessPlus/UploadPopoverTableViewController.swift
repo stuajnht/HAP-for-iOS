@@ -443,7 +443,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-02-02
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
@@ -464,6 +464,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             logger.debug("Document picker has added a slash onto the URL path, so removing it")
             formattedURL.removeAtIndex(formattedURL.endIndex.predecessor())
         }
+        
+        // Removing the 'file://' URL part as it's not needed and
+        // confuses the functions called later, meaning the file
+        // doesn't get uploaded correctly - it gets formatted as
+        // /file:/private/var/mobile...
+        formattedURL = formattedURL.stringByReplacingOccurrencesOfString("file://", withString: "")
+        
         logger.debug("Formatted document picker URL: \(formattedURL)")
         
         // Saving the location of the file on the device so that it
