@@ -443,7 +443,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-02-02
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
@@ -453,8 +453,17 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // to generate an empty file name, which the HAP+ server does
         // not accept
         // See: http://stackoverflow.com/a/24122445
+        
+        // However, the iCloud document picker sometimes adds a slash '/'
+        // onto the end of the URL path, and sometimes it doesn't, so a
+        // check is needed to be performed first to avoid removing the
+        // last character of the file extention as well
+        // See: http://stackoverflow.com/a/30991296
         var formattedURL = String(url)
-        formattedURL.removeAtIndex(formattedURL.endIndex.predecessor())
+        if (formattedURL.characters.last == "/") {
+            logger.debug("Document picker has added a slash onto the URL path, so removing it")
+            formattedURL.removeAtIndex(formattedURL.endIndex.predecessor())
+        }
         logger.debug("Formatted document picker URL: \(formattedURL)")
         
         // Saving the location of the file on the device so that it
