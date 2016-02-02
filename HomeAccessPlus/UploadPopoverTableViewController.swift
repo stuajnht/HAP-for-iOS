@@ -447,6 +447,21 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// - date: 2016-02-02
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
+        
+        // Saving the location of the file on the device so that it
+        // can be accessed when uploading to the HAP+ server
+        settings.setURL(url, forKey: settingsUploadFileLocation)
+        
+        // Dismissing the document picker
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        // Dismissing the popover as it's done what is needed
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
+        // Uploading the file to the HAP+ server
+        delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+            self.delegate?.showFileExistsMessage(false)
+        })
     }
     
     /// Dismissing the document picker
