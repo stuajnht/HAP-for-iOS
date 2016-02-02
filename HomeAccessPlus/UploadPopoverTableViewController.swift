@@ -448,9 +448,18 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
         
+        // Formatting the passed URL so that it doesn't have a trailing
+        // slash '/' character, as it causes the uploadFile function
+        // to generate an empty file name, which the HAP+ server does
+        // not accept
+        // See: http://stackoverflow.com/a/24122445
+        var formattedURL = String(url)
+        formattedURL.removeAtIndex(formattedURL.endIndex.predecessor())
+        logger.debug("Formatted document picker URL: \(formattedURL)")
+        
         // Saving the location of the file on the device so that it
         // can be accessed when uploading to the HAP+ server
-        settings.setURL(url, forKey: settingsUploadFileLocation)
+        settings.setURL(NSURL(fileURLWithPath: formattedURL), forKey: settingsUploadFileLocation)
         
         // Dismissing the document picker
         dismissViewControllerAnimated(true, completion: nil)
