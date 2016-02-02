@@ -12,9 +12,22 @@ Before asking for help or reporting a bug, please read through the [Frequently A
 
 ## Contributing
 Thanks for your interest in contributing to this project. You can contribute or report issues in the following ways:
-* [Sign up for beta testing](http://www.edugeek.net/forums/home-access-plus/164699-home-access-plus-ios-app-request-testers.html) to explore and test the app
+
+### Beta Testing
+* [Sign up for beta testing](http://www.edugeek.net/forums/home-access-plus/164699-home-access-plus-ios-app-request-testers.html) to explore and test the app through [Testflight](https://developer.apple.com/testflight/)
+* [Download a release](https://github.com/stuajnht/HAP-for-iOS/releases) or [clone the latest](https://github.com/stuajnht/HAP-for-iOS.git) code and run it on your own device ([Xcode](https://developer.apple.com/xcode/) is needed to build the project)
+
+### Reporting Issues
 * [Report a bug](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/bug) if something isn't working as you expect it to
 * [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
+
+### Pull Requests
+If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
+
+### Contributors
+The following users have contributed code to this project:
+* [@TestValleySchool](https://github.com/TestValleySchool):
+  * [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19)
 
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
