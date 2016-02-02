@@ -3,7 +3,7 @@
 ## 0.7.0
 
 ### Bug Fixes
-* Fixed typo in upload popover description text from 'curent' to 'current' - #19 credit: @TestValleySchool
+* Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
 
 ## 0.6.0
 
@@ -28,8 +28,8 @@
 * Files that are over a certain size (20MB on mobile connections, 100MB on WiFi) need to be allowed by the user before they are downloaded
 
 ### Bug Fixes
-* Stopped the file properties view appearing over the newly browsed to folder on small devices - #16
-* Stopped showing the drive space if the HAP+ server reports it as a negative value - #17
+* Stopped the file properties view appearing over the newly browsed to folder on small devices - [#16](https://github.com/stuajnht/HAP-for-iOS/issues/16)
+* Stopped showing the drive space if the HAP+ server reports it as a negative value - [#17](https://github.com/stuajnht/HAP-for-iOS/issues/17)
 
 ## 0.4.0
 
@@ -48,7 +48,7 @@
 * Nothing major from what is listed above
 
 ### Bug Fixes
-* Set the correct icon for the relevant folder / file that is being displayed in the file browser table - #13
+* Set the correct icon for the relevant folder / file that is being displayed in the file browser table - [#13](https://github.com/stuajnht/HAP-for-iOS/issues/13)
 * A number of other things that 
 
 ## 0.2.0
@@ -58,19 +58,19 @@
 * Added API to check for Internet connection
 * Added API to check that the HAP+ server is contactable
 * Added API to check the username and password for the user, and log them in if correct
-* Displayed loading spinner during the logon attempt - #2
+* Displayed loading spinner during the logon attempt - [#2](https://github.com/stuajnht/HAP-for-iOS/issues/2)
 * Presented option to choose the device type during first setup of HAP+
 * Collected the groups that the user is part of, to see if they are a domain admin
 * Locksmith is being used to securely store the users password for future authentication attempts
 
 ### Changes
-* Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1
-* Informed users that they need to be running TLS 1.2 on the HAP+ server - #11
-* Disabled auto correction and predictive text on logon textboxes, and set HAP+ address keyboard display type to URLs - #12
+* Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - [#1](https://github.com/stuajnht/HAP-for-iOS/issues/1)
+* Informed users that they need to be running TLS 1.2 on the HAP+ server - [#11](https://github.com/stuajnht/HAP-for-iOS/issues/11)
+* Disabled auto correction and predictive text on logon textboxes, and set HAP+ address keyboard display type to URLs - [#12](https://github.com/stuajnht/HAP-for-iOS/issues/17)
 
 ### Bug Fixes
-* If the HAP+ server address already begins with https://, do not prepend it again - #10
-* When an invalid HAP+ server DNS address is typed in, prevent the app crashing - #11
+* If the HAP+ server address already begins with https://, do not prepend it again - [#10](https://github.com/stuajnht/HAP-for-iOS/issues/10)
+* When an invalid HAP+ server DNS address is typed in, prevent the app crashing - [#11](https://github.com/stuajnht/HAP-for-iOS/issues/11)
 
 ## 0.1.0
 
