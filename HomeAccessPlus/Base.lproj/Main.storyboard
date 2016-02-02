@@ -427,7 +427,7 @@
                         <animations/>
                         <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <sections>
-                            <tableViewSection headerTitle="Upload" footerTitle="Upload a photo, video or file from another app on your device to the curent folder" id="poH-9b-33h">
+                            <tableViewSection headerTitle="Upload" footerTitle="Upload a photo, video or file from another app on your device to the current folder" id="poH-9b-33h">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="Jo3-Ao-CdV" style="IBUITableViewCellStyleDefault" id="bWd-eK-dI7">
                                         <rect key="frame" x="0.0" y="50" width="600" height="44"/>
