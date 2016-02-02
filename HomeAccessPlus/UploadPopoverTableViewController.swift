@@ -50,7 +50,7 @@ protocol uploadFileDelegate {
     func showFileExistsMessage(fileFromPhotoLibrary: Bool)
 }
 
-class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
@@ -83,7 +83,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "3"], ["Create", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -173,14 +173,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |---------|-----|----------------------|
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
-    ///         |    0    |  2  | Upload file from app |
+    ///         |    0    |  2  | Browse for a file    |
+    ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 7
-    /// - date: 2016-01-29
+    /// - version: 8
+    /// - date: 2016-02-02
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -237,8 +238,22 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             })
         }
         
-        // The user has selected to upload the file from the app
+        // The user has selected to browse for a file from another app
         if ((section == 0) && (row == 2)) {
+            logger.debug("Cell function: Browsing for a file from another app")
+            
+            // Setting up the document picker to present it to the user
+            // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
+            let documentPicker = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], inMode: .Import)
+            
+            documentPicker.delegate = self
+            
+            // Showing the document picker to the user
+            presentViewController(documentPicker, animated: true, completion: nil)
+        }
+        
+        // The user has selected to upload the file from the app
+        if ((section == 0) && (row == 3)) {
             logger.debug("Cell function: Uploading file from app")
             
             // Dismissing the popover as it's done what is needed
@@ -406,6 +421,24 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // selected if the user cancels the image picker
             self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
         })
+    }
+    
+    /// Gets the location of the file that the user has picked
+    /// from the document picker, and uploading it to the HAP+
+    /// server
+    ///
+    /// Once the user has selected the file that they would like
+    /// to upload from an external app, then we can collect its
+    /// location on the device and then upload it to the HAP+
+    /// server
+    /// See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-02
+    func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
+        logger.debug("File picked from document picker at URL: \(url)")
     }
     
     /// Creates a local copy of the selected image in the documents
