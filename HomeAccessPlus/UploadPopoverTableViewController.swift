@@ -238,15 +238,23 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             })
         }
         
-        // The user has selected to browse for a file from another app
+        // The user has selected to browse for a file from another app,
+        // using iCloud drive
         if ((section == 0) && (row == 2)) {
-            logger.debug("Cell function: Browsing for a file from another app")
+            logger.debug("Cell function: Browsing for a file from another app using iCloud drive")
             
             // Setting up the document picker to present it to the user
             // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
             let documentPicker = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], inMode: .Import)
             
             documentPicker.delegate = self
+            
+            // Setting the document picker to show inside the popover
+            // and not full screen on large screen devices
+            // NOTE: I cannot find any documentation by Apple on how
+            //       the document picker should be presented, so for
+            //       now it will be the same as the image picker
+            documentPicker.modalPresentationStyle = .CurrentContext
             
             // Showing the document picker to the user
             presentViewController(documentPicker, animated: true, completion: nil)
