@@ -441,6 +441,23 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         logger.debug("File picked from document picker at URL: \(url)")
     }
     
+    /// Dismissing the document picker
+    ///
+    /// If the user cancels the document picker, then the
+    /// current row highlighted in the upload popover needs
+    /// to be de-selected, so that it doesn't look as though
+    /// the app is 'stuck'
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-02
+    func documentPickerWasCancelled(controller: UIDocumentPickerViewController) {
+        // Deselecting the selected row, so that it is not kept
+        // selected if the user cancels the document picker
+        self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+    }
+    
     /// Creates a local copy of the selected image in the documents
     /// directory, to upload it to the HAP+ server
     ///
