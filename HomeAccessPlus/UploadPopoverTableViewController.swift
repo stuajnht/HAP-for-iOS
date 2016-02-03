@@ -459,7 +459,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // even if there is not
         // NOTE: This uses the same function as creating the local
         //       copy of the video, as it does the same job
-        var filePath = createLocalVideo(url)
+        var filePath = createLocalFile(url)
         filePath = filePath.stringByRemovingPercentEncoding!
         logger.debug("File picked copied to on device location: \(filePath)")
         
@@ -558,6 +558,49 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         logger.verbose("After writing video file")
         
         logger.debug("Selected video file written to: \(dataPath)")
+        return dataPath
+    }
+    
+    /// Creates a local copy of the selected file in the documents
+    /// directory, to upload it to the HAP+ server
+    ///
+    /// As the file in the document picker cannot be uploaded directly,
+    /// it needs to be created locally in the app before it can be
+    /// uploaded to the HAP+ server
+    /// See: http://stackoverflow.com/a/31853916
+    ///
+    /// - note: Most of this function replicates that in the
+    ///         createLocalVideo function. If there's changes in that
+    ///         function, then they may also apply here too
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-03
+    ///
+    /// - seealso: createLocalVideo
+    ///
+    /// - parameter fileLocation: The location the document picker has
+    ///                           put the temporary file, to generate
+    ///                           the name of the file from
+    /// - returns: The path to the file in the app
+    func createLocalFile(fileLocation: NSURL) -> String {
+        let fileData = NSData(contentsOfURL: fileLocation)
+        logger.debug("Location of file data: \(fileLocation)")
+        
+        // Creating the file name to save the file into
+        let fileName = String(fileLocation).componentsSeparatedByString("/").last!
+        
+        let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+        
+        logger.verbose("Before writing file")
+        
+        fileData?.writeToFile(dataPath, atomically: true)
+        
+        logger.verbose("File raw data: \(fileData)")
+        logger.verbose("After writing file")
+        
+        logger.debug("Selected file written to: \(dataPath)")
         return dataPath
     }
     
