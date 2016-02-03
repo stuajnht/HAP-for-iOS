@@ -448,34 +448,18 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
         
-        // Formatting the passed URL so that it doesn't have a trailing
-        // slash '/' character, as it causes the uploadFile function
-        // to generate an empty file name, which the HAP+ server does
-        // not accept
-        // See: http://stackoverflow.com/a/24122445
-        
-        // However, the iCloud document picker sometimes adds a slash '/'
-        // onto the end of the URL path, and sometimes it doesn't, so a
-        // check is needed to be performed first to avoid removing the
-        // last character of the file extention as well
-        // See: http://stackoverflow.com/a/30991296
-        var formattedURL = String(url)
-        if (formattedURL.characters.last == "/") {
-            logger.debug("Document picker has added a slash onto the URL path, so removing it")
-            formattedURL.removeAtIndex(formattedURL.endIndex.predecessor())
-        }
-        
-        // Removing the 'file://' URL part as it's not needed and
-        // confuses the functions called later, meaning the file
-        // doesn't get uploaded correctly - it gets formatted as
-        // /file:/private/var/mobile...
-        formattedURL = formattedURL.stringByReplacingOccurrencesOfString("file://", withString: "")
-        
-        logger.debug("Formatted document picker URL: \(formattedURL)")
+        // Creating a copy of the file selected from the document
+        // picker, as once it is removed from the view it seems
+        // to remove the file in the temp path, and logs a message
+        // of: "plugin com.apple.UIKit.fileprovider.default invalidated"
+        // NOTE: This uses the same function as creating the local
+        //       copy of the video, as it does the same job
+        let filePath = createLocalVideo(url)
+        logger.debug("File picked copied to on device location: \(filePath)")
         
         // Saving the location of the file on the device so that it
         // can be accessed when uploading to the HAP+ server
-        settings.setURL(NSURL(fileURLWithPath: formattedURL), forKey: settingsUploadFileLocation)
+        settings.setObject(filePath, forKey: settingsUploadFileLocation)
         
         // Dismissing the document picker
         dismissViewControllerAnimated(true, completion: nil)
