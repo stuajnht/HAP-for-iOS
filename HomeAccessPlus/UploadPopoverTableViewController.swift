@@ -452,9 +452,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // picker, as once it is removed from the view it seems
         // to remove the file in the temp path, and logs a message
         // of: "plugin com.apple.UIKit.fileprovider.default invalidated"
+        // The filePath also needs to not be percent-encoded, as
+        // functions called later on add them back in before uploading
+        // to the HAP+ server. Without the percent-encoding being
+        // removed, the app thinks there is already a file existing
+        // even if there is not
         // NOTE: This uses the same function as creating the local
         //       copy of the video, as it does the same job
-        let filePath = createLocalVideo(url)
+        var filePath = createLocalVideo(url)
+        filePath = filePath.stringByRemovingPercentEncoding!
         logger.debug("File picked copied to on device location: \(filePath)")
         
         // Saving the location of the file on the device so that it
