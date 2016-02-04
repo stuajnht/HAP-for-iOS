@@ -239,9 +239,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         }
         
         // The user has selected to browse for a file from another app,
-        // using iCloud drive
+        // using the document picker and a cloud storage provider
         if ((section == 0) && (row == 2)) {
-            logger.debug("Cell function: Browsing for a file from another app using iCloud drive")
+            logger.debug("Cell function: Browsing for a file from a cloud storage provider")
             
             // Setting up the document picker to present it to the user
             // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
