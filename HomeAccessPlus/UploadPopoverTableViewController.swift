@@ -452,15 +452,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // picker, as once it is removed from the view it seems
         // to remove the file in the temp path, and logs a message
         // of: "plugin com.apple.UIKit.fileprovider.default invalidated"
-        // The filePath also needs to not be percent-encoded, as
-        // functions called later on add them back in before uploading
-        // to the HAP+ server. Without the percent-encoding being
-        // removed, the app thinks there is already a file existing
-        // even if there is not
         // NOTE: This uses the same function as creating the local
         //       copy of the video, as it does the same job
-        var filePath = createLocalFile(url)
-        filePath = filePath.stringByRemovingPercentEncoding!
+        let filePath = createLocalFile(url)
         logger.debug("File picked copied to on device location: \(filePath)")
         
         // Saving the location of the file on the device so that it
@@ -589,7 +583,17 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         logger.debug("Location of file data: \(fileLocation)")
         
         // Creating the file name to save the file into
-        let fileName = String(fileLocation).componentsSeparatedByString("/").last!
+        var fileName = String(fileLocation).componentsSeparatedByString("/").last!
+        
+        // The fileName also needs to not be percent-encoded, as
+        // functions called later on add them back in before uploading
+        // to the HAP+ server. Without the percent-encoding being
+        // removed, the app thinks there is already a file existing
+        // even if there is not. Namely, this is the 'fileExists'
+        // function in the HAPi, as it encodes the string of
+        // file%20name%20here.ext to file%2520name%2520%2520here.ext
+        // which causes the HAP+ API to respond with an error
+        fileName = fileName.stringByRemovingPercentEncoding!
         
         let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
         
