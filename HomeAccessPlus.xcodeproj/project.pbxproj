@@ -274,6 +274,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProvider" */;
 			buildPhases = (
+				FC2AEC0E1C6547B8009BB69C /* ShellScript */,
 				FC2AEBE81C653C4A009BB69C /* Sources */,
 				FC2AEBE91C653C4A009BB69C /* Frameworks */,
 				FC2AEBEA1C653C4A009BB69C /* Resources */,
@@ -291,6 +292,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProviderFileProvider" */;
 			buildPhases = (
+				FC2AEC0F1C65486D009BB69C /* ShellScript */,
 				FC2AEBF61C653C4A009BB69C /* Sources */,
 				FC2AEBF71C653C4A009BB69C /* Frameworks */,
 				FC2AEBF81C653C4A009BB69C /* Resources */,
@@ -510,6 +512,32 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		FC2AEC0E1C6547B8009BB69C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n\n# From: http://invisiblepixels.org/InvisibleWords/2015/02/06/automatically-incrementing-version-and-build-numbers/\n# The location of the plist file is provided by Xcode in the environment variable PRODUCT_SETTINGS_PATH\n# It is wrapped in quotes in case the path has a space in its name.\n\n# The output of any echo statements can be found in the Xcode build logs.\n\n# You need to include the whole path to the PlistBuddy executable because it's not in $PATH by default.\nOLD_NUMBER=`/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$PRODUCT_SETTINGS_PATH\"`\n\n# If the build number key doesn't exist in the plist, we'll add it by setting its initial value to 1.\nif [ $? -ne 0 ]\nthen\nSTARTING_NUMBER=1\necho \"No build number present. Starting from ${STARTING_NUMBER}.\"\n`/usr/libexec/PlistBuddy -c \"Add CFBundleVersion string $STARTING_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`\nexit 0\nfi\n\n# Only reach this point if the build key exists in the plist file.\n# Do the increment. This can be as complicated as you want.\n# Might need a scripting language with better maths capabilities though if you want something truly tricky.\nNEW_NUMBER=$((OLD_NUMBER+=1))\necho \"NEW_NUMBER $NEW_NUMBER\"\n\n# Write it back to the plist\n`/usr/libexec/PlistBuddy -c \"Set CFBundleVersion $NEW_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`";
+		};
+		FC2AEC0F1C65486D009BB69C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n\n# From: http://invisiblepixels.org/InvisibleWords/2015/02/06/automatically-incrementing-version-and-build-numbers/\n# The location of the plist file is provided by Xcode in the environment variable PRODUCT_SETTINGS_PATH\n# It is wrapped in quotes in case the path has a space in its name.\n\n# The output of any echo statements can be found in the Xcode build logs.\n\n# You need to include the whole path to the PlistBuddy executable because it's not in $PATH by default.\nOLD_NUMBER=`/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$PRODUCT_SETTINGS_PATH\"`\n\n# If the build number key doesn't exist in the plist, we'll add it by setting its initial value to 1.\nif [ $? -ne 0 ]\nthen\nSTARTING_NUMBER=1\necho \"No build number present. Starting from ${STARTING_NUMBER}.\"\n`/usr/libexec/PlistBuddy -c \"Add CFBundleVersion string $STARTING_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`\nexit 0\nfi\n\n# Only reach this point if the build key exists in the plist file.\n# Do the increment. This can be as complicated as you want.\n# Might need a scripting language with better maths capabilities though if you want something truly tricky.\nNEW_NUMBER=$((OLD_NUMBER+=1))\necho \"NEW_NUMBER $NEW_NUMBER\"\n\n# Write it back to the plist\n`/usr/libexec/PlistBuddy -c \"Set CFBundleVersion $NEW_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`";
 		};
 		FCB1DA0B1C09F5DD00DEC02E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
