@@ -173,7 +173,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |---------|-----|----------------------|
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
-    ///         |    0    |  2  | Browse for a file    |
+    ///         |    0    |  2  | Upload from cloud    |
     ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
@@ -443,8 +443,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 3
-    /// - date: 2016-02-02
+    /// - version: 4
+    /// - date: 2016-02-05
+    ///
+    /// - seealso: createLocalFile
     func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         logger.debug("File picked from document picker at URL: \(url)")
         
@@ -452,25 +454,42 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // picker, as once it is removed from the view it seems
         // to remove the file in the temp path, and logs a message
         // of: "plugin com.apple.UIKit.fileprovider.default invalidated"
-        // NOTE: This uses the same function as creating the local
-        //       copy of the video, as it does the same job
         let filePath = createLocalFile(url)
-        logger.debug("File picked copied to on device location: \(filePath)")
         
-        // Saving the location of the file on the device so that it
-        // can be accessed when uploading to the HAP+ server
-        settings.setObject(filePath, forKey: settingsUploadFileLocation)
-        
-        // Dismissing the document picker
-        dismissViewControllerAnimated(true, completion: nil)
-        
-        // Dismissing the popover as it's done what is needed
-        self.dismissViewControllerAnimated(true, completion: nil)
-        
-        // Uploading the file to the HAP+ server
-        delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
-            self.delegate?.showFileExistsMessage(false)
-        })
+        // Seeing if the file being created has had a valid file name
+        // created in the createLocalFile function and either upload
+        // the file or let the user know they are unable to send the
+        // file to the HAP+ server
+        if (filePath == "") {
+            logger.debug("The file is not able to be uploaded to the HAP+ server")
+            
+            // Showing a message to the user that the file was not able
+            // to be uploaded
+            let invalidFileNameController = UIAlertController(title: "Unable to Upload File", message: "This file is not able to be uploaded to the Home Access Plus+ server", preferredStyle: UIAlertControllerStyle.Alert)
+            invalidFileNameController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(invalidFileNameController, animated: true, completion: nil)
+            
+            // Deselecting the selected row, so that it is not kept
+            // selected if the file cannot be uploaded
+            self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+        } else {
+            logger.debug("File picked copied to on device location: \(filePath)")
+            
+            // Saving the location of the file on the device so that it
+            // can be accessed when uploading to the HAP+ server
+            settings.setObject(filePath, forKey: settingsUploadFileLocation)
+            
+            // Dismissing the document picker
+            dismissViewControllerAnimated(true, completion: nil)
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismissViewControllerAnimated(true, completion: nil)
+            
+            // Uploading the file to the HAP+ server
+            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(false)
+            })
+        }
     }
     
     /// Dismissing the document picker
@@ -569,15 +588,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
-    /// - date: 2016-02-03
+    /// - version: 2
+    /// - date: 2016-02-05
     ///
     /// - seealso: createLocalVideo
     ///
     /// - parameter fileLocation: The location the document picker has
     ///                           put the temporary file, to generate
     ///                           the name of the file from
-    /// - returns: The path to the file in the app
+    /// - returns: The path to the file in the app, or an empty string
+    ///            if a valid file name could not be generated
     func createLocalFile(fileLocation: NSURL) -> String {
         let fileData = NSData(contentsOfURL: fileLocation)
         logger.debug("Location of file data: \(fileLocation)")
@@ -595,17 +615,37 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // which causes the HAP+ API to respond with an error
         fileName = fileName.stringByRemovingPercentEncoding!
         
-        let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
-        
-        logger.verbose("Before writing file")
-        
-        fileData?.writeToFile(dataPath, atomically: true)
-        
-        logger.verbose("File raw data: \(fileData)")
-        logger.verbose("After writing file")
-        
-        logger.debug("Selected file written to: \(dataPath)")
-        return dataPath
+        // Checking to see if the file that has been selected contains
+        // an extension, i.e. fileName.ext and not just fileName, as
+        // the HAP+ server fails to upload a file with no extension.
+        // This seems to mainly happen with files uploaded from the
+        // Google Drive document picker that are created with Google
+        // docs, sheets or slides. This is done via a regex
+        // See: http://stackoverflow.com/a/9001636
+        let fileNamePattern = "[^\\\\]*\\.(\\w+)"
+        let fileNameValid = NSPredicate(format:"SELF MATCHES %@", argumentArray:[fileNamePattern])
+        if (fileNameValid.evaluateWithObject(fileName) == false) {
+            // The file name is missing an extension, so return an
+            // epmty string, so that the calling function knows
+            // there was a problem and doesn't attempt to upload
+            // the file
+            logger.warning("File name \"\(fileName)\" is not a valid format")
+            return ""
+        } else {
+            // The file name is in a format that the HAP+ server
+            // will like, so we can generate a local file to upload
+            let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+            
+            logger.verbose("Before writing file")
+            
+            fileData?.writeToFile(dataPath, atomically: true)
+            
+            logger.verbose("File raw data: \(fileData)")
+            logger.verbose("After writing file")
+            
+            logger.debug("Selected file written to: \(dataPath)")
+            return dataPath
+        }
     }
     
     /// Creating a usable file name from the photo library
