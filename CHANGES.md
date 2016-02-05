@@ -2,6 +2,9 @@
 
 ## 0.7.0
 
+### New Stuff
+* Upload files to the HAP+ server from cloud storage providers (the relevant apps need to be installed on the iOS device too)
+
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
 

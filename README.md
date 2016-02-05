@@ -22,7 +22,7 @@ Thanks for your interest in contributing to this project. You can contribute or 
 * [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
 
 ### Pull Requests
-If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
+If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
 
 ### Contributors
 The following users have contributed code to this project:
@@ -57,7 +57,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)
 * Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished
 * A settings menu of some sort (either in-app or the main settings app)
-* Use the document picker control to access files from some apps which don't allow the file to be copied to the app
+* ~~Use the document picker control to access files from some apps which don't allow the file to be copied to the app~~
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
