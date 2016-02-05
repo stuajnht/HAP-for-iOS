@@ -50,7 +50,7 @@ protocol uploadFileDelegate {
     func showFileExistsMessage(fileFromPhotoLibrary: Bool)
 }
 
-class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
@@ -83,7 +83,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "3"], ["Create", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -173,14 +173,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |---------|-----|----------------------|
     ///         |    0    |  0  | Upload photo         |
     ///         |    0    |  1  | Upload video         |
-    ///         |    0    |  2  | Upload file from app |
+    ///         |    0    |  2  | Upload from cloud    |
+    ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 7
-    /// - date: 2016-01-29
+    /// - version: 8
+    /// - date: 2016-02-02
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -237,8 +238,30 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             })
         }
         
-        // The user has selected to upload the file from the app
+        // The user has selected to browse for a file from another app,
+        // using the document picker and a cloud storage provider
         if ((section == 0) && (row == 2)) {
+            logger.debug("Cell function: Browsing for a file from a cloud storage provider")
+            
+            // Setting up the document picker to present it to the user
+            // See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
+            let documentPicker = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], inMode: .Import)
+            
+            documentPicker.delegate = self
+            
+            // Setting the document picker to show inside the popover
+            // and not full screen on large screen devices
+            // NOTE: I cannot find any documentation by Apple on how
+            //       the document picker should be presented, so for
+            //       now it will be the same as the image picker
+            documentPicker.modalPresentationStyle = .CurrentContext
+            
+            // Showing the document picker to the user
+            presentViewController(documentPicker, animated: true, completion: nil)
+        }
+        
+        // The user has selected to upload the file from the app
+        if ((section == 0) && (row == 3)) {
             logger.debug("Cell function: Uploading file from app")
             
             // Dismissing the popover as it's done what is needed
@@ -408,6 +431,84 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         })
     }
     
+    /// Gets the location of the file that the user has picked
+    /// from the document picker, and uploading it to the HAP+
+    /// server
+    ///
+    /// Once the user has selected the file that they would like
+    /// to upload from an external app, then we can collect its
+    /// location on the device and then upload it to the HAP+
+    /// server
+    /// See: https://www.shinobicontrols.com/blog/ios8-day-by-day-day-28-document-picker
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 4
+    /// - date: 2016-02-05
+    ///
+    /// - seealso: createLocalFile
+    func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
+        logger.debug("File picked from document picker at URL: \(url)")
+        
+        // Creating a copy of the file selected from the document
+        // picker, as once it is removed from the view it seems
+        // to remove the file in the temp path, and logs a message
+        // of: "plugin com.apple.UIKit.fileprovider.default invalidated"
+        let filePath = createLocalFile(url)
+        
+        // Seeing if the file being created has had a valid file name
+        // created in the createLocalFile function and either upload
+        // the file or let the user know they are unable to send the
+        // file to the HAP+ server
+        if (filePath == "") {
+            logger.debug("The file is not able to be uploaded to the HAP+ server")
+            
+            // Showing a message to the user that the file was not able
+            // to be uploaded
+            let invalidFileNameController = UIAlertController(title: "Unable to Upload File", message: "This file is not able to be uploaded to the Home Access Plus+ server", preferredStyle: UIAlertControllerStyle.Alert)
+            invalidFileNameController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(invalidFileNameController, animated: true, completion: nil)
+            
+            // Deselecting the selected row, so that it is not kept
+            // selected if the file cannot be uploaded
+            self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+        } else {
+            logger.debug("File picked copied to on device location: \(filePath)")
+            
+            // Saving the location of the file on the device so that it
+            // can be accessed when uploading to the HAP+ server
+            settings.setObject(filePath, forKey: settingsUploadFileLocation)
+            
+            // Dismissing the document picker
+            dismissViewControllerAnimated(true, completion: nil)
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismissViewControllerAnimated(true, completion: nil)
+            
+            // Uploading the file to the HAP+ server
+            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(false)
+            })
+        }
+    }
+    
+    /// Dismissing the document picker
+    ///
+    /// If the user cancels the document picker, then the
+    /// current row highlighted in the upload popover needs
+    /// to be de-selected, so that it doesn't look as though
+    /// the app is 'stuck'
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-02
+    func documentPickerWasCancelled(controller: UIDocumentPickerViewController) {
+        // Deselecting the selected row, so that it is not kept
+        // selected if the user cancels the document picker
+        self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+    }
+    
     /// Creates a local copy of the selected image in the documents
     /// directory, to upload it to the HAP+ server
     ///
@@ -471,6 +572,80 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         logger.debug("Selected video file written to: \(dataPath)")
         return dataPath
+    }
+    
+    /// Creates a local copy of the selected file in the documents
+    /// directory, to upload it to the HAP+ server
+    ///
+    /// As the file in the document picker cannot be uploaded directly,
+    /// it needs to be created locally in the app before it can be
+    /// uploaded to the HAP+ server
+    /// See: http://stackoverflow.com/a/31853916
+    ///
+    /// - note: Most of this function replicates that in the
+    ///         createLocalVideo function. If there's changes in that
+    ///         function, then they may also apply here too
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 2
+    /// - date: 2016-02-05
+    ///
+    /// - seealso: createLocalVideo
+    ///
+    /// - parameter fileLocation: The location the document picker has
+    ///                           put the temporary file, to generate
+    ///                           the name of the file from
+    /// - returns: The path to the file in the app, or an empty string
+    ///            if a valid file name could not be generated
+    func createLocalFile(fileLocation: NSURL) -> String {
+        let fileData = NSData(contentsOfURL: fileLocation)
+        logger.debug("Location of file data: \(fileLocation)")
+        
+        // Creating the file name to save the file into
+        var fileName = String(fileLocation).componentsSeparatedByString("/").last!
+        
+        // The fileName also needs to not be percent-encoded, as
+        // functions called later on add them back in before uploading
+        // to the HAP+ server. Without the percent-encoding being
+        // removed, the app thinks there is already a file existing
+        // even if there is not. Namely, this is the 'fileExists'
+        // function in the HAPi, as it encodes the string of
+        // file%20name%20here.ext to file%2520name%2520%2520here.ext
+        // which causes the HAP+ API to respond with an error
+        fileName = fileName.stringByRemovingPercentEncoding!
+        
+        // Checking to see if the file that has been selected contains
+        // an extension, i.e. fileName.ext and not just fileName, as
+        // the HAP+ server fails to upload a file with no extension.
+        // This seems to mainly happen with files uploaded from the
+        // Google Drive document picker that are created with Google
+        // docs, sheets or slides. This is done via a regex
+        // See: http://stackoverflow.com/a/9001636
+        let fileNamePattern = "[^\\\\]*\\.(\\w+)"
+        let fileNameValid = NSPredicate(format:"SELF MATCHES %@", argumentArray:[fileNamePattern])
+        if (fileNameValid.evaluateWithObject(fileName) == false) {
+            // The file name is missing an extension, so return an
+            // epmty string, so that the calling function knows
+            // there was a problem and doesn't attempt to upload
+            // the file
+            logger.warning("File name \"\(fileName)\" is not a valid format")
+            return ""
+        } else {
+            // The file name is in a format that the HAP+ server
+            // will like, so we can generate a local file to upload
+            let dataPath = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+            
+            logger.verbose("Before writing file")
+            
+            fileData?.writeToFile(dataPath, atomically: true)
+            
+            logger.verbose("File raw data: \(fileData)")
+            logger.verbose("After writing file")
+            
+            logger.debug("Selected file written to: \(dataPath)")
+            return dataPath
+        }
     }
     
     /// Creating a usable file name from the photo library

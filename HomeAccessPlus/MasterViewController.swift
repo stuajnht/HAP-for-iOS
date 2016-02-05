@@ -941,7 +941,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
         vc.delegate = self
         vc.modalPresentationStyle = UIModalPresentationStyle.Popover
-        vc.preferredContentSize = CGSize(width: 320, height: 420)
+        vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
             popover.barButtonItem = sender
             popover.delegate = self
