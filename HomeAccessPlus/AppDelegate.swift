@@ -64,12 +64,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Clearing any settings that are set when UI Testing
         // is taking place, to start the app in a 'clean' state
         // See: http://stackoverflow.com/a/33774166
-        // See: http://stackoverflow.com/a/29413957
+        // See: http://onefootball.github.io/resetting-application-data-after-each-test-with-xcode7-ui-testing/
         let args = NSProcessInfo.processInfo().arguments
         if args.contains("UI_TESTING_RESET_SETTINGS") {
             logger.info("App has been launched in UI testing mode. Clearing all settings")
-            let appDomain = NSBundle.mainBundle().bundleIdentifier!
-            settings!.removePersistentDomainForName(appDomain)
+            for key in settings!.dictionaryRepresentation().keys {
+                settings!.removeObjectForKey(key)
+            }
         }
         
         return true
