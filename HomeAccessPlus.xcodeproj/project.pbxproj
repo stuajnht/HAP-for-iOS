@@ -392,6 +392,9 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.iCloud = {
 								enabled = 1;
 							};

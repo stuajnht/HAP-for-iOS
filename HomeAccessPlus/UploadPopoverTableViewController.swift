@@ -98,7 +98,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // file passed to the app, if any, and disabling the user
         // from pressing on the file upload cell if there isn't a file
         // to upload from another app
-        if (settings.stringForKey(settingsUploadFileLocation) != nil) {
+        if (settings!.stringForKey(settingsUploadFileLocation) != nil) {
             celUploadFile.userInteractionEnabled = true
             lblUploadFile.enabled = true
             lblUploadFile.text = "Upload \"" + getFileName() + "\""
@@ -341,7 +341,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     func getFileName() -> String {
         // Getting the name of the file that is being uploaded from the
         // location of the file on the device
-        let pathArray = settings.stringForKey(settingsUploadFileLocation)!.componentsSeparatedByString("/")
+        let pathArray = settings!.stringForKey(settingsUploadFileLocation)!.componentsSeparatedByString("/")
         var fileName = pathArray.last!
         
         // Removing any encoded characters from the file name
@@ -395,7 +395,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         }
         
         // Setting the location of the image file in the settings
-        settings.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
+        settings!.setObject(String(imagePath), forKey: settingsUploadPhotosLocation)
         
         // Dismissing the image file picker
         dismissViewControllerAnimated(true, completion: nil)
@@ -477,7 +477,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             // Saving the location of the file on the device so that it
             // can be accessed when uploading to the HAP+ server
-            settings.setObject(filePath, forKey: settingsUploadFileLocation)
+            settings!.setObject(filePath, forKey: settingsUploadFileLocation)
             
             // Dismissing the document picker
             dismissViewControllerAnimated(true, completion: nil)

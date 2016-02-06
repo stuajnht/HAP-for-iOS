@@ -343,14 +343,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings.stringForKey(settingsUploadFileLocation)!
+            logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
         } else {
-            logger.debug("Attempting to upload the photos file: \(settings.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings.stringForKey(settingsUploadPhotosLocation)!
+            logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = NSURL(string: fileLocation)!
@@ -413,7 +413,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // another time
                         if (fileFromPhotoLibrary == false) {
                             logger.debug("Setting local file location to nil as it's been uploaded")
-                            settings.setURL(nil, forKey: settingsUploadFileLocation)
+                            settings!.setURL(nil, forKey: settingsUploadFileLocation)
                         }
                         
                         // Deleting the local copy of the file that was used to
@@ -1031,11 +1031,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // of the file to generate the file name
         var currentFileName = ""
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
-            currentFileName = settings.stringForKey(settingsUploadFileLocation)!
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadFileLocation)!
         } else {
-            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
-            currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadPhotosLocation)!
         }
         
         // Seeing if the file should overwrite the currently
