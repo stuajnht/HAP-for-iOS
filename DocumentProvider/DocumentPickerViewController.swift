@@ -65,7 +65,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController {
         logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
         
         if let siteName = settings!.stringForKey(settingsSiteName) {
-            logger.debug("HAP+ document provider opened for site: : \(siteName)")
+            logger.debug("HAP+ document provider opened for site: \(siteName)")
         }
     }
 
