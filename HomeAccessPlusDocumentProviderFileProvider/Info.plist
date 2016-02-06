@@ -21,26 +21,15 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>647</string>
+	<string>648</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionAttributes</key>
-		<dict>
-			<key>UIDocumentPickerModes</key>
-			<array>
-				<string>UIDocumentPickerModeImport</string>
-				<string>UIDocumentPickerModeOpen</string>
-				<string>UIDocumentPickerModeExportToService</string>
-			</array>
-			<key>UIDocumentPickerSupportedFileTypes</key>
-			<array>
-				<string>public.content</string>
-			</array>
-		</dict>
-		<key>NSExtensionMainStoryboard</key>
-		<string>MainInterface</string>
+		<key>NSExtensionFileProviderDocumentGroup</key>
+		<string>group.uk.co.stuajnht.ios.HomeAccessPlus</string>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.fileprovider-ui</string>
+		<string>com.apple.fileprovider-nonui</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).FileProvider</string>
 	</dict>
 </dict>
 </plist>

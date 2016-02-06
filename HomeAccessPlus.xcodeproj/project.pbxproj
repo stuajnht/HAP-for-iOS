@@ -11,8 +11,8 @@
 		FC2AEBF11C653C4A009BB69C /* DocumentPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */; };
 		FC2AEBF41C653C4A009BB69C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FC2AEBF21C653C4A009BB69C /* MainInterface.storyboard */; };
 		FC2AEBFF1C653C4A009BB69C /* FileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */; };
-		FC2AEC031C653C4A009BB69C /* DocumentProviderFileProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBFA1C653C4A009BB69C /* DocumentProviderFileProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		FC2AEC061C653C4A009BB69C /* DocumentProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBEC1C653C4A009BB69C /* DocumentProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FC2AEC031C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FC2AEC061C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC364A751C0BACB30085DC7E /* LoginViewController.swift */; };
 		FC3C6E2C1C3DC46A00B48383 /* UploadPopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */; };
 		FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */; };
@@ -34,14 +34,14 @@
 			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = FC2AEBF91C653C4A009BB69C;
-			remoteInfo = DocumentProviderFileProvider;
+			remoteInfo = HomeAccessPlusDocumentProviderFileProvider;
 		};
 		FC2AEC041C653C4A009BB69C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = FC2AEBEB1C653C4A009BB69C;
-			remoteInfo = DocumentProvider;
+			remoteInfo = HomeAccessPlusDocumentProvider;
 		};
 		FC78D30E1C5D7E5E00254B07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -66,8 +66,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				FC2AEC061C653C4A009BB69C /* DocumentProvider.appex in Embed App Extensions */,
-				FC2AEC031C653C4A009BB69C /* DocumentProviderFileProvider.appex in Embed App Extensions */,
+				FC2AEC061C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex in Embed App Extensions */,
+				FC2AEC031C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,12 +78,12 @@
 		127D1DAD81B4B64260F357E8 /* Pods-HomeAccessPlus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HomeAccessPlus.release.xcconfig"; path = "Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus.release.xcconfig"; sourceTree = "<group>"; };
 		1D0DF93B88C5F660330ECD54 /* Pods-HomeAccessPlus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HomeAccessPlus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus.debug.xcconfig"; sourceTree = "<group>"; };
 		385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HomeAccessPlus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FC2AEBEC1C653C4A009BB69C /* DocumentProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DocumentProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HomeAccessPlusDocumentProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC2AEBEF1C653C4A009BB69C /* DocumentProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = DocumentProvider.entitlements; sourceTree = "<group>"; };
 		FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerViewController.swift; sourceTree = "<group>"; };
 		FC2AEBF31C653C4A009BB69C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		FC2AEBF51C653C4A009BB69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FC2AEBFA1C653C4A009BB69C /* DocumentProviderFileProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DocumentProviderFileProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HomeAccessPlusDocumentProviderFileProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC2AEBFD1C653C4A009BB69C /* DocumentProviderFileProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = DocumentProviderFileProvider.entitlements; sourceTree = "<group>"; };
 		FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProvider.swift; sourceTree = "<group>"; };
 		FC2AEC001C653C4A009BB69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -166,7 +166,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		FC2AEBED1C653C4A009BB69C /* DocumentProvider */ = {
+		FC2AEBED1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */ = {
 			isa = PBXGroup;
 			children = (
 				FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */,
@@ -174,7 +174,7 @@
 				FC2AEBF51C653C4A009BB69C /* Info.plist */,
 				FC2AEBEE1C653C4A009BB69C /* Supporting Files */,
 			);
-			path = DocumentProvider;
+			path = HomeAccessPlusDocumentProvider;
 			sourceTree = "<group>";
 		};
 		FC2AEBEE1C653C4A009BB69C /* Supporting Files */ = {
@@ -185,14 +185,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		FC2AEBFB1C653C4A009BB69C /* DocumentProviderFileProvider */ = {
+		FC2AEBFB1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */ = {
 			isa = PBXGroup;
 			children = (
 				FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */,
 				FC2AEC001C653C4A009BB69C /* Info.plist */,
 				FC2AEBFC1C653C4A009BB69C /* Supporting Files */,
 			);
-			path = DocumentProviderFileProvider;
+			path = HomeAccessPlusDocumentProviderFileProvider;
 			sourceTree = "<group>";
 		};
 		FC2AEBFC1C653C4A009BB69C /* Supporting Files */ = {
@@ -218,8 +218,8 @@
 				FCB1D9E81C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FF1C09F54C00DEC02E /* HomeAccessPlusTests */,
 				FC78D30A1C5D7E5E00254B07 /* HomeAccessPlusUITests */,
-				FC2AEBED1C653C4A009BB69C /* DocumentProvider */,
-				FC2AEBFB1C653C4A009BB69C /* DocumentProviderFileProvider */,
+				FC2AEBED1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */,
+				FC2AEBFB1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */,
 				FCB1D9E71C09F54C00DEC02E /* Products */,
 				F05941D6A9177313791730CE /* Pods */,
 				F764C4F5629690132DD516AB /* Frameworks */,
@@ -232,8 +232,8 @@
 				FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */,
 				FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */,
 				FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */,
-				FC2AEBEC1C653C4A009BB69C /* DocumentProvider.appex */,
-				FC2AEBFA1C653C4A009BB69C /* DocumentProviderFileProvider.appex */,
+				FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */,
+				FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -270,9 +270,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FC2AEBEB1C653C4A009BB69C /* DocumentProvider */ = {
+		FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProvider" */;
+			buildConfigurationList = FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProvider" */;
 			buildPhases = (
 				FC2AEC0E1C6547B8009BB69C /* ShellScript */,
 				FC2AEBE81C653C4A009BB69C /* Sources */,
@@ -283,14 +283,14 @@
 			);
 			dependencies = (
 			);
-			name = DocumentProvider;
-			productName = DocumentProvider;
-			productReference = FC2AEBEC1C653C4A009BB69C /* DocumentProvider.appex */;
+			name = HomeAccessPlusDocumentProvider;
+			productName = HomeAccessPlusDocumentProvider;
+			productReference = FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		FC2AEBF91C653C4A009BB69C /* DocumentProviderFileProvider */ = {
+		FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProviderFileProvider" */;
+			buildConfigurationList = FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProviderFileProvider" */;
 			buildPhases = (
 				FC2AEC0F1C65486D009BB69C /* ShellScript */,
 				FC2AEBF61C653C4A009BB69C /* Sources */,
@@ -301,9 +301,9 @@
 			);
 			dependencies = (
 			);
-			name = DocumentProviderFileProvider;
-			productName = DocumentProviderFileProvider;
-			productReference = FC2AEBFA1C653C4A009BB69C /* DocumentProviderFileProvider.appex */;
+			name = HomeAccessPlusDocumentProviderFileProvider;
+			productName = HomeAccessPlusDocumentProviderFileProvider;
+			productReference = FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */ = {
@@ -422,8 +422,8 @@
 				FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FB1C09F54C00DEC02E /* HomeAccessPlusTests */,
 				FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */,
-				FC2AEBEB1C653C4A009BB69C /* DocumentProvider */,
-				FC2AEBF91C653C4A009BB69C /* DocumentProviderFileProvider */,
+				FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */,
+				FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */,
 			);
 		};
 /* End PBXProject section */
@@ -610,12 +610,12 @@
 /* Begin PBXTargetDependency section */
 		FC2AEC021C653C4A009BB69C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = FC2AEBF91C653C4A009BB69C /* DocumentProviderFileProvider */;
+			target = FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */;
 			targetProxy = FC2AEC011C653C4A009BB69C /* PBXContainerItemProxy */;
 		};
 		FC2AEC051C653C4A009BB69C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = FC2AEBEB1C653C4A009BB69C /* DocumentProvider */;
+			target = FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */;
 			targetProxy = FC2AEC041C653C4A009BB69C /* PBXContainerItemProxy */;
 		};
 		FC78D30F1C5D7E5E00254B07 /* PBXTargetDependency */ = {
@@ -661,10 +661,10 @@
 		FC2AEC071C653C4A009BB69C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = DocumentProvider/DocumentProvider.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = DocumentProvider/Info.plist;
+				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -676,10 +676,10 @@
 		FC2AEC081C653C4A009BB69C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = DocumentProvider/DocumentProvider.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = DocumentProvider/Info.plist;
+				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -691,10 +691,10 @@
 		FC2AEC091C653C4A009BB69C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = DocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = DocumentProviderFileProvider/Info.plist;
+				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -706,10 +706,10 @@
 		FC2AEC0A1C653C4A009BB69C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = DocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				INFOPLIST_FILE = DocumentProviderFileProvider/Info.plist;
+				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -888,7 +888,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProviderFileProvider" */ = {
+		FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProviderFileProvider" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FC2AEC091C653C4A009BB69C /* Debug */,
@@ -896,7 +896,7 @@
 			);
 			defaultConfigurationIsVisible = 0;
 		};
-		FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "DocumentProvider" */ = {
+		FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProvider" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FC2AEC071C653C4A009BB69C /* Debug */,

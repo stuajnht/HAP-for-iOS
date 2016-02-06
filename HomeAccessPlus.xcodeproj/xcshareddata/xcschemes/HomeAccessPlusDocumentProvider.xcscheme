@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FC2AEBF91C653C4A009BB69C"
-               BuildableName = "DocumentProviderFileProvider.appex"
-               BlueprintName = "DocumentProviderFileProvider"
+               BlueprintIdentifier = "FC2AEBEB1C653C4A009BB69C"
+               BuildableName = "HomeAccessPlusDocumentProvider.appex"
+               BlueprintName = "HomeAccessPlusDocumentProvider"
                ReferencedContainer = "container:HomeAccessPlus.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,9 +47,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FC2AEBF91C653C4A009BB69C"
-            BuildableName = "DocumentProviderFileProvider.appex"
-            BlueprintName = "DocumentProviderFileProvider"
+            BlueprintIdentifier = "FC2AEBEB1C653C4A009BB69C"
+            BuildableName = "HomeAccessPlusDocumentProvider.appex"
+            BlueprintName = "HomeAccessPlusDocumentProvider"
             ReferencedContainer = "container:HomeAccessPlus.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
