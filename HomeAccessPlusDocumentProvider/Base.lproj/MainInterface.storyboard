@@ -104,7 +104,7 @@
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FileTableViewCell" rowHeight="49" id="pxD-wB-LNz">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FileTableViewCell" rowHeight="49" id="pxD-wB-LNz" customClass="DocumentProviderFileTableViewCell" customModule="HomeAccessPlusDocumentProvider" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="768" height="49"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pxD-wB-LNz" id="xN9-gO-5Zg">
@@ -126,6 +126,10 @@
                                             <animations/>
                                         </tableViewCellContentView>
                                         <animations/>
+                                        <connections>
+                                            <outlet property="imgFileIcon" destination="9Vu-uR-eYD" id="0lj-RD-eb4"/>
+                                            <outlet property="lblFileName" destination="afW-yZ-0Gv" id="EVh-rw-djL"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
@@ -134,6 +138,9 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
+                    <connections>
+                        <outlet property="tblFileBrowser" destination="pnl-Ty-7Pz" id="MoP-ni-R4j"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="flx-jA-94D" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

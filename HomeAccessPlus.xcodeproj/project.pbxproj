@@ -35,6 +35,7 @@
 		FCC5C8C71C67D01E00D42D0C /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */; };
 		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
 		FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FCF639451C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,6 +123,7 @@
 		FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire.framework"; sourceTree = "<group>"; };
 		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
 		FCF451A21C12FF500067DFF9 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
+		FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentProviderFileTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +201,7 @@
 				FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */,
 				FC2AEBF21C653C4A009BB69C /* MainInterface.storyboard */,
 				FC2AEBF51C653C4A009BB69C /* Info.plist */,
+				FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */,
 				FC2AEBEE1C653C4A009BB69C /* Supporting Files */,
 			);
 			path = HomeAccessPlusDocumentProvider;
@@ -590,6 +593,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCC5C8B91C67CFD900D42D0C /* AppDelegate.swift in Sources */,
+				FCF639451C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift in Sources */,
 				FCC5C8BB1C67CFF000D42D0C /* Reach.swift in Sources */,
 				FC2AEBF11C653C4A009BB69C /* DocumentPickerViewController.swift in Sources */,
 				FCC5C8BA1C67CFEC00D42D0C /* HAPi.swift in Sources */,
