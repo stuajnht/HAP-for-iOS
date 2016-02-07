@@ -24,6 +24,15 @@
 		FCB1D9F31C09F54C00DEC02E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */; };
 		FCB1D9F61C09F54C00DEC02E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */; };
 		FCB1DA011C09F54C00DEC02E /* HomeAccessPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */; };
+		FCC5C8B91C67CFD900D42D0C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
+		FCC5C8BA1C67CFEC00D42D0C /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
+		FCC5C8BB1C67CFF000D42D0C /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FCC5C8BD1C67D00200D42D0C /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */; };
+		FCC5C8BF1C67D00600D42D0C /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */; };
+		FCC5C8C11C67D00E00D42D0C /* MBProgressHUD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */; };
+		FCC5C8C31C67D01300D42D0C /* Locksmith.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C21C67D01300D42D0C /* Locksmith.framework */; };
+		FCC5C8C51C67D01900D42D0C /* Font_Awesome_Swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */; };
+		FCC5C8C71C67D01E00D42D0C /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */; };
 		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
 		FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
 /* End PBXBuildFile section */
@@ -105,6 +114,12 @@
 		FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusTests.swift; sourceTree = "<group>"; };
 		FCB1DA021C09F54C00DEC02E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCGLogger.framework; path = "Pods/../build/Debug-iphoneos/XCGLogger.framework"; sourceTree = "<group>"; };
+		FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "Pods/../build/Debug-iphoneos/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = "Pods/../build/Debug-iphoneos/MBProgressHUD.framework"; sourceTree = "<group>"; };
+		FCC5C8C21C67D01300D42D0C /* Locksmith.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Locksmith.framework; path = "Pods/../build/Debug-iphoneos/Locksmith.framework"; sourceTree = "<group>"; };
+		FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Font_Awesome_Swift.framework; path = "Pods/../build/Debug-iphoneos/Font_Awesome_Swift.framework"; sourceTree = "<group>"; };
+		FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire.framework"; sourceTree = "<group>"; };
 		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
 		FCF451A21C12FF500067DFF9 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -114,6 +129,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC5C8C71C67D01E00D42D0C /* Alamofire.framework in Frameworks */,
+				FCC5C8C51C67D01900D42D0C /* Font_Awesome_Swift.framework in Frameworks */,
+				FCC5C8C31C67D01300D42D0C /* Locksmith.framework in Frameworks */,
+				FCC5C8C11C67D00E00D42D0C /* MBProgressHUD.framework in Frameworks */,
+				FCC5C8BF1C67D00600D42D0C /* SwiftyJSON.framework in Frameworks */,
+				FCC5C8BD1C67D00200D42D0C /* XCGLogger.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,6 +182,12 @@
 		F764C4F5629690132DD516AB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */,
+				FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */,
+				FCC5C8C21C67D01300D42D0C /* Locksmith.framework */,
+				FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */,
+				FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */,
+				FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */,
 				385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */,
 			);
 			name = Frameworks;
@@ -562,7 +589,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCC5C8B91C67CFD900D42D0C /* AppDelegate.swift in Sources */,
+				FCC5C8BB1C67CFF000D42D0C /* Reach.swift in Sources */,
 				FC2AEBF11C653C4A009BB69C /* DocumentPickerViewController.swift in Sources */,
+				FCC5C8BA1C67CFEC00D42D0C /* HAPi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,6 +694,10 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
@@ -679,6 +713,10 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
@@ -895,6 +933,7 @@
 				FC2AEC0A1C653C4A009BB69C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProvider" */ = {
 			isa = XCConfigurationList;
@@ -903,6 +942,7 @@
 				FC2AEC081C653C4A009BB69C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FC78D3121C5D7E5E00254B07 /* Build configuration list for PBXNativeTarget "HomeAccessPlusUITests" */ = {
 			isa = XCConfigurationList;

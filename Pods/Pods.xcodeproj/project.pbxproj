@@ -1255,6 +1255,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8FC55B7264D6B411A61EE662843335FC /* Font-Awesome-Swift.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1314,6 +1315,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D9E84D7A9F32F92B63A1EBF0DCCF9693 /* Alamofire.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1342,6 +1344,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E4F019F33232D30A294C9C3579914596 /* Locksmith.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1400,6 +1403,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8945DA732C06E02B21FBD0DADABAD1D9 /* MBProgressHUD.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1521,6 +1525,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 72454CF8B8DB4FE8940553B5A01B8FC4 /* XCGLogger.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1549,6 +1554,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 72454CF8B8DB4FE8940553B5A01B8FC4 /* XCGLogger.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1610,6 +1616,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8FC55B7264D6B411A61EE662843335FC /* Font-Awesome-Swift.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1637,6 +1644,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E4F019F33232D30A294C9C3579914596 /* Locksmith.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1688,6 +1696,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5A9F825710CD9B924828CCA6F15E774B /* SwiftyJSON.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1716,6 +1725,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5A9F825710CD9B924828CCA6F15E774B /* SwiftyJSON.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1743,6 +1753,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8945DA732C06E02B21FBD0DADABAD1D9 /* MBProgressHUD.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1770,6 +1781,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D9E84D7A9F32F92B63A1EBF0DCCF9693 /* Alamofire.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
