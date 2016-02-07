@@ -90,7 +90,7 @@
         <!--Document Picker View Controller-->
         <scene sceneID="3Wn-DG-NeO">
             <objects>
-                <viewController id="Y1N-cK-JXt" customClass="DocumentPickerViewController" customModule="HomeAccessPlusDocumentProvider" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="browser" id="Y1N-cK-JXt" customClass="DocumentPickerViewController" customModule="HomeAccessPlusDocumentProvider" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="sK6-qn-oz1"/>
                         <viewControllerLayoutGuide type="bottom" id="6jx-uf-x9E"/>
@@ -99,15 +99,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Cul-cj-QCs">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
-                                <animations/>
-                                <items>
-                                    <navigationItem title="File Browser" id="xMe-Mk-flS"/>
-                                </items>
-                            </navigationBar>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="pnl-Ty-7Pz">
-                                <rect key="frame" x="0.0" y="44" width="768" height="980"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="pnl-Ty-7Pz">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -126,15 +119,6 @@
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="Cul-cj-QCs" firstAttribute="bottom" secondItem="pnl-Ty-7Pz" secondAttribute="top" id="6HF-cP-wDT"/>
-                            <constraint firstItem="Cul-cj-QCs" firstAttribute="leading" secondItem="pnl-Ty-7Pz" secondAttribute="leading" id="HfX-Ev-mhO"/>
-                            <constraint firstItem="Cul-cj-QCs" firstAttribute="trailing" secondItem="pnl-Ty-7Pz" secondAttribute="trailing" id="IvB-MJ-BM4"/>
-                            <constraint firstItem="Cul-cj-QCs" firstAttribute="top" secondItem="3qn-Kd-Q1o" secondAttribute="top" id="L2R-xl-RSt"/>
-                            <constraint firstAttribute="trailing" secondItem="Cul-cj-QCs" secondAttribute="trailing" id="jlo-Ow-X1U"/>
-                            <constraint firstItem="Cul-cj-QCs" firstAttribute="leading" secondItem="3qn-Kd-Q1o" secondAttribute="leading" id="prn-yi-yUj"/>
-                            <constraint firstItem="pnl-Ty-7Pz" firstAttribute="bottom" secondItem="6jx-uf-x9E" secondAttribute="top" id="zXI-Rn-wLr"/>
-                        </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                 </viewController>
