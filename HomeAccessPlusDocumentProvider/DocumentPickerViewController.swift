@@ -114,6 +114,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         hud.detailsLabelText = detailLabel
     }
     
+    // This is shown when the user selects a file to download
+    func hudDownloadShow() {
+        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.detailsLabelText = "Downloading..."
+        // See: http://stackoverflow.com/a/26882235
+        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+    }
+    
     /// Updating the detail label that is shown in the HUD
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
@@ -367,6 +375,57 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         }
     }
     
+    /// Downloads the file selected by the user onto the device
+    ///
+    /// Once a user has selected a file to be downloaded, and it
+    /// is either a small file or been allowed to download if it's
+    /// a big file, then this function is called to download the
+    /// file from the HAP+ server onto the device, and then let the
+    /// host app know where the file is located so that it can be
+    /// opened by it
+    ///
+    /// - Note: This function is based on the same function in the
+    ///         DetailViewController in the main app
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-08
+    ///
+    /// - parameter fileDownloadPath: The location on the HAP+
+    ///                               server that the file is being
+    ///                               downloaded from
+    func downloadFile(fileDownloadPath: String) {
+        hudDownloadShow()
+        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
+            
+            // There was a problem with downloading the file, so let the
+            // user know about it
+            if ((result == false) && (downloading == false)) {
+                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+            }
+            
+            // Seeing if the progress bar should update with the amount
+            // currently downloaded, if something is downloading
+            if ((result == false) && (downloading == true)) {
+                self.hudUpdatePercentage(downloadedBytes, totalBytes: totalBytes)
+            }
+            
+            // The file has downloaded successfuly so we can present the
+            // file to the user
+            if ((result == true) && (downloading == false)) {
+                self.hudHide()
+                logger.debug("Opening file from: \(downloadLocation)")
+                
+                // Letting the host app know where the file can
+                // be opened from
+                self.dismissGrantingAccessToURL(downloadLocation)
+            }
+        })
+    }
+    
     // MARK: - Table View
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -412,6 +471,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Otherwise, set the file to be downloaded for the
         // host app to use
         // See: http://stackoverflow.com/q/31909072
+        let itemPath = fileItems[indexPath.row][1] as! String
         let fileType = fileItems[indexPath.row][2] as! String
         let folderTitle = fileItems[indexPath.row][0] as! String
         if (!isFile(fileType)) {
@@ -420,8 +480,10 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             let controller: DocumentPickerViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! DocumentPickerViewController
             controller.title = folderTitle
             logger.debug("Set title to: \(folderTitle)")
-            controller.currentPath = fileItems[indexPath.row][1] as! String
+            controller.currentPath = itemPath
             self.navigationController?.pushViewController(controller, animated: true)
+        } else {
+            downloadFile(itemPath)
         }
     }
 
