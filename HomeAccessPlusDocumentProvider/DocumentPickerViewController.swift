@@ -390,14 +390,22 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //let row = indexPath.row //2
-        ////let section = indexPath.section//3
-        //let fileName = fileItems[row][0] //4
-        //newFolder = fileName as! String
-        //logger.debug("Folder heading to title: \(newFolder)")
-        
-        // The user has selected something, so collapse the view
-        //collapseDetailViewController = false
+        // The user has selected a table row, so see if it
+        // is a drive or folder, and if so, browse to it.
+        // Otherwise, set the file to be downloaded for the
+        // host app to use
+        // See: http://stackoverflow.com/q/31909072
+        let fileType = fileItems[indexPath.row][2] as! String
+        let folderTitle = fileItems[indexPath.row][0] as! String
+        if (!isFile(fileType)) {
+            logger.debug("Browsing to new folder")
+            
+            let controller: DocumentPickerViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! DocumentPickerViewController
+            controller.title = folderTitle
+            logger.debug("Set title to: \(folderTitle)")
+            controller.currentPath = fileItems[indexPath.row][1] as! String
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
     }
 
 }
