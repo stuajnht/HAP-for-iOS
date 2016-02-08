@@ -80,8 +80,25 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if let siteName = settings!.stringForKey(settingsSiteName) {
             logger.debug("HAP+ document provider opened for site: \(siteName)")
         }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Deselecting the table row if the user has browsed
+        // 'back' through the navigation history
+        // See: http://stackoverflow.com/a/33721607
+        if let selectedTableRow = tblFileBrowser.indexPathForSelectedRow {
+            tblFileBrowser.deselectRowAtIndexPath(selectedTableRow, animated: true)
+        }
+        logger.debug("Current path: \(currentPath)")
         
+        // Loading the file browser once the view has loaded,
+        // as the 'prepareForPresentationInMode' is only called
+        // when the view controller originally loads, so the
+        // file browser isn't called again when the user taps on
+        // a cell with a drive or folder
         loadFileBrowser()
+        
+        super.viewWillAppear(animated)
     }
     
     
