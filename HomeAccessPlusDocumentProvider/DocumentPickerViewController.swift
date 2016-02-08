@@ -31,7 +31,7 @@ import XCGLogger
 /// - since: 0.7.0-alpha
 /// - version: 1
 /// - date: 2016-02-07
-class DocumentPickerViewController: UIDocumentPickerExtensionViewController {
+class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource {
     
     // Adding a reference to the file browser table,
     // so that it can be reloaded in the code
@@ -213,6 +213,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController {
                     
                     // Hiding the HUD and adding the drives available to the table
                     self.hudHide()
+                    
+                    // Setting the file browser table to be a delegate for itself,
+                    // so that it can be reloaded to show the items returned from
+                    // the HAP+ server
+                    // See: http://stackoverflow.com/q/30976800
+                    self.tblFileBrowser.delegate = self
+                    self.tblFileBrowser.dataSource = self
                     self.tblFileBrowser.reloadData()
                 } else {
                     logger.warning("There was a problem getting the drive JSON data")
@@ -260,6 +267,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController {
                         self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
                     }
                     self.hudHide()
+                    
+                    // Setting the file browser table to be a delegate for itself,
+                    // so that it can be reloaded to show the items returned from
+                    // the HAP+ server
+                    // See: http://stackoverflow.com/q/30976800
+                    self.tblFileBrowser.delegate = self
+                    self.tblFileBrowser.dataSource = self
                     self.tblFileBrowser.reloadData()
                 } else {
                     logger.warning("There was a problem getting the folder JSON data")
