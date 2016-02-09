@@ -389,7 +389,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-02-08
     ///
     /// - parameter fileDownloadPath: The location on the HAP+
@@ -417,11 +417,31 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // file to the user
             if ((result == true) && (downloading == false)) {
                 self.hudHide()
-                logger.debug("Opening file from: \(downloadLocation)")
                 
-                // Letting the host app know where the file can
-                // be opened from
-                self.dismissGrantingAccessToURL(downloadLocation)
+                // Creating the file name based on the path that
+                // the file has been downloaded to
+                var fileName = String(downloadLocation).componentsSeparatedByString("/").last!
+                fileName = fileName.stringByRemovingPercentEncoding!
+                
+                // Moving the file from the downloaded location to
+                // the documentStorage directory, so that the host
+                // app can access it
+                // See: http://iswift.org/cookbook/move-file-to-different-location
+                let fileManager = NSFileManager.defaultManager()
+                
+                // Creating a location in the host app document
+                // storage container, so that it can access the file
+                let targetLocation = self.documentStorageURL?.URLByAppendingPathComponent(fileName)
+                
+                do {
+                    try fileManager.moveItemAtPath(String(downloadLocation), toPath: String(targetLocation))
+                    logger.debug("Downloaded file moved from \"\(downloadLocation)\" to \"\(targetLocation)\"")
+                    
+                    self.dismissGrantingAccessToURL(targetLocation)
+                }
+                catch let error as NSError {
+                    logger.error("Moved failed with error: \(error.localizedDescription)")
+                }
             }
         })
     }
