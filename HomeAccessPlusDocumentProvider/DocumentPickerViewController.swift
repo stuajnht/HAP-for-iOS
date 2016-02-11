@@ -31,7 +31,7 @@ import XCGLogger
 /// - since: 0.7.0-alpha
 /// - version: 1
 /// - date: 2016-02-07
-class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource {
+class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
     // so that it can be reloaded in the code
@@ -398,12 +398,16 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///                               server that the file is being
     ///                               downloaded from
     func downloadFile(fileDownloadPath: String) {
+        //1
+        let filename = String(fileDownloadPath).componentsSeparatedByString("/").last!
+        
         hudDownloadShow()
         api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
             
             // There was a problem with downloading the file, so let the
             // user know about it
             if ((result == false) && (downloading == false)) {
+                logger.error("There was a problem downloading the file")
                 let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(loginUserFailController, animated: true, completion: nil)
@@ -420,64 +424,39 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             if ((result == true) && (downloading == false)) {
                 self.hudHide()
                 
-                // Creating the file name based on the path that
-                // the file has been downloaded to
-                var fileName = String(downloadLocation).componentsSeparatedByString("/").last!
-                fileName = fileName.stringByRemovingPercentEncoding!
-                
-                // Moving the file from the downloaded location to
-                // the documentStorage directory, so that the host
-                // app can access it
-                // See: http://iswift.org/cookbook/move-file-to-different-location
-                let fileManager = NSFileManager.defaultManager()
-                
-                // Creating a location in the host app document
-                // storage container, so that it can access the file
-                var targetLocation = self.documentStorageURL?.URLByAppendingPathComponent(fileName)
-                
-                
-                // See: http://stackoverflow.com/q/34598727
                 let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
-                logger.debug("container url = \(container)")
-                logger.debug("openDocument: storage uRL = \(self.documentStorageURL)")
-                //var documentURL: NSURL = NSURL(string: "/")!
-                if self.documentStorageURL != nil {
-                    targetLocation = self.documentStorageURL!.URLByAppendingPathComponent(fileName)
-                }
-                else {
-                    targetLocation = container.URLByAppendingPathComponent(fileName)
-                }
-                //var fileName: String = documentURL.path()
-                let contents: String = "this is a dynamically created text file"
-                logger.debug("write to file = \(fileName)")
-                //NSError * err
-                //contents.writeToFile(fileName, atomically: false, encoding: .ConversionAllowLossy, error: err)
-                //NSLog("write: error = %@", err)
-
-                let fileData = NSData(contentsOfURL: downloadLocation)
                 
+                let imageUrl = downloadLocation
                 
-                logger.debug("Before writing file")
-                
-                fileData?.writeToFile(String(targetLocation), atomically: true)
-                
-                logger.debug("File raw data: \(fileData)")
-                logger.debug("After writing file")
-                self.dismissGrantingAccessToURL(targetLocation)
-                
-                
-                
-                //do {
-                    //try contents.writeToFile(String(targetLocation), atomically: true, encoding: NSUTF8StringEncoding)
-                    //logger.debug("Downloaded file moved from \"\(downloadLocation)\" to \"\(targetLocation)\"")
-                    
-                    //self.dismissGrantingAccessToURL(targetLocation)
-                //}
-                //catch let error as NSError {
-                    //logger.error("Moved failed with error: \(error.localizedDescription)")
-                //}
+                //2
+                let outUrl = container.URLByAppendingPathComponent(filename)
+                // 3
+                let coordinator = NSFileCoordinator()
+                coordinator.coordinateWritingItemAtURL(outUrl,
+                    options: .ForReplacing, error: nil,
+                    byAccessor: { newURL in
+                    //4
+                    let fm = NSFileManager()
+                    fm.delegate = self
+                    do {
+                        try fm.copyItemAtURL(imageUrl, toURL: newURL)
+                        logger.debug("File copied from \"\(imageUrl)\" to \"\(newURL)\"")
+                    }
+                        catch let error as NSError {
+                        logger.error("Copy failed with error: \(error.localizedDescription)")
+                    }
+                })
+                // 5
+                logger.debug("Dismissing view document picker with URL: \(outUrl)")
+                self.dismissGrantingAccessToURL(outUrl)
             }
         })
+    }
+    
+    // MARK: NSFileManagerDelegate
+    func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, copyingItemAtURL srcURL: NSURL,
+            toURL dstURL: NSURL) -> Bool {
+            return true
     }
     
     // MARK: - Table View
