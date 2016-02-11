@@ -80,6 +80,8 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if let siteName = settings!.stringForKey(settingsSiteName) {
             logger.debug("HAP+ document provider opened for site: \(siteName)")
         }
+        
+        logger.debug("Document picker started in mode: \(mode.rawValue)")
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -431,17 +433,49 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 
                 // Creating a location in the host app document
                 // storage container, so that it can access the file
-                let targetLocation = self.documentStorageURL?.URLByAppendingPathComponent(fileName)
+                var targetLocation = self.documentStorageURL?.URLByAppendingPathComponent(fileName)
                 
-                do {
-                    try fileManager.moveItemAtPath(String(downloadLocation), toPath: String(targetLocation))
-                    logger.debug("Downloaded file moved from \"\(downloadLocation)\" to \"\(targetLocation)\"")
+                
+                // See: http://stackoverflow.com/q/34598727
+                let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
+                logger.debug("container url = \(container)")
+                logger.debug("openDocument: storage uRL = \(self.documentStorageURL)")
+                //var documentURL: NSURL = NSURL(string: "/")!
+                if self.documentStorageURL != nil {
+                    targetLocation = self.documentStorageURL!.URLByAppendingPathComponent(fileName)
+                }
+                else {
+                    targetLocation = container.URLByAppendingPathComponent(fileName)
+                }
+                //var fileName: String = documentURL.path()
+                let contents: String = "this is a dynamically created text file"
+                logger.debug("write to file = \(fileName)")
+                //NSError * err
+                //contents.writeToFile(fileName, atomically: false, encoding: .ConversionAllowLossy, error: err)
+                //NSLog("write: error = %@", err)
+
+                let fileData = NSData(contentsOfURL: downloadLocation)
+                
+                
+                logger.debug("Before writing file")
+                
+                fileData?.writeToFile(String(targetLocation), atomically: true)
+                
+                logger.debug("File raw data: \(fileData)")
+                logger.debug("After writing file")
+                self.dismissGrantingAccessToURL(targetLocation)
+                
+                
+                
+                //do {
+                    //try contents.writeToFile(String(targetLocation), atomically: true, encoding: NSUTF8StringEncoding)
+                    //logger.debug("Downloaded file moved from \"\(downloadLocation)\" to \"\(targetLocation)\"")
                     
-                    self.dismissGrantingAccessToURL(targetLocation)
-                }
-                catch let error as NSError {
-                    logger.error("Moved failed with error: \(error.localizedDescription)")
-                }
+                    //self.dismissGrantingAccessToURL(targetLocation)
+                //}
+                //catch let error as NSError {
+                    //logger.error("Moved failed with error: \(error.localizedDescription)")
+                //}
             }
         })
     }

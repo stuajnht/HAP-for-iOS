@@ -96,5 +96,9 @@ class FileProvider: NSFileProviderExtension {
             // TODO: handle any error, do any necessary cleanup
         })
     }
+    
+    override func documentStorageURL() -> NSURL {
+        return NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
+    }
 
 }
