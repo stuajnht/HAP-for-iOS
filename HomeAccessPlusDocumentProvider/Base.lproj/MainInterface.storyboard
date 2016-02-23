@@ -157,7 +157,11 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems>
                         <barButtonItem systemItem="flexibleSpace" id="tvt-Nc-C6n"/>
-                        <barButtonItem systemItem="save" id="sIX-PB-aKo"/>
+                        <barButtonItem systemItem="save" id="sIX-PB-aKo">
+                            <connections>
+                                <action selector="exportMoveFile:" destination="Y1N-cK-JXt" id="CIa-tP-oXz"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem systemItem="flexibleSpace" id="6bW-sp-HmW"/>
                     </toolbarItems>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>

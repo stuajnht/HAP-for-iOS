@@ -29,8 +29,8 @@ import XCGLogger
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.7.0-alpha
-/// - version: 1
-/// - date: 2016-02-07
+/// - version: 2
+/// - date: 2016-02-23
 class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
@@ -63,6 +63,10 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
     var fileItems: [AnyObject] = []
+    
+    /// A reference to the original URL path to the file that
+    /// has been passed to the document provider
+    var originalFileURL : NSURL = NSURL(string: "")!
 
     @IBAction func openDocument(sender: AnyObject?) {
         let documentURL = self.documentStorageURL!.URLByAppendingPathComponent("Untitled.txt")
@@ -95,6 +99,12 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             case .ExportToService, .MoveToService:
                 logger.verbose("Document picker toolbar is visible")
                 self.navigationController!.setToolbarHidden(false, animated: false)
+                
+                // Saving the URL to the file passed to this document
+                // provider, so that it can be accessed later when the
+                // user attempts to upload a file
+                logger.debug("Original file located at URL: \(self.originalURL!)")
+                originalFileURL = originalURL!
         }
     }
     
@@ -471,6 +481,40 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, copyingItemAtURL srcURL: NSURL,
             toURL dstURL: NSURL) -> Bool {
             return true
+    }
+    
+    // MARK: Export/Move File
+    
+    /// Uploads the selected file to the HAP+ server in the current
+    /// folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-23
+    ///
+    /// See: https://github.com/xamarin/monotouch-samples/blob/master/ios8/NewBox/NBox/DocumentPickerViewController.cs#L103
+    @IBAction func exportMoveFile(sender: AnyObject) {
+        logger.verbose("Save button pressed on document provider")
+        
+        // Export/Move Document Picker mode:
+        // Before calling DismissGrantingAccess method, copy the file to the selected destination.
+        // Your extensions also need to track the file and make sure it is synced to your server (if needed).
+        // After the copy is complete, call DismissGrantingAccess method, and provide the URL to the new copy
+        let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
+        let destinationURL = container.URLByAppendingPathComponent(originalFileURL.lastPathComponent!)
+        logger.debug("Destination URL for file being exported: \(destinationURL)")
+        
+        do {
+            try NSFileManager.defaultManager().copyItemAtURL(originalFileURL, toURL: destinationURL)
+            logger.debug("File copied from \"\(originalURL)\" to \"\(destinationURL)\"")
+        }
+        catch let error as NSError {
+            logger.error("Copy failed with error: \(error.localizedDescription)")
+        }
+        
+        // Provide here a destination Url
+        self.dismissGrantingAccessToURL(destinationURL)
     }
     
     // MARK: - Table View
