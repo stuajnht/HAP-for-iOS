@@ -96,11 +96,11 @@
                         <viewControllerLayoutGuide type="bottom" id="6jx-uf-x9E"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="3qn-Kd-Q1o">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="980"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="49" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="pnl-Ty-7Pz">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="980"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -155,6 +155,12 @@
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
+                    <toolbarItems>
+                        <barButtonItem systemItem="flexibleSpace" id="tvt-Nc-C6n"/>
+                        <barButtonItem systemItem="save" id="sIX-PB-aKo"/>
+                        <barButtonItem systemItem="flexibleSpace" id="6bW-sp-HmW"/>
+                    </toolbarItems>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
                     <connections>
                         <outlet property="tblFileBrowser" destination="pnl-Ty-7Pz" id="MoP-ni-R4j"/>
                     </connections>

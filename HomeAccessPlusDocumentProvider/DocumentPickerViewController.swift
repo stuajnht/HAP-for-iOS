@@ -82,6 +82,20 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         }
         
         logger.debug("Document picker started in mode: \(mode.rawValue)")
+        // Showing the bottom navigation toolbar, so that when the
+        // document picker is in export or move modes the user
+        // can press the 'save' button to upload the file to the
+        // current folder they have browsed to
+        // See: http://stackoverflow.com/a/34216809
+        // See: https://github.com/xamarin/monotouch-samples/blob/master/ios8/NewBox/NBox/DocumentPickerViewController.cs#L61
+        switch mode {
+            case .Import, .Open:
+                logger.verbose("Document picker toolbar is hidden")
+                self.navigationController!.setToolbarHidden(true, animated: false)
+            case .ExportToService, .MoveToService:
+                logger.verbose("Document picker toolbar is visible")
+                self.navigationController!.setToolbarHidden(false, animated: false)
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
