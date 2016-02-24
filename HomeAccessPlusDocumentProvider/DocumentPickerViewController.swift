@@ -29,8 +29,8 @@ import XCGLogger
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.7.0-alpha
-/// - version: 2
-/// - date: 2016-02-23
+/// - version: 3
+/// - date: 2016-02-24
 class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
@@ -66,7 +66,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     
     /// A reference to the original URL path to the file that
     /// has been passed to the document provider
-    var originalFileURL : NSURL = NSURL(string: "")!
+    var originalFileURL : NSURL?
 
     @IBAction func openDocument(sender: AnyObject?) {
         let documentURL = self.documentStorageURL!.URLByAppendingPathComponent("Untitled.txt")
@@ -104,7 +104,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // provider, so that it can be accessed later when the
                 // user attempts to upload a file
                 logger.debug("Original file located at URL: \(self.originalURL!)")
-                originalFileURL = originalURL!
+                originalFileURL = self.originalURL!
         }
     }
     
@@ -490,8 +490,8 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
-    /// - date: 2016-02-23
+    /// - version: 2
+    /// - date: 2016-02-24
     ///
     /// See: https://github.com/xamarin/monotouch-samples/blob/master/ios8/NewBox/NBox/DocumentPickerViewController.cs#L103
     @IBAction func exportMoveFile(sender: AnyObject) {
@@ -502,11 +502,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Your extensions also need to track the file and make sure it is synced to your server (if needed).
         // After the copy is complete, call DismissGrantingAccess method, and provide the URL to the new copy
         let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
-        let destinationURL = container.URLByAppendingPathComponent(originalFileURL.lastPathComponent!)
+        let fileName = originalFileURL!.lastPathComponent!
+        logger.debug("File name of uploaded file: \(fileName)")
+        
+        let destinationURL = container.URLByAppendingPathComponent(fileName)
         logger.debug("Destination URL for file being exported: \(destinationURL)")
         
         do {
-            try NSFileManager.defaultManager().copyItemAtURL(originalFileURL, toURL: destinationURL)
+            try NSFileManager.defaultManager().copyItemAtURL(originalFileURL!, toURL: destinationURL)
             logger.debug("File copied from \"\(originalURL)\" to \"\(destinationURL)\"")
         }
         catch let error as NSError {
@@ -572,6 +575,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             controller.title = folderTitle
             logger.debug("Set title to: \(folderTitle)")
             controller.currentPath = itemPath
+            controller.originalFileURL = originalFileURL
             self.navigationController?.pushViewController(controller, animated: true)
         } else {
             downloadFile(itemPath)
