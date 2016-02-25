@@ -4,6 +4,7 @@
 
 ### New Stuff
 * Upload files to the HAP+ server from cloud storage providers (the relevant apps need to be installed on the iOS device too)
+* Files can be uploaded and downloaded in some external apps without needing to download from the Home Access Plus+ app first
 
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
