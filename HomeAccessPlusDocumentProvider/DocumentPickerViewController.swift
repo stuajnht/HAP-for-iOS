@@ -542,7 +542,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         
         // Uploading the file to the HAP+ server
         uploadFile(false, customFileName: "", fileExistsCallback: { Void in
-            self.showFileExistsMessage(true)
+            self.showFileExistsMessage(false)
         })
     }
     
