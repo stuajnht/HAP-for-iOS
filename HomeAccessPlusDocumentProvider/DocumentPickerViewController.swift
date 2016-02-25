@@ -27,10 +27,18 @@ import XCGLogger
 /// This class is a direct copy of the one MasterViewController
 /// in the HomeAccessPlus group, with some functions removed
 ///
+/// - note: This class is very hackilly put together based on the
+///         existing functions from other classes, with only slight
+///         modifications. THIS IS NOT GOOD CODING PRACTICE, and
+///         should be tidied up
+///
+/// - todo: Combine most of these functions into a new class, which
+///         is also used by the MasterViewController.swift file
+///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.7.0-alpha
-/// - version: 3
-/// - date: 2016-02-24
+/// - version: 4
+/// - date: 2016-02-25
 class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
@@ -72,6 +80,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// A reference to the original URL path to the file that
     /// has been passed to the document provider
     var originalFileURL : NSURL?
+    
+    // Checked when the viewWillAppear to see if an alert
+    // needs to be shown to ask the user what to do if
+    // a file already exists in the current folder
+    // This cannot be run in the uploadFile function, as
+    // the following error is logged in the console:
+    // Warning: Attempt to present <UIAlertController> on
+    // <MasterViewController> while a presentation is in progress!
+    // Attempting to load the view of a view controller while it is
+    // deallocating is not allowed and may result in undefined behavior
+    // See: https://www.cocoanetics.com/2014/08/dismissal-completion-handler/
+    var showFileExistsAlert : Bool = false
 
     @IBAction func openDocument(sender: AnyObject?) {
         let documentURL = self.documentStorageURL!.URLByAppendingPathComponent("Untitled.txt")
@@ -110,6 +130,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // user attempts to upload a file
                 logger.debug("Original file located at URL: \(self.originalURL!)")
                 originalFileURL = self.originalURL!
+                settings!.setURL(originalFileURL, forKey: settingsUploadFileLocation)
         }
     }
     
@@ -519,59 +540,576 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         let destinationURL = container.URLByAppendingPathComponent(fileName)
         logger.debug("Destination URL for file being exported: \(destinationURL)")
         
-        // Deleting any previously existing files at this path,
-        // if they weren't successfully uploaded and are still
-        // on the device
-        // See: http://stackoverflow.com/a/32744011
-        // See: http://stackoverflow.com/a/24181775
-        logger.debug("Seeing if \(fileName) already exists at \(destinationURL)")
-        var successfullyDeleted = true
-        let manager = NSFileManager.defaultManager()
-        if (manager.fileExistsAtPath(String(destinationURL).stringByRemovingPercentEncoding!)) {
-            logger.debug("Attempting to delete the file at location: \(destinationURL)")
-            do {
-                try NSFileManager.defaultManager().removeItemAtPath("\(destinationURL)")
-                logger.debug("Successfully deleted file: \(destinationURL)")
-            }
-            catch let errorMessage as NSError {
-                logger.error("There was a problem deleting the file: \(errorMessage)")
-                successfullyDeleted = false
-            }
-            catch {
-                logger.error("There was an unknown problem when deleting the file.")
-                successfullyDeleted = false
-            }
+        // Uploading the file to the HAP+ server
+        uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+            self.showFileExistsMessage(true)
+        })
+    }
+    
+    // MARK: Uploading file
+    
+    /// Uploads the file from an external app to the HAP+ server,
+    /// in the current browsed to folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-alpha
+    /// - version: 7
+    /// - date: 2016-02-25
+    ///
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    /// - parameter customFileName: If the file currently exists in the current folder,
+    ///                             and the user has chosen to create a new file and
+    ///                             not overwrite it, then this is the custom file name
+    ///                             that should be used
+    func uploadFile(fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(fileExists: Bool) -> Void) -> Void {
+        // Holding the location of the file on the device, that
+        // is going to be uploaded
+        var fileLocation = ""
+        
+        var fileDeviceLocation : NSURL
+        
+        // Seeing if we are uploading a file from another app
+        // or the local photo library
+        if (fileFromPhotoLibrary == false) {
+            logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadFileLocation)!
             
-            logger.debug("\(fileName) successfully deleted: \(successfullyDeleted)")
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
+        } else {
+            logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadPhotosLocation)!
+            
+            // Converting the fileLocation to be a valid NSURL variable
+            fileDeviceLocation = NSURL(string: fileLocation)!
         }
         
-        // Copying the file from the location provided by
-        // the host app to the local app container, assuing
-        // the file was deleted successfuly if needed
-        if (successfullyDeleted) {
-            do {
-                try NSFileManager.defaultManager().copyItemAtURL(originalFileURL!, toURL: destinationURL)
-                logger.debug("File copied from \"\(originalURL)\" to \"\(destinationURL)\"")
-            }
-            catch let error as NSError {
-                logger.error("Copy failed with error: \(error.localizedDescription)")
-                // There was a problem copying the local file,
-                // so let the user know they should rename the file
-                let copyLocalFileFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please rename the file and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                copyLocalFileFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(copyLocalFileFailController, animated: true, completion: nil)
+        hudUploadingShow()
+        
+        // Seeing if a name for the file needs to be generated
+        // or one has already been created from the user choosing
+        // to not overwrite a file
+        var fileExistsPath = ""
+        if (customFileName == "") {
+            // Checking to make sure that a file doesn't already
+            // exist in the current folder with the same name
+            fileExistsPath = currentPath + "/" + String(fileLocation).componentsSeparatedByString("/").last!
+        } else {
+            // Use the generated file name with the current file
+            // path
+            // - NOTE: This shouldn't fail as we've already checked it
+            fileExistsPath = currentPath + "/" + customFileName
+        }
+        
+        api.itemExists(fileExistsPath, callback: { (result: Bool) -> Void in
+            // The file doesn't currently exist in the current
+            // folder, so the new one can be created here
+            if (result == false) {
+                logger.debug("\"\(fileExistsPath)\" file doesn't exist in \"\(self.currentPath)\", so it can be created")
+                
+                // Attempting to upload the file that has been passed
+                // to the app
+                self.api.uploadFile(fileDeviceLocation, serverFileLocation: self.currentPath, fileFromPhotoLibrary: fileFromPhotoLibrary, customFileName: customFileName, callback: { (result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void in
+                    
+                    // There was a problem with uploading the file, so let the
+                    // user know about it
+                    if ((result == false) && (uploading == false)) {
+                        let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                        self.presentViewController(uploadFailController, animated: true, completion: nil)
+                    }
+                    
+                    // Seeing if the progress bar should update with the amount
+                    // currently uploaded, if something is uploading
+                    if ((result == false) && (uploading == true)) {
+                        self.hudUpdatePercentage(uploadedBytes, totalBytes: totalBytes)
+                    }
+                    
+                    // The file has uploaded successfuly so we can present the
+                    // refresh the current folder to show it, and delete the
+                    // local copy of the file from the device
+                    if ((result == true) && (uploading == false)) {
+                        self.hudHide()
+                        logger.debug("File has been uploaded to: \(self.currentPath)")
+                        
+                        // Dismissing the document provider, as the file has
+                        // successfully been uploaded
+                        self.dismissGrantingAccessToURL(settings!.URLForKey(settingsUploadFileLocation))
+                        
+                        // If the file uploaded is not a photo, then set the
+                        // "settingsUploadFileLocation" value to be nil so that
+                        // when the user presses the 'add' button again, they
+                        // cannot re-upload the file. If they have passed a file
+                        // to this app, but have only uploaded a photo, then it
+                        // shouldn't be set as nil so they can upload the file at
+                        // another time
+                        if (fileFromPhotoLibrary == false) {
+                            logger.debug("Setting local file location to nil as it's been uploaded")
+                            settings!.setURL(nil, forKey: settingsUploadFileLocation)
+                        }
+                        
+                        // Deleting the local copy of the file that was used to
+                        // upload to the HAP+ server
+                        self.deleteUploadedLocalFile(fileDeviceLocation)
+                    }
+                })
             }
             
-            // Provide here a destination Url
-            self.dismissGrantingAccessToURL(destinationURL)
-        } else {
-            // There was a problem deleting the local file,
-            // so let the user know they should rename the file
-            let deletePreviousFileFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please rename the file and try again", preferredStyle: UIAlertControllerStyle.Alert)
-            deletePreviousFileFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(deletePreviousFileFailController, animated: true, completion: nil)
+            // A file currently exists with the same name,
+            // so ask the user what they want to do now:
+            // overwrite, create a new file or cancel
+            if (result == true) {
+                logger.info("The \"\(fileExistsPath)\" file already exists in \"\(self.currentPath)\"")
+                
+                // Setting the alert to be shown when this
+                // view controller is shown again to the user,
+                // after the upload popover has completed
+                self.showFileExistsAlert = true
+                
+                // Calling the showFileExists alert from the
+                // upload popover callback
+                fileExistsCallback(fileExists: true)
+            }
+        })
+    }
+    
+    /// Delete the local version of the file on successful upload
+    ///
+    /// Once the file has been successfully uploaded, it is not needed
+    /// to be stored on the device, so can be deleted to save space
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.5.0-beta
+    /// - version: 2
+    /// - date: 2016-01-16
+    ///
+    /// - parameter deviceFileLocation: The path to the file on the device (either the
+    ///                                 Documents folder: photos, videos; Inbox folder: files)
+    func deleteUploadedLocalFile(fileDeviceLocation: NSURL) {
+        // If the file is coming from an external app, the value
+        // in fileDeviceLocation may contain encoded characters
+        // in the file name, which the "removeItemAtPath" function
+        // doesn't like and can't find the file. These characters
+        // need to be decoded before attempting to delete the file
+        logger.debug("Original raw path of file to delete: \(fileDeviceLocation)")
+        var pathArray = String(fileDeviceLocation).componentsSeparatedByString("/")
+        
+        // Getting the name of the file, which is the last item
+        // in the pathArray array
+        let fileName = pathArray.last!
+        
+        // Removing any encoded characters from the file name, so
+        // the file can be deleted successfully, and saving back
+        // into the array in the last position
+        let newFileName = fileName.stringByRemovingPercentEncoding!
+        pathArray.removeAtIndex(pathArray.indexOf(fileName)!)
+        pathArray.append(newFileName)
+        
+        // Joining the items in the array back together, and removing
+        // the file:// protocol at the start
+        var filePath = pathArray.joinWithSeparator("/")
+        filePath = filePath.stringByReplacingOccurrencesOfString("file://", withString: "")
+        
+        // See: http://stackoverflow.com/a/32744011
+        logger.debug("Attempting to delete the file at location: \(filePath)")
+        do {
+            try NSFileManager.defaultManager().removeItemAtPath("\(filePath)")
+            logger.debug("Successfully deleted file: \(filePath)")
+        }
+        catch let errorMessage as NSError {
+            logger.error("There was a problem deleting the file: \(errorMessage)")
+        }
+        catch {
+            logger.error("There was an unknown problem when deleting the file.")
         }
     }
+    
+    /// Checking to see if the file exists alert should be shown to
+    /// the user after the upload popover has been dismissed
+    ///
+    /// As displaying an alert to the user when the upload popover
+    /// is disappearing causes the app to crash, this function is
+    /// called via delegate callbacks instead which checks to see
+    /// if the file exists alert should be shown
+    /// See: http://stackoverflow.com/a/25308842
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 4
+    /// - date: 2016-01-29
+    ///
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func showFileExistsMessage(fileFromPhotoLibrary: Bool) {
+        // Seeing if the overwrite file alert needs to
+        // be shown to the user, once the upload popover
+        // has been dismissed
+        if (showFileExistsAlert) {
+            // Forcing a delay to happen before showing the
+            // alert to the user. This is in part due to a
+            // race condition between the upload popover
+            // disappearing and the asynchronous uploadFile
+            // returning the callback to call this function,
+            // and depends on the speed of the API return.
+            // We can do this as the user doesn't know if
+            // the delay is due to the uploading of the file
+            // starting or a delay in the network connection.
+            // If there is something that is likely to break,
+            // this is probably the most likely place to check
+            // See: http://stackoverflow.com/a/32696605
+            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+            dispatch_after(time, dispatch_get_main_queue()) {
+                self.hudHide()
+                logger.debug("Overwriting file alert is to be shown")
+                
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler:  {(alertAction) -> Void in
+                    self.overwriteFile(true, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler:  {(alertAction) -> Void in
+                    self.overwriteFile(false, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
+                fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(fileExistsController, animated: true, completion: nil)
+                
+                // Preventing the alert being shown on each
+                // time the view controller is shown
+                self.showFileExistsAlert = false
+            }
+        }
+    }
+    
+    /// Overwrites the file that the user is attempting to
+    /// upload, or creates a new file name if they want to
+    /// keep both copies
+    ///
+    /// Based on what the user chooses from the showFileExistsMessage
+    /// alert, we either need to delete the previous file in
+    /// the current folder then upload the new file, or rename
+    /// the file we are attempting to upload so that it doesn't
+    /// conflict with any other file in the currently browsed to
+    /// folder
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 2
+    /// - date: 2016-01-28
+    ///
+    /// - parameter overwriteFile: Has the user chosen to overwrite the
+    ///                            current file or create a new one
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func overwriteFile(overwriteFile: Bool, fileFromPhotoLibrary: Bool) {
+        logger.debug("Overwriting file: \(overwriteFile)")
+        logger.debug("File exists in photo library: \(fileFromPhotoLibrary)")
+        
+        // Seeing if we are uploading a file from another app
+        // or the local photo library, and getting the location
+        // of the file to generate the file name
+        var currentFileName = ""
+        if (fileFromPhotoLibrary == false) {
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadFileLocation)!
+        } else {
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadPhotosLocation)!
+        }
+        
+        // Seeing if the file should overwrite the currently
+        // existing one, or to create a new one
+        if (overwriteFile) {
+            // Getting the file name from the uploaded path
+            let pathArray = String(currentFileName).componentsSeparatedByString("/")
+            
+            // Getting just the file name
+            var fileName = pathArray.last!
+            
+            // Removing any encoded characters from the file name
+            fileName = fileName.stringByRemovingPercentEncoding!
+            
+            // Formatting the name of the file to make sure that it is
+            // valid for storing on Windows file systems
+            fileName = api.formatInvalidName(fileName)
+            
+            // Finding the index of the file being uploaded on
+            // the local fileItems array, so that it can be used
+            // in the deleteFile function
+            // See: http://www.dotnetperls.com/2d-array-swift
+            var indexPosition = -1
+            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+                if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
+                    logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
+                    indexPosition = arrayPosition
+                }
+            }
+            
+            // Making sure that the file was found in the fileItems
+            // array, before we attempt to delete anything, as a
+            // fail safe
+            if (indexPosition > -1) {
+                // Deleting the file from the current folder
+                // See: http://stackoverflow.com/a/29428205
+                let indexPath = NSIndexPath(forRow: indexPosition, inSection: 0)
+                deleteFile(indexPath, fileOrFolder: "file", fileDeletedCallback: { (fileDeleted: Bool) -> Void in
+                    // Waiting to make sure that the file has been
+                    // successfully deleted before uploading the
+                    // replacement file
+                    // NOTE: There is no 'false' here as the deleteFile
+                    //       function looks after letting the user know
+                    //       that there was a problem
+                    if (fileDeleted == true) {
+                        // Uploading the file to the HAP+ server
+                        self.uploadFile(fileFromPhotoLibrary, customFileName: "", fileExistsCallback: { (fileExists) -> Void in
+                            // This callback shouldn't need to be called
+                            // from this "checkGeneratedFileName" function
+                            // as we should have already ascertained that
+                            // the file we're uploading doesn't exist
+                            // Still, best to let the user know something
+                            // hasn't worked
+                            logger.error("Overwriting file deletion succeeded but failed when uploading the file")
+                            
+                            let overwriteUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                            overwriteUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                            self.presentViewController(overwriteUploadFailedController, animated: true, completion: nil)
+                        })
+                    }
+                })
+            } else {
+                // Letting the user know there was a problem when
+                // trying to find the file in the array
+                logger.error("\(fileName) was not found in the current folder")
+                
+                let fileNotFoundController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                fileNotFoundController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(fileNotFoundController, animated: true, completion: nil)
+            }
+        } else {
+            // Showing the HUD so that the user knows that something
+            // is happening while the file name is being generated
+            // and checked
+            hudShow("Generating file name")
+            
+            // Generating a new file name and seeing
+            // if that can be uploaded
+            checkGeneratedFileName(currentFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
+        }
+    }
+    
+    /// Deletes the file item selected by the user, once they have
+    /// confirmed that that actually want to
+    ///
+    /// Once a user has selected to delete a file, they are alerted
+    /// and need to confirm that they are actially sure the file item
+    /// is to be deleted. If they confirm so, then this function is
+    /// called, which in turn calls the deleteFile function from the
+    /// HAPi
+    ///
+    /// Once a file has been deleted from the HAP+ server, the row
+    /// is removed from the table list and file items array, so as
+    /// to avoid having to reload the whole folder again
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-alpha
+    /// - version: 4
+    /// - date: 2016-02-25
+    ///
+    /// - parameter indexPath: The index in the table and file items array
+    ///                        that we are deleting the file item from
+    /// - parameter fileOrFolder: Whether the item being deleted is a file
+    ///                           or a folder, so that the error message can
+    ///                           be customised correctly
+    func deleteFile(indexPath: NSIndexPath, fileOrFolder: String, fileDeletedCallback:(fileDeleted: Bool) -> Void) -> Void {
+        hudShow("Deleting " + fileOrFolder)
+        let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
+        api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
+            self.hudHide()
+            
+            // There was a problem with deleting the file item,
+            // so let the user know about it
+            if (result == false) {
+                logger.error("There was a problem deleting the file item: \(deleteItemAtLocation)")
+                
+                // The cancel and default action styles are back to front, as
+                // the cancel option is bold, which we want the 'try again'
+                // option to be chosen by the user
+                let deletionProblemAlert = UIAlertController(title: "Unable to delete " + fileOrFolder, message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
+                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                // Setting the try again button style to be cancel, so
+                // that it is emboldened in the alert and looks like
+                // the default button to press
+                deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                    self.deleteFile(indexPath, fileOrFolder: fileOrFolder, fileDeletedCallback: { (fileDeleted: Bool) -> Void in
+                        // The code in here shouldn't run, as this is only
+                        // used for the overwriting file function
+                    })
+                }))
+                self.presentViewController(deletionProblemAlert, animated: true, completion: nil)
+            }
+            
+            // The file was deleted, so remove the item from the
+            // table with an animation, instead of reloading the
+            // whole folder from the HAP+ server
+            if (result == true) {
+                logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
+                
+                // Letting the callback know that the file has been deleted
+                fileDeletedCallback(fileDeleted: true)
+            }
+        })
+    }
+    
+    /// Checks to see if the file currently exists in the current
+    /// folder location, and generates an updated name if so
+    ///
+    /// While this API call is used in uploadFile and deleteFile,
+    /// this function is mainly to be used by the overwriteFile
+    /// function to check that creating a new file doesn't lead
+    /// to another file matching the same name. This function
+    /// is designed to be called recursively until there isn't
+    /// a matching file name, by repeatedly calling the generateFileName
+    /// function on each call of this function
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-28
+    ///
+    /// - seealso: overwriteFile
+    /// - seealso: generateFileName
+    /// - seealso: uploadFile
+    /// - seealso: deleteFile
+    ///
+    /// - parameter fileName: The updated name of the file that
+    ///                       is to be checked to see if it exists
+    /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
+    ///                                   library on the device, or from another app
+    func checkGeneratedFileName(fileName: String, fileFromPhotoLibrary: Bool) {
+        // Creating a new file name for the file being uploaded
+        let newFileName = generateFileName(fileName)
+        
+        // Checking to make sure that a file doesn't already
+        // exist in the current folder with the same name
+        logger.debug("Checking that the new file name \"\(newFileName)\" doesn't exist in the current folder")
+        api.itemExists(currentPath + "/" + newFileName, callback: { (result: Bool) -> Void in
+            // The new file doesn't currently exist in the current
+            // folder, so it can be created here
+            if (result == false) {
+                // Stopping the "please wait" HUD from running, so
+                // the upload HUD can be shown instead
+                self.hudHide()
+                
+                logger.debug("\(newFileName) doesn't exist in \(self.currentPath) so it can be uploaded there")
+                self.uploadFile(fileFromPhotoLibrary, customFileName: newFileName, fileExistsCallback: { Void in
+                    // This callback shouldn't need to be called
+                    // from this "checkGeneratedFileName" function
+                    // as we should have already ascertained that
+                    // the file we're uploading doesn't exist
+                    // Still, best to let the user know something
+                    // hasn't worked
+                    logger.error("Generated file name checking succeeded but failed when uploading the file")
+                    
+                    let generatedFileNameUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
+                    generatedFileNameUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(generatedFileNameUploadFailedController, animated: true, completion: nil)
+                })
+            }
+            
+            // This newly generated file name also exists in
+            // this folder, so try again with an increased number
+            if (result == true) {
+                logger.debug("\(newFileName) does exist in \(self.currentPath) so trying again with an updated name")
+                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
+            }
+        })
+    }
+    
+    /// Generating a custom file name for the file being uploaded
+    /// as there is already a file in the current folder with
+    /// the same name
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.6.0-beta
+    /// - version: 1
+    /// - date: 2016-01-27
+    ///
+    /// - parameter currentFileName: The current name of the file
+    ///                              is to renamed
+    func generateFileName(currentFileName: String) -> String {
+        logger.debug("Current file name and path: \(currentFileName)")
+        // Getting the name of the file from the device location. We
+        // can just split the path and get the file name from the last
+        // array value
+        // fullFileName = ["path", "to", "file-1.ext"]
+        let fullFileName = currentFileName.componentsSeparatedByString("/")
+        logger.verbose("fullFileName: \(fullFileName)")
+        
+        // Getting the name of the file from the full file name
+        // fileNameExtension = ["file-1.ext"]
+        let fileNameExtension = fullFileName.last!
+        logger.verbose("fileNameExtension: \(fileNameExtension)")
+        
+        // Getting the name of the file less extension
+        // fileNameArray = ["file-1", "ext"]
+        var fileNameArray = fileNameExtension.componentsSeparatedByString(".")
+        logger.verbose("fileNameArray: \(fileNameArray)")
+        
+        // Splitting the file name on any hyphenated last characters,
+        // to get the number at the end of the name
+        // fileNameNumber = ["file", "1"]
+        var fileNameNumber = fileNameArray.first!.componentsSeparatedByString("-")
+        logger.verbose("fileNameNumber: \(fileNameNumber)")
+        
+        // Trying to add 1 to the number at the end, or put a 1
+        // if it fails
+        // See: http://stackoverflow.com/a/28766901
+        var number = 1
+        if let myNumber = NSNumberFormatter().numberFromString(fileNameNumber.last!) {
+            // number = 2
+            number = myNumber.integerValue + 1
+            logger.verbose("number: \(number)")
+            
+            // Removing the last value of the array, as there was
+            // a number in its place
+            // fileNameNumber = ["file"]
+            fileNameNumber.removeLast()
+            logger.verbose("fileNameNumber: \(fileNameNumber)")
+        }
+        
+        // Putting the number into the last element of the array
+        // fileNameNumber = ["file", "2"]
+        fileNameNumber.append(String(number))
+        logger.verbose("fileNameNumber: \(fileNameNumber)")
+        
+        // Joining the file name with the number at the end
+        // fileNameAppended = ["file-2"]
+        let fileNameAppended = fileNameNumber.joinWithSeparator("-")
+        logger.verbose("fileNameAppended: \(fileNameAppended)")
+        
+        // Joining the file name with the extension
+        // fileNameArray = ["file-2", "ext"]
+        fileNameArray.removeFirst()
+        fileNameArray.insert(fileNameAppended, atIndex: 0)
+        logger.verbose("fileNameArray: \(fileNameArray)")
+        
+        // Combining the full name of the file
+        // fileName = "file-2.ext"
+        var fileName = fileNameArray.joinWithSeparator(".")
+        logger.verbose("fileName: \(fileName)")
+        
+        // Removing any encoded characters from the file name, so
+        // HAP+ saves the file with the correct file name
+        // fileName = "file-2.ext"
+        fileName = fileName.stringByRemovingPercentEncoding!
+        logger.verbose("fileName: \(fileName)")
+        
+        // Formatting the name of the file to make sure that it is
+        // valid for storing on Windows file systems
+        // fileName = "file-2.ext"
+        fileName = api.formatInvalidName(fileName)
+        logger.debug("Formatted new file name: \(fileName)")
+        
+        return fileName
+    }
+
     
     // MARK: - Table View
     
