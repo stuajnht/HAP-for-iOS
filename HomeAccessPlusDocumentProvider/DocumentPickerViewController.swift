@@ -508,16 +508,58 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         let destinationURL = container.URLByAppendingPathComponent(fileName)
         logger.debug("Destination URL for file being exported: \(destinationURL)")
         
-        do {
-            try NSFileManager.defaultManager().copyItemAtURL(originalFileURL!, toURL: destinationURL)
-            logger.debug("File copied from \"\(originalURL)\" to \"\(destinationURL)\"")
-        }
-        catch let error as NSError {
-            logger.error("Copy failed with error: \(error.localizedDescription)")
+        // Deleting any previously existing files at this path,
+        // if they weren't successfully uploaded and are still
+        // on the device
+        // See: http://stackoverflow.com/a/32744011
+        // See: http://stackoverflow.com/a/24181775
+        logger.debug("Seeing if \(fileName) already exists at \(destinationURL)")
+        var successfullyDeleted = true
+        let manager = NSFileManager.defaultManager()
+        if (manager.fileExistsAtPath(String(destinationURL).stringByRemovingPercentEncoding!)) {
+            logger.debug("Attempting to delete the file at location: \(destinationURL)")
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath("\(destinationURL)")
+                logger.debug("Successfully deleted file: \(destinationURL)")
+            }
+            catch let errorMessage as NSError {
+                logger.error("There was a problem deleting the file: \(errorMessage)")
+                successfullyDeleted = false
+            }
+            catch {
+                logger.error("There was an unknown problem when deleting the file.")
+                successfullyDeleted = false
+            }
+            
+            logger.debug("\(fileName) successfully deleted: \(successfullyDeleted)")
         }
         
-        // Provide here a destination Url
-        self.dismissGrantingAccessToURL(destinationURL)
+        // Copying the file from the location provided by
+        // the host app to the local app container, assuing
+        // the file was deleted successfuly if needed
+        if (successfullyDeleted) {
+            do {
+                try NSFileManager.defaultManager().copyItemAtURL(originalFileURL!, toURL: destinationURL)
+                logger.debug("File copied from \"\(originalURL)\" to \"\(destinationURL)\"")
+            }
+            catch let error as NSError {
+                logger.error("Copy failed with error: \(error.localizedDescription)")
+                // There was a problem copying the local file,
+                // so let the user know they should rename the file
+                let copyLocalFileFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please rename the file and try again", preferredStyle: UIAlertControllerStyle.Alert)
+                copyLocalFileFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(copyLocalFileFailController, animated: true, completion: nil)
+            }
+            
+            // Provide here a destination Url
+            self.dismissGrantingAccessToURL(destinationURL)
+        } else {
+            // There was a problem deleting the local file,
+            // so let the user know they should rename the file
+            let deletePreviousFileFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please rename the file and try again", preferredStyle: UIAlertControllerStyle.Alert)
+            deletePreviousFileFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(deletePreviousFileFailController, animated: true, completion: nil)
+        }
     }
     
     // MARK: - Table View
