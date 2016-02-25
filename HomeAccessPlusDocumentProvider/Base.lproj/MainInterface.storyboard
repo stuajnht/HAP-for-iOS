@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="Y1N-cK-JXt">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Document Picker View Controller-->
+        <scene sceneID="3Wn-DG-NeO">
+            <objects>
+                <viewController storyboardIdentifier="browser" id="Y1N-cK-JXt" customClass="DocumentPickerViewController" customModule="HomeAccessPlusDocumentProvider" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="sK6-qn-oz1"/>
+                        <viewControllerLayoutGuide type="bottom" id="6jx-uf-x9E"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="3qn-Kd-Q1o">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="980"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="49" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="pnl-Ty-7Pz">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="980"/>
+                                <animations/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FileTableViewCell" rowHeight="49" id="pxD-wB-LNz" customClass="DocumentProviderFileTableViewCell" customModule="HomeAccessPlusDocumentProvider" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="768" height="49"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pxD-wB-LNz" id="xN9-gO-5Zg">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="48"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9Vu-uR-eYD">
+                                                    <rect key="frame" x="8" y="8" width="32" height="32"/>
+                                                    <animations/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="32" id="myO-7s-w9J"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="afW-yZ-0Gv">
+                                                    <rect key="frame" x="48" y="13" width="712" height="21"/>
+                                                    <animations/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <animations/>
+                                            <constraints>
+                                                <constraint firstItem="9Vu-uR-eYD" firstAttribute="leading" secondItem="xN9-gO-5Zg" secondAttribute="leadingMargin" id="7Fw-G3-pAI"/>
+                                                <constraint firstItem="9Vu-uR-eYD" firstAttribute="bottom" secondItem="xN9-gO-5Zg" secondAttribute="bottomMargin" id="9Fi-Wu-mFB"/>
+                                                <constraint firstItem="9Vu-uR-eYD" firstAttribute="centerY" secondItem="afW-yZ-0Gv" secondAttribute="centerY" id="EM4-es-3If"/>
+                                                <constraint firstItem="afW-yZ-0Gv" firstAttribute="leading" secondItem="9Vu-uR-eYD" secondAttribute="trailing" constant="8" symbolic="YES" id="XXm-p5-bM4"/>
+                                                <constraint firstItem="9Vu-uR-eYD" firstAttribute="top" secondItem="xN9-gO-5Zg" secondAttribute="topMargin" id="c6h-3T-hlr"/>
+                                                <constraint firstItem="afW-yZ-0Gv" firstAttribute="trailing" secondItem="xN9-gO-5Zg" secondAttribute="trailingMargin" id="jVl-as-KMw"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <animations/>
+                                        <connections>
+                                            <outlet property="imgFileIcon" destination="9Vu-uR-eYD" id="0lj-RD-eb4"/>
+                                            <outlet property="lblFileName" destination="afW-yZ-0Gv" id="EVh-rw-djL"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="pnl-Ty-7Pz" secondAttribute="trailing" id="0zz-cV-4U8"/>
+                            <constraint firstItem="pnl-Ty-7Pz" firstAttribute="top" secondItem="3qn-Kd-Q1o" secondAttribute="topMargin" id="KcW-SC-RGD"/>
+                            <constraint firstItem="6jx-uf-x9E" firstAttribute="top" secondItem="pnl-Ty-7Pz" secondAttribute="bottom" id="hJR-zP-cFT"/>
+                            <constraint firstItem="pnl-Ty-7Pz" firstAttribute="leading" secondItem="3qn-Kd-Q1o" secondAttribute="leading" id="rJt-eO-Yfj"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <toolbarItems>
+                        <barButtonItem systemItem="flexibleSpace" id="tvt-Nc-C6n"/>
+                        <barButtonItem systemItem="save" id="sIX-PB-aKo">
+                            <connections>
+                                <action selector="exportMoveFile:" destination="Y1N-cK-JXt" id="CIa-tP-oXz"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem systemItem="flexibleSpace" id="6bW-sp-HmW"/>
+                    </toolbarItems>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
+                    <connections>
+                        <outlet property="btnExportMoveFile" destination="sIX-PB-aKo" id="7Xf-Y4-7gY"/>
+                        <outlet property="tblFileBrowser" destination="pnl-Ty-7Pz" id="MoP-ni-R4j"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="flx-jA-94D" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="701" y="-4"/>
+        </scene>
+    </scenes>
+</document>

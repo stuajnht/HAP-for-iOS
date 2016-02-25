@@ -8,8 +8,20 @@
 
 /* Begin PBXBuildFile section */
 		35C2786884C1B3BC821AEB83 /* Pods_HomeAccessPlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */; };
+		FC2AEBF11C653C4A009BB69C /* DocumentPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */; };
+		FC2AEBF41C653C4A009BB69C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FC2AEBF21C653C4A009BB69C /* MainInterface.storyboard */; };
+		FC2AEBFF1C653C4A009BB69C /* FileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */; };
+		FC2AEC031C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FC2AEC061C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC364A751C0BACB30085DC7E /* LoginViewController.swift */; };
 		FC3C6E2C1C3DC46A00B48383 /* UploadPopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */; };
+		FC71D8631C6D2B74000DA5F4 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
+		FC71D8641C6D2B78000DA5F4 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FC71D8651C6D2B83000DA5F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
+		FC71D8671C6D2BA0000DA5F4 /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */; };
+		FC71D8691C6D2BA5000DA5F4 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */; };
+		FC71D86B1C6D2BAC000DA5F4 /* Locksmith.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */; };
+		FC71D86D1C6D2BB2000DA5F4 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */; };
 		FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */; };
 		FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */; };
 		FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
@@ -19,11 +31,35 @@
 		FCB1D9F31C09F54C00DEC02E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */; };
 		FCB1D9F61C09F54C00DEC02E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */; };
 		FCB1DA011C09F54C00DEC02E /* HomeAccessPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */; };
+		FCC5C8B91C67CFD900D42D0C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
+		FCC5C8BA1C67CFEC00D42D0C /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
+		FCC5C8BB1C67CFF000D42D0C /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FCC5C8BD1C67D00200D42D0C /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */; };
+		FCC5C8BF1C67D00600D42D0C /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */; };
+		FCC5C8C11C67D00E00D42D0C /* MBProgressHUD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */; };
+		FCC5C8C31C67D01300D42D0C /* Locksmith.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C21C67D01300D42D0C /* Locksmith.framework */; };
+		FCC5C8C51C67D01900D42D0C /* Font_Awesome_Swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */; };
+		FCC5C8C71C67D01E00D42D0C /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */; };
 		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
 		FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FCF639451C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		FC2AEC011C653C4A009BB69C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC2AEBF91C653C4A009BB69C;
+			remoteInfo = HomeAccessPlusDocumentProviderFileProvider;
+		};
+		FC2AEC041C653C4A009BB69C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC2AEBEB1C653C4A009BB69C;
+			remoteInfo = HomeAccessPlusDocumentProvider;
+		};
 		FC78D30E1C5D7E5E00254B07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FCB1D9DE1C09F54B00DEC02E /* Project object */;
@@ -40,12 +76,40 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		FC2AEC0D1C653C4A009BB69C /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				FC2AEC061C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex in Embed App Extensions */,
+				FC2AEC031C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		127D1DAD81B4B64260F357E8 /* Pods-HomeAccessPlus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HomeAccessPlus.release.xcconfig"; path = "Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus.release.xcconfig"; sourceTree = "<group>"; };
 		1D0DF93B88C5F660330ECD54 /* Pods-HomeAccessPlus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HomeAccessPlus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus.debug.xcconfig"; sourceTree = "<group>"; };
 		385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HomeAccessPlus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HomeAccessPlusDocumentProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC2AEBEF1C653C4A009BB69C /* DocumentProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = DocumentProvider.entitlements; sourceTree = "<group>"; };
+		FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerViewController.swift; sourceTree = "<group>"; };
+		FC2AEBF31C653C4A009BB69C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		FC2AEBF51C653C4A009BB69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HomeAccessPlusDocumentProviderFileProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC2AEBFD1C653C4A009BB69C /* DocumentProviderFileProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = DocumentProviderFileProvider.entitlements; sourceTree = "<group>"; };
+		FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProvider.swift; sourceTree = "<group>"; };
+		FC2AEC001C653C4A009BB69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC364A751C0BACB30085DC7E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadPopoverTableViewController.swift; sourceTree = "<group>"; };
+		FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCGLogger.framework; path = "Pods/../build/Debug-iphoneos/XCGLogger.framework"; sourceTree = "<group>"; };
+		FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "Pods/../build/Debug-iphoneos/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Locksmith.framework; path = "Pods/../build/Debug-iphoneos/Locksmith.framework"; sourceTree = "<group>"; };
+		FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire.framework"; sourceTree = "<group>"; };
 		FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusUITests.swift; sourceTree = "<group>"; };
 		FC78D30D1C5D7E5E00254B07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -62,11 +126,42 @@
 		FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DA001C09F54C00DEC02E /* HomeAccessPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusTests.swift; sourceTree = "<group>"; };
 		FCB1DA021C09F54C00DEC02E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCGLogger.framework; path = "Pods/../build/Debug-iphoneos/XCGLogger.framework"; sourceTree = "<group>"; };
+		FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "Pods/../build/Debug-iphoneos/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MBProgressHUD.framework; path = "Pods/../build/Debug-iphoneos/MBProgressHUD.framework"; sourceTree = "<group>"; };
+		FCC5C8C21C67D01300D42D0C /* Locksmith.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Locksmith.framework; path = "Pods/../build/Debug-iphoneos/Locksmith.framework"; sourceTree = "<group>"; };
+		FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Font_Awesome_Swift.framework; path = "Pods/../build/Debug-iphoneos/Font_Awesome_Swift.framework"; sourceTree = "<group>"; };
+		FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire.framework"; sourceTree = "<group>"; };
 		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
 		FCF451A21C12FF500067DFF9 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
+		FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentProviderFileTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FC2AEBE91C653C4A009BB69C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCC5C8C71C67D01E00D42D0C /* Alamofire.framework in Frameworks */,
+				FCC5C8C51C67D01900D42D0C /* Font_Awesome_Swift.framework in Frameworks */,
+				FCC5C8C31C67D01300D42D0C /* Locksmith.framework in Frameworks */,
+				FCC5C8C11C67D00E00D42D0C /* MBProgressHUD.framework in Frameworks */,
+				FCC5C8BF1C67D00600D42D0C /* SwiftyJSON.framework in Frameworks */,
+				FCC5C8BD1C67D00200D42D0C /* XCGLogger.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC2AEBF71C653C4A009BB69C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC71D86D1C6D2BB2000DA5F4 /* Alamofire.framework in Frameworks */,
+				FC71D86B1C6D2BAC000DA5F4 /* Locksmith.framework in Frameworks */,
+				FC71D8691C6D2BA5000DA5F4 /* SwiftyJSON.framework in Frameworks */,
+				FC71D8671C6D2BA0000DA5F4 /* XCGLogger.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC78D3061C5D7E5E00254B07 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -104,9 +199,57 @@
 		F764C4F5629690132DD516AB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */,
+				FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */,
+				FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */,
+				FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */,
+				FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */,
+				FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */,
+				FCC5C8C21C67D01300D42D0C /* Locksmith.framework */,
+				FCC5C8C01C67D00E00D42D0C /* MBProgressHUD.framework */,
+				FCC5C8BE1C67D00600D42D0C /* SwiftyJSON.framework */,
+				FCC5C8BC1C67D00200D42D0C /* XCGLogger.framework */,
 				385B09CE6BDC1D2766640214 /* Pods_HomeAccessPlus.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FC2AEBED1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */ = {
+			isa = PBXGroup;
+			children = (
+				FC2AEBF01C653C4A009BB69C /* DocumentPickerViewController.swift */,
+				FC2AEBF21C653C4A009BB69C /* MainInterface.storyboard */,
+				FC2AEBF51C653C4A009BB69C /* Info.plist */,
+				FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */,
+				FC2AEBEE1C653C4A009BB69C /* Supporting Files */,
+			);
+			path = HomeAccessPlusDocumentProvider;
+			sourceTree = "<group>";
+		};
+		FC2AEBEE1C653C4A009BB69C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FC2AEBEF1C653C4A009BB69C /* DocumentProvider.entitlements */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FC2AEBFB1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */ = {
+			isa = PBXGroup;
+			children = (
+				FC2AEBFE1C653C4A009BB69C /* FileProvider.swift */,
+				FC2AEC001C653C4A009BB69C /* Info.plist */,
+				FC2AEBFC1C653C4A009BB69C /* Supporting Files */,
+			);
+			path = HomeAccessPlusDocumentProviderFileProvider;
+			sourceTree = "<group>";
+		};
+		FC2AEBFC1C653C4A009BB69C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FC2AEBFD1C653C4A009BB69C /* DocumentProviderFileProvider.entitlements */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		FC78D30A1C5D7E5E00254B07 /* HomeAccessPlusUITests */ = {
@@ -124,6 +267,8 @@
 				FCB1D9E81C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FF1C09F54C00DEC02E /* HomeAccessPlusTests */,
 				FC78D30A1C5D7E5E00254B07 /* HomeAccessPlusUITests */,
+				FC2AEBED1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */,
+				FC2AEBFB1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */,
 				FCB1D9E71C09F54C00DEC02E /* Products */,
 				F05941D6A9177313791730CE /* Pods */,
 				F764C4F5629690132DD516AB /* Frameworks */,
@@ -136,6 +281,8 @@
 				FCB1D9E61C09F54C00DEC02E /* HomeAccessPlus.app */,
 				FCB1D9FC1C09F54C00DEC02E /* HomeAccessPlusTests.xctest */,
 				FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */,
+				FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */,
+				FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -172,6 +319,42 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProvider" */;
+			buildPhases = (
+				FC2AEC0E1C6547B8009BB69C /* ShellScript */,
+				FC2AEBE81C653C4A009BB69C /* Sources */,
+				FC2AEBE91C653C4A009BB69C /* Frameworks */,
+				FC2AEBEA1C653C4A009BB69C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HomeAccessPlusDocumentProvider;
+			productName = HomeAccessPlusDocumentProvider;
+			productReference = FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProviderFileProvider" */;
+			buildPhases = (
+				FC2AEC0F1C65486D009BB69C /* ShellScript */,
+				FC2AEBF61C653C4A009BB69C /* Sources */,
+				FC2AEBF71C653C4A009BB69C /* Frameworks */,
+				FC2AEBF81C653C4A009BB69C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HomeAccessPlusDocumentProviderFileProvider;
+			productName = HomeAccessPlusDocumentProviderFileProvider;
+			productReference = FC2AEBFA1C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FC78D3121C5D7E5E00254B07 /* Build configuration list for PBXNativeTarget "HomeAccessPlusUITests" */;
@@ -201,10 +384,13 @@
 				FCB1D9E41C09F54C00DEC02E /* Resources */,
 				6A0A53FE09C4A5F91A638412 /* Embed Pods Frameworks */,
 				A9BB9D95F403DE13D76BAE9B /* Copy Pods Resources */,
+				FC2AEC0D1C653C4A009BB69C /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FC2AEC021C653C4A009BB69C /* PBXTargetDependency */,
+				FC2AEC051C653C4A009BB69C /* PBXTargetDependency */,
 			);
 			name = HomeAccessPlus;
 			productName = HomeAccessPlus;
@@ -239,6 +425,14 @@
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Jonathan Hart";
 				TargetAttributes = {
+					FC2AEBEB1C653C4A009BB69C = {
+						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = 4ES87YFE58;
+					};
+					FC2AEBF91C653C4A009BB69C = {
+						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = 4ES87YFE58;
+					};
 					FC78D3081C5D7E5E00254B07 = {
 						CreatedOnToolsVersion = 7.1.1;
 						TestTargetID = FCB1D9E51C09F54C00DEC02E;
@@ -247,6 +441,9 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.iCloud = {
 								enabled = 1;
 							};
@@ -274,11 +471,28 @@
 				FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */,
 				FCB1D9FB1C09F54C00DEC02E /* HomeAccessPlusTests */,
 				FC78D3081C5D7E5E00254B07 /* HomeAccessPlusUITests */,
+				FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */,
+				FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FC2AEBEA1C653C4A009BB69C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC2AEBF41C653C4A009BB69C /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC2AEBF81C653C4A009BB69C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC78D3071C5D7E5E00254B07 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -351,6 +565,32 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
+		FC2AEC0E1C6547B8009BB69C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n\n# From: http://invisiblepixels.org/InvisibleWords/2015/02/06/automatically-incrementing-version-and-build-numbers/\n# The location of the plist file is provided by Xcode in the environment variable PRODUCT_SETTINGS_PATH\n# It is wrapped in quotes in case the path has a space in its name.\n\n# The output of any echo statements can be found in the Xcode build logs.\n\n# You need to include the whole path to the PlistBuddy executable because it's not in $PATH by default.\nOLD_NUMBER=`/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$PRODUCT_SETTINGS_PATH\"`\n\n# If the build number key doesn't exist in the plist, we'll add it by setting its initial value to 1.\nif [ $? -ne 0 ]\nthen\nSTARTING_NUMBER=1\necho \"No build number present. Starting from ${STARTING_NUMBER}.\"\n`/usr/libexec/PlistBuddy -c \"Add CFBundleVersion string $STARTING_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`\nexit 0\nfi\n\n# Only reach this point if the build key exists in the plist file.\n# Do the increment. This can be as complicated as you want.\n# Might need a scripting language with better maths capabilities though if you want something truly tricky.\nNEW_NUMBER=$((OLD_NUMBER+=1))\necho \"NEW_NUMBER $NEW_NUMBER\"\n\n# Write it back to the plist\n`/usr/libexec/PlistBuddy -c \"Set CFBundleVersion $NEW_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`";
+		};
+		FC2AEC0F1C65486D009BB69C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n\n# From: http://invisiblepixels.org/InvisibleWords/2015/02/06/automatically-incrementing-version-and-build-numbers/\n# The location of the plist file is provided by Xcode in the environment variable PRODUCT_SETTINGS_PATH\n# It is wrapped in quotes in case the path has a space in its name.\n\n# The output of any echo statements can be found in the Xcode build logs.\n\n# You need to include the whole path to the PlistBuddy executable because it's not in $PATH by default.\nOLD_NUMBER=`/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$PRODUCT_SETTINGS_PATH\"`\n\n# If the build number key doesn't exist in the plist, we'll add it by setting its initial value to 1.\nif [ $? -ne 0 ]\nthen\nSTARTING_NUMBER=1\necho \"No build number present. Starting from ${STARTING_NUMBER}.\"\n`/usr/libexec/PlistBuddy -c \"Add CFBundleVersion string $STARTING_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`\nexit 0\nfi\n\n# Only reach this point if the build key exists in the plist file.\n# Do the increment. This can be as complicated as you want.\n# Might need a scripting language with better maths capabilities though if you want something truly tricky.\nNEW_NUMBER=$((OLD_NUMBER+=1))\necho \"NEW_NUMBER $NEW_NUMBER\"\n\n# Write it back to the plist\n`/usr/libexec/PlistBuddy -c \"Set CFBundleVersion $NEW_NUMBER\" \"$PRODUCT_SETTINGS_PATH\"`";
+		};
 		FCB1DA0B1C09F5DD00DEC02E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -367,6 +607,29 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FC2AEBE81C653C4A009BB69C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCC5C8B91C67CFD900D42D0C /* AppDelegate.swift in Sources */,
+				FCF639451C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift in Sources */,
+				FCC5C8BB1C67CFF000D42D0C /* Reach.swift in Sources */,
+				FC2AEBF11C653C4A009BB69C /* DocumentPickerViewController.swift in Sources */,
+				FCC5C8BA1C67CFEC00D42D0C /* HAPi.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC2AEBF61C653C4A009BB69C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC71D8651C6D2B83000DA5F4 /* AppDelegate.swift in Sources */,
+				FC2AEBFF1C653C4A009BB69C /* FileProvider.swift in Sources */,
+				FC71D8641C6D2B78000DA5F4 /* Reach.swift in Sources */,
+				FC71D8631C6D2B74000DA5F4 /* HAPi.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC78D3051C5D7E5E00254B07 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -401,6 +664,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FC2AEC021C653C4A009BB69C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC2AEBF91C653C4A009BB69C /* HomeAccessPlusDocumentProviderFileProvider */;
+			targetProxy = FC2AEC011C653C4A009BB69C /* PBXContainerItemProxy */;
+		};
+		FC2AEC051C653C4A009BB69C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC2AEBEB1C653C4A009BB69C /* HomeAccessPlusDocumentProvider */;
+			targetProxy = FC2AEC041C653C4A009BB69C /* PBXContainerItemProxy */;
+		};
 		FC78D30F1C5D7E5E00254B07 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FCB1D9E51C09F54C00DEC02E /* HomeAccessPlus */;
@@ -414,6 +687,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		FC2AEBF21C653C4A009BB69C /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FC2AEBF31C653C4A009BB69C /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		FCB1D9EF1C09F54C00DEC02E /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -433,6 +714,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		FC2AEC071C653C4A009BB69C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		FC2AEC081C653C4A009BB69C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProvider/DocumentProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = HomeAccessPlusDocumentProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProvider;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		FC2AEC091C653C4A009BB69C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		FC2AEC0A1C653C4A009BB69C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		FC78D3101C5D7E5E00254B07 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -548,6 +905,7 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlus/HomeAccessPlus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = HomeAccessPlus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -565,6 +923,7 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlus/HomeAccessPlus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = HomeAccessPlus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -601,6 +960,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FC2AEC0B1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProviderFileProvider" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC2AEC091C653C4A009BB69C /* Debug */,
+				FC2AEC0A1C653C4A009BB69C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FC2AEC0C1C653C4A009BB69C /* Build configuration list for PBXNativeTarget "HomeAccessPlusDocumentProvider" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC2AEC071C653C4A009BB69C /* Debug */,
+				FC2AEC081C653C4A009BB69C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FC78D3121C5D7E5E00254B07 /* Build configuration list for PBXNativeTarget "HomeAccessPlusUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

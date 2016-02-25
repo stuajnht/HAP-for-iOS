@@ -7,6 +7,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [When browsing files, the app downloads and previews a "_login.aspx_" file](#when-browsing-files-the-app-downloads-and-previews-a-login.aspx-file)
 * [Files from &lt;_app name_&gt; are showing their extension and "File" as the document type](#files-from-app-name-are-showing-their-extension-and-file-as-the-document-type)
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
+* [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
 You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
@@ -65,3 +66,8 @@ By default, your institutions Home Access Plus+ server is set to only accept a l
       7. Press OK to close the "Group Builder" dialog. (With the cursor still in the textbox, press the home key on your keyboard to go to the beginning of the text and remove any leading commas and spaces, which sometimes appear even if you've removed the blank row)
   3. Press the "Add" or "Save" button on the "Filter Editor" dialog
 5. Press the big "Save" button at the bottom of the page. The relevant files can now be uploaded from the Home Access Plus+ app and "My Files" web interface
+
+## When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown
+Once you have enabled the document picker in &lt;_app name_&gt;, by choosing 'More' from the Locations menu and turning it on, an alert may be shown with a title of "*Failed to launch 'Home Access Plus+'*" and a message body of "_The document picker 'Home Access Plus+' failed to launch (0)._". Upon pressing the _Dismiss_ button the document picker closes.
+
+To fix this, you will need to restart your iOS device. While it's not common to say a device should be restarted once an app is installed ([Apple App Store Review Guidelines, Metadata - 3.11](https://developer.apple.com/app-store/review/guidelines/#metadata)), the replies given on this [feedback for "_Textastic_" app question](http://feedback.textasticapp.com/topic/999376-error-document-picker-both-google-drive-and-working-copy/) suggest to do this and it resolves the problem.

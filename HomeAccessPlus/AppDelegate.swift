@@ -32,7 +32,10 @@ let hapMainColour = "#005DAB"
 // throughout the app, and also the variables to these settings, to
 // prevent accidental typos with incorrect names
 // See: http://www.codingexplorer.com/nsuserdefaults-a-swift-introduction/
-let settings = NSUserDefaults.standardUserDefaults()
+// Also using the suiteName group for the NSUserDefaults, so that the
+// settings can be accessed from the document provider
+// See: http://stackoverflow.com/a/31927904
+let settings = NSUserDefaults(suiteName: "group.uk.co.stuajnht.ios.HomeAccessPlus")
 let settingsHAPServer = "hapServer"
 let settingsSiteName = "siteName"
 let settingsFirstName = "firstName"
@@ -61,12 +64,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Clearing any settings that are set when UI Testing
         // is taking place, to start the app in a 'clean' state
         // See: http://stackoverflow.com/a/33774166
-        // See: http://stackoverflow.com/a/29413957
+        // See: http://onefootball.github.io/resetting-application-data-after-each-test-with-xcode7-ui-testing/
         let args = NSProcessInfo.processInfo().arguments
         if args.contains("UI_TESTING_RESET_SETTINGS") {
             logger.info("App has been launched in UI testing mode. Clearing all settings")
-            let appDomain = NSBundle.mainBundle().bundleIdentifier!
-            settings.removePersistentDomainForName(appDomain)
+            for key in settings!.dictionaryRepresentation().keys {
+                settings!.removeObjectForKey(key)
+            }
         }
         
         return true
@@ -103,7 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Saving the location of the file on the device so that it
         // can be accessed later to upload to the HAP+ server
-        settings.setURL(url, forKey: settingsUploadFileLocation)
+        settings!.setURL(url, forKey: settingsUploadFileLocation)
         
         return true
     }

@@ -75,7 +75,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tbxPassword.returnKeyType = .Go
         
         // Filling in any settings that are saved
-        if let hapServer = settings.stringForKey(settingsHAPServer)
+        if let hapServer = settings!.stringForKey(settingsHAPServer)
         {
             logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
             tblHAPServer.text = hapServer
@@ -87,7 +87,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             // to log in it will say the URL is incorrect
             formatHAPURL(self)
         }
-        if let siteName = settings.stringForKey(settingsSiteName)
+        if let siteName = settings!.stringForKey(settingsSiteName)
         {
             logger.debug("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
@@ -243,7 +243,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Saving the HAP+ server API address to use later
-                settings.setObject(hapServer, forKey: settingsHAPServer)
+                settings!.setObject(hapServer, forKey: settingsHAPServer)
                 
                 // Continue with the login attempt by validating the credentials
                 self.hudUpdateLabel("Checking login details")
@@ -281,7 +281,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // Find out what the device should be set up as: Personal, Shared
                 // or Single so that it can be used later. This is shown run if it
                 // hasn't been set before (i.e. the very first setup of this device)
-                if let deviceType = settings.stringForKey(settingsDeviceType) {
+                if let deviceType = settings!.stringForKey(settingsDeviceType) {
                     // Device is set up, so nothing to do here
                     logger.info("This device is set up in \(deviceType) mode")
                 } else {
@@ -330,7 +330,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - param deviceType: The type of device this is going to be
     func setDeviceType(deviceType: String) {
         logger.info("This device is being set up in \(deviceType) mode")
-        settings.setObject(deviceType, forKey: settingsDeviceType)
+        settings!.setObject(deviceType, forKey: settingsDeviceType)
         // Performing the segue to the master detail view
         self.successfulLogin = true
         self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)

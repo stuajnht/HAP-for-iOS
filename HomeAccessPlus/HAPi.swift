@@ -175,17 +175,17 @@ class HAPi {
                             // the NSUserDefaults settings variable
                             let siteName = JSON["SiteName"]
                             logger.debug("Site name from JSON: \(siteName)")
-                            settings.setObject(siteName, forKey: settingsSiteName)
-                            settings.setObject(JSON["FirstName"], forKey: settingsFirstName)
-                            settings.setObject(JSON["Username"], forKey: settingsUsername)
-                            settings.setObject(JSON["Token1"], forKey: settingsToken1)
-                            settings.setObject(JSON["Token2"], forKey: settingsToken2)
-                            settings.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
+                            settings!.setObject(siteName, forKey: settingsSiteName)
+                            settings!.setObject(JSON["FirstName"], forKey: settingsFirstName)
+                            settings!.setObject(JSON["Username"], forKey: settingsUsername)
+                            settings!.setObject(JSON["Token1"], forKey: settingsToken1)
+                            settings!.setObject(JSON["Token2"], forKey: settingsToken2)
+                            settings!.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
                             
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
                             do {
-                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings.stringForKey(settingsUsername)!)
+                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings!.stringForKey(settingsUsername)!)
                                 logger.debug("Securely saved user password")
                             } catch {
                                 logger.error("Failed to securely save password")
@@ -194,10 +194,10 @@ class HAPi {
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
-                                    logger.info("Successfully set the roles for \(settings.stringForKey(settingsUsername)!)")
-                                    logger.debug("Roles for \(settings.stringForKey(settingsUsername)!): \(settings.stringForKey(settingsUserRoles)!)")
+                                    logger.info("Successfully set the roles for \(settings!.stringForKey(settingsUsername)!)")
+                                    logger.debug("Roles for \(settings!.stringForKey(settingsUsername)!): \(settings!.stringForKey(settingsUserRoles)!)")
                                 } else {
-                                    logger.warning("Failed to set the roles for \(settings.stringForKey(settingsUsername)!)")
+                                    logger.warning("Failed to set the roles for \(settings!.stringForKey(settingsUsername)!)")
                                 }
                             })
                             
@@ -251,16 +251,16 @@ class HAPi {
     /// - date: 2015-12-12
     /// - seealso: loginUser
     func setRoles(callback:(Bool) -> Void) -> Void {
-        Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings.stringForKey(settingsUsername)!)
+        Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings!.stringForKey(settingsUsername)!)
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set
             case.Success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
-                settings.setObject(response.result.value, forKey: settingsUserRoles)
+                settings!.setObject(response.result.value, forKey: settingsUserRoles)
                 callback(true)
                 
                 // We were not able to contact the HAP+ server, so we cannot
@@ -269,7 +269,7 @@ class HAPi {
                 logger.verbose("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
-                settings.setObject("[\"\"]", forKey: settingsUserRoles)
+                settings!.setObject("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
         }
@@ -298,12 +298,12 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to get the drive listing
             logger.debug("Attempting to get drives available")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
@@ -343,7 +343,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Replacing the escaped slashes with a forward slash
@@ -356,7 +356,7 @@ class HAPi {
             
             // Connecting to the API to get the folder listing
             logger.debug("Attempting to get folder listing")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
@@ -403,7 +403,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Replacing the '../' navigation browsing up that the HAP+
@@ -427,7 +427,7 @@ class HAPi {
             )
             
             // Downloading the file
-            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
+            Alamofire.download(.GET, settings!.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
                     logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
@@ -518,7 +518,7 @@ class HAPi {
             // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
             let httpHeaders = [
                 "X_FILENAME": fileName,
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Formatting the path that we are going to be using to upload
@@ -530,7 +530,7 @@ class HAPi {
             logger.debug("Upload location formatted path: \(uploadLocation)")
             
             // Uploading the file
-            Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
+            Alamofire.upload(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
                 .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
                     logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
                     logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
@@ -591,7 +591,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Connecting to the API to delete the file item
@@ -601,7 +601,7 @@ class HAPi {
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
             logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
+            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
                     (convertible, params) in
                     let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
                     mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
@@ -725,12 +725,12 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to create the new folder
             logger.debug("Attempting to create the new folder")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success:
@@ -796,12 +796,12 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to log in the user with the credentials
             logger.debug("Attempting to check if the file item already exists")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
