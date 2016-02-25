@@ -122,7 +122,7 @@
                                                     <rect key="frame" x="48" y="13" width="712" height="21"/>
                                                     <animations/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -166,6 +166,7 @@
                     </toolbarItems>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
                     <connections>
+                        <outlet property="btnExportMoveFile" destination="sIX-PB-aKo" id="7Xf-Y4-7gY"/>
                         <outlet property="tblFileBrowser" destination="pnl-Ty-7Pz" id="MoP-ni-R4j"/>
                     </connections>
                 </viewController>

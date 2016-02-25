@@ -38,6 +38,11 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // See: http://stackoverflow.com/a/33724276
     @IBOutlet weak var tblFileBrowser: UITableView!
     
+    // A reference to the "save" button when the extension
+    // is in export or move modes, to enable it to tbe
+    // disabled when just the drives are being shown
+    @IBOutlet weak var btnExportMoveFile: UIBarButtonItem!
+    
     // Loading an instance of the HAPi class, so that the
     // functions in it can be used in the document provider
     let api = HAPi()
@@ -205,8 +210,8 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 1
-    /// - date: 2015-12-19
+    /// - version: 2
+    /// - date: 2016-02-25
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
         // HUD will replace the loading spinner
@@ -220,6 +225,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
         if (currentPath == "") {
+            // Preventing the "save" button being available
+            // if only the drives are being shown
+            btnExportMoveFile.enabled = false
             logger.debug("Loading the drives available to the user")
             hudShow("Loading drives")
             navigationItem.title = "My Drives"
@@ -287,6 +295,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 }
             })
         } else {
+            // Enabling the "save" button as the user is browsing
+            // the folder, so they should be able to upload
+            btnExportMoveFile.enabled = true
             logger.debug("Loading the contents of the folder: \(currentPath)")
             hudShow("Loading folder")
             // Show the files and folders in the path the
