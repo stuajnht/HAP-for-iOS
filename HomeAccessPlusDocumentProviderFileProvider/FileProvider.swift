@@ -20,8 +20,14 @@
 //
 
 import UIKit
+import SwiftyJSON
+import XCGLogger
 
 class FileProvider: NSFileProviderExtension {
+    
+    // Loading an instance of the HAPi class, so that the
+    // functions in it can be used in the document provider
+    let api = HAPi()
 
     var fileCoordinator: NSFileCoordinator {
         let fileCoordinator = NSFileCoordinator()
@@ -61,18 +67,47 @@ class FileProvider: NSFileProviderExtension {
     }
 
     override func startProvidingItemAtURL(url: NSURL, completionHandler: ((error: NSError?) -> Void)?) {
-        // Should ensure that the actual file is in the position returned by URLForItemWithIdentifier, then call the completion handler
-
-        // TODO: get the contents of file at <url> from model
-        let fileData = NSData()
-
-        do {
-            _ = try fileData.writeToURL(url, options: NSDataWritingOptions())
-        } catch {
-            // Handle error
+        let fileManager = NSFileManager()
+        let path = url.path!
+        if fileManager.fileExistsAtPath(path) { //1
+            //if the file is already, just return
+            completionHandler?(error: nil)
+            return
         }
-
-        completionHandler?(error: nil);
+        
+        
+        api.downloadFile(url.lastPathComponent!, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
+                
+                // There was a problem with downloading the file, so let the
+                // user know about it
+                if ((result == false) && (downloading == false)) {
+                    logger.error("There was a problem downloading the file")
+                    completionHandler?(error: nil)
+                }
+                
+                // The file has downloaded successfuly so we can present the
+                // file to the user
+                if ((result == true) && (downloading == false)) {
+                    var error: NSError? = nil
+                    let fileData = NSData(contentsOfURL: downloadLocation)
+                    self.fileCoordinator.coordinateWritingItemAtURL(url,
+                    options: .ForReplacing,
+                    error: &error,
+                    byAccessor: { newURL in //4
+                    
+                        do {
+                            try fileData!.writeToURL(newURL, options: .AtomicWrite)
+                            logger.debug("File written to \"\(newURL)\"")
+                        }
+                        catch let errorWrite as NSError {
+                            logger.error("Copy failed with error: \(errorWrite.localizedDescription)")
+                            completionHandler?(error: errorWrite)
+                        }
+                    
+                    
+                    })
+                }
+        })
     }
 
 
@@ -95,6 +130,10 @@ class FileProvider: NSFileProviderExtension {
         self.providePlaceholderAtURL(url, completionHandler: { error in
             // TODO: handle any error, do any necessary cleanup
         })
+    }
+    
+    override func documentStorageURL() -> NSURL {
+        return NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
     }
 
 }

@@ -15,6 +15,13 @@
 		FC2AEC061C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FC2AEBEC1C653C4A009BB69C /* HomeAccessPlusDocumentProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC364A751C0BACB30085DC7E /* LoginViewController.swift */; };
 		FC3C6E2C1C3DC46A00B48383 /* UploadPopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */; };
+		FC71D8631C6D2B74000DA5F4 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
+		FC71D8641C6D2B78000DA5F4 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
+		FC71D8651C6D2B83000DA5F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
+		FC71D8671C6D2BA0000DA5F4 /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */; };
+		FC71D8691C6D2BA5000DA5F4 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */; };
+		FC71D86B1C6D2BAC000DA5F4 /* Locksmith.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */; };
+		FC71D86D1C6D2BB2000DA5F4 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */; };
 		FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */; };
 		FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */; };
 		FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
@@ -99,6 +106,10 @@
 		FC2AEC001C653C4A009BB69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC364A751C0BACB30085DC7E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadPopoverTableViewController.swift; sourceTree = "<group>"; };
+		FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCGLogger.framework; path = "Pods/../build/Debug-iphoneos/XCGLogger.framework"; sourceTree = "<group>"; };
+		FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "Pods/../build/Debug-iphoneos/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Locksmith.framework; path = "Pods/../build/Debug-iphoneos/Locksmith.framework"; sourceTree = "<group>"; };
+		FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire.framework"; sourceTree = "<group>"; };
 		FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusUITests.swift; sourceTree = "<group>"; };
 		FC78D30D1C5D7E5E00254B07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -144,6 +155,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC71D86D1C6D2BB2000DA5F4 /* Alamofire.framework in Frameworks */,
+				FC71D86B1C6D2BAC000DA5F4 /* Locksmith.framework in Frameworks */,
+				FC71D8691C6D2BA5000DA5F4 /* SwiftyJSON.framework in Frameworks */,
+				FC71D8671C6D2BA0000DA5F4 /* XCGLogger.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +199,10 @@
 		F764C4F5629690132DD516AB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */,
+				FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */,
+				FC71D8681C6D2BA5000DA5F4 /* SwiftyJSON.framework */,
+				FC71D8661C6D2BA0000DA5F4 /* XCGLogger.framework */,
 				FCC5C8C61C67D01E00D42D0C /* Alamofire.framework */,
 				FCC5C8C41C67D01900D42D0C /* Font_Awesome_Swift.framework */,
 				FCC5C8C21C67D01300D42D0C /* Locksmith.framework */,
@@ -604,7 +623,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC71D8651C6D2B83000DA5F4 /* AppDelegate.swift in Sources */,
 				FC2AEBFF1C653C4A009BB69C /* FileProvider.swift in Sources */,
+				FC71D8641C6D2B78000DA5F4 /* Reach.swift in Sources */,
+				FC71D8631C6D2B74000DA5F4 /* HAPi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,6 +758,10 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
@@ -751,6 +777,10 @@
 				CODE_SIGN_ENTITLEMENTS = HomeAccessPlusDocumentProviderFileProvider/DocumentProviderFileProvider.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				INFOPLIST_FILE = HomeAccessPlusDocumentProviderFileProvider/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus.DocumentProviderFileProvider;
