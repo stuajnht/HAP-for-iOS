@@ -535,6 +535,30 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Log Out" footerTitle="Log out from this device so another user can access their files" id="2Wo-ay-x3K">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="wK8-IT-DI2" style="IBUITableViewCellStyleDefault" id="eqP-sq-gKW">
+                                        <rect key="frame" x="0.0" y="404" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eqP-sq-gKW" id="3IT-bB-duF">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Log Out" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="wK8-IT-DI2">
+                                                    <rect key="frame" x="15" y="0.0" width="570" height="43"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <animations/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <animations/>
+                                        </tableViewCellContentView>
+                                        <animations/>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="n4T-68-Xq7" id="Hvd-U1-DYv"/>
@@ -543,6 +567,7 @@
                     </tableView>
                     <connections>
                         <outlet property="celUploadFile" destination="oVx-8S-U0U" id="VcE-76-plH"/>
+                        <outlet property="lblLogOut" destination="wK8-IT-DI2" id="35a-FV-JiY"/>
                         <outlet property="lblUploadFile" destination="8N2-V2-RSt" id="fKV-ud-ZP4"/>
                     </connections>
                 </tableViewController>

@@ -54,6 +54,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
 
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
+    @IBOutlet weak var lblLogOut: UILabel!
     
     // Creating an instance of an image picker controller
     // See: http://www.codingexplorer.com/choosing-images-with-uiimagepickercontroller-in-swift/
@@ -83,7 +84,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"], ["LogOut", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +108,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
         }
+        
+        // Changing the colour of the log out button to be a red
+        // colour, to alert the user it's a 'dangerous' action. It's
+        // done in code so that we can use the ChameleonFramework
+        // colours, and not the built in Xcode ones
+        lblLogOut.textColor = UIColor.flatRedColor()
         
         // Creating a delegate for the image picker
         imagePicker.delegate = self
@@ -177,11 +184,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
+    ///         |---------|-----|----------------------|
+    ///         |    2    |  0  | Log Out              |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 8
-    /// - date: 2016-02-02
+    /// - version: 9
+    /// - date: 2016-02-26
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -321,6 +330,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             newFolderAlert?.addAction(action)
             self.presentViewController(newFolderAlert!, animated: true, completion: nil)
+        }
+        
+        // The user wants to log out of the app
+        if ((section == 2) && (row == 0)) {
+            logger.debug("Cell function: Log out user")
         }
     }
     
