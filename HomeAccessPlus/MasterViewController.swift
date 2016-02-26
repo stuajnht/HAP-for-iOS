@@ -1308,7 +1308,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         
         // Removing all of the navigation views and showing
         // the login view controller
-        self.navigationController?.popToRootViewControllerAnimated(true)
+        // See: http://sketchytech.blogspot.co.uk/2012/09/return-to-root-view-controller-from.html
+        self.view.window?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
