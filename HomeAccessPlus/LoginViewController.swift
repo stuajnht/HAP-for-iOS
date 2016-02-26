@@ -259,8 +259,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-07
+    /// - version: 2
+    /// - date: 2016-02-26
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
         // the network
@@ -294,6 +294,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                         self.setDeviceType("single") }))
                     self.presentViewController(loginUserDeviceType, animated: true, completion: nil)
                 }
+                
+                // Clearing the username and password from the textboxes,
+                // as when the user logs out the app will crash if it
+                // still contains data in the textboxes and the user
+                // just presses the 'login' button
+                self.tblUsername.text = ""
+                self.tbxPassword.text = ""
                 
                 // Performing the segue to the master detail view
                 self.successfulLogin = true
