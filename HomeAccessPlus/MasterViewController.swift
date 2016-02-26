@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import Locksmith
 import MBProgressHUD
 import SwiftyJSON
 
@@ -1269,6 +1270,45 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Formatted new file name: \(fileName)")
         
         return fileName
+    }
+    
+    // MARK: Log out user
+    
+    /// Logs the user out of the app and shows the root view
+    ///
+    /// When a user has finished with using the app to browse
+    /// their files, and wants to pass the device onto another
+    /// person, then they should be logged out and their logon
+    /// tokens and other settings removed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-26
+    func logOutUser() {
+        logger.info("Logging out user")
+        
+        // Removing user password from the Keychain
+        // Note: This needs to be done before the username setting
+        //       is cleared
+        do {
+            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            logger.debug("Successfully deleted password")
+        } catch {
+            logger.error("Failed to delete the password")
+        }
+        
+        // Clearing any settings that were created on logon
+        settings!.removeObjectForKey(settingsFirstName)
+        settings!.removeObjectForKey(settingsUsername)
+        settings!.removeObjectForKey(settingsToken1)
+        settings!.removeObjectForKey(settingsToken2)
+        settings!.removeObjectForKey(settingsToken2Name)
+        settings!.removeObjectForKey(settingsUserRoles)
+        
+        // Removing all of the navigation views and showing
+        // the login view controller
+        self.navigationController?.popToRootViewControllerAnimated(true)
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {

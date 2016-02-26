@@ -24,7 +24,7 @@ import PermissionScope
 import UIKit
 
 /// Delegate callback to master view controller to upload the
-/// file passed to this app
+/// file passed to this app, or to log out the user
 ///
 /// Using delegate callbacks to allow the file to be uploaded
 /// based on the user pressing the 'upload file' cell
@@ -33,8 +33,8 @@ import UIKit
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 1
-/// - date: 2016-01-07
+/// - version: 2
+/// - date: 2016-02-26
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
@@ -48,6 +48,12 @@ protocol uploadFileDelegate {
     // if the user needs to confirm what to do with a file
     // that already exists in the current folder
     func showFileExistsMessage(fileFromPhotoLibrary: Bool)
+    
+    // This calls the logOutUser function to destroy any login
+    // tokens and stored settings, and pop all views back to the
+    // root view controller (login view)
+    // See: http://stackoverflow.com/a/16825683
+    func logOutUser()
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
@@ -335,6 +341,17 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user wants to log out of the app
         if ((section == 2) && (row == 0)) {
             logger.debug("Cell function: Log out user")
+            
+            // Dismissing the popover as it's done what is needed
+            // There shouldn't be any animation, as we want the popover
+            // to disappear straight away as the logout should be
+            // 'quick' for the user
+            // See: http://stackoverflow.com/a/16825683
+            self.dismissViewControllerAnimated(false, completion: nil)
+            
+            // Calling the log out function from the Master
+            // View Controller
+            self.delegate?.logOutUser()
         }
     }
     
