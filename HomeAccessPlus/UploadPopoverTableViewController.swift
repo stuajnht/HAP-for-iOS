@@ -58,8 +58,16 @@ protocol uploadFileDelegate {
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
 
+    @IBOutlet weak var lblUploadPhoto: UILabel!
+    @IBOutlet weak var celUploadPhoto: UITableViewCell!
+    @IBOutlet weak var lblUploadVideo: UILabel!
+    @IBOutlet weak var celUploadVideo: UITableViewCell!
+    @IBOutlet weak var lblUploadCloud: UILabel!
+    @IBOutlet weak var celUploadCloud: UITableViewCell!
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
+    @IBOutlet weak var lblNewFolder: UILabel!
+    @IBOutlet weak var celNewFolder: UITableViewCell!
     @IBOutlet weak var lblLogOut: UILabel!
     
     // Creating an instance of an image picker controller
@@ -73,6 +81,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // that we can ask the user for access to the photos
     // library
     let pscope = PermissionScope()
+    
+    // Holding a reference to see if the popover is being
+    // shown on the file browser "My Drives" view, so that
+    // it can be used to disable access to most table cells
+    var showingOnEmptyFilePath = false
     
     // Holding a reference to the currently selected table
     // row, so that if the user cancels the image picker,
@@ -113,6 +126,26 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celUploadFile.userInteractionEnabled = false
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
+        }
+        
+        // Disabling most of the table cells from the view controller,
+        // as the popover has been shown on the "My Drives" view,
+        // so most of the options should not be available as they
+        // wouldn't work
+        // Note: This happens after updating the file name that has
+        //       been passed to this app, otherwise it'll enable
+        //       one of the cells again, which isn't correct
+        if (showingOnEmptyFilePath) {
+            lblUploadPhoto.enabled = false
+            celUploadPhoto.userInteractionEnabled = false
+            lblUploadVideo.enabled = false
+            celUploadVideo.userInteractionEnabled = false
+            lblUploadCloud.enabled = false
+            celUploadCloud.userInteractionEnabled = false
+            lblUploadFile.enabled = false
+            celUploadFile.userInteractionEnabled = false
+            lblNewFolder.enabled = false
+            celNewFolder.userInteractionEnabled = false
         }
         
         // Changing the colour of the log out button to be a red

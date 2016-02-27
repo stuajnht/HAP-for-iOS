@@ -566,9 +566,17 @@
                         </connections>
                     </tableView>
                     <connections>
+                        <outlet property="celNewFolder" destination="eAN-hM-ixx" id="4be-Nx-E2a"/>
+                        <outlet property="celUploadCloud" destination="pwu-FJ-v6w" id="NGj-GS-KU0"/>
                         <outlet property="celUploadFile" destination="oVx-8S-U0U" id="VcE-76-plH"/>
+                        <outlet property="celUploadPhoto" destination="bWd-eK-dI7" id="hSS-wz-gfa"/>
+                        <outlet property="celUploadVideo" destination="ehV-PU-nso" id="DWu-3H-dCl"/>
                         <outlet property="lblLogOut" destination="wK8-IT-DI2" id="35a-FV-JiY"/>
+                        <outlet property="lblNewFolder" destination="KuY-DK-ogm" id="lyy-M6-hfW"/>
+                        <outlet property="lblUploadCloud" destination="ap5-E6-9Fq" id="y0B-uD-HWe"/>
                         <outlet property="lblUploadFile" destination="8N2-V2-RSt" id="fKV-ud-ZP4"/>
+                        <outlet property="lblUploadPhoto" destination="Jo3-Ao-CdV" id="byn-2B-jOT"/>
+                        <outlet property="lblUploadVideo" destination="3pB-NQ-XNQ" id="6Cq-V6-dls"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4qV-7V-say" userLabel="First Responder" sceneMemberID="firstResponder"/>

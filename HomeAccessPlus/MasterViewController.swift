@@ -94,14 +94,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // this app from an external one to be uploaded, or for photo
         // and video files to be added from the device gallery, or for
         // any other functions included in the popover (new folder, log out)
-        // Note: This isn't shown if there is no path, i.e. we are looking
-        // at the drives listing
-        if (currentPath != "") {
-            logger.debug("Showing the upload popover 'menu' button")
-            let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
-            let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: "showUploadPopover:")
-            self.navigationItem.rightBarButtonItem = menuButton
-        }
+        let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
+        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: "showUploadPopover:")
+        self.navigationItem.rightBarButtonItem = menuButton
         
         // Setting up the ability to refresh the table view when the
         // user is at the top and pulls down, or if there was a problem
@@ -945,6 +940,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
         vc.delegate = self
+        if (currentPath == "") {
+            vc.showingOnEmptyFilePath = true
+        }
         vc.modalPresentationStyle = UIModalPresentationStyle.Popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
