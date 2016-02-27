@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import Font_Awesome_Swift
 import Locksmith
 import MBProgressHUD
 import SwiftyJSON
@@ -88,15 +89,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
         
-        // Adding an 'add' button to the navigation bar to allow files
-        // passed to this app from an external one to be uploaded, or
-        // for photo and video files to be added from the device gallery
+        // Adding a 'menu' button to the navigation bar to show the
+        // upload popover view controller, to allow files passed to
+        // this app from an external one to be uploaded, or for photo
+        // and video files to be added from the device gallery, or for
+        // any other functions included in the popover (new folder, log out)
         // Note: This isn't shown if there is no path, i.e. we are looking
         // at the drives listing
         if (currentPath != "") {
-            logger.debug("Showing the upload 'add' button")
-            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
-            self.navigationItem.rightBarButtonItem = addButton
+            logger.debug("Showing the upload popover 'menu' button")
+            let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
+            let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: "showUploadPopover:")
+            self.navigationItem.rightBarButtonItem = menuButton
         }
         
         // Setting up the ability to refresh the table view when the
