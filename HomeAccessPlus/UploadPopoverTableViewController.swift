@@ -228,8 +228,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 9
-    /// - date: 2016-02-26
+    /// - version: 10
+    /// - date: 2016-02-29
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -375,16 +375,117 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 2) && (row == 0)) {
             logger.debug("Cell function: Log out user")
             
-            // Dismissing the popover as it's done what is needed
-            // There shouldn't be any animation, as we want the popover
-            // to disappear straight away as the logout should be
-            // 'quick' for the user
-            // See: http://stackoverflow.com/a/16825683
-            self.dismissViewControllerAnimated(false, completion: nil)
-            
-            // Calling the log out function from the Master
-            // View Controller
-            self.delegate?.logOutUser()
+            // Seeing what "mode" the device is in, and what groups the
+            // currently logged in user is part of. "Personal" and
+            // "Shared" devices can be logged out at any time, but devices
+            // in "Single" mode need to have someone who is logged in
+            // who is in an Active Directory group of "Domain Admins",
+            // otherwise a log out alert will be shown to make sure
+            // that permission has been sought to log out the user.
+            // The reasoning behind this is if the device is in "Single"
+            // mode, then it's deliberatley been logged in to one
+            // specific account, so it shouldn't be logged out by
+            // anyone who picks up the device
+            logger.debug("Device is currently in \"\(settings!.stringForKey(settingsDeviceType)!)\" mode")
+            logger.debug("Groups current user (\"\(settings!.stringForKey(settingsUsername)!)\") is part of: \(settings!.stringForKey(settingsUserRoles)!)")
+            if (settings!.stringForKey(settingsDeviceType) == "single") {
+                // Seeing if the user is included in the "Domain Admins" group
+                if (settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) {
+                    // We need to check that the device is allowed to
+                    // be logged out by alerting the user and getting
+                    // a user with domain admin permissions to log in
+                    logger.debug("Confirming user has permission to log out of the device")
+                    
+                    // Displaying an alert view with textboxes for the
+                    // user to type in the username and password of a
+                    // user who is part of the "Domain Admins" group
+                    // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+                    var userLogOutAlert:UIAlertController?
+                    userLogOutAlert = UIAlertController(title: "Log Out User", message: "Please enter the username and password of a \"Domain Admin\" to log out of this device", preferredStyle: .Alert)
+                    
+                    userLogOutAlert!.addTextFieldWithConfigurationHandler(
+                        {(textField: UITextField!) in
+                            textField.placeholder = "Username"
+                            textField.keyboardType = .ASCIICapable
+                            textField.enablesReturnKeyAutomatically = true
+                            textField.keyboardAppearance = .Dark
+                            textField.returnKeyType = .Next
+                            textField.delegate = self
+                            textField.autocorrectionType = .No
+                    })
+                    userLogOutAlert!.addTextFieldWithConfigurationHandler(
+                        {(passwordTextField: UITextField!) in
+                            passwordTextField.placeholder = "Password"
+                            passwordTextField.keyboardType = .ASCIICapable
+                            passwordTextField.enablesReturnKeyAutomatically = true
+                            passwordTextField.keyboardAppearance = .Dark
+                            passwordTextField.returnKeyType = .Continue
+                            passwordTextField.delegate = self
+                            passwordTextField.secureTextEntry = true
+                            passwordTextField.autocorrectionType = .No
+                    })
+                    
+                    // Setting the log out button style to be cancel, so
+                    // that it is emboldened in the alert and looks like
+                    // the default button to press
+                    // Note: Continue is used instead of create, as it
+                    //       then keeps the same description as the
+                    //       keyboard return key
+                    let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
+                        if let textFields = userLogOutAlert?.textFields{
+                            let theTextFields = textFields as [UITextField]
+                            let usernameText = theTextFields[0].text
+                            let passwordText = theTextFields[1].text
+                            if ((usernameText! != "") && (passwordText! != "")) {
+                                // Attempting to check that the username and
+                                // password entered contain a valid user with
+                                // "Domain Admin" in their group
+                            } else {
+                                logger.debug("Missing username or password to confirm log out request")
+                                self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                            }
+                        }
+                    })
+                    
+                    userLogOutAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { Void in
+                        self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                    }))
+                    
+                    userLogOutAlert?.addAction(action)
+                    self.presentViewController(userLogOutAlert!, animated: true, completion: nil)
+                    
+                } else {
+                    // A "Domain Admin" user is logged in, so the
+                    // user can be logged out of the device
+                    logger.debug("Logging user out of device, as they are a member of \"Domain Admins\"")
+                    
+                    // Dismissing the popover as it's done what is needed
+                    // There shouldn't be any animation, as we want the popover
+                    // to disappear straight away as the logout should be
+                    // 'quick' for the user
+                    // See: http://stackoverflow.com/a/16825683
+                    self.dismissViewControllerAnimated(false, completion: nil)
+                    
+                    // Calling the log out function from the Master
+                    // View Controller
+                    self.delegate?.logOutUser()
+                }
+            } else {
+                // The device is set up in either "Personal" or "Shared"
+                // mode, so it can be logged out straight away
+                logger.debug("Logging user out of device, as it is in \"Personal\" or \"Shared\" mode")
+                
+                // Dismissing the popover as it's done what is needed
+                // There shouldn't be any animation, as we want the popover
+                // to disappear straight away as the logout should be
+                // 'quick' for the user
+                // See: http://stackoverflow.com/a/16825683
+                self.dismissViewControllerAnimated(false, completion: nil)
+                
+                // Calling the log out function from the Master
+                // View Controller
+                self.delegate?.logOutUser()
+            }
         }
     }
     
