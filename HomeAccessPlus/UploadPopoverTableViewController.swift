@@ -378,30 +378,46 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Seeing what "mode" the device is in, and what groups the
             // currently logged in user is part of. "Personal" and
             // "Shared" devices can be logged out at any time, but devices
-            // in "Single" mode need to have someone who is logged in
-            // who is in an Active Directory group of "Domain Admins",
+            // in "Single" mode need to have a username entered of someone
+            // who is in an Active Directory group of "Domain Admins" or "hap-ios-admins",
             // otherwise a log out alert will be shown to make sure
             // that permission has been sought to log out the user.
             // The reasoning behind this is if the device is in "Single"
             // mode, then it's deliberatley been logged in to one
             // specific account, so it shouldn't be logged out by
             // anyone who picks up the device
+            // - note: It is important that your normal log in account
+            //         is not included in the "hap-ios-admins" group,
+            //         otherwise users can just type it in and log out
+            //         of the app. It is recommended to create a new
+            //         Active Directory user whose account will only
+            //         be used to log out of this app, that doesn't have
+            //         an easilly guessable username but can be remembered,
+            //         e.g. hap-log-out-1029384756
+            //         It is fine for you to be part of the "Domain Admins"
+            //         group when logged in yourself to this app under "Single"
+            //         mode, as you can log out without any problems
             logger.debug("Device is currently in \"\(settings!.stringForKey(settingsDeviceType)!)\" mode")
             logger.debug("Groups current user (\"\(settings!.stringForKey(settingsUsername)!)\") is part of: \(settings!.stringForKey(settingsUserRoles)!)")
             if (settings!.stringForKey(settingsDeviceType) == "single") {
-                // Seeing if the user is included in the "Domain Admins" group
-                if (settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) {
+                // Seeing if the user is included in the "Domain Admins"
+                // or "hap-ios-admins" groups
+                // - note: This is the only time that a check for "Domain
+                //         Admins" should take place, as it's checking the
+                //         logged in user, and to prevent the usernames of
+                //         valid domain admins being typed into the alert
+                if ((settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) || (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil)) {
                     // We need to check that the device is allowed to
                     // be logged out by alerting the user and getting
                     // a user with domain admin permissions to log in
                     logger.debug("Confirming user has permission to log out of the device")
                     
                     // Displaying an alert view with textboxes for the
-                    // user to type in the username and password of a
-                    // user who is part of the "Domain Admins" group
+                    // user to type in the username of a user who is
+                    // part of the "hap-ios-admins" group
                     // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
                     var userLogOutAlert:UIAlertController?
-                    userLogOutAlert = UIAlertController(title: "Log Out User", message: "Please enter the username and password of a \"Domain Admin\" to log out of this device", preferredStyle: .Alert)
+                    userLogOutAlert = UIAlertController(title: "Log Out User", message: "Please enter an authenticated username to log out of this device", preferredStyle: .Alert)
                     
                     userLogOutAlert!.addTextFieldWithConfigurationHandler(
                         {(textField: UITextField!) in
@@ -409,20 +425,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                             textField.keyboardType = .ASCIICapable
                             textField.enablesReturnKeyAutomatically = true
                             textField.keyboardAppearance = .Dark
-                            textField.returnKeyType = .Next
+                            textField.returnKeyType = .Continue
                             textField.delegate = self
                             textField.autocorrectionType = .No
-                    })
-                    userLogOutAlert!.addTextFieldWithConfigurationHandler(
-                        {(passwordTextField: UITextField!) in
-                            passwordTextField.placeholder = "Password"
-                            passwordTextField.keyboardType = .ASCIICapable
-                            passwordTextField.enablesReturnKeyAutomatically = true
-                            passwordTextField.keyboardAppearance = .Dark
-                            passwordTextField.returnKeyType = .Continue
-                            passwordTextField.delegate = self
-                            passwordTextField.secureTextEntry = true
-                            passwordTextField.autocorrectionType = .No
                     })
                     
                     // Setting the log out button style to be cancel, so
@@ -435,13 +440,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         if let textFields = userLogOutAlert?.textFields{
                             let theTextFields = textFields as [UITextField]
                             let usernameText = theTextFields[0].text
-                            let passwordText = theTextFields[1].text
-                            if ((usernameText! != "") && (passwordText! != "")) {
-                                // Attempting to check that the username and
-                                // password entered contain a valid user with
-                                // "Domain Admin" in their group
+                            if (usernameText! != "") {
+                                // Attempting to check that the username
+                                // entered contains a valid user with
+                                // "hap-ios-admins" in their group memberships
                             } else {
-                                logger.debug("Missing username or password to confirm log out request")
+                                logger.debug("Missing username to confirm log out request")
                                 self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
                             }
                         }
@@ -455,9 +459,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     self.presentViewController(userLogOutAlert!, animated: true, completion: nil)
                     
                 } else {
-                    // A "Domain Admin" user is logged in, so the
-                    // user can be logged out of the device
-                    logger.debug("Logging user out of device, as they are a member of \"Domain Admins\"")
+                    // A "Domain Admin" or "hap-ios-admin" user
+                    // is logged in, so the user can be logged
+                    // out of the device without being questioned
+                    logger.debug("Logging user out of device, as they are a member of \"Domain Admins\" or \"hap-ios-admins\"")
                     
                     // Dismissing the popover as it's done what is needed
                     // There shouldn't be any animation, as we want the popover
