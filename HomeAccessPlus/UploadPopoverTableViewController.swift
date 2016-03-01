@@ -444,6 +444,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                                 // Attempting to check that the username
                                 // entered contains a valid user with
                                 // "hap-ios-admins" in their group memberships
+                                self.logOutUser(false, username: usernameText!)
                             } else {
                                 logger.debug("Missing username to confirm log out request")
                                 self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
@@ -464,32 +465,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     // out of the device without being questioned
                     logger.debug("Logging user out of device, as they are a member of \"Domain Admins\" or \"hap-ios-admins\"")
                     
-                    // Dismissing the popover as it's done what is needed
-                    // There shouldn't be any animation, as we want the popover
-                    // to disappear straight away as the logout should be
-                    // 'quick' for the user
-                    // See: http://stackoverflow.com/a/16825683
-                    self.dismissViewControllerAnimated(false, completion: nil)
-                    
-                    // Calling the log out function from the Master
-                    // View Controller
-                    self.delegate?.logOutUser()
+                    // Logging out the user from the device
+                    logOutUser(true, username: "")
                 }
             } else {
                 // The device is set up in either "Personal" or "Shared"
                 // mode, so it can be logged out straight away
                 logger.debug("Logging user out of device, as it is in \"Personal\" or \"Shared\" mode")
                 
-                // Dismissing the popover as it's done what is needed
-                // There shouldn't be any animation, as we want the popover
-                // to disappear straight away as the logout should be
-                // 'quick' for the user
-                // See: http://stackoverflow.com/a/16825683
-                self.dismissViewControllerAnimated(false, completion: nil)
-                
-                // Calling the log out function from the Master
-                // View Controller
-                self.delegate?.logOutUser()
+                // Logging out the user from the device
+                logOutUser(true, username: "")
             }
         }
     }
@@ -923,6 +908,47 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         // Dismissing the popover as it's done what is needed
         self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    /// Logs the user out of the app providing they have provided
+    /// valid user credentials
+    ///
+    /// If the device is in "Shared" or "Personal" mode, then this
+    /// function can be called from the table cell tap in the popover
+    /// view. If the device is in "Single" mode, then this function
+    /// is also called if the user is in the "Domain Admins" group,
+    /// otherwise an authenticated username needs to be entered
+    /// before the user can log themselves out of the device
+    ///
+    /// This function is either called with a "true" parameter if it
+    /// is able to log the user out (such as a "Personal" device or
+    /// the authenticated username is entered) or "false" if the
+    /// username needs to be checked to see if it is in the correct
+    /// groups. Upon successful checking, this function is called
+    /// recursively with the "true" option
+    ///
+    /// The second parameter is the username to check to see if it is
+    /// authenticated, otherwise an empty string can be passed if the
+    /// first parameter is "true"
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-03-01
+    ///
+    /// - parameter performLogOut: If the user can be logged out,
+    ///                            of if checks need to be completed first
+    func logOutUser(performLogOut: Bool, username: String) {
+        // Dismissing the popover as it's done what is needed
+        // There shouldn't be any animation, as we want the popover
+        // to disappear straight away as the logout should be
+        // 'quick' for the user
+        // See: http://stackoverflow.com/a/16825683
+        self.dismissViewControllerAnimated(false, completion: nil)
+        
+        // Calling the log out function from the Master
+        // View Controller
+        self.delegate?.logOutUser()
     }
     
     /// Gets the Documents directory for the current app
