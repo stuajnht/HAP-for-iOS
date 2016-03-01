@@ -982,7 +982,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         // The username passed was not for an authenticated
                         // user, so reset the settings values back and let the
                         // current user know
-                        logger.error("Unable to log out user as the username entered is not an authenticated user")
+                        logger.error("Unable to log out \"\(currentUsername!)\" as the username entered (\(username)) is not an authenticated user")
                         settings!.setObject(currentUsername, forKey: settingsUsername)
                         settings!.setObject(currentUserRoles, forKey: settingsUserRoles)
                         
