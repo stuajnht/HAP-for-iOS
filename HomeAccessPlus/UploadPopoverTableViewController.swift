@@ -939,16 +939,82 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// - parameter performLogOut: If the user can be logged out,
     ///                            of if checks need to be completed first
     func logOutUser(performLogOut: Bool, username: String) {
-        // Dismissing the popover as it's done what is needed
-        // There shouldn't be any animation, as we want the popover
-        // to disappear straight away as the logout should be
-        // 'quick' for the user
-        // See: http://stackoverflow.com/a/16825683
-        self.dismissViewControllerAnimated(false, completion: nil)
-        
-        // Calling the log out function from the Master
-        // View Controller
-        self.delegate?.logOutUser()
+        // Allowing the user to be logged out if the checks have
+        // come back successfully
+        if (performLogOut) {
+            logger.debug("Performing log out")
+            
+            // Dismissing the popover as it's done what is needed
+            // There shouldn't be any animation, as we want the popover
+            // to disappear straight away as the logout should be
+            // 'quick' for the user
+            // See: http://stackoverflow.com/a/16825683
+            self.dismissViewControllerAnimated(false, completion: nil)
+            
+            // Calling the log out function from the Master
+            // View Controller
+            self.delegate?.logOutUser()
+        } else {
+            logger.debug("Checking the username passed is for an authenticated user to log out of the device")
+            
+            // Saving the username and groups of the currently logged
+            // in user, as calling the api.setRoles function overwrites
+            // them
+            // - Todo: Rewrite the api.setRoles function to include
+            //         username parameters to be passed, along with a,
+            //         boolean to not save the values, to avoid this?
+            let currentUsername = settings!.stringForKey(settingsUsername)
+            let currentUserRoles = settings!.stringForKey(settingsUserRoles)
+            
+            // Setting the username to be stored in the settings, so
+            // the it can be accessed in the api.setRoles function
+            settings!.setObject(username, forKey: settingsUsername)
+            
+            // Calling the HAPi to collect the roles the provided user
+            // is part of
+            let api = HAPi()
+            api.setRoles({ (result: Bool) -> Void in
+                // Seeing if the attempt to collect the groups was successful
+                if (result == true) {
+                    // Checking to see if the user entered is in the "hap-ios-admins"
+                    // group
+                    if (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil) {
+                        // The username passed was not for an authenticated
+                        // user, so reset the settings values back and let the
+                        // current user know
+                        logger.error("Unable to log out user as the username entered is not an authenticated user")
+                        settings!.setObject(currentUsername, forKey: settingsUsername)
+                        settings!.setObject(currentUserRoles, forKey: settingsUserRoles)
+                        
+                        let invalidUserNameController = UIAlertController(title: "Unable to Log Out", message: "The username entered is not an authenticated user", preferredStyle: UIAlertControllerStyle.Alert)
+                        invalidUserNameController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                            self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true) }))
+                        self.presentViewController(invalidUserNameController, animated: true, completion: nil)
+                    } else {
+                        // A correct authenticated username was entered, so
+                        // proceed with logging the current user out
+                        logger.info("An authenticated username was entered")
+                        self.logOutUser(true, username: "")
+                    }
+                }
+                
+                // There was an unknown problem in collecing the user groups, so
+                // let the user know and reset the settings values back ane let the
+                // current user know
+                if (result == false) {
+                    logger.error("Unable to log out user as there was a problem checking the username")
+                    settings!.setObject(currentUsername, forKey: settingsUsername)
+                    settings!.setObject(currentUserRoles, forKey: settingsUserRoles)
+                    
+                    let userNameProblemController = UIAlertController(title: "Unable to Log Out", message: "There was a problem checking the username. Please try again", preferredStyle: UIAlertControllerStyle.Alert)
+                    userNameProblemController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                        self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true) }))
+                    userNameProblemController.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                        self.logOutUser(false, username: username) }))
+                    self.presentViewController(userNameProblemController, animated: true, completion: nil)
+                }
+            })
+        }
     }
     
     /// Gets the Documents directory for the current app
