@@ -406,7 +406,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 //         Admins" should take place, as it's checking the
                 //         logged in user, and to prevent the usernames of
                 //         valid domain admins being typed into the alert
-                if ((settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) || (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil)) {
+                if ((settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) && (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil)) {
                     // We need to check that the device is allowed to
                     // be logged out by alerting the user and getting
                     // a user with domain admin permissions to log in
