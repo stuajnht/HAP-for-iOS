@@ -87,6 +87,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // it can be used to disable access to most table cells
     var showingOnEmptyFilePath = false
     
+    // Used to hold a string of if the alert being shown to
+    // the user is to create a new folder or to prompt for a
+    // username of an authenticated user to log them out with
+    // This variable is set when a user selects a table cell,
+    // and is read when the "Continue" button is pressed on the
+    // keyboard
+    // - seealso: textFieldShouldReturn
+    // - seealso: tableView:didSelectRowAtIndexPath
+    var alertMode = ""
+    
     // Holding a reference to the currently selected table
     // row, so that if the user cancels the image picker,
     // it can be deselected
@@ -326,6 +336,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 1) && (row == 0)) {
             logger.debug("Cell function: Create new folder")
             
+            // Setting the "mode" of the alert so that the
+            // keyboard continue button calls the right
+            // function
+            alertMode = "newFolder"
+            
             // Displaying an alert view with a textbox for the
             // user to type in the name of the folder
             // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
@@ -374,6 +389,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user wants to log out of the app
         if ((section == 2) && (row == 0)) {
             logger.debug("Cell function: Log out user")
+            
+            // Setting the "mode" of the alert so that the
+            // keyboard continue button calls the right
+            // function
+            alertMode = "logOut"
             
             // Seeing what "mode" the device is in, and what groups the
             // currently logged in user is part of. "Personal" and
@@ -1032,24 +1052,37 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         return documentsDirectory
     }
     
-    /// Calling the "createFolder" function when the user
-    /// presses the return key on the keyboard
+    /// Calling the "createFolder" or "logOutUser" functions
+    /// when the user presses the return key on the keyboard
+    /// when an alert is being shown to them
     ///
     /// If the user presses the return key on the keyboard,
     /// by default it dismisses the alert for typing in the
-    /// name of the new folder. This function looks after
-    /// calling the "createFolder" function
+    /// name of the new folder or username to attempt a log
+    /// out with. This function looks after calling the
+    /// "createFolder" or "logOutUser" functions
     /// See: http://stackoverflow.com/a/26288341
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-29
+    /// - version: 3
+    /// - date: 2016-03-01
     ///
     /// - seealso: createFolder
+    /// - seealso: logOutUser
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        createFolder(textField.text!)
+        
+        // Seeing what "mode" the alert box is in, so that the
+        // keyboard performs the right function
+        switch alertMode {
+            case "newFolder":
+                createFolder(textField.text!)
+            case "logOut":
+                logOutUser(false, username: textField.text!)
+            default:
+                break
+        }
         
         // We need to dismiss the view controller here, as it
         // doesn't seem to remove the popover when the return
