@@ -24,7 +24,7 @@ import PermissionScope
 import UIKit
 
 /// Delegate callback to master view controller to upload the
-/// file passed to this app
+/// file passed to this app, or to log out the user
 ///
 /// Using delegate callbacks to allow the file to be uploaded
 /// based on the user pressing the 'upload file' cell
@@ -33,8 +33,8 @@ import UIKit
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 1
-/// - date: 2016-01-07
+/// - version: 2
+/// - date: 2016-02-26
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
@@ -48,12 +48,27 @@ protocol uploadFileDelegate {
     // if the user needs to confirm what to do with a file
     // that already exists in the current folder
     func showFileExistsMessage(fileFromPhotoLibrary: Bool)
+    
+    // This calls the logOutUser function to destroy any login
+    // tokens and stored settings, and pop all views back to the
+    // root view controller (login view)
+    // See: http://stackoverflow.com/a/16825683
+    func logOutUser()
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
 
+    @IBOutlet weak var lblUploadPhoto: UILabel!
+    @IBOutlet weak var celUploadPhoto: UITableViewCell!
+    @IBOutlet weak var lblUploadVideo: UILabel!
+    @IBOutlet weak var celUploadVideo: UITableViewCell!
+    @IBOutlet weak var lblUploadCloud: UILabel!
+    @IBOutlet weak var celUploadCloud: UITableViewCell!
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
+    @IBOutlet weak var lblNewFolder: UILabel!
+    @IBOutlet weak var celNewFolder: UITableViewCell!
+    @IBOutlet weak var lblLogOut: UILabel!
     
     // Creating an instance of an image picker controller
     // See: http://www.codingexplorer.com/choosing-images-with-uiimagepickercontroller-in-swift/
@@ -66,6 +81,21 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // that we can ask the user for access to the photos
     // library
     let pscope = PermissionScope()
+    
+    // Holding a reference to see if the popover is being
+    // shown on the file browser "My Drives" view, so that
+    // it can be used to disable access to most table cells
+    var showingOnEmptyFilePath = false
+    
+    // Used to hold a string of if the alert being shown to
+    // the user is to create a new folder or to prompt for a
+    // username of an authenticated user to log them out with
+    // This variable is set when a user selects a table cell,
+    // and is read when the "Continue" button is pressed on the
+    // keyboard
+    // - seealso: textFieldShouldReturn
+    // - seealso: tableView:didSelectRowAtIndexPath
+    var alertMode = ""
     
     // Holding a reference to the currently selected table
     // row, so that if the user cancels the image picker,
@@ -83,7 +113,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"], ["LogOut", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +137,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             lblUploadFile.enabled = false
             lblUploadFile.text = "Upload file"
         }
+        
+        // Disabling most of the table cells from the view controller,
+        // as the popover has been shown on the "My Drives" view,
+        // so most of the options should not be available as they
+        // wouldn't work
+        // Note: This happens after updating the file name that has
+        //       been passed to this app, otherwise it'll enable
+        //       one of the cells again, which isn't correct
+        if (showingOnEmptyFilePath) {
+            lblUploadPhoto.enabled = false
+            celUploadPhoto.userInteractionEnabled = false
+            lblUploadVideo.enabled = false
+            celUploadVideo.userInteractionEnabled = false
+            lblUploadCloud.enabled = false
+            celUploadCloud.userInteractionEnabled = false
+            lblUploadFile.enabled = false
+            celUploadFile.userInteractionEnabled = false
+            lblNewFolder.enabled = false
+            celNewFolder.userInteractionEnabled = false
+        }
+        
+        // Changing the colour of the log out button to be a red
+        // colour, to alert the user it's a 'dangerous' action. It's
+        // done in code so that we can use the ChameleonFramework
+        // colours, and not the built in Xcode ones
+        lblLogOut.textColor = UIColor.flatRedColor()
         
         // Creating a delegate for the image picker
         imagePicker.delegate = self
@@ -177,11 +233,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
+    ///         |---------|-----|----------------------|
+    ///         |    2    |  0  | Log Out              |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 8
-    /// - date: 2016-02-02
+    /// - version: 10
+    /// - date: 2016-02-29
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -278,6 +336,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 1) && (row == 0)) {
             logger.debug("Cell function: Create new folder")
             
+            // Setting the "mode" of the alert so that the
+            // keyboard continue button calls the right
+            // function
+            alertMode = "newFolder"
+            
             // Displaying an alert view with a textbox for the
             // user to type in the name of the folder
             // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
@@ -321,6 +384,118 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             newFolderAlert?.addAction(action)
             self.presentViewController(newFolderAlert!, animated: true, completion: nil)
+        }
+        
+        // The user wants to log out of the app
+        if ((section == 2) && (row == 0)) {
+            logger.debug("Cell function: Log out user")
+            
+            // Setting the "mode" of the alert so that the
+            // keyboard continue button calls the right
+            // function
+            alertMode = "logOut"
+            
+            // Seeing what "mode" the device is in, and what groups the
+            // currently logged in user is part of. "Personal" and
+            // "Shared" devices can be logged out at any time, but devices
+            // in "Single" mode need to have a username entered of someone
+            // who is in an Active Directory group of "Domain Admins" or "hap-ios-admins",
+            // otherwise a log out alert will be shown to make sure
+            // that permission has been sought to log out the user.
+            // The reasoning behind this is if the device is in "Single"
+            // mode, then it's deliberatley been logged in to one
+            // specific account, so it shouldn't be logged out by
+            // anyone who picks up the device
+            // - note: It is important that your normal log in account
+            //         is not included in the "hap-ios-admins" group,
+            //         otherwise users can just type it in and log out
+            //         of the app. It is recommended to create a new
+            //         Active Directory user whose account will only
+            //         be used to log out of this app, that doesn't have
+            //         an easilly guessable username but can be remembered,
+            //         e.g. hap-log-out-1029384756
+            //         It is fine for you to be part of the "Domain Admins"
+            //         group when logged in yourself to this app under "Single"
+            //         mode, as you can log out without any problems
+            logger.debug("Device is currently in \"\(settings!.stringForKey(settingsDeviceType)!)\" mode")
+            logger.debug("Groups current user (\"\(settings!.stringForKey(settingsUsername)!)\") is part of: \(settings!.stringForKey(settingsUserRoles)!)")
+            if (settings!.stringForKey(settingsDeviceType) == "single") {
+                // Seeing if the user is included in the "Domain Admins"
+                // or "hap-ios-admins" groups
+                // - note: This is the only time that a check for "Domain
+                //         Admins" should take place, as it's checking the
+                //         logged in user, and to prevent the usernames of
+                //         valid domain admins being typed into the alert
+                if ((settings!.stringForKey(settingsUserRoles)?.rangeOfString("Domain Admins") == nil) && (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil)) {
+                    // We need to check that the device is allowed to
+                    // be logged out by alerting the user and getting
+                    // a user with domain admin permissions to log in
+                    logger.debug("Confirming user has permission to log out of the device")
+                    
+                    // Displaying an alert view with textboxes for the
+                    // user to type in the username of a user who is
+                    // part of the "hap-ios-admins" group
+                    // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+                    var userLogOutAlert:UIAlertController?
+                    userLogOutAlert = UIAlertController(title: "Log Out User", message: "Please enter an authenticated username to log out of this device", preferredStyle: .Alert)
+                    
+                    userLogOutAlert!.addTextFieldWithConfigurationHandler(
+                        {(textField: UITextField!) in
+                            textField.placeholder = "Username"
+                            textField.keyboardType = .ASCIICapable
+                            textField.enablesReturnKeyAutomatically = true
+                            textField.keyboardAppearance = .Dark
+                            textField.returnKeyType = .Continue
+                            textField.delegate = self
+                            textField.autocorrectionType = .No
+                    })
+                    
+                    // Setting the log out button style to be cancel, so
+                    // that it is emboldened in the alert and looks like
+                    // the default button to press
+                    // Note: Continue is used instead of create, as it
+                    //       then keeps the same description as the
+                    //       keyboard return key
+                    let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.Cancel, handler: {(paramAction:UIAlertAction!) in
+                        if let textFields = userLogOutAlert?.textFields{
+                            let theTextFields = textFields as [UITextField]
+                            let usernameText = theTextFields[0].text
+                            if (usernameText! != "") {
+                                // Attempting to check that the username
+                                // entered contains a valid user with
+                                // "hap-ios-admins" in their group memberships
+                                self.logOutUser(false, username: usernameText!)
+                            } else {
+                                logger.debug("Missing username to confirm log out request")
+                                self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                            }
+                        }
+                    })
+                    
+                    userLogOutAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { Void in
+                        self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                    }))
+                    
+                    userLogOutAlert?.addAction(action)
+                    self.presentViewController(userLogOutAlert!, animated: true, completion: nil)
+                    
+                } else {
+                    // A "Domain Admin" or "hap-ios-admin" user
+                    // is logged in, so the user can be logged
+                    // out of the device without being questioned
+                    logger.debug("Logging user out of device, as they are a member of \"Domain Admins\" or \"hap-ios-admins\"")
+                    
+                    // Logging out the user from the device
+                    logOutUser(true, username: "")
+                }
+            } else {
+                // The device is set up in either "Personal" or "Shared"
+                // mode, so it can be logged out straight away
+                logger.debug("Logging user out of device, as it is in \"Personal\" or \"Shared\" mode")
+                
+                // Logging out the user from the device
+                logOutUser(true, username: "")
+            }
         }
     }
     
@@ -755,6 +930,113 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
+    /// Logs the user out of the app providing they have provided
+    /// valid user credentials
+    ///
+    /// If the device is in "Shared" or "Personal" mode, then this
+    /// function can be called from the table cell tap in the popover
+    /// view. If the device is in "Single" mode, then this function
+    /// is also called if the user is in the "Domain Admins" group,
+    /// otherwise an authenticated username needs to be entered
+    /// before the user can log themselves out of the device
+    ///
+    /// This function is either called with a "true" parameter if it
+    /// is able to log the user out (such as a "Personal" device or
+    /// the authenticated username is entered) or "false" if the
+    /// username needs to be checked to see if it is in the correct
+    /// groups. Upon successful checking, this function is called
+    /// recursively with the "true" option
+    ///
+    /// The second parameter is the username to check to see if it is
+    /// authenticated, otherwise an empty string can be passed if the
+    /// first parameter is "true"
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-03-01
+    ///
+    /// - parameter performLogOut: If the user can be logged out,
+    ///                            of if checks need to be completed first
+    func logOutUser(performLogOut: Bool, username: String) {
+        // Allowing the user to be logged out if the checks have
+        // come back successfully
+        if (performLogOut) {
+            logger.debug("Performing log out")
+            
+            // Dismissing the popover as it's done what is needed
+            // There shouldn't be any animation, as we want the popover
+            // to disappear straight away as the logout should be
+            // 'quick' for the user
+            // See: http://stackoverflow.com/a/16825683
+            self.dismissViewControllerAnimated(false, completion: nil)
+            
+            // Calling the log out function from the Master
+            // View Controller
+            self.delegate?.logOutUser()
+        } else {
+            logger.debug("Checking the username passed is for an authenticated user to log out of the device")
+            
+            // Saving the username and groups of the currently logged
+            // in user, as calling the api.setRoles function overwrites
+            // them
+            // - Todo: Rewrite the api.setRoles function to include
+            //         username parameters to be passed, along with a,
+            //         boolean to not save the values, to avoid this?
+            let currentUsername = settings!.stringForKey(settingsUsername)
+            let currentUserRoles = settings!.stringForKey(settingsUserRoles)
+            
+            // Setting the username to be stored in the settings, so
+            // the it can be accessed in the api.setRoles function
+            settings!.setObject(username, forKey: settingsUsername)
+            
+            // Calling the HAPi to collect the roles the provided user
+            // is part of
+            let api = HAPi()
+            api.setRoles({ (result: Bool) -> Void in
+                // Seeing if the attempt to collect the groups was successful
+                if (result == true) {
+                    // Checking to see if the user entered is in the "hap-ios-admins"
+                    // group
+                    if (settings!.stringForKey(settingsUserRoles)?.rangeOfString("hap-ios-admins") == nil) {
+                        // The username passed was not for an authenticated
+                        // user, so reset the settings values back and let the
+                        // current user know
+                        logger.error("Unable to log out \"\(currentUsername!)\" as the username entered (\(username)) is not an authenticated user")
+                        settings!.setObject(currentUsername, forKey: settingsUsername)
+                        settings!.setObject(currentUserRoles, forKey: settingsUserRoles)
+                        
+                        let invalidUserNameController = UIAlertController(title: "Unable to Log Out", message: "The username entered is not an authenticated user", preferredStyle: UIAlertControllerStyle.Alert)
+                        invalidUserNameController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                            self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true) }))
+                        self.presentViewController(invalidUserNameController, animated: true, completion: nil)
+                    } else {
+                        // A correct authenticated username was entered, so
+                        // proceed with logging the current user out
+                        logger.info("An authenticated username was entered")
+                        self.logOutUser(true, username: "")
+                    }
+                }
+                
+                // There was an unknown problem in collecing the user groups, so
+                // let the user know and reset the settings values back ane let the
+                // current user know
+                if (result == false) {
+                    logger.error("Unable to log out user as there was a problem checking the username")
+                    settings!.setObject(currentUsername, forKey: settingsUsername)
+                    settings!.setObject(currentUserRoles, forKey: settingsUserRoles)
+                    
+                    let userNameProblemController = UIAlertController(title: "Unable to Log Out", message: "There was a problem checking the username. Please try again", preferredStyle: UIAlertControllerStyle.Alert)
+                    userNameProblemController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                        self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true) }))
+                    userNameProblemController.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                        self.logOutUser(false, username: username) }))
+                    self.presentViewController(userNameProblemController, animated: true, completion: nil)
+                }
+            })
+        }
+    }
+    
     /// Gets the Documents directory for the current app
     ///
     /// See: https://www.hackingwithswift.com/read/10/4/importing-photos-with-uiimagepickercontroller
@@ -770,24 +1052,37 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         return documentsDirectory
     }
     
-    /// Calling the "createFolder" function when the user
-    /// presses the return key on the keyboard
+    /// Calling the "createFolder" or "logOutUser" functions
+    /// when the user presses the return key on the keyboard
+    /// when an alert is being shown to them
     ///
     /// If the user presses the return key on the keyboard,
     /// by default it dismisses the alert for typing in the
-    /// name of the new folder. This function looks after
-    /// calling the "createFolder" function
+    /// name of the new folder or username to attempt a log
+    /// out with. This function looks after calling the
+    /// "createFolder" or "logOutUser" functions
     /// See: http://stackoverflow.com/a/26288341
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-29
+    /// - version: 3
+    /// - date: 2016-03-01
     ///
     /// - seealso: createFolder
+    /// - seealso: logOutUser
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        createFolder(textField.text!)
+        
+        // Seeing what "mode" the alert box is in, so that the
+        // keyboard performs the right function
+        switch alertMode {
+            case "newFolder":
+                createFolder(textField.text!)
+            case "logOut":
+                logOutUser(false, username: textField.text!)
+            default:
+                break
+        }
         
         // We need to dismiss the view controller here, as it
         // doesn't seem to remove the popover when the return

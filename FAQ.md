@@ -8,6 +8,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [Files from &lt;_app name_&gt; are showing their extension and "File" as the document type](#files-from-app-name-are-showing-their-extension-and-file-as-the-document-type)
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
 * [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
+* [I am being asked to type an "_authenticated username_" to log out of the device](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
 You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
@@ -16,7 +17,7 @@ You need to be running HAP+ over https with version 1.2 of TLS, which is a requi
 The app is designed to be used in a number of setups, namely Personal, Shared or Single. Which option you should choose is the one that best matches how the device you're installing it on to is being used. If you're still not sure, a more thorough description of each option is given below:
 * *Personal* - This is the option that should be chosen if you have bought the device for your own use, such as your mobile phone. If you are a student, this is most likely the option that you'll choose
 * *Shared* - If the iOS device is part of a class set or shared between departments. The app will log the user out once the lesson ends, to prevent other students being able to access work that isn't theirs (requires the HAP+ timetable plugin). Note: This is currently not implemented yet
-* *Single* - The device that the app has been installed on is part of a 1:1 scheme, whereby the device is not shared between students and a single student will always log in to the same device
+* *Single* - The device that the app has been installed on is part of a 1:1 scheme, whereby the device is not shared between students and a single student will always log in to the same device, or you are using a set of iOS devices in a presentation / exam and don't want users to log out of them. See also: ["Single" mode logout steps](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
 
 ## When browsing files, the app downloads and previews a "_login.aspx_" file
 This is due to the logon tokens for the app expiring, so the HAP+ server attempts to show the login page that is used when browsing using an Internet browser. Currently, the app doesn't automatically re-login, so you'll need to close the app and open it again. This will be fixed in a future build.
@@ -71,3 +72,20 @@ By default, your institutions Home Access Plus+ server is set to only accept a l
 Once you have enabled the document picker in &lt;_app name_&gt;, by choosing 'More' from the Locations menu and turning it on, an alert may be shown with a title of "*Failed to launch 'Home Access Plus+'*" and a message body of "_The document picker 'Home Access Plus+' failed to launch (0)._". Upon pressing the _Dismiss_ button the document picker closes.
 
 To fix this, you will need to restart your iOS device. While it's not common to say a device should be restarted once an app is installed ([Apple App Store Review Guidelines, Metadata - 3.11](https://developer.apple.com/app-store/review/guidelines/#metadata)), the replies given on this [feedback for "_Textastic_" app question](http://feedback.textasticapp.com/topic/999376-error-document-picker-both-google-drive-and-working-copy/) suggest to do this and it resolves the problem.
+
+## I am being asked to type an "_authenticated username_" to log out of the device
+This occurs when the Home Access Plus+ app on your device has been set up in ["Single" mode](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single). To prevent unauthorised users logging out of the account that has been set up on the device, a special username needs to be entered. This is a unique username that has been set up at your institution. Please ask your IT department to log you out, or the reason why your device is set up this way.
+
+:information_source: *For IT Departments*: If a user has set up their personal device in the incorrect mode, or you need to log the currently logged in user out, please follow these steps:
+1. Create a group in Active Directory called `hap-ios-admins`
+2. Create a new user in an OU that the HAP+ server is set up to look in
+   * This account should have a hard-to-guess but memorable username, such as: `hap-app-log-out-1029384756`
+   * This account can be set as disabled, only the username and group membership are checked to see if they are correct
+3. Add the newly created user to the `hap-ios-admins` group created in step 1
+4. Type in the username created, in the message on the device, and press continue. The user will then be logged out
+
+> :warning: It is advised that you create a new user account for this. If you add your own user account to the `hap-ios-admins` group then it is likely a student will know your username and be able to log out of the device.
+
+> :information_source: These steps will need to be undertaken each time a user wants to log off if a device is in "Single" mode. If this is not intended, uninstall and reinstall the app to be able to choose a [different mode](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single) on first login again.
+
+> :information_source: Users on the domain who are in the `Domain Admins` group are automatically logged out when the device is in "Single" mode. It is assumed that this group contains IT staff only, so when the device is initially being set up, you can log in and put it in "Single" mode, then log out quickly ready to hand it to a user.

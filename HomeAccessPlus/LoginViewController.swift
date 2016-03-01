@@ -75,8 +75,28 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tbxPassword.returnKeyType = .Go
         
         // Filling in any settings that are saved
-        if let hapServer = settings!.stringForKey(settingsHAPServer)
+        if let siteName = settings!.stringForKey(settingsSiteName)
         {
+            logger.debug("The HAP+ server is for the site: \(siteName)")
+            lblMessage.text = siteName
+        }
+        
+        // Registering for moving the scroll view when the keyboard is shown
+        registerForKeyboardNotifications()
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Clearing the username and password from the textboxes,
+        // as when the user logs out the app will crash if it
+        // still contains data in the textboxes and the user
+        // just presses the 'login' button
+        self.tblUsername.text = ""
+        self.tbxPassword.text = ""
+        
+        // Hiding the HAP+ server textbox, as if this is the
+        // first setup / login on the device and the user
+        // logs out, then the field will be editable again
+        if let hapServer = settings!.stringForKey(settingsHAPServer) {
             logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
             tblHAPServer.text = hapServer
             tblHAPServer.hidden = true
@@ -87,14 +107,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             // to log in it will say the URL is incorrect
             formatHAPURL(self)
         }
-        if let siteName = settings!.stringForKey(settingsSiteName)
-        {
-            logger.debug("The HAP+ server is for the site: \(siteName)")
-            lblMessage.text = siteName
-        }
         
-        // Registering for moving the scroll view when the keyboard is shown
-        registerForKeyboardNotifications()
+        super.viewWillAppear(animated)
     }
 
     override func didReceiveMemoryWarning() {
@@ -259,8 +273,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-07
+    /// - version: 2
+    /// - date: 2016-02-26
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
         // the network

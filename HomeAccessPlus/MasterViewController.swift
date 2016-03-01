@@ -21,6 +21,8 @@
 
 import UIKit
 import ChameleonFramework
+import Font_Awesome_Swift
+import Locksmith
 import MBProgressHUD
 import SwiftyJSON
 
@@ -87,16 +89,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
         self.navigationController!.navigationBar.translucent = false
         
-        // Adding an 'add' button to the navigation bar to allow files
-        // passed to this app from an external one to be uploaded, or
-        // for photo and video files to be added from the device gallery
-        // Note: This isn't shown if there is no path, i.e. we are looking
-        // at the drives listing
-        if (currentPath != "") {
-            logger.debug("Showing the upload 'add' button")
-            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
-            self.navigationItem.rightBarButtonItem = addButton
-        }
+        // Adding a 'menu' button to the navigation bar to show the
+        // upload popover view controller, to allow files passed to
+        // this app from an external one to be uploaded, or for photo
+        // and video files to be added from the device gallery, or for
+        // any other functions included in the popover (new folder, log out)
+        let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
+        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: "showUploadPopover:")
+        self.navigationItem.rightBarButtonItem = menuButton
         
         // Setting up the ability to refresh the table view when the
         // user is at the top and pulls down, or if there was a problem
@@ -940,6 +940,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
         vc.delegate = self
+        if (currentPath == "") {
+            vc.showingOnEmptyFilePath = true
+        }
         vc.modalPresentationStyle = UIModalPresentationStyle.Popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
@@ -1269,6 +1272,46 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Formatted new file name: \(fileName)")
         
         return fileName
+    }
+    
+    // MARK: Log out user
+    
+    /// Logs the user out of the app and shows the root view
+    ///
+    /// When a user has finished with using the app to browse
+    /// their files, and wants to pass the device onto another
+    /// person, then they should be logged out and their logon
+    /// tokens and other settings removed
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 1
+    /// - date: 2016-02-26
+    func logOutUser() {
+        logger.info("Logging out user")
+        
+        // Removing user password from the Keychain
+        // Note: This needs to be done before the username setting
+        //       is cleared
+        do {
+            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            logger.debug("Successfully deleted password")
+        } catch {
+            logger.error("Failed to delete the password")
+        }
+        
+        // Clearing any settings that were created on logon
+        settings!.removeObjectForKey(settingsFirstName)
+        settings!.removeObjectForKey(settingsUsername)
+        settings!.removeObjectForKey(settingsToken1)
+        settings!.removeObjectForKey(settingsToken2)
+        settings!.removeObjectForKey(settingsToken2Name)
+        settings!.removeObjectForKey(settingsUserRoles)
+        
+        // Removing all of the navigation views and showing
+        // the login view controller
+        // See: http://sketchytech.blogspot.co.uk/2012/09/return-to-root-view-controller-from.html
+        self.view.window?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
