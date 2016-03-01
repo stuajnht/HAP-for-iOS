@@ -80,8 +80,12 @@ This occurs when the Home Access Plus+ app on your device has been set up in ["S
 1. Create a group in Active Directory called `hap-ios-admins`
 2. Create a new user in an OU that the HAP+ server is set up to look in
    * This account should have a hard-to-guess but memorable username, such as: `hap-app-log-out-1029384756`
-   * This account can be set as disabled, only the username is checked to see if it exists
+   * This account can be set as disabled, only the username and group membership are checked to see if they are correct
 3. Add the newly created user to the `hap-ios-admins` group created in step 1
 4. Type in the username created, in the message on the device, and press continue. The user will then be logged out
 
+> :warning: It is advised that you create a new user account for this. If you add your own user account to the `hap-ios-admins` group then it is likely a student will know your username and be able to log out of the device.
+
 > :information_source: These steps will need to be undertaken each time a user wants to log off if a device is in "Single" mode. If this is not intended, uninstall and reinstall the app to be able to choose a [different mode](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single) on first login again.
+
+> :information_source: Users on the domain who are in the `Domain Admins` group are automatically logged out when the device is in "Single" mode. It is assumed that this group contains IT staff only, so when the device is initially being set up, you can log in and put it in "Single" mode, then log out quickly ready to hand it to a user.
