@@ -1332,6 +1332,33 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     func dismiss() {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
+    
+    // MARK: App Restoration
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        // Saving the variables used in this class so that they
+        // can be restored at when the app is opened again
+        coder.encodeObject(detailViewController, forKey: "detailViewController")
+        coder.encodeObject(objects, forKey: "objects")
+        coder.encodeBool(collapseDetailViewController, forKey: "collapseDetailViewController")
+        coder.encodeBool(showFileExistsAlert, forKey: "showFileExistsAlert")
+        coder.encodeObject(currentPath, forKey: "currentPath")
+        coder.encodeObject(self.fileItems, forKey: "fileItems")
+        
+        super.encodeRestorableStateWithCoder(coder)
+    }
+    
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        // Restoring the variables used in this class
+        // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
+        detailViewController = coder.decodeObjectForKey("detailViewController") as? DetailViewController
+        objects = coder.decodeObjectForKey("objects") as! [AnyObject]
+        collapseDetailViewController = coder.decodeBoolForKey("collapseDetailViewController")
+        showFileExistsAlert = coder.decodeBoolForKey("showFileExistsAlert")
+        currentPath = coder.decodeObjectForKey("currentPath") as! String
+        self.fileItems = coder.decodeObjectForKey("fileItems") as! [AnyObject]
+        
+        super.decodeRestorableStateWithCoder(coder)
+    }
 
 
 }
