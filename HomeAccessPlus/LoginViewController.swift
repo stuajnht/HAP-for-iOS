@@ -116,6 +116,26 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    /// Performs the segue to the master view controller
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-03
+    ///
+    /// - seealso: shouldPerformSegueWithIdentifier
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Setting the viewLoadedFromBrowsing variable to
+        // be true, so that the loadFileBrowser() function
+        // will be called once the login has taken place
+        // This is to work around the repeated calling
+        // to the above named function on app restoration
+        if segue.identifier == "login.btnLoginSegue" {
+            let controller = (segue.destinationViewController as! UINavigationController).topViewController as! MasterViewController
+            controller.viewLoadedFromBrowsing = true
+        }
+    }
+    
     override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
         // Preventing the login button from progressing until the
         // login checks have been validated

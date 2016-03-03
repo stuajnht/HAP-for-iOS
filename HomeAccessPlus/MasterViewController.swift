@@ -54,6 +54,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // See: https://www.cocoanetics.com/2014/08/dismissal-completion-handler/
     var showFileExistsAlert : Bool = false
     
+    /// As the loadFileBrowser() function call is inside the
+    /// viewDidLoad() function, it gets called before the
+    /// app restoration classes are called. This then causes
+    /// the table to reload again, which increases the number
+    /// of items in it. To prevent this, the loadFileBrowser()
+    /// function is only called if this variable is true, and
+    /// it is only set to true when the user "browses" the
+    /// view controllers. As this variable is not saved in the
+    /// state restoration process, it will be false when the
+    /// app starts again, and the loadFileBrowser() function
+    /// will not be called
+    var viewLoadedFromBrowsing : Bool = false
+    
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
     /// shown
@@ -104,9 +117,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
         //self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
         
-        // Loading the contents in the folder that has been browsed
-        // to, or lising the drives if no folder has been navigated to
-        loadFileBrowser()
+        // Seeing if the loadFileBrowser() function should be called
+        // This should only be called when the user is actively
+        // "browsing" the folders, and not when app restoration is
+        // taking place
+        if (viewLoadedFromBrowsing) {
+            logger.debug("Loading file browser")
+            // Loading the contents in the folder that has been browsed
+            // to, or lising the drives if no folder has been navigated to
+            loadFileBrowser()
+        }
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -667,6 +687,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     controller.title = folderTitle
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
+                    controller.viewLoadedFromBrowsing = true
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
