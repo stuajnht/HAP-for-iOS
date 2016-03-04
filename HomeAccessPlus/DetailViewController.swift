@@ -541,6 +541,33 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                 return false
         }
     }
+    
+    // MARK: App Restoration
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        // Saving the variables used in this class so that they
+        // can be restored at when the app is opened again
+        coder.encodeObject(fileDownloadPath, forKey: "fileDownloadPath")
+        coder.encodeObject(fileName, forKey: "fileName")
+        coder.encodeObject(fileType, forKey: "fileType")
+        coder.encodeObject(fileDetails, forKey: "fileDetails")
+        coder.encodeObject(fileExtension, forKey: "fileExtension")
+        coder.encodeBool(fileDownloaded, forKey: "fileDownloaded")
+        
+        super.encodeRestorableStateWithCoder(coder)
+    }
+    
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        // Restoring the variables used in this class
+        // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
+        fileDownloadPath = coder.decodeObjectForKey("fileDownloadPath") as! String
+        fileName = coder.decodeObjectForKey("fileName") as! String
+        fileType = coder.decodeObjectForKey("fileType") as! String
+        fileDetails = coder.decodeObjectForKey("fileDetails") as! String
+        fileExtension = coder.decodeObjectForKey("fileExtension") as! String
+        fileDownloaded = coder.decodeBoolForKey("fileDownloaded")
+        
+        super.decodeRestorableStateWithCoder(coder)
+    }
 
 
 }
