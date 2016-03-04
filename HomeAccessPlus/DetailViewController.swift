@@ -572,17 +572,21 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     override func applicationFinishedRestoringState() {
-        // Hiding the description label on the view, so that
-        // it doesn't obscure the file details
-        detailDescriptionLabel.hidden = true
-        
-        // Calling the showFileDetails() function after app
-        // restoration, so that the details of the last
-        // selected file can be shown to the user
-        showFileDetails()
-        
-        // Loading and creating the QuickLook controller
-        self.quickLookController()
+        // Preventing the file details being shown if no file was
+        // selected before the user suspended the app
+        if (fileDownloadPath != "") {
+            // Hiding the description label on the view, so that
+            // it doesn't obscure the file details
+            detailDescriptionLabel.hidden = true
+            
+            // Calling the showFileDetails() function after app
+            // restoration, so that the details of the last
+            // selected file can be shown to the user
+            showFileDetails()
+            
+            // Loading and creating the QuickLook controller
+            self.quickLookController()
+        }
     }
 
 
