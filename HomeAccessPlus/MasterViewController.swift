@@ -98,9 +98,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         splitViewController?.delegate = self
         
         // Setting the navigation bar colour
-        self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
-        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
-        self.navigationController!.navigationBar.translucent = false
+        self.navigationController?.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        self.navigationController?.navigationBar.tintColor = UIColor.flatWhiteColor()
+        self.navigationController?.navigationBar.translucent = false
         
         // Adding a 'menu' button to the navigation bar to show the
         // upload popover view controller, to allow files passed to
