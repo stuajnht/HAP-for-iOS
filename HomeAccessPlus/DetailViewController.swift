@@ -552,7 +552,6 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         coder.encodeObject(fileDetails, forKey: "fileDetails")
         coder.encodeObject(fileExtension, forKey: "fileExtension")
         coder.encodeObject(fileDeviceLocation, forKey: "fileDeviceLocation")
-        coder.encodeBool(fileDownloaded, forKey: "fileDownloaded")
         
         super.encodeRestorableStateWithCoder(coder)
     }
@@ -566,7 +565,6 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         fileDetails = coder.decodeObjectForKey("fileDetails") as! String
         fileExtension = coder.decodeObjectForKey("fileExtension") as! String
         fileDeviceLocation = coder.decodeObjectForKey("fileDeviceLocation") as! String
-        fileDownloaded = coder.decodeBoolForKey("fileDownloaded")
         
         super.decodeRestorableStateWithCoder(coder)
     }
@@ -583,9 +581,6 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // restoration, so that the details of the last
             // selected file can be shown to the user
             showFileDetails()
-            
-            // Loading and creating the QuickLook controller
-            self.quickLookController()
         }
     }
 
