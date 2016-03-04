@@ -568,6 +568,13 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         
         super.decodeRestorableStateWithCoder(coder)
     }
+    
+    override func applicationFinishedRestoringState() {
+        // Calling the showFileDetails() function after app
+        // restoration, so that the details of the last
+        // selected file can be shown to the user
+        showFileDetails()
+    }
 
 
 }
