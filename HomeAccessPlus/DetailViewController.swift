@@ -189,7 +189,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // we need to ask the user if the file can be downloaded,
             // whereby the alert actions call the downloadFile function
             logger.verbose("Asking the user if the large file can be downloaded to show it")
-            downloadLargeFile()
+            if (downloadLargeFile()) {
+                // The file is allowed to be downloaded, so do so
+                downloadFile()
+            }
         }
     }
     
