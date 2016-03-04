@@ -131,8 +131,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // This is to work around the repeated calling
         // to the above named function on app restoration
         if segue.identifier == "login.btnLoginSegue" {
-            let controller = (segue.destinationViewController as! UINavigationController).topViewController as! MasterViewController
-            controller.viewLoadedFromBrowsing = true
+            let controller = (segue.destinationViewController as! UISplitViewController).viewControllers[0] as! UINavigationController
+            let masterController = controller.topViewController as! MasterViewController
+            masterController.viewLoadedFromBrowsing = true
         }
     }
     
