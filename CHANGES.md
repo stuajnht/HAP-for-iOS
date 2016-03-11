@@ -7,6 +7,9 @@
 * Files can be uploaded and downloaded in some external apps without needing to download from the Home Access Plus+ app first
 * Users can log out of the app if they want to pass it to another user - [#4](https://github.com/stuajnht/HAP-for-iOS/issues/4)
 
+### Changes
+* App restoration now takes place if the app is stopped in the background, so that when opened again the user remains in the same folder location they were before
+
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
 
