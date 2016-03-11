@@ -189,7 +189,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // we need to ask the user if the file can be downloaded,
             // whereby the alert actions call the downloadFile function
             logger.verbose("Asking the user if the large file can be downloaded to show it")
-            downloadLargeFile()
+            if (downloadLargeFile()) {
+                // The file is allowed to be downloaded, so do so
+                downloadFile()
+            }
         }
     }
     
@@ -539,6 +542,48 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                 // downloaded
                 logger.debug("File being downloaded is smaller than the maximum allowed")
                 return false
+        }
+    }
+    
+    // MARK: App Restoration
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        // Saving the variables used in this class so that they
+        // can be restored at when the app is opened again
+        coder.encodeObject(fileDownloadPath, forKey: "fileDownloadPath")
+        coder.encodeObject(fileName, forKey: "fileName")
+        coder.encodeObject(fileType, forKey: "fileType")
+        coder.encodeObject(fileDetails, forKey: "fileDetails")
+        coder.encodeObject(fileExtension, forKey: "fileExtension")
+        coder.encodeObject(fileDeviceLocation, forKey: "fileDeviceLocation")
+        
+        super.encodeRestorableStateWithCoder(coder)
+    }
+    
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        // Restoring the variables used in this class
+        // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
+        fileDownloadPath = coder.decodeObjectForKey("fileDownloadPath") as! String
+        fileName = coder.decodeObjectForKey("fileName") as! String
+        fileType = coder.decodeObjectForKey("fileType") as! String
+        fileDetails = coder.decodeObjectForKey("fileDetails") as! String
+        fileExtension = coder.decodeObjectForKey("fileExtension") as! String
+        fileDeviceLocation = coder.decodeObjectForKey("fileDeviceLocation") as! String
+        
+        super.decodeRestorableStateWithCoder(coder)
+    }
+    
+    override func applicationFinishedRestoringState() {
+        // Preventing the file details being shown if no file was
+        // selected before the user suspended the app
+        if (fileDownloadPath != "") {
+            // Hiding the description label on the view, so that
+            // it doesn't obscure the file details
+            detailDescriptionLabel.hidden = true
+            
+            // Calling the showFileDetails() function after app
+            // restoration, so that the details of the last
+            // selected file can be shown to the user
+            showFileDetails()
         }
     }
 

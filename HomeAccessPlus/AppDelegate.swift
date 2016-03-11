@@ -75,6 +75,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        // Preventing the file browser modal animating into view
+        // when app restoration has taken place
+        // See: http://stackoverflow.com/a/26591842
+        self.window?.makeKeyAndVisible()
+        
+        return true
+    }
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -109,6 +118,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // can be accessed later to upload to the HAP+ server
         settings!.setURL(url, forKey: settingsUploadFileLocation)
         
+        return true
+    }
+    
+    // MARK: App restoration
+    // See: http://www.raywenderlich.com/117471/state-restoration-tutorial
+    func application(application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
+        return true
+    }
+    
+    func application(application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
         return true
     }
 

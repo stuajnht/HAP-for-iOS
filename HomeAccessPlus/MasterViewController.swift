@@ -54,6 +54,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // See: https://www.cocoanetics.com/2014/08/dismissal-completion-handler/
     var showFileExistsAlert : Bool = false
     
+    /// As the loadFileBrowser() function call is inside the
+    /// viewDidLoad() function, it gets called before the
+    /// app restoration classes are called. This then causes
+    /// the table to reload again, which increases the number
+    /// of items in it. To prevent this, the loadFileBrowser()
+    /// function is only called if this variable is true, and
+    /// it is only set to true when the user "browses" the
+    /// view controllers. As this variable is not saved in the
+    /// state restoration process, it will be false when the
+    /// app starts again, and the loadFileBrowser() function
+    /// will not be called
+    var viewLoadedFromBrowsing : Bool = false
+    
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
     /// shown
@@ -85,9 +98,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         splitViewController?.delegate = self
         
         // Setting the navigation bar colour
-        self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
-        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
-        self.navigationController!.navigationBar.translucent = false
+        self.navigationController?.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        self.navigationController?.navigationBar.tintColor = UIColor.flatWhiteColor()
+        self.navigationController?.navigationBar.translucent = false
         
         // Adding a 'menu' button to the navigation bar to show the
         // upload popover view controller, to allow files passed to
@@ -104,9 +117,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
         //self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
         
-        // Loading the contents in the folder that has been browsed
-        // to, or lising the drives if no folder has been navigated to
-        loadFileBrowser()
+        // Seeing if the loadFileBrowser() function should be called
+        // This should only be called when the user is actively
+        // "browsing" the folders, and not when app restoration is
+        // taking place
+        if (viewLoadedFromBrowsing) {
+            logger.debug("Loading file browser")
+            // Loading the contents in the folder that has been browsed
+            // to, or lising the drives if no folder has been navigated to
+            loadFileBrowser()
+        }
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -667,6 +687,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     controller.title = folderTitle
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
+                    controller.viewLoadedFromBrowsing = true
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
@@ -1331,6 +1352,33 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     
     func dismiss() {
         self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: App Restoration
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        // Saving the variables used in this class so that they
+        // can be restored at when the app is opened again
+        coder.encodeObject(detailViewController, forKey: "detailViewController")
+        coder.encodeObject(objects, forKey: "objects")
+        coder.encodeBool(collapseDetailViewController, forKey: "collapseDetailViewController")
+        coder.encodeBool(showFileExistsAlert, forKey: "showFileExistsAlert")
+        coder.encodeObject(currentPath, forKey: "currentPath")
+        coder.encodeObject(self.fileItems, forKey: "fileItems")
+        
+        super.encodeRestorableStateWithCoder(coder)
+    }
+    
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        // Restoring the variables used in this class
+        // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
+        detailViewController = coder.decodeObjectForKey("detailViewController") as? DetailViewController
+        objects = coder.decodeObjectForKey("objects") as! [AnyObject]
+        collapseDetailViewController = coder.decodeBoolForKey("collapseDetailViewController")
+        showFileExistsAlert = coder.decodeBoolForKey("showFileExistsAlert")
+        currentPath = coder.decodeObjectForKey("currentPath") as! String
+        self.fileItems = coder.decodeObjectForKey("fileItems") as! [AnyObject]
+        
+        super.decodeRestorableStateWithCoder(coder)
     }
 
 
