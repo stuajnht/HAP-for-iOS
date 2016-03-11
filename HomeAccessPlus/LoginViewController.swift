@@ -93,19 +93,30 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.tblUsername.text = ""
         self.tbxPassword.text = ""
         
-        // Hiding the HAP+ server textbox, as if this is the
-        // first setup / login on the device and the user
-        // logs out, then the field will be editable again
-        if let hapServer = settings!.stringForKey(settingsHAPServer) {
-            logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
-            tblHAPServer.text = hapServer
-            tblHAPServer.hidden = true
-            lblHAPServer.hidden = true
-            
-            // Checking the URL is still correct (it is) but this
-            // function needs to be called otherwise when attempting
-            // to log in it will say the URL is incorrect
-            formatHAPURL(self)
+        // Showing the HAP+ server textbox when UI Testing
+        // is taking place, so that the test doesn't fail
+        // See: http://stackoverflow.com/a/33774166
+        // See: http://onefootball.github.io/resetting-application-data-after-each-test-with-xcode7-ui-testing/
+        let args = NSProcessInfo.processInfo().arguments
+        if args.contains("UI_TESTING_RESET_SETTINGS") {
+            logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
+            tblHAPServer.hidden = false
+            lblHAPServer.hidden = false
+        } else {
+            // Hiding the HAP+ server textbox, as if this is the
+            // first setup / login on the device and the user
+            // logs out, then the field will be editable again
+            if let hapServer = settings!.stringForKey(settingsHAPServer) {
+                logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
+                tblHAPServer.text = hapServer
+                tblHAPServer.hidden = true
+                lblHAPServer.hidden = true
+                
+                // Checking the URL is still correct (it is) but this
+                // function needs to be called otherwise when attempting
+                // to log in it will say the URL is incorrect
+                formatHAPURL(self)
+            }
         }
         
         super.viewWillAppear(animated)
