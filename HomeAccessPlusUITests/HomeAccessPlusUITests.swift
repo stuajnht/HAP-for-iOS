@@ -32,6 +32,14 @@ class HomeAccessPlusUITests: XCTestCase {
     let hapUsername = "736976 617274"
     let hapPassword = "58535732 7A617131"
     
+    // Setting the correct username value for the
+    // authenticated user who is allowed to log the
+    // user out when the device is in "single" mode
+    // Note: For some reason, this string cannot be
+    //       reversed, as it decodes to the incorrect:
+    //       4757f6d276f6c6d237f696d2071686 -> GWöÒvöÆÒ7ö–Ò†
+    let logOutAuthenticatedUsername = "6861702D69 6F732D6C6F 672D6F7574"
+    
     // Setting up the predicate to wait for an object
     // to be available before the test continues.
     // This is needed as asynchronous calls may take
@@ -342,7 +350,90 @@ class HomeAccessPlusUITests: XCTestCase {
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
         expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
         waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+    }
+    
+    /// Sets the device into "personal" mode once a successful
+    /// log in has taken place
+    ///
+    /// To preform the login the testLoginViewControllerSuccessfulFullURLLogin
+    /// function is called
+    ///
+    /// - note: This function can be used in other functions to
+    ///         assist with logon attempts which requre the
+    ///         device to be set up in "personal" mode
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSuccessfulFullURLLogin
+    func testLoginViewControllerSetDeviceInPersonalMode() {
+        testLoginViewControllerSuccessfulFullURLLogin()
+        
+        let app = XCUIApplication()
+        
+        // Setting the device into "personal" mode
+        let deviceTypeAlert = app.alerts["Please Select Device Type"]
+        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Personal"].tap()
+    }
+    
+    /// Sets the device into "shared" mode once a successful
+    /// log in has taken place
+    ///
+    /// To preform the login the testLoginViewControllerSuccessfulFullURLLogin
+    /// function is called
+    ///
+    /// - note: This function can be used in other functions to
+    ///         assist with logon attempts which requre the
+    ///         device to be set up in "shared" mode
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSuccessfulFullURLLogin
+    func testLoginViewControllerSetDeviceInSharedMode() {
+        testLoginViewControllerSuccessfulFullURLLogin()
+        
+        let app = XCUIApplication()
+        
+        // Setting the device into "shared" mode
+        let deviceTypeAlert = app.alerts["Please Select Device Type"]
+        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        deviceTypeAlert.collectionViews.buttons["Shared"].tap()
+    }
+    
+    /// Sets the device into "single" mode once a successful
+    /// log in has taken place
+    ///
+    /// To preform the login the testLoginViewControllerSuccessfulFullURLLogin
+    /// function is called
+    ///
+    /// - note: This function can be used in other functions to
+    ///         assist with logon attempts which requre the
+    ///         device to be set up in "single" mode
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSuccessfulFullURLLogin
+    func testLoginViewControllerSetDeviceInSingleMode() {
+        testLoginViewControllerSuccessfulFullURLLogin()
+        
+        let app = XCUIApplication()
+        
+        // Setting the device into "single" mode
+        let deviceTypeAlert = app.alerts["Please Select Device Type"]
+        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        deviceTypeAlert.collectionViews.buttons["Single"].tap()
     }
     
     
@@ -356,17 +447,17 @@ class HomeAccessPlusUITests: XCTestCase {
     /// looks after browsing through a number of drives on the
     /// HAP+ server
     ///
-    /// To preform the login to the testLoginViewControllerSuccessfulFullURLLogin
+    /// To preform the login the testLoginViewControllerSetDeviceInPersonalMode
     /// function is called
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
-    /// - date: 2016-02-01
+    /// - version: 2
+    /// - date: 2016-03-12
     ///
-    /// - seealso: testLoginViewControllerSuccessfulFullURLLogin
+    /// - seealso: testLoginViewControllerSetDeviceInPersonalMode
     func testMasterViewControllerBrowseDrive() {
-        testLoginViewControllerSuccessfulFullURLLogin()
+        testLoginViewControllerSetDeviceInPersonalMode()
         
         let app = XCUIApplication()
         let tablesQuery = app.tables
@@ -375,6 +466,212 @@ class HomeAccessPlusUITests: XCTestCase {
         expectationForPredicate(exists, evaluatedWithObject: drive, handler: nil)
         waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
         drive.tap()
+    }
+    
+    //MARK: UploadPopoverViewController Tests
+    
+    /// Tests to see if the device can be logged successfully
+    /// out when set up in "personal" mode
+    ///
+    /// When the app is set up in "personal" mode, the user is
+    /// able to log out at any time from the upload popover
+    ///
+    /// To preform the login the testLoginViewControllerSetDeviceInPersonalMode
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSetDeviceInPersonalMode
+    func testUploadPopoverViewControllerLogOutPersonalMode() {
+        testLoginViewControllerSetDeviceInPersonalMode()
+        
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        let loginButton = elementsQuery.buttons["Login"]
+        let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
+        
+        // Opening the upload popover
+        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        
+        // Logging out the user
+        app.tables.staticTexts["Log Out"].tap()
+        
+        // We can check that we're on the login screen by the
+        // presense of the login button
+        loginButton.tap()
+        okButton.tap()
+    }
+    
+    /// Tests to see if the device can be logged successfully
+    /// out when set up in "shared" mode
+    ///
+    /// When the app is set up in "shared" mode, the user is
+    /// able to log out at any time from the upload popover
+    ///
+    /// To preform the login the testLoginViewControllerSetDeviceInSharedMode
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSetDeviceInSharedMode
+    func testUploadPopoverViewControllerLogOutSharedMode() {
+        testLoginViewControllerSetDeviceInSharedMode()
+        
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        let loginButton = elementsQuery.buttons["Login"]
+        let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
+        
+        // Opening the upload popover
+        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        
+        // Logging out the user
+        app.tables.staticTexts["Log Out"].tap()
+        
+        // We can check that we're on the login screen by the
+        // presense of the login button
+        loginButton.tap()
+        okButton.tap()
+    }
+    
+    /// Tests to see if the alert is shown to the user when
+    /// trying to log out when set up in "single" mode, and the
+    /// user pressing cancel should keep the upload popover in
+    /// place
+    ///
+    /// When the app is set up in "single" mode, the user is
+    /// prompted to type a authenticated username to log them
+    /// out of the device, presented in an alert
+    ///
+    /// To preform the login the testLoginViewControllerSetDeviceInSingleMode
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSetDeviceInSingleMode
+    func testUploadPopoverViewControllerLogOutSingleModeUsernameCancel() {
+        testLoginViewControllerSetDeviceInSingleMode()
+        
+        let app = XCUIApplication()
+        
+        // Opening the upload popover
+        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        
+        let logOutStaticText = app.tables.staticTexts["Log Out"]
+        logOutStaticText.tap()
+        
+        // In the alert that is shown to the user, pressing the
+        // "cancel" button should keep the upload popover in place.
+        // This can be checked by pressing the "log out" button again
+        let cancelButton = app.alerts["Log Out User"].collectionViews.buttons["Cancel"]
+        cancelButton.tap()
+        logOutStaticText.tap()
+        cancelButton.tap()
+    }
+    
+    /// Tests to see if the alert is shown to the user when
+    /// trying to log out when set up in "single" mode, and the
+    /// user typing an incorrect password should alert the user
+    /// that they weren't able to be logged out
+    ///
+    /// When the app is set up in "single" mode, the user is
+    /// prompted to type a authenticated username to log them
+    /// out of the device, presented in an alert
+    ///
+    /// To preform the login the testLoginViewControllerSetDeviceInSingleMode
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSetDeviceInSingleMode
+    func testUploadPopoverViewControllerLogOutSingleModeUsernameIncorrect() {
+        testLoginViewControllerSetDeviceInSingleMode()
+        
+        let app = XCUIApplication()
+        
+        // Opening the upload popover
+        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        
+        let logOutStaticText = app.tables.staticTexts["Log Out"]
+        logOutStaticText.tap()
+        
+        // Typing in an incorrect authenticated username should
+        // alert the user that it was not correct, and they haven't
+        // been logged out
+        let collectionViewsQuery = app.alerts["Log Out User"].collectionViews
+        collectionViewsQuery.textFields["Username"].typeText("incorrect")
+        collectionViewsQuery.buttons["Continue"].tap()
+        
+        // As the HAPi needs to be used to check the username, wait
+        // for the alert to be shown to the user
+        let logOutAlert = app.alerts["Unable to Log Out"]
+        expectationForPredicate(exists, evaluatedWithObject: logOutAlert, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        logOutAlert.collectionViews.buttons["OK"].tap()
+    }
+    
+    /// Tests to see if the alert is shown to the user when
+    /// trying to log out when set up in "single" mode, and the
+    /// user typing a correct password should log the user out
+    ///
+    /// When the app is set up in "single" mode, the user is
+    /// prompted to type a authenticated username to log them
+    /// out of the device, presented in an alert
+    ///
+    /// To preform the login the testLoginViewControllerSetDeviceInSingleMode
+    /// function is called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-12
+    ///
+    /// - seealso: testLoginViewControllerSetDeviceInSingleMode
+    func testUploadPopoverViewControllerLogOutSingleModeUsernameCorrect() {
+        testLoginViewControllerSetDeviceInSingleMode()
+        
+        let app = XCUIApplication()
+        let elementsQuery = app.scrollViews.otherElements
+        let loginButton = elementsQuery.buttons["Login"]
+        let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
+        
+        // Opening the upload popover
+        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        
+        let logOutStaticText = app.tables.staticTexts["Log Out"]
+        logOutStaticText.tap()
+        
+        // Decoding the decrypted string, then reversing it as the
+        // decryptString function will correctly reverse it, but
+        // for some reason the initial string cannot be reversed
+        var correctUsername = decryptString(logOutAuthenticatedUsername)
+        correctUsername = String(correctUsername.characters.reverse())
+        
+        // Typing in a correct authenticated username should
+        // log the user out and take them back to the login view
+        let collectionViewsQuery = app.alerts["Log Out User"].collectionViews
+        collectionViewsQuery.textFields["Username"].typeText(correctUsername)
+        collectionViewsQuery.buttons["Continue"].tap()
+        
+        // As the HAPi needs to be used to check the username, wait
+        // for the login view to be shown to the user, then try logging
+        // in with empty fields
+        expectationForPredicate(exists, evaluatedWithObject: loginButton, handler: nil)
+        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        loginButton.tap()
+        okButton.tap()
     }
 
     
