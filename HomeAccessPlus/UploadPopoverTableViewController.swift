@@ -967,13 +967,18 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Dismissing the popover as it's done what is needed
             // There shouldn't be any animation, as we want the popover
             // to disappear straight away as the logout should be
-            // 'quick' for the user
+            // 'quick' for the user. The completion handler can then
+            // call the delegare logOutUser function instead of being
+            // called sequentially, as it is needed to prevent the popover
+            // remaining shown to the user on a small screen device,
+            // leading them to press the log out button again, which
+            // then crashes the app
             // See: http://stackoverflow.com/a/16825683
-            self.dismissViewControllerAnimated(false, completion: nil)
-            
-            // Calling the log out function from the Master
-            // View Controller
-            self.delegate?.logOutUser()
+            self.dismissViewControllerAnimated(false, completion: {
+                // Calling the log out function from the Master
+                // View Controller
+                self.delegate?.logOutUser()
+            })
         } else {
             logger.debug("Checking the username passed is for an authenticated user to log out of the device")
             
