@@ -20,6 +20,7 @@
 //
 
 import UIKit
+import Locksmith
 import XCGLogger
 
 // Declaring a global constant to the default XCGLogger instance
@@ -60,6 +61,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Configuring the logger options
         logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
+        
+        // Seeing if this code is being compiled for the main app
+        // or the app extensions. This hacky way is needed as app
+        // extensions don't allow the use of sharedApplication()
+        // See: http://stackoverflow.com/a/25048511
+        // See: http://stackoverflow.com/a/24152730
+        #if TARGET_IS_APP
+            // Enabling background fetches, to ideally automatically
+            // renew the HAP+ user tokens
+            // See: http://www.raywenderlich.com/92428/background-modes-ios-swift-tutorial
+            UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
+        #endif
         
         // Clearing any settings that are set when UI Testing
         // is taking place, to start the app in a 'clean' state
@@ -129,6 +142,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
         return true
+    }
+    
+    // MARK: Background fetch
+    func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+        logger.debug("Beginning background fetch to update HAP+ user tokens")
+        
+        // Preventing any background fetches taking place if there
+        // is no user logged in to the app
+        if let username = settings!.stringForKey(settingsUsername) {
+            // Loading an instance of the HAPi
+            let api = HAPi()
+            
+            // Attempting to log the user in with the provided details
+            // saved in the NSSettings
+            let hapServer = settings!.stringForKey(settingsHAPServer)
+            let dictionary = Locksmith.loadDataForUserAccount(username)
+            let password = dictionary?[settingsPassword]
+            
+            // Calling the HAPi to attempt to log the user in, to generate
+            // new user logon tokens on the HAP+ server
+            api.loginUser(hapServer!, username: username, password: String(password), callback: { (result: Bool) -> Void in
+                // Seeing if the attempt to log the user in has been
+                // successful, or if there was a problem of some sort
+                // (most likely no connection, as the user will have
+                // already logged in, or the password has now expired)
+                if (result == true) {
+                    logger.debug("Background fetch completed successfully")
+                    completionHandler(.NewData)
+                } else {
+                    logger.debug("Background fetch failed to update user tokens")
+                    completionHandler(.Failed)
+                }
+            })
+        } else {
+            logger.debug("Background fetch cancelled as no user is logged in to the app")
+            completionHandler(.NoData)
+        }
     }
 
 }
