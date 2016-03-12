@@ -158,7 +158,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // saved in the NSSettings
             let hapServer = settings!.stringForKey(settingsHAPServer)
             let dictionary = Locksmith.loadDataForUserAccount(username)
-            let password = dictionary?[settingsPassword]
+            let password = (dictionary?[settingsPassword])!
             
             // Calling the HAPi to attempt to log the user in, to generate
             // new user logon tokens on the HAP+ server
