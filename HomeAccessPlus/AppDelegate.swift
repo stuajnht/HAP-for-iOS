@@ -49,6 +49,7 @@ let settingsDeviceType = "deviceType"
 let settingsUserRoles = "userRoles"
 let settingsUploadFileLocation = "uploadFileLocation"
 let settingsUploadPhotosLocation = "uploadPhotosLocation"
+let settingsLastAPIAccessTime = "lastAPIAccessTime"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
