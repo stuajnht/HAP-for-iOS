@@ -58,6 +58,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // Loading an instance of the HAPi
     let api = HAPi()
+    
+    // Creating a timer to connect to the HAP+ server API
+    // test, to keep the user session tokens active
+    var apiTestCheckTimer : NSTimer = NSTimer()
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -109,6 +113,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+        
+        // Stopping the API test timer as the app is going
+        // into the background
+        logger.debug("App transitioning to background state, so disabling API check timer")
+        apiTestCheckTimer.invalidate()
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
@@ -195,7 +204,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-03-14
     func renewUserSessionTokens() {
         logger.verbose("Application entering foreground, preparing to check last API access")
@@ -236,13 +245,69 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // already logged in, or the password has now expired)
                     if (result == true) {
                         logger.debug("App foreground user logon completed successfully")
+                        
+                        // The last API access was less than 20 minutes ago,
+                        // so start the API test check timer
+                        self.apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(360, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
                     } else {
                         logger.warning("App foreground user logon failed to update user tokens")
                     }
                 })
+            } else {
+                // The last API access was less than 20 minutes ago,
+                // so start the API test check timer
+                apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(360, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
             }
         } else {
             logger.verbose("Application foreground last API access check ignored as no user is currently logged in to the app")
+        }
+    }
+    
+    /// Connects to the HAP+ server test API function periodically
+    /// to renew the user session tokens
+    ///
+    /// As the IIS session cookie tokens expire after 20 minutes of
+    /// inactivity, a connection to the HAP+ API test function is
+    /// scheduled to take place every 6 minutes to provide activity
+    /// on the server, so the session cookies remain active
+    ///
+    /// 6 minutes has been chosen as a mix between not using too much
+    /// battery / network on the device, and allowing a number of
+    /// attempts to connect to the HAP+ API (3 times) before the
+    /// user session tokens expire on the server
+    ///
+    /// If the app remains active, then this function will be called
+    /// periodically, and the user sessions will remain active. If the
+    /// app is backgrounded / screen locked, then the renewUserSessionTokens
+    /// function will be called when the app becomes active to either
+    /// renew the user session tokens, or if the tokens are still valid,
+    /// call this function from the timer straight away
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-14
+    ///
+    /// - seealso: renewUserSessionTokens
+    func apiTestCheck() {
+        // Seeing if there is currently an active connection to
+        // the Internet
+        logger.debug("Running API test check")
+        if (api.checkConnection()) {
+            let hapServer = String(settings!.objectForKey(settingsHAPServer)!)
+            api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
+                if (result) {
+                    // Successful HAP+ API check, so update the last time the
+                    // API has been contacted
+                    logger.debug("API test check completed successfully")
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                } else {
+                    logger.warning("API test check failed")
+                }
+            })
+        } else {
+            logger.error("API test check failed due to lack of connectivity")
         }
     }
 
