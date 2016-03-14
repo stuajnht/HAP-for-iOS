@@ -195,7 +195,7 @@ class HAPi {
                             // API, to reset the session cookies. This is saved
                             // as a time since Unix epoch
                             logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                            settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                            settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                             
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
@@ -272,7 +272,7 @@ class HAPi {
                 // API, to reset the session cookies. This is saved
                 // as a time since Unix epoch
                 logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                 
                 callback(true)
                 
@@ -326,7 +326,7 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Letting the callback know we have successfully logged in
                         callback(result: true, response: JSON)
@@ -386,7 +386,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
                     callback(result: true, response: JSON)
@@ -468,7 +468,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
             }
@@ -577,7 +577,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
             }
@@ -713,7 +713,7 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         callback(result: true)
                     } else {
@@ -788,7 +788,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
                     callback(result: true)
@@ -867,7 +867,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setObject(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist

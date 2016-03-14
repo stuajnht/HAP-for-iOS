@@ -55,6 +55,9 @@ let settingsLastAPIAccessTime = "lastAPIAccessTime"
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+    // Loading an instance of the HAPi
+    let api = HAPi()
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -96,6 +99,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // See: http://stackoverflow.com/a/26591842
         self.window?.makeKeyAndVisible()
         
+        // Seeing if the user session tokens need to be renewed
+        // since the app has been brought to the foreground
+        renewUserSessionTokens()
+        
         return true
     }
 
@@ -111,6 +118,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+        
+        // Seeing if the user session tokens need to be renewed
+        // since the app has been brought to the foreground
+        renewUserSessionTokens()
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
@@ -152,9 +163,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Preventing any background fetches taking place if there
         // is no user logged in to the app
         if let username = settings!.stringForKey(settingsUsername) {
-            // Loading an instance of the HAPi
-            let api = HAPi()
-            
             // Attempting to log the user in with the provided details
             // saved in the NSSettings
             let hapServer = settings!.stringForKey(settingsHAPServer)
@@ -172,13 +180,69 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     logger.debug("Background fetch completed successfully")
                     completionHandler(.NewData)
                 } else {
-                    logger.debug("Background fetch failed to update user tokens")
+                    logger.warning("Background fetch failed to update user tokens")
                     completionHandler(.Failed)
                 }
             })
         } else {
             logger.debug("Background fetch cancelled as no user is logged in to the app")
             completionHandler(.NoData)
+        }
+    }
+    
+    /// Sees if new user session tokens need to be generated,
+    /// if the last successful API access is over 20 minutes
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-14
+    func renewUserSessionTokens() {
+        logger.verbose("Application entering foreground, preparing to check last API access")
+        
+        // Preventing any API last access checks taking place if there
+        // is no user logged in to the app, as there will be no session
+        // on the HAP+ server that needs to be kept alive / created
+        if let username = settings!.stringForKey(settingsUsername) {
+            // Seeing when the last successful API access took place
+            logger.debug("Checking time since last API access")
+            let timeDifference = NSDate().timeIntervalSince1970 - NSTimeInterval(settings!.doubleForKey(settingsLastAPIAccessTime))
+            logger.debug("Time since last API access is: \(timeDifference)")
+            
+            // Seeing if the time since last API access is over 20 minutes
+            // 1200 seconds, and if so, attempt to log the user in again
+            // This is needed as IIS and ASP.net keeps session cookies for
+            // 20 minutes, and discard them if no activity has taken place
+            // during this time. This check is also put in place just in case
+            // the background fetch hasn't run, or has run but longer than
+            // 20 minutes ago. It is designed as a final attempt to log the
+            // user in without them noticing, or at least, only having to press
+            // any "try again" alerts once (depending on connection speed)
+            if (timeDifference > 1200) {
+                logger.debug("Attempting to log the user in, to generate new session tokens")
+                
+                // Attempting to log the user in with the provided details
+                // saved in the NSSettings
+                let hapServer = settings!.stringForKey(settingsHAPServer)
+                let dictionary = Locksmith.loadDataForUserAccount(username)
+                let password = (dictionary?[settingsPassword])!
+                
+                // Calling the HAPi to attempt to log the user in, to generate
+                // new user logon tokens on the HAP+ server
+                api.loginUser(hapServer!, username: username, password: String(password), callback: { (result: Bool) -> Void in
+                    // Seeing if the attempt to log the user in has been
+                    // successful, or if there was a problem of some sort
+                    // (most likely no connection, as the user will have
+                    // already logged in, or the password has now expired)
+                    if (result == true) {
+                        logger.debug("App foreground user logon completed successfully")
+                    } else {
+                        logger.warning("App foreground user logon failed to update user tokens")
+                    }
+                })
+            }
+        } else {
+            logger.verbose("Application foreground last API access check ignored as no user is currently logged in to the app")
         }
     }
 
