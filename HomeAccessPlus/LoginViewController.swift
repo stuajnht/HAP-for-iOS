@@ -305,8 +305,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 2
-    /// - date: 2016-02-26
+    /// - version: 3
+    /// - date: 2016-03-15
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
         // the network
@@ -323,6 +323,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
                 logger.debug("Successfully logged in user to HAP+")
+                
+                // Starting the startAPITestCheckTimer from the AppDelegate,
+                // to keep the user logon tokens valid, as it wouldn't have
+                // been started if a user wasn't logged in on app launch
+                logger.debug("Starting API test check timer to keep logon tokens valid")
+                let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+                delegate!.startAPITestCheckTimer()
                 
                 // Find out what the device should be set up as: Personal, Shared
                 // or Single so that it can be used later. This is shown run if it

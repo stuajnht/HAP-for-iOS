@@ -118,7 +118,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Stopping the API test timer as the app is going
         // into the background
         logger.debug("App transitioning to background state, so disabling API check timer")
-        apiTestCheckTimer.invalidate()
+        stopAPITestCheckTimer()
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
@@ -257,7 +257,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         
                         // The last API access has been reset, so start
                         // the API test check timer
-                        self.apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+                        self.startAPITestCheckTimer()
                     } else {
                         logger.warning("User logon failed to update user tokens")
                     }
@@ -265,11 +265,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             } else {
                 // The last API access was less than 20 minutes ago,
                 // so start the API test check timer
-                apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+                startAPITestCheckTimer()
             }
         } else {
             logger.verbose("Last API access check ignored as no user is currently logged in to the app")
         }
+    }
+    
+    /// Starting the API test check timer, so that the API can be
+    /// periodically checked to ensure the user session tokens
+    /// stay active
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-15
+    ///
+    /// - seealso: renewUserSessionTokens
+    /// - seealso: apiTestCheck
+    func startAPITestCheckTimer() {
+        apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+    }
+    
+    /// Stopping the API test check timer, to avoid updating the
+    /// last successful API contact time if the user has logged out
+    /// or the app is backgrounded
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-15
+    ///
+    /// - seealso: renewUserSessionTokens
+    /// - seealso: apiTestCheck
+    func stopAPITestCheckTimer() {
+        apiTestCheckTimer.invalidate()
     }
     
     /// Connects to the HAP+ server test API function periodically
@@ -314,7 +344,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if (timeDifference > 1080) {
                 // Invalidating the timer, as it'll be recreated again
                 // once the renewUserSessionTokens function completes
-                apiTestCheckTimer.invalidate()
+                stopAPITestCheckTimer()
                 
                 // Attempting to log the user back in and collect new
                 // user session tokens
