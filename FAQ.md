@@ -5,6 +5,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect](#i-am-typing-in-a-correct-home-access-plus-server-address-but-i-am-being-told-it-is-incorrect)
 * [What option should I choose after the initial setup: "Personal", "Shared" or "Single"?](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single)
 * [When browsing files, the app downloads and previews a "_login.aspx_" file](#when-browsing-files-the-app-downloads-and-previews-a-login.aspx-file)
+* [When browsing folders, an "_Unable to load folder_" error message keeps showing](#when-browsing-folders-an-unable-to-load-folder-error-message-keeps-showing)
 * [Files from &lt;_app name_&gt; are showing their extension and "File" as the document type](#files-from-app-name-are-showing-their-extension-and-file-as-the-document-type)
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
 * [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
@@ -20,7 +21,13 @@ The app is designed to be used in a number of setups, namely Personal, Shared or
 * *Single* - The device that the app has been installed on is part of a 1:1 scheme, whereby the device is not shared between students and a single student will always log in to the same device, or you are using a set of iOS devices in a presentation / exam and don't want users to log out of them. See also: ["Single" mode logout steps](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
 
 ## When browsing files, the app downloads and previews a "_login.aspx_" file
-This is due to the logon tokens for the app expiring, so the HAP+ server attempts to show the login page that is used when browsing using an Internet browser. Currently, the app doesn't automatically re-login, so you'll need to close the app and open it again. This will be fixed in a future build.
+This is due to the logon tokens for the app expiring, so the HAP+ server attempts to show the login page that is used when browsing using an Internet browser. Since version 0.7.0 the app automatically logs users back in with the credentials they origianlly used to log in to the app. If you are on or above this version, please log out of the app and log back in again, as your password may have expired or been changed, meaning the app cannot log you in successfully.
+
+## When browsing folders, an "_Unable to load folder_" error message keeps showing
+This error message may be shown due to loss of connectivity or your logon tokens have expired for the app. Please try the following steps to resolve the problem:
+1. Check that you are connected to a network, and press the "_Try Again_" button. This should solve the problem most of the time
+2. Press the home button and then tap on the app icon. After a few seconds, press the "_Try Again_" button. When the app starts, it attempts to log you in if needed
+3. Press the menu button above where the folder listing normally is, and choose the "_Log Out_" option. Then log back in with your username and password
 
 ## Files from &lt;_app name_&gt; are showing their extension and "File" as the document type
 While HAP+ server contains [support for a large number of common file types](http://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Web/images/icons/knownicons.xml), apps for iOS may include their own extensions which are not commonly known. If you are uploading files from &lt;_app name_&gt; and they are showing the file name and extension, instead of just the file name, and the description of the file type is "File" then you will need to include these additional file types for HAP+ to be able to understand them. Follow the steps below to complete this:
