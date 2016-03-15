@@ -12,6 +12,7 @@
 
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
+* Fixed bug where the upload popover would restore incorrectly as a full screen view if the user had to grant app permissions, rather than stay in the popover - [#20](https://github.com/stuajnht/HAP-for-iOS/issues/20)
 
 ## 0.6.0
 

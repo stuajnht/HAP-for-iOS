@@ -420,7 +420,7 @@
         <!--Upload Popover Table View Controller-->
         <scene sceneID="giV-60-39V">
             <objects>
-                <tableViewController storyboardIdentifier="fileUploadPopover" useStoryboardIdentifierAsRestorationIdentifier="YES" id="n4T-68-Xq7" customClass="UploadPopoverTableViewController" customModule="HomeAccessPlus" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="fileUploadPopover" id="n4T-68-Xq7" customClass="UploadPopoverTableViewController" customModule="HomeAccessPlus" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="B3e-OB-IaQ">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
