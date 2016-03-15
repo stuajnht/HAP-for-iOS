@@ -105,6 +105,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
+        logger.verbose("Application starting, preparing to check last API access")
         renewUserSessionTokens()
         
         return true
@@ -130,6 +131,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
+        logger.verbose("Application entering foreground, preparing to check last API access")
         renewUserSessionTokens()
     }
 
@@ -207,8 +209,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /// - version: 2
     /// - date: 2016-03-14
     func renewUserSessionTokens() {
-        logger.verbose("Application entering foreground, preparing to check last API access")
-        
         // Preventing any API last access checks taking place if there
         // is no user logged in to the app, as there will be no session
         // on the HAP+ server that needs to be kept alive / created
@@ -244,22 +244,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // (most likely no connection, as the user will have
                     // already logged in, or the password has now expired)
                     if (result == true) {
-                        logger.debug("App foreground user logon completed successfully")
+                        logger.debug("User logon completed successfully, new user session tokens generated")
                         
-                        // The last API access was less than 20 minutes ago,
-                        // so start the API test check timer
-                        self.apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(360, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+                        // The last API access has been reset, so start
+                        // the API test check timer
+                        self.apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
                     } else {
-                        logger.warning("App foreground user logon failed to update user tokens")
+                        logger.warning("User logon failed to update user tokens")
                     }
                 })
             } else {
                 // The last API access was less than 20 minutes ago,
                 // so start the API test check timer
-                apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(360, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+                apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
             }
         } else {
-            logger.verbose("Application foreground last API access check ignored as no user is currently logged in to the app")
+            logger.verbose("Last API access check ignored as no user is currently logged in to the app")
         }
     }
     
@@ -271,10 +271,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /// scheduled to take place every 6 minutes to provide activity
     /// on the server, so the session cookies remain active
     ///
-    /// 6 minutes has been chosen as a mix between not using too much
-    /// battery / network on the device, and allowing a number of
-    /// attempts to connect to the HAP+ API (3 times) before the
-    /// user session tokens expire on the server
+    /// A value of 1 minute has been chosen, instead of a higher value,
+    /// as the user may open the app and it would have been 19 minutes
+    /// since they used it last. This function would then not be called
+    /// for another 6 minutes, at which point the last API contact would
+    /// be 25 minutes, which is after the 20 minute session expiration
     ///
     /// If the app remains active, then this function will be called
     /// periodically, and the user sessions will remain active. If the
@@ -285,8 +286,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
-    /// - date: 2016-03-14
+    /// - version: 2
+    /// - date: 2016-03-15
     ///
     /// - seealso: renewUserSessionTokens
     func apiTestCheck() {
@@ -294,18 +295,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // the Internet
         logger.debug("Running API test check")
         if (api.checkConnection()) {
-            let hapServer = String(settings!.objectForKey(settingsHAPServer)!)
-            api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
-                if (result) {
-                    // Successful HAP+ API check, so update the last time the
-                    // API has been contacted
-                    logger.debug("API test check completed successfully")
-                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
-                } else {
-                    logger.warning("API test check failed")
-                }
-            })
+            // Seeing when the last successful API access took place
+            logger.debug("Checking time since last API access")
+            let timeDifference = NSDate().timeIntervalSince1970 - NSTimeInterval(settings!.doubleForKey(settingsLastAPIAccessTime))
+            logger.debug("Time since last API access is: \(timeDifference)")
+            
+            // Seeing if the time since last API access is over 20 minutes
+            // 1200 seconds, and if so, attempt to log the user in again
+            if (timeDifference > 1200) {
+                // Invalidating the timer, as it'll be recreated again
+                // once the renewUserSessionTokens function completes
+                apiTestCheckTimer.invalidate()
+                
+                // Attempting to log the user back in and collect new
+                // user session tokens
+                logger.debug("Attempting to generate new session tokens instead of renewing through the test API")
+                renewUserSessionTokens()
+            } else {
+                // The last API access was less than 20 minutes ago, so
+                // just attempt to connect to the test API function
+                let hapServer = String(settings!.objectForKey(settingsHAPServer)!)
+                api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
+                    if (result) {
+                        // Successful HAP+ API check, so update the last time the
+                        // API has been contacted
+                        logger.debug("API test check completed successfully")
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    } else {
+                        logger.warning("API test check failed due to: \(result)")
+                    }
+                })
+            }
         } else {
             logger.error("API test check failed due to lack of connectivity")
         }
