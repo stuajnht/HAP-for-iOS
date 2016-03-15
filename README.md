@@ -53,7 +53,7 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
 ### 0.7.0
-* Auto re-login for devices that are in 'personal' or 'single' mode
+* ~~Auto re-login for devices that are in 'personal' or 'single' mode~~
 * ~~Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)~~
 * Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished
 * A settings menu of some sort (either in-app or the main settings app)

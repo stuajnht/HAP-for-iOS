@@ -6,12 +6,14 @@
 * Upload files to the HAP+ server from cloud storage providers (the relevant apps need to be installed on the iOS device too)
 * Files can be uploaded and downloaded in some external apps without needing to download from the Home Access Plus+ app first
 * Users can log out of the app if they want to pass it to another user - [#4](https://github.com/stuajnht/HAP-for-iOS/issues/4)
+* Users are automatically logged back in to the HAP+ server and if they do not use the app for a period of time (or their logon sessions are renewed constantly if the app is in the foreground), so they can continue where they left off almost straight away
 
 ### Changes
 * App restoration now takes place if the app is stopped in the background, so that when opened again the user remains in the same folder location they were before
 
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
+* Fixed bug where the upload popover would restore incorrectly as a full screen view if the user had to grant app permissions, rather than stay in the popover - [#20](https://github.com/stuajnht/HAP-for-iOS/issues/20)
 
 ## 0.6.0
 

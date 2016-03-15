@@ -191,6 +191,12 @@ class HAPi {
                                 logger.error("Failed to securely save password")
                             }
                             
+                            // Logging the last successful contact to the HAP+
+                            // API, to reset the session cookies. This is saved
+                            // as a time since Unix epoch
+                            logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                            settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                            
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
@@ -261,6 +267,13 @@ class HAPi {
                 logger.verbose("\(settings!.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
                 settings!.setObject(response.result.value, forKey: settingsUserRoles)
+                
+                // Logging the last successful contact to the HAP+
+                // API, to reset the session cookies. This is saved
+                // as a time since Unix epoch
+                logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                
                 callback(true)
                 
                 // We were not able to contact the HAP+ server, so we cannot
@@ -308,6 +321,13 @@ class HAPi {
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
                         logger.verbose("Response JSON for drive listing: \(JSON)")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
                         // Letting the callback know we have successfully logged in
                         callback(result: true, response: JSON)
                     
@@ -361,6 +381,13 @@ class HAPi {
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
                     logger.verbose("Response JSON for folder listing: \(JSON)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     // Letting the callback know we have successfully logged in
                     callback(result: true, response: JSON)
                     
@@ -436,6 +463,13 @@ class HAPi {
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
                     logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
             }
             
@@ -538,6 +572,13 @@ class HAPi {
                 }
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
             }
         } else {
@@ -667,6 +708,13 @@ class HAPi {
                     // Seeing if the file was deleted successfully or not
                     if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
                         logger.debug("\(fileName) was successfully deleted from the server")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
                         callback(result: true)
                     } else {
                         logger.error("There was a problem deleting the file from the server")
@@ -735,6 +783,13 @@ class HAPi {
                 .responseJSON { response in switch response.result {
                 case .Success:
                     logger.debug("Response from creating new folder: \(response.data)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     // Letting the callback know we have successfully logged in
                     callback(result: true)
                     
@@ -807,6 +862,12 @@ class HAPi {
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
                     logger.verbose("Response JSON for file item existing: \(JSON)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
