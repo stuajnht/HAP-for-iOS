@@ -206,8 +206,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 2
-    /// - date: 2016-03-14
+    /// - version: 3
+    /// - date: 2016-03-15
     func renewUserSessionTokens() {
         // Preventing any API last access checks taking place if there
         // is no user logged in to the app, as there will be no session
@@ -218,16 +218,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let timeDifference = NSDate().timeIntervalSince1970 - NSTimeInterval(settings!.doubleForKey(settingsLastAPIAccessTime))
             logger.debug("Time since last API access is: \(timeDifference)")
             
-            // Seeing if the time since last API access is over 20 minutes
-            // 1200 seconds, and if so, attempt to log the user in again
+            // Seeing if the time since last API access is over 18 minutes
+            // 1080 seconds, and if so, attempt to log the user in again
             // This is needed as IIS and ASP.net keeps session cookies for
             // 20 minutes, and discard them if no activity has taken place
             // during this time. This check is also put in place just in case
             // the background fetch hasn't run, or has run but longer than
-            // 20 minutes ago. It is designed as a final attempt to log the
+            // 18 minutes ago. It is designed as a final attempt to log the
             // user in without them noticing, or at least, only having to press
             // any "try again" alerts once (depending on connection speed)
-            if (timeDifference > 1200) {
+            // 18 minutes has been chosen to try and beat a condition where
+            // the user opens the app again, but it's been 19 minutes 59 seconds
+            // since it was last opened, so this check will pass, and the
+            // API test check will not take place for another minute, leading
+            // to a time of 20 minutes 59 seconds, which would then have
+            // prompted the user to "try again" for the last minute (or suspend /
+            // open the app). 18 minutes gives just enough time to renew the
+            // tokens before the session tokens expire on the server, hopefully
+            // not inconveniencing the user while this takes place
+            if (timeDifference > 1080) {
                 logger.debug("Attempting to log the user in, to generate new session tokens")
                 
                 // Attempting to log the user in with the provided details
@@ -286,7 +295,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-03-15
     ///
     /// - seealso: renewUserSessionTokens
@@ -300,9 +309,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let timeDifference = NSDate().timeIntervalSince1970 - NSTimeInterval(settings!.doubleForKey(settingsLastAPIAccessTime))
             logger.debug("Time since last API access is: \(timeDifference)")
             
-            // Seeing if the time since last API access is over 20 minutes
-            // 1200 seconds, and if so, attempt to log the user in again
-            if (timeDifference > 1200) {
+            // Seeing if the time since last API access is over 18 minutes
+            // 1080 seconds, and if so, attempt to log the user in again
+            if (timeDifference > 1080) {
                 // Invalidating the timer, as it'll be recreated again
                 // once the renewUserSessionTokens function completes
                 apiTestCheckTimer.invalidate()
