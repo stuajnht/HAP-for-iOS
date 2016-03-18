@@ -254,12 +254,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///         attempt. If the user doesn't type "/hap" at the end of the URL but the
     ///         site needs it, this is when the function is called again with this appended
     ///         to hopefully guess what should be in there. Any server set up different to
-    ///         this will fail on the second attempt, and let the user know
+    ///         this will fail on the second attempt, and let the user know. This can also
+    ///         fail if the HAP+ server is not set up to use TLS 1.2 or has a SSL certificate
+    ///         that is not configured correctly (self signed, expired, domain name mismatch)
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 2
-    /// - date: 2015-12-03
+    /// - version: 3
+    /// - date: 2016-03-18
     ///
     /// - parameter hapServer: The URL to the HAP+ server
     /// - parameter attempt: How many times this function has been called
@@ -279,7 +281,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == false && attempt != 1) {
                 self.hudHide()
                 
-                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
+                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
             }

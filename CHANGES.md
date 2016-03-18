@@ -10,6 +10,7 @@
 
 ### Changes
 * App restoration now takes place if the app is stopped in the background, so that when opened again the user remains in the same folder location they were before
+* Updated message on the login screen if the HAP+ server does not have a correctly configured SSL certificate (self signed, expired, domain name mismatch) - credit: [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
 
 ### Bug Fixes
 * Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)

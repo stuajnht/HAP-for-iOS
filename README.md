@@ -25,9 +25,10 @@ Thanks for your interest in contributing to this project. You can contribute or 
 If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
 
 ### Contributors
-The following users have contributed code to this project:
+The following users have contributed code or suggestions to this project:
 * [@TestValleySchool](https://github.com/TestValleySchool):
   * [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19)
+* [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
 
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
