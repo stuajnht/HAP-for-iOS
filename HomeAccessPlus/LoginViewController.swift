@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import Locksmith
 import MBProgressHUD
 import XCGLogger
 
@@ -93,6 +94,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.tblUsername.text = ""
         self.tbxPassword.text = ""
         
+        // Showing the scroll container so that the textboxes
+        // can be visible, if it has been hidden when trying
+        // to log the user in if the app has been closed
+        sclLoginTextboxes.hidden = false
+        
         // Showing the HAP+ server textbox when UI Testing
         // is taking place, so that the test doesn't fail
         // See: http://stackoverflow.com/a/33774166
@@ -116,6 +122,27 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // function needs to be called otherwise when attempting
                 // to log in it will say the URL is incorrect
                 formatHAPURL(self)
+            }
+            
+            // Attempting to log the user in if they've logged in
+            // before, but have closed the app (from the app switcher)
+            // or restarted the device, rather than just backgrounding
+            // the app
+            if let username = settings!.stringForKey(settingsUsername) {
+                // Hiding the view controls to prevent the user from
+                // being able to do anything which may interfere with
+                // the login process
+                sclLoginTextboxes.hidden = true
+                
+                // Filling in the username and password controls, so
+                // that the loginUser function can access them
+                tblUsername.text = username
+                let dictionary = Locksmith.loadDataForUserAccount(username)
+                tbxPassword.text = (dictionary?[settingsPassword])! as? String
+                
+                // Attempt to log the user in to the HAP+ server and app
+                hudShow("Checking login details")
+                loginUser()
             }
         }
         
@@ -307,8 +334,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 3
-    /// - date: 2016-03-15
+    /// - version: 4
+    /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
         // the network
@@ -359,6 +386,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                
+                // Showing the login textboxes scroll area, as it may
+                // have been hidden if the user has opened up the
+                // app from the beginning, and not from app restoration
+                self.sclLoginTextboxes.hidden = false
             }
         })
     }
