@@ -24,6 +24,8 @@ Thanks for your interest in contributing to this project. You can contribute or 
 ### Pull Requests
 If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
 
+The current development environment is with Xcode 7.3 and Swift 2.2. Please make sure you are using these versions before  submitting any pull requests
+
 ### Contributors
 The following users have contributed code or suggestions to this project:
 * [@TestValleySchool](https://github.com/TestValleySchool):
