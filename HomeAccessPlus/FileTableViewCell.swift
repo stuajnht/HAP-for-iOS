@@ -73,14 +73,19 @@ class FileTableViewCell: UITableViewCell {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 3
-    /// - date: 2015-12-13
+    /// - version: 4
+    /// - date: 2016-04-01
     ///
     /// - parameter fileType: The type of the file of the table cell
     /// - parameter fileExtension: The extension of the file in the table cell
-    func fileIcon(fileType: String, var fileExtension: String) {
+    func fileIcon(fileType: String, fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
+        
+        // Assigning a local variable to hold the file extension, as using
+        // 'var' in the function parameter is depricated from Swift 2.2
+        // See: https://github.com/apple/swift-evolution/blob/master/proposals/0003-remove-var-parameters.md
+        var fileExtension = fileExtension
         
         // Setting the file extension to be "" if the file type is a folder,
         // but contains a '.' in the name somewhere - issue #13
