@@ -278,13 +278,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
-    /// - date: 2016-03-15
+    /// - version: 2
+    /// - date: 2016-04-01
     ///
     /// - seealso: renewUserSessionTokens
     /// - seealso: apiTestCheck
     func startAPITestCheckTimer() {
-        apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: Selector("apiTestCheck"), userInfo: nil, repeats: true)
+        apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(AppDelegate.apiTestCheck), userInfo: nil, repeats: true)
     }
     
     /// Stopping the API test check timer, to avoid updating the

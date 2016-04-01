@@ -791,8 +791,8 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-28
+    /// - version: 3
+    /// - date: 2016-04-01
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
     ///                            current file or create a new one
@@ -835,7 +835,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // in the deleteFile function
             // See: http://www.dotnetperls.com/2d-array-swift
             var indexPosition = -1
-            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+            for arrayPosition in 0 ..< fileItems.count {
                 if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
                     indexPosition = arrayPosition
