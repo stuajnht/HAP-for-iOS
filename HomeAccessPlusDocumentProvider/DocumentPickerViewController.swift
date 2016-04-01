@@ -37,8 +37,8 @@ import XCGLogger
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.7.0-alpha
-/// - version: 4
-/// - date: 2016-02-25
+/// - version: 5
+/// - date: 2016-04-01
 class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
@@ -75,7 +75,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
-    var fileItems: [AnyObject] = []
+    var fileItems: [NSArray] = []
     
     /// A reference to the original URL path to the file that
     /// has been passed to the document provider

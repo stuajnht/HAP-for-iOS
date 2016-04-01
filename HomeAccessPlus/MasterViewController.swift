@@ -84,7 +84,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
-    var fileItems: [AnyObject] = []
+    var fileItems: [NSArray] = []
 
 
     override func viewDidLoad() {
@@ -1383,7 +1383,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         collapseDetailViewController = coder.decodeBoolForKey("collapseDetailViewController")
         showFileExistsAlert = coder.decodeBoolForKey("showFileExistsAlert")
         currentPath = coder.decodeObjectForKey("currentPath") as! String
-        self.fileItems = coder.decodeObjectForKey("fileItems") as! [AnyObject]
+        self.fileItems = coder.decodeObjectForKey("fileItems") as! [NSArray]
         
         super.decodeRestorableStateWithCoder(coder)
     }
