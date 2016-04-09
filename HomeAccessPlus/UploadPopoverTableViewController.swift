@@ -214,6 +214,44 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         return Int(tableSections[section][1])!
     }
     
+    /// Adding user log in details to the 'Log Out' section footer,
+    /// to help identify which user is currently logged in to the app
+    ///
+    /// As it's diffucult to know who is currently logged in to the app,
+    /// a message is appended to the footer of the 'Log Out' section so
+    /// that if someone picks up a logged in device, they can see if it
+    /// is them or another user who is currently logged in. It is also
+    /// useful to see who has not logged out of the device when they should
+    /// See: http://www.adventuresofanentrepreneur.net/creating-a-mobile-appsgames-company/headers-and-footers-in-ios-tableview
+    /// See: http://www.ioscreator.com/tutorials/customizing-header-footer-table-view-ios8-swift
+    ///
+    /// - note: This uses the hard coded table sections that are defined
+    ///         in the 'tableSections' array, and this function needs to
+    ///         be udated according if there are any changes
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-09
+    override func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        var footerMessage = ""
+        
+        switch (section) {
+        case 0:
+            footerMessage = "Upload a photo, video or file from another app on your device to the current folder"
+        case 1:
+            footerMessage = "Create a new folder inside the current folder you are viewing"
+        case 2:
+            footerMessage = "Log out from this device so another user can access their files"
+            footerMessage += ". Currently logged in as " + settings!.stringForKey(settingsFirstName)! + " (" + settings!.stringForKey(settingsUsername)! + ")"
+        default:
+            footerMessage = ""
+        }
+        
+        logger.verbose("Footer message for upload popover section \(section) is \(footerMessage)")
+        return footerMessage
+    }
+    
     /// Seeing what cell the user has selected from the table, and
     /// perform the relevant action
     ///
