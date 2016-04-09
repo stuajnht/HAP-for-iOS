@@ -84,7 +84,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
-    var fileItems: [AnyObject] = []
+    var fileItems: [NSArray] = []
 
 
     override func viewDidLoad() {
@@ -108,7 +108,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // and video files to be added from the device gallery, or for
         // any other functions included in the popover (new folder, log out)
         let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
-        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: "showUploadPopover:")
+        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
         self.navigationItem.rightBarButtonItem = menuButton
         
         // Setting up the ability to refresh the table view when the
@@ -1039,8 +1039,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-28
+    /// - version: 3
+    /// - date: 2016-04-01
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
     ///                            current file or create a new one
@@ -1083,7 +1083,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // in the deleteFile function
             // See: http://www.dotnetperls.com/2d-array-swift
             var indexPosition = -1
-            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+            for arrayPosition in 0 ..< fileItems.count {
                 if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
                     indexPosition = arrayPosition
@@ -1348,7 +1348,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     
     func presentationController(controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
         let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
-        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: "dismiss")
+        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: #selector(MasterViewController.dismiss))
         navigationController.topViewController!.navigationItem.rightBarButtonItem = btnCancelUploadPopover
         // Setting the navigation bar colour
         navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
@@ -1383,7 +1383,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         collapseDetailViewController = coder.decodeBoolForKey("collapseDetailViewController")
         showFileExistsAlert = coder.decodeBoolForKey("showFileExistsAlert")
         currentPath = coder.decodeObjectForKey("currentPath") as! String
-        self.fileItems = coder.decodeObjectForKey("fileItems") as! [AnyObject]
+        self.fileItems = coder.decodeObjectForKey("fileItems") as! [NSArray]
         
         super.decodeRestorableStateWithCoder(coder)
     }

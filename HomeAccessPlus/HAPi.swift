@@ -594,8 +594,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 4
-    /// - date: 2016-01-24
+    /// - version: 5
+    /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
@@ -699,7 +699,7 @@ class HAPi {
                     
                     while characterMapPosition < characterMap.count {
                         decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-                        characterMapPosition++
+                        characterMapPosition = characterMapPosition.successor()
                     }
                     
                     let formattedDeletionResponse = decodedString

@@ -2,6 +2,9 @@
 
 ## 0.7.0
 
+### Notes
+* Starting from build 729, this project uses Xcode 7.3 and Swift 2.2. These have been updated from Xcode 7.1.1 and Swift 2.1, which were used since this project began
+
 ### New Stuff
 * Upload files to the HAP+ server from cloud storage providers (the relevant apps need to be installed on the iOS device too)
 * Files can be uploaded and downloaded in some external apps without needing to download from the Home Access Plus+ app first

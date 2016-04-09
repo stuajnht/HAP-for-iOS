@@ -128,7 +128,7 @@ class HomeAccessPlusUITests: XCTestCase {
         
         while characterMapPosition < characterMap.count {
             decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-            characterMapPosition++
+            characterMapPosition = characterMapPosition.successor()
         }
         
         // Reversing the string, just to obscure it a bit more

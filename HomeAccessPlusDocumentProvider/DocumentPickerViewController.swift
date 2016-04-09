@@ -37,8 +37,8 @@ import XCGLogger
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.7.0-alpha
-/// - version: 4
-/// - date: 2016-02-25
+/// - version: 5
+/// - date: 2016-04-01
 class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
     
     // Adding a reference to the file browser table,
@@ -75,7 +75,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
-    var fileItems: [AnyObject] = []
+    var fileItems: [NSArray] = []
     
     /// A reference to the original URL path to the file that
     /// has been passed to the document provider
@@ -791,8 +791,8 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-28
+    /// - version: 3
+    /// - date: 2016-04-01
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
     ///                            current file or create a new one
@@ -835,7 +835,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // in the deleteFile function
             // See: http://www.dotnetperls.com/2d-array-swift
             var indexPosition = -1
-            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+            for arrayPosition in 0 ..< fileItems.count {
                 if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
                     indexPosition = arrayPosition
