@@ -50,6 +50,8 @@ let settingsUserRoles = "userRoles"
 let settingsUploadFileLocation = "uploadFileLocation"
 let settingsUploadPhotosLocation = "uploadPhotosLocation"
 let settingsLastAPIAccessTime = "lastAPIAccessTime"
+let settingsUserTimetabledLessons = "userTimetabledLessons"
+let settingsAutoLogOutEnabled = "autoLogOutEnabled"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

@@ -389,6 +389,16 @@ class HAPi {
                                 let json = JSON(data: data)
                                 logger.verbose("Response JSON for timetable (JSON): \(json)")
                                 
+                                /// Array to hold the lessons that the user takes
+                                ///
+                                /// - note: The order of and data stored in this array is in
+                                ///         the following order:
+                                ///   1. Day number
+                                ///   2. Lesson period
+                                ///   3. The start time of the lesson
+                                ///   4. The end time of the lesson
+                                var lessons: [NSArray] = []
+                                
                                 // Looping through the days presented, to save the timetable
                                 for (_,subJson) in json {
                                     let dayNumber = subJson["Day"].stringValue
@@ -396,13 +406,26 @@ class HAPi {
                                     
                                     // Retreiving details for the days lessons
                                     for lesson in subJson["Lessons"].arrayValue {
-                                        let period = lesson["Period"]
-                                        let startTime = lesson["StartTime"]
-                                        let endTime = lesson["EndTime"]
+                                        let period = lesson["Period"].stringValue
+                                        let startTime = lesson["StartTime"].stringValue
+                                        let endTime = lesson["EndTime"].stringValue
                                         logger.debug("Day: \(dayNumber), Lesson: \(period), Starts: \(startTime), Ends: \(endTime)")
+                                        
+                                        // Adding the current lesson to the array
+                                        var lesson: [String] = []
+                                        lesson = [dayNumber, period, startTime, endTime]
+                                        lessons.append(lesson)
                                     }
                                 }
+                                
+                                // Saving the lesson array to the settings, so that it
+                                // can be retreived when needed
+                                logger.verbose("Lessons array for current user: \(lessons)")
+                                settings!.setObject(lessons, forKey: settingsUserTimetabledLessons)
                             }
+                            
+                            // Enabling auto-logout for the current logged in user
+                            settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
                             
                             // Letting the callback know we have successfully collected
                             // a timetable for the logged in user
@@ -413,16 +436,27 @@ class HAPi {
                             logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
                             logger.info("Disabling automatic log out of user")
                             
+                            // Disabling auto-logout for the current logged in user
+                            settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+                            
                             callback(false)
                         }
                         
                     case .Failure(let error):
                         logger.warning("Request failed with error: \(error)")
+                        
+                        // Disabling auto-logout for the current logged in user
+                        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+                        
                         callback(false)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
+            
+            // Disabling auto-logout for the current logged in user
+            settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+            
             callback(false)
         }
     }
