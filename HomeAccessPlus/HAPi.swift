@@ -215,6 +215,10 @@ class HAPi {
                                 self.getTimetable({ (result: Bool) -> Void in
                                     if (result) {
                                         logger.info("Successfully collected a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                        
+                                        // Enabling auto-logout for the current logged in user
+                                        logger.info("Enabling auto-logout for the current user")
+                                        settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
                                     } else {
                                         logger.warning("Failed to get a timetable for \(settings!.stringForKey(settingsUsername)!)")
                                     }
@@ -424,9 +428,6 @@ class HAPi {
                                 settings!.setObject(lessons, forKey: settingsUserTimetabledLessons)
                             }
                             
-                            // Enabling auto-logout for the current logged in user
-                            settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
-                            
                             // Letting the callback know we have successfully collected
                             // a timetable for the logged in user
                             callback(true)
@@ -435,28 +436,16 @@ class HAPi {
                             // automatically logging out the logged in user
                             logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
                             logger.info("Disabling automatic log out of user")
-                            
-                            // Disabling auto-logout for the current logged in user
-                            settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
-                            
                             callback(false)
                         }
                         
                     case .Failure(let error):
                         logger.warning("Request failed with error: \(error)")
-                        
-                        // Disabling auto-logout for the current logged in user
-                        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
-                        
                         callback(false)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            
-            // Disabling auto-logout for the current logged in user
-            settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
-            
             callback(false)
         }
     }

@@ -1306,8 +1306,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 2
-    /// - date: 2016-03-15
+    /// - version: 3
+    /// - date: 2016-04-13
     func logOutUser() {
         logger.info("Logging out user")
         
@@ -1335,6 +1335,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Stopping API test check timer as no user is logged in")
         let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
         delegate!.stopAPITestCheckTimer()
+        
+        // Disabling auto-logout so that the next user to log in
+        // to the device isn't accidentally logged out if they
+        // don't have a timetable assigned to them. This is done
+        // here instead of before the HAPi getTimetable function,
+        // as it's to do with tidying up of the device from the
+        // recently logged in user
+        logger.debug("Disabling auto-logout as the user has been logged out")
+        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
         
         // Removing all of the navigation views and showing
         // the login view controller
