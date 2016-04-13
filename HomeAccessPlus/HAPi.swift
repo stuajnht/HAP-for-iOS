@@ -363,8 +363,10 @@ class HAPi {
                     
                     switch response.result {
                     case .Success:
-                        let json = JSON(response.result.value!)
-                        logger.verbose("Response JSON for tabletable: \(json)")
+                        // Formatting the JSON response as a string, to
+                        // see if there is any content returned
+                        let jsonString = JSON(response.result.value!)
+                        logger.verbose("Response JSON for tabletable (string): \(jsonString)")
                         
                         // Logging the last successful contact to the HAP+
                         // API, to reset the session cookies. This is saved
@@ -375,9 +377,24 @@ class HAPi {
                         // Seeing if the timetable returned has anything in it
                         // This can be checked by having at least one timetabled
                         // day and lesson, otherwise the returned API JSON is []
-                        if json.rawString() != "[]" {
+                        if jsonString.rawString() != "[]" {
                             logger.info("Valid timetable found for \(settings!.stringForKey(settingsUsername)!)")
                             logger.info("Enabling automatic log out of user at the end of the current lesson, if applicable")
+                            
+                            // Converting the JSON string returned from the server
+                            // into a JSON object, otherwise it's not possible to
+                            // access any data
+                            // See: https://www.hackingwithswift.com/example-code/libraries/how-to-parse-json-using-swiftyjson
+                            if let data = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding) {
+                                let json = JSON(data: data)
+                                logger.verbose("Response JSON for timetable (JSON): \(json)")
+                                
+                                // Looping through the days presented, to save the timetable
+                                for (_,subJson) in json {
+                                    let dayNumber = subJson["Day"].stringValue
+                                    logger.debug("Getting lessons for \(settings!.stringForKey(settingsUsername)!) on day: \(dayNumber)")
+                                }
+                            }
                             
                             // Letting the callback know we have successfully collected
                             // a timetable for the logged in user
