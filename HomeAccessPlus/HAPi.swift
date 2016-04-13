@@ -143,8 +143,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-07
+    /// - version: 2
+    /// - date: 2016-04-13
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
@@ -206,6 +206,20 @@ class HAPi {
                                     logger.warning("Failed to set the roles for \(settings!.stringForKey(settingsUsername)!)")
                                 }
                             })
+                            
+                            // Attempting to get the timetable for the current user,
+                            // only if the device type is not set up or in "shared" mode
+                            if ((settings!.stringForKey(settingsDeviceType) == "shared") || (settings!.stringForKey(settingsDeviceType) == nil)) {
+                                logger.debug("Device is new or in shared mode, so attempting to retreive a timetable for the current user")
+                                
+                                self.getTimetable({ (result: Bool) -> Void in
+                                    if (result) {
+                                        logger.info("Successfully collected a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                    } else {
+                                        logger.warning("Failed to get a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                    }
+                                })
+                            }
                             
                             // Letting the callback know we have successfully logged in
                             callback(true)
@@ -285,6 +299,106 @@ class HAPi {
                 settings!.setObject("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
+        }
+    }
+    
+    /// Attempts to get the timetable for the currently logged in user
+    ///
+    /// Once a user has successfully logged in, attempt to load their timetable
+    /// from the HAP+ server, so that if the device is set up in "Shared" mode,
+    /// they can be logged out automatically when the lesson its over (as some
+    /// students may forget to do this and just put the device away)
+    ///
+    /// This check is always completed on the first successful log in as it is
+    /// not yet known what mode the device is going to be in. All future successful
+    /// log in attempts will call this function only if the device is set up in
+    /// "shared" mode, to prevent unneeded server API calls
+    ///
+    /// The API call used in this function is "/api/timetable/LoadUser/{username}"
+    /// and not "/api/timetable/LoadUser/" as this didn't always seem to work as
+    /// expected during initial testing, even though it calls pretty much the same
+    /// functions on the HAP+ server. It is currently unclear why this is (but
+    /// most likely due to the author doing something stupid! Besides, we know
+    /// the username, why not utilise it?)
+    ///
+    /// If the timetabled user logs on to the device outside of their timetabled
+    /// lessons (such as they have logged in to the device during a breaktime)
+    /// then it is up to the user to log themselves out of the app. It cannot be
+    /// assumed that the start time of their first lesson the next day should be used
+    /// to log them out, as they may not have a lesson during period 1 (for example,
+    /// sixth form students) when another student (a year 7) would, meaning they
+    /// would still be logged in
+    ///
+    /// If there is no timetable for the user loaded from the HAP+ server (such
+    /// as a member of the IT department logs in to the device) the HAP+ server
+    /// will return an empty array. As it is not a good idea to log this user
+    /// out if they have borrowed the device with a reason of "Your lesson has
+    /// come to an end" due to it being unexpected for them. Therefore, the app
+    /// will behave as though it is in "personal" mode
+    ///
+    /// - seealso: loginUser
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-13
+    func getTimetable(callback:(Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            let httpHeaders = [
+                "Content-Type": "application/json"
+            ]
+            
+            // Connecting to the API to attempt to load the users timetable
+            logger.debug("Attempting to get the timetable for: \(settings!.stringForKey(settingsUsername)!)")
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.stringForKey(settingsUsername)!, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseString { response in
+                    
+                    logger.debug("Timetable API response successful: \(response.result.isSuccess)")
+                    logger.verbose("Timetable API data: \(response.result.value!)")
+                    
+                    switch response.result {
+                    case .Success:
+                        let json = JSON(response.result.value!)
+                        logger.verbose("Response JSON for tabletable: \(json)")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
+                        // Seeing if the timetable returned has anything in it
+                        // This can be checked by having at least one timetabled
+                        // day and lesson, otherwise the returned API JSON is []
+                        if json.rawString() != "[]" {
+                            logger.info("Valid timetable found for \(settings!.stringForKey(settingsUsername)!)")
+                            logger.info("Enabling automatic log out of user at the end of the current lesson, if applicable")
+                            
+                            // Letting the callback know we have successfully collected
+                            // a timetable for the logged in user
+                            callback(true)
+                        } else {
+                            // No timetable was found for the user, so disable
+                            // automatically logging out the logged in user
+                            logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
+                            logger.info("Disabling automatic log out of user")
+                            
+                            callback(false)
+                        }
+                        
+                    case .Failure(let error):
+                        logger.warning("Request failed with error: \(error)")
+                        callback(false)
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(false)
         }
     }
     
