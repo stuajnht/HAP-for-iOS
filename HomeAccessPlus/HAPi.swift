@@ -393,6 +393,14 @@ class HAPi {
                                 for (_,subJson) in json {
                                     let dayNumber = subJson["Day"].stringValue
                                     logger.debug("Getting lessons for \(settings!.stringForKey(settingsUsername)!) on day: \(dayNumber)")
+                                    
+                                    // Retreiving details for the days lessons
+                                    for lesson in subJson["Lessons"].arrayValue {
+                                        let period = lesson["Period"]
+                                        let startTime = lesson["StartTime"]
+                                        let endTime = lesson["EndTime"]
+                                        logger.debug("Day: \(dayNumber), Lesson: \(period), Starts: \(startTime), Ends: \(endTime)")
+                                    }
                                 }
                             }
                             
