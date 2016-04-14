@@ -426,6 +426,16 @@ class HAPi {
                                 // can be retreived when needed
                                 logger.verbose("Lessons array for current user: \(lessons)")
                                 settings!.setObject(lessons, forKey: settingsUserTimetabledLessons)
+                                
+                                // Getting a time the current lesson ends, if applicable
+                                // Note: HAP+ returns the days as Monday - 1, Tuesday - 2, etc...
+                                //       the following code does Sun - 1, Mon - 2, etc...
+                                //       so 1 is taken from the result
+                                // See: http://stackoverflow.com/a/35006174
+                                let cal: NSCalendar = NSCalendar.currentCalendar()
+                                let comp: NSDateComponents = cal.components(.Weekday, fromDate: NSDate())
+                                let dayNumberToday = comp.weekday - 1
+                                logger.debug("Today is day number: \(dayNumberToday)")
                             }
                             
                             // Letting the callback know we have successfully collected
