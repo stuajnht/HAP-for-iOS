@@ -436,6 +436,17 @@ class HAPi {
                                 let comp: NSDateComponents = cal.components(.Weekday, fromDate: NSDate())
                                 let dayNumberToday = comp.weekday - 1
                                 logger.debug("Today is day number: \(dayNumberToday)")
+                                
+                                // Looping around the items in the lessons array, to find
+                                // what lesson we are currently in
+                                for arrayPosition in 0 ..< lessons.count {
+                                    // Seeing if the lesson array is the same as today, and
+                                    // skip it if not
+                                    let lessonDayNumber = lessons[arrayPosition][0] as! String
+                                    if (lessonDayNumber == String(dayNumberToday)) {
+                                        logger.debug("Lesson found happening today: \(lessons[arrayPosition][1])")
+                                    }
+                                }
                             }
                             
                             // Letting the callback know we have successfully collected
