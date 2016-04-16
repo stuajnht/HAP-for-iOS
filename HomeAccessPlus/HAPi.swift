@@ -493,6 +493,12 @@ class HAPi {
                                             // lesson, so we can auto log them out
                                             logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
                                             enableAutoLogout = true
+                                            
+                                            // Setting the time that the device should log the user
+                                            // out by, so that it can be checked in the AppDelegate
+                                            // autoLogOutTimer
+                                            logger.debug("Setting auto-log out time to be: \(lessonEndTime.timeIntervalSince1970)")
+                                            settings!.setDouble(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
                                         } else {
                                             logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
                                         }

@@ -51,6 +51,7 @@ let settingsUploadFileLocation = "uploadFileLocation"
 let settingsUploadPhotosLocation = "uploadPhotosLocation"
 let settingsLastAPIAccessTime = "lastAPIAccessTime"
 let settingsAutoLogOutEnabled = "autoLogOutEnabled"
+let settingsAutoLogOutTime = "autoLogOutTime"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
