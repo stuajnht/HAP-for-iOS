@@ -500,7 +500,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // logs in. If the setting is false, then call the stop
         // timer function for this check
         if (settings!.boolForKey(settingsAutoLogOutEnabled)) {
-            logger.debug("Auto-log out check timer says hello!")
+            // Getting the current date and time, so that it can be
+            // compated with the time that the user should be logged
+            // out of the app by, and when the warning alerts at to
+            // be shown to them
+            let timeNow = NSDate().timeIntervalSince1970
+            logger.verbose("The current time on the device is (UNIX Epoch): \(timeNow)")
+            logger.debug("Checking if the user should be logged out of the device")
+            
+            // Seeing if the current time is at or after the time the
+            // user should be auto-logged out from the device by
+            if (NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)) <= timeNow) {
+                // It is past the end of the lesson, so call the logOutUser()
+                // function
+                logger.info("Logging the user out of the device, as it is at or past the end of the lesson: (\(NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)))")
+            }
         } else {
             logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
             stopAutoLogOutCheckTimer()
