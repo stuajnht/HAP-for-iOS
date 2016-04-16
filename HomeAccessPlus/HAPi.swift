@@ -430,10 +430,7 @@ class HAPi {
                                     }
                                 }
                                 
-                                // Saving the lesson array to the settings, so that it
-                                // can be retreived when needed
                                 logger.verbose("Lessons array for current user: \(lessons)")
-                                settings!.setObject(lessons, forKey: settingsUserTimetabledLessons)
                                 
                                 // Getting the yyyy-MM-dd format of today, as the response
                                 // from the HAP+ API only includes a time, so the timeFormatter
