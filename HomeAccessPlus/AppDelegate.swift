@@ -110,15 +110,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // See: http://stackoverflow.com/a/26591842
         self.window?.makeKeyAndVisible()
         
-        // Seeing if the user session tokens need to be renewed
-        // since the app has been brought to the foreground
-        logger.verbose("Application starting, preparing to check last API access")
-        renewUserSessionTokens()
+        logger.debug("Application starting")
         
         // Seeing if the user should be auto-logged out, and
-        // performing it when needed
+        // starting the timer to perform it when needed
+        // Note: This needs to go before calls to renewUserSessionTokens,
+        //       so that if a user should be logged out, there's no point
+        //       in renewing the session tokens for them, and also to
+        //       speed up their log out from the device
+        logger.debug("Seeing if the user should be logged out of the app")
+        autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
+        
+        // Seeing if the user session tokens need to be renewed
+        // since the app has been brought to the foreground
+        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        renewUserSessionTokens()
         
         return true
     }
@@ -141,15 +149,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
         
-        // Seeing if the user session tokens need to be renewed
-        // since the app has been brought to the foreground
-        logger.verbose("Application entering foreground, preparing to check last API access")
-        renewUserSessionTokens()
+        logger.debug("Application entering foreground")
         
         // Seeing if the user should be auto-logged out, and
-        // performing it when needed
+        // starting the timer to perform it when needed
+        // Note: This needs to go before calls to renewUserSessionTokens,
+        //       so that if a user should be logged out, there's no point
+        //       in renewing the session tokens for them, and also to
+        //       speed up their log out from the device
+        logger.debug("Seeing if the user should be logged out of the app")
+        autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
+        
+        // Seeing if the user session tokens need to be renewed
+        // since the app has been brought to the foreground
+        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        renewUserSessionTokens()
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
