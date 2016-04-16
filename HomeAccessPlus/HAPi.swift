@@ -427,6 +427,16 @@ class HAPi {
                                 logger.verbose("Lessons array for current user: \(lessons)")
                                 settings!.setObject(lessons, forKey: settingsUserTimetabledLessons)
                                 
+                                // Getting the yyyy-MM-dd format of today, as the response
+                                // from the HAP+ API only includes a time, so the timeFormatter
+                                // variable will put the date as 2001-01-01 if todays date is
+                                // not included
+                                // See: http://stackoverflow.com/a/28347285
+                                let formatShortDate = NSDateFormatter()
+                                formatShortDate.dateFormat = "yyyy-MM-dd"
+                                let today = formatShortDate.stringFromDate(NSDate())
+                                logger.debug("Todays date is: \(today)")
+                                
                                 // Getting a time the current lesson ends, if applicable
                                 // Note: HAP+ returns the days as Monday - 1, Tuesday - 2, etc...
                                 //       the following code does Sun - 1, Mon - 2, etc...
@@ -445,6 +455,20 @@ class HAPi {
                                     let lessonDayNumber = lessons[arrayPosition][0] as! String
                                     if (lessonDayNumber == String(dayNumberToday)) {
                                         logger.debug("Lesson found happening today: \(lessons[arrayPosition][1])")
+                                        
+                                        // Seeing if the current time is between the lesson
+                                        // start and end time
+                                        // Formatting the time from the string to be a valid
+                                        // NSDate, composed of todays date and the time returned
+                                        // from the JSON response
+                                        // See: http://stackoverflow.com/a/28627873
+                                        let timeFormatter = NSDateFormatter()
+                                        timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+                                        timeFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                                        
+                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String))!
+                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String))!
+                                        logger.debug("Lesson being checked starts at \(lessonStartTime) and ends at \(lessonEndTime)")
                                     }
                                 }
                             }
