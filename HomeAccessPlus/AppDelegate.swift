@@ -487,6 +487,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /// they will be logged out automatically in 5 minutes or, if it is
     /// the end of the lesson, log them out of the device
     ///
+    /// - note: Due to the fact that this function is called every minute,
+    ///         there are some situations whereby it will be the following
+    ///         minute that the user is logged out. For instance, it has
+    ///         happened where the lesson finishes at 16:00 and this check
+    ///         was called at 15:59:59.959 (true story)
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
     /// - version: 1
@@ -529,6 +535,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // the login view controller
                 // See: http://sketchytech.blogspot.co.uk/2012/09/return-to-root-view-controller-from.html
                 self.window?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+            } else {
+                // Seeing if a warning message should be shown to the user
+                // that they are about to be logged off (in 5 minutes) so
+                // that they don't think something weird happened to the
+                // app. If they're not looking at the time, then there's
+                // probably nothing that can be done for them. To prevent
+                // this alert constantly re-appearing, another bound is
+                // put on this so that it will only shown when between
+                // 4 and 5 minutes until auto-logoff
+                // Note: Trying to work this out made my brain hurt. There's
+                //       probably something stupid going on here, but am
+                //       not entirely sure. Working outs:
+                //       Time now: 11:55:30
+                //       Log off:  12:00:00
+                //
+                //       Lower bound: 11:55:30 + 4 mins = 11:59:30
+                //       Upper bound: 11:55:30 + 5 mins = 12:00:30
+                //
+                //       'if' order: 11:59:30 <= 12:00:00 <= 12:00:30
+                // See: http://stackoverflow.com/a/29465300
+                let alertLowerBound = NSTimeInterval(timeNow) + NSTimeInterval(4.0 * 60.0)
+                let alertUpperBound = NSTimeInterval(timeNow) + NSTimeInterval(5.0 * 60.0)
+                let logOutTime = NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime))
+                if ((alertLowerBound <= logOutTime) && (logOutTime <= alertUpperBound)) {
+                    logger.info("There is less than 5 minutes before the user will be logged out. Showing alert to user")
+                }
             }
         } else {
             logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
