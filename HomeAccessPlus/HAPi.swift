@@ -1224,4 +1224,54 @@ class HAPi {
         // calling function
         return fileName.joinWithSeparator(".")
     }
+    
+    // MARK: Log out user
+    
+    /// Logs the user out of the app
+    ///
+    /// When a user has finished with using the app to browse
+    /// their files, and wants to pass the device onto another
+    /// person, then they should be logged out and their logon
+    /// tokens and other settings removed
+    ///
+    /// - note: This used to live in the MasterViewController,
+    ///         but functions relating to removing data exist
+    ///         here instead, while tasks such as removing view
+    ///         controllers are left to the relevant calling
+    ///         classes
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 5
+    /// - date: 2016-04-16
+    func logOutUser() {
+        logger.info("Logging out user")
+        
+        // Removing user password from the Keychain
+        // Note: This needs to be done before the username setting
+        //       is cleared
+        do {
+            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            logger.debug("Successfully deleted password")
+        } catch {
+            logger.error("Failed to delete the password")
+        }
+        
+        // Clearing any settings that were created on logon
+        settings!.removeObjectForKey(settingsFirstName)
+        settings!.removeObjectForKey(settingsUsername)
+        settings!.removeObjectForKey(settingsToken1)
+        settings!.removeObjectForKey(settingsToken2)
+        settings!.removeObjectForKey(settingsToken2Name)
+        settings!.removeObjectForKey(settingsUserRoles)
+        
+        // Disabling auto-logout so that the next user to log in
+        // to the device isn't accidentally logged out if they
+        // don't have a timetable assigned to them. This is done
+        // here instead of before the HAPi getTimetable function,
+        // as it's to do with tidying up of the device from the
+        // recently logged in user
+        logger.debug("Disabling auto-logout as the user has been logged out")
+        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+    }
 }

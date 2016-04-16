@@ -513,7 +513,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if (NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)) <= timeNow) {
                 // It is past the end of the lesson, so call the logOutUser()
                 // function
-                logger.info("Logging the user out of the device, as it is at or past the end of the lesson: (\(NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)))")
+                logger.info("Logging the user out of the device, as it is at or past the end of the lesson: \(NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)))")
+                
+                // Calling the log out function
+                api.logOutUser()
+                
+                // Stopping the app delegate check timers, so as to
+                // avoid updating the last successful contact time
+                // for the API if no user is logged in to the app or
+                // attempting to log the user out
+                logger.debug("Stopping check timers as no user is logged in")
+                stopTimers()
+                
+                // Removing all of the navigation views and showing
+                // the login view controller
+                // See: http://sketchytech.blogspot.co.uk/2012/09/return-to-root-view-controller-from.html
+                self.window?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
             }
         } else {
             logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
