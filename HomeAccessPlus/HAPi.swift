@@ -447,6 +447,19 @@ class HAPi {
                                 let dayNumberToday = comp.weekday - 1
                                 logger.debug("Today is day number: \(dayNumberToday)")
                                 
+                                // Setting up a formatter so that the dates that are returned
+                                // from the JSON request, along with the current date time, are
+                                // formatted in a standard way so that they can be compared
+                                // See: http://stackoverflow.com/a/28627873
+                                let timeFormatter = NSDateFormatter()
+                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+                                timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                                
+                                // Getting the date time as of now, so that it can be
+                                // compared against the lesson start and end times
+                                let timeNow = timeFormatter.stringFromDate(NSDate())
+                                logger.debug("Date time now is: \(timeNow)")
+                                
                                 // Looping around the items in the lessons array, to find
                                 // what lesson we are currently in
                                 for arrayPosition in 0 ..< lessons.count {
@@ -456,19 +469,25 @@ class HAPi {
                                     if (lessonDayNumber == String(dayNumberToday)) {
                                         logger.debug("Lesson found happening today: \(lessons[arrayPosition][1])")
                                         
-                                        // Seeing if the current time is between the lesson
-                                        // start and end time
                                         // Formatting the time from the string to be a valid
                                         // NSDate, composed of todays date and the time returned
                                         // from the JSON response
-                                        // See: http://stackoverflow.com/a/28627873
-                                        let timeFormatter = NSDateFormatter()
-                                        timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-                                        timeFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-                                        
-                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String))!
-                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String))!
+                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
+                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
                                         logger.debug("Lesson being checked starts at \(lessonStartTime) and ends at \(lessonEndTime)")
+                                        
+                                        // Seeing if the current time is between the lesson
+                                        // start and end times
+                                        // Note: There seems to be many ways to do this from
+                                        //       the stackoverflow answers, so this may not be
+                                        //       entirely efficient
+                                        // See: http://stackoverflow.com/a/29653553
+                                        let currentTime = timeFormatter.dateFromString(timeNow)!
+                                        if lessonStartTime.compare(currentTime) == .OrderedAscending && lessonEndTime.compare(currentTime) == .OrderedDescending {
+                                            logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
+                                        } else {
+                                            logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
+                                        }
                                     }
                                 }
                             }
