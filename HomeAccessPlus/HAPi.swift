@@ -143,8 +143,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 2
-    /// - date: 2016-04-13
+    /// - version: 3
+    /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
@@ -220,7 +220,8 @@ class HAPi {
                                         logger.info("Enabling auto-logout for the current user")
                                         settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
                                     } else {
-                                        logger.warning("Failed to get a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                        logger.warning("Did not get a timetable for \(settings!.stringForKey(settingsUsername)!), or it is currently outside a timetabled lesson")
+                                        logger.info("Not enabling auto-logout for the current user")
                                     }
                                 })
                             }
@@ -345,8 +346,15 @@ class HAPi {
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
     /// - version: 1
-    /// - date: 2016-04-13
+    /// - date: 2016-04-16
     func getTimetable(callback:(Bool) -> Void) -> Void {
+        // Seeing if auto-logout should be enabled. This is set to
+        // false by default as we don't want users being logged out
+        // of the device if they are not in a lesson, and only set
+        // to true when it has been confirmed that a user is using
+        // the device during a timetabled lesson
+        var enableAutoLogout = false
+        
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -484,7 +492,10 @@ class HAPi {
                                         // See: http://stackoverflow.com/a/29653553
                                         let currentTime = timeFormatter.dateFromString(timeNow)!
                                         if lessonStartTime.compare(currentTime) == .OrderedAscending && lessonEndTime.compare(currentTime) == .OrderedDescending {
+                                            // The user is currently using the device in a timetabled
+                                            // lesson, so we can auto log them out
                                             logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
+                                            enableAutoLogout = true
                                         } else {
                                             logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
                                         }
@@ -492,25 +503,25 @@ class HAPi {
                                 }
                             }
                             
-                            // Letting the callback know we have successfully collected
-                            // a timetable for the logged in user
-                            callback(true)
+                            // Letting the callback know if we have successfully collected
+                            // a timetable for the logged in user, and if the auto-logout
+                            // should be enabled
+                            callback(enableAutoLogout)
                         } else {
                             // No timetable was found for the user, so disable
                             // automatically logging out the logged in user
                             logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
-                            logger.info("Disabling automatic log out of user")
-                            callback(false)
+                            callback(enableAutoLogout)
                         }
                         
                     case .Failure(let error):
                         logger.warning("Request failed with error: \(error)")
-                        callback(false)
+                        callback(enableAutoLogout)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(false)
+            callback(enableAutoLogout)
         }
     }
     
