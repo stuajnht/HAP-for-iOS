@@ -1306,8 +1306,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 3
-    /// - date: 2016-04-13
+    /// - version: 4
+    /// - date: 2016-04-16
     func logOutUser() {
         logger.info("Logging out user")
         
@@ -1329,12 +1329,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         settings!.removeObjectForKey(settingsToken2Name)
         settings!.removeObjectForKey(settingsUserRoles)
         
-        // Stopping the app delegate API test check timer, so
-        // as to avoid updating the last successful contact time
-        // for the API if no user is logged in to the app
-        logger.debug("Stopping API test check timer as no user is logged in")
+        // Stopping the app delegate check timers, so as to
+        // avoid updating the last successful contact time
+        // for the API if no user is logged in to the app or
+        // attempting to log the user out
+        logger.debug("Stopping check timers as no user is logged in")
         let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
-        delegate!.stopAPITestCheckTimer()
+        delegate!.stopTimers()
         
         // Disabling auto-logout so that the next user to log in
         // to the device isn't accidentally logged out if they

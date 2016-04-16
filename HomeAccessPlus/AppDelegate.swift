@@ -64,6 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Creating a timer to connect to the HAP+ server API
     // test, to keep the user session tokens active
     var apiTestCheckTimer : NSTimer = NSTimer()
+    
+    // Creating a time to see if the device should be automatically
+    // logged out for the current user, and to alert them
+    // when this time is coming near
+    var autoLogOutCheckTimer : NSTimer = NSTimer()
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -110,6 +115,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.verbose("Application starting, preparing to check last API access")
         renewUserSessionTokens()
         
+        // Seeing if the user should be auto-logged out, and
+        // performing it when needed
+        logger.debug("Starting auto-log out timer")
+        startAutoLogOutCheckTimer()
+        
         return true
     }
 
@@ -119,8 +129,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Stopping the API test timer as the app is going
         // into the background
-        logger.debug("App transitioning to background state, so disabling API check timer")
-        stopAPITestCheckTimer()
+        logger.debug("App transitioning to background state, so disabling timers")
+        stopTimers()
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
@@ -135,6 +145,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // since the app has been brought to the foreground
         logger.verbose("Application entering foreground, preparing to check last API access")
         renewUserSessionTokens()
+        
+        // Seeing if the user should be auto-logged out, and
+        // performing it when needed
+        logger.debug("Starting auto-log out timer")
+        startAutoLogOutCheckTimer()
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
@@ -274,6 +289,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    // MARK: Start Timers
+    
+    /// Starting all timers in one go, in a centralised location
+    ///
+    /// There can be multiple timers that run during this apps
+    /// lifecycle. While each timer has its own start function
+    /// that can be accessed individually, this function starts
+    /// all that are listed in it during app start-up and restoration
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    ///
+    /// - seealso: startAPITestCheckTimer
+    /// - seealso: startAutoLogOutCheckTimer
+    func startTimers() {
+        startAPITestCheckTimer()
+        startAutoLogOutCheckTimer()
+    }
+    
     /// Starting the API test check timer, so that the API can be
     /// periodically checked to ensure the user session tokens
     /// stay active
@@ -285,8 +321,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - seealso: renewUserSessionTokens
     /// - seealso: apiTestCheck
+    /// - seealso: startTimers
     func startAPITestCheckTimer() {
         apiTestCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(AppDelegate.apiTestCheck), userInfo: nil, repeats: true)
+    }
+    
+    /// Starting the auto log out test check timer, so that the
+    /// currently logged in user can be logged out at the end of
+    /// their current lesson
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    ///
+    /// - seealso: startTimers
+    /// - seealso: autoLogOutCheck
+    func startAutoLogOutCheckTimer() {
+        autoLogOutCheckTimer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(AppDelegate.autoLogOutCheck), userInfo: nil, repeats: true)
+    }
+    
+    // MARK: Stop Timers
+    
+    /// Stopping all timers in one go, in a centralised location
+    ///
+    /// There can be multiple timers that run during this apps
+    /// lifecycle. While each timer has its own stop function
+    /// that can be accessed individually, this function stops
+    /// all that are listed in it during app backgrounding
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    ///
+    /// - seealso: stopAPITestCheckTimer
+    /// - seealso: stopAutoLogOutCheckTimer
+    func stopTimers() {
+        stopAPITestCheckTimer()
+        stopAutoLogOutCheckTimer()
     }
     
     /// Stopping the API test check timer, to avoid updating the
@@ -300,8 +373,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - seealso: renewUserSessionTokens
     /// - seealso: apiTestCheck
+    /// - seealso: stopTimers
     func stopAPITestCheckTimer() {
         apiTestCheckTimer.invalidate()
+    }
+    
+    /// Stopping the API test check timer, to avoid updating the
+    /// last successful API contact time if the user has logged out
+    /// or the app is backgrounded
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    ///
+    /// - seealso: stopTimers
+    /// - seealso: autoLogOutCheck
+    func stopAutoLogOutCheckTimer() {
+        autoLogOutCheckTimer.invalidate()
     }
     
     /// Connects to the HAP+ server test API function periodically
@@ -370,6 +459,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         } else {
             logger.error("API test check failed due to lack of connectivity")
+        }
+    }
+    
+    /// Checks to see if the currently logged in user should be logged
+    /// out, as their lesson has finished
+    ///
+    /// If the currently logged in user has a timetable and is currently
+    /// inside a lesson and the device is set up in "shared" mode then
+    /// see if it is time to show them an alert to let them know that
+    /// they will be logged out automatically in 5 minutes or, if it is
+    /// the end of the lesson, log them out of the device
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    ///
+    /// - seealso: startAutoLogOutCheckTimer
+    /// - seealso: stopAutoLogOutCheckTimer
+    func autoLogOutCheck() {
+        // Seeing if auto-log out is enabled, as this can be
+        // set only when a user with a valid timetable and lesson
+        // logs in. If the setting is false, then call the stop
+        // timer function for this check
+        if (settings!.boolForKey(settingsAutoLogOutEnabled)) {
+            logger.debug("Auto-log out check timer says hello!")
+        } else {
+            logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
+            stopAutoLogOutCheckTimer()
         }
     }
 

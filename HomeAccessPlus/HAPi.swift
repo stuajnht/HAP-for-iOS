@@ -219,6 +219,17 @@ class HAPi {
                                         // Enabling auto-logout for the current logged in user
                                         logger.info("Enabling auto-logout for the current user")
                                         settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
+                                        
+                                        // Seeing if this code is being compiled for the main app
+                                        // or the app extensions. This hacky way is needed as app
+                                        // extensions don't allow the use of sharedApplication()
+                                        // See: http://stackoverflow.com/a/25048511
+                                        // See: http://stackoverflow.com/a/24152730
+                                        #if TARGET_IS_APP
+                                            logger.debug("Starting auto-log out timer")
+                                            let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+                                            delegate!.startAutoLogOutCheckTimer()
+                                        #endif
                                     } else {
                                         logger.warning("Did not get a timetable for \(settings!.stringForKey(settingsUsername)!), or it is currently outside a timetabled lesson")
                                         logger.info("Not enabling auto-logout for the current user")
