@@ -560,6 +560,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let logOutTime = NSTimeInterval(settings!.doubleForKey(settingsAutoLogOutTime))
                 if ((alertLowerBound <= logOutTime) && (logOutTime <= alertUpperBound)) {
                     logger.info("There is less than 5 minutes before the user will be logged out. Showing alert to user")
+                    
+                    // Creating the alert message to the user
+                    let autoLogOutController = UIAlertController(title: "Automatic Log Out", message: "The lesson will finish in 5 minutes. You will be logged out automatically", preferredStyle: UIAlertControllerStyle.Alert)
+                    autoLogOutController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+                    
+                    // Being creative to show the log out alert on the top
+                    // most view controller, as the file browsers are presented
+                    // modally
+                    // See: http://stackoverflow.com/a/33128884
+                    var hostVC = self.window?.rootViewController
+                    while let next = hostVC?.presentedViewController {
+                        hostVC = next
+                    }
+                    hostVC?.presentViewController(autoLogOutController, animated: true, completion: nil)
                 }
             }
         } else {
