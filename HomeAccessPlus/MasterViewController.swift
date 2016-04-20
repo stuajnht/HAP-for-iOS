@@ -21,6 +21,8 @@
 
 import UIKit
 import ChameleonFramework
+import Font_Awesome_Swift
+import Locksmith
 import MBProgressHUD
 import SwiftyJSON
 
@@ -52,6 +54,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // See: https://www.cocoanetics.com/2014/08/dismissal-completion-handler/
     var showFileExistsAlert : Bool = false
     
+    /// As the loadFileBrowser() function call is inside the
+    /// viewDidLoad() function, it gets called before the
+    /// app restoration classes are called. This then causes
+    /// the table to reload again, which increases the number
+    /// of items in it. To prevent this, the loadFileBrowser()
+    /// function is only called if this variable is true, and
+    /// it is only set to true when the user "browses" the
+    /// view controllers. As this variable is not saved in the
+    /// state restoration process, it will be false when the
+    /// app starts again, and the loadFileBrowser() function
+    /// will not be called
+    var viewLoadedFromBrowsing : Bool = false
+    
     /// A listing to the current folder the user is in, or
     /// an empty string if the main drive listing is being
     /// shown
@@ -69,7 +84,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
-    var fileItems: [AnyObject] = []
+    var fileItems: [NSArray] = []
 
 
     override func viewDidLoad() {
@@ -83,20 +98,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         splitViewController?.delegate = self
         
         // Setting the navigation bar colour
-        self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
-        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
-        self.navigationController!.navigationBar.translucent = false
+        self.navigationController?.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
+        self.navigationController?.navigationBar.tintColor = UIColor.flatWhiteColor()
+        self.navigationController?.navigationBar.translucent = false
         
-        // Adding an 'add' button to the navigation bar to allow files
-        // passed to this app from an external one to be uploaded, or
-        // for photo and video files to be added from the device gallery
-        // Note: This isn't shown if there is no path, i.e. we are looking
-        // at the drives listing
-        if (currentPath != "") {
-            logger.debug("Showing the upload 'add' button")
-            let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "showUploadPopover:")
-            self.navigationItem.rightBarButtonItem = addButton
-        }
+        // Adding a 'menu' button to the navigation bar to show the
+        // upload popover view controller, to allow files passed to
+        // this app from an external one to be uploaded, or for photo
+        // and video files to be added from the device gallery, or for
+        // any other functions included in the popover (new folder, log out)
+        let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSizeMake(30, 30))
+        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
+        self.navigationItem.rightBarButtonItem = menuButton
         
         // Setting up the ability to refresh the table view when the
         // user is at the top and pulls down, or if there was a problem
@@ -104,9 +117,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
         //self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
         
-        // Loading the contents in the folder that has been browsed
-        // to, or lising the drives if no folder has been navigated to
-        loadFileBrowser()
+        // Seeing if the loadFileBrowser() function should be called
+        // This should only be called when the user is actively
+        // "browsing" the folders, and not when app restoration is
+        // taking place
+        if (viewLoadedFromBrowsing) {
+            logger.debug("Loading file browser")
+            // Loading the contents in the folder that has been browsed
+            // to, or lising the drives if no folder has been navigated to
+            loadFileBrowser()
+        }
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -343,14 +363,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Attempting to upload the local file: \(settings.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings.stringForKey(settingsUploadFileLocation)!
+            logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
         } else {
-            logger.debug("Attempting to upload the photos file: \(settings.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings.stringForKey(settingsUploadPhotosLocation)!
+            logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            fileLocation = settings!.stringForKey(settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = NSURL(string: fileLocation)!
@@ -413,7 +433,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // another time
                         if (fileFromPhotoLibrary == false) {
                             logger.debug("Setting local file location to nil as it's been uploaded")
-                            settings.setURL(nil, forKey: settingsUploadFileLocation)
+                            settings!.setURL(nil, forKey: settingsUploadFileLocation)
                         }
                         
                         // Deleting the local copy of the file that was used to
@@ -667,6 +687,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     controller.title = folderTitle
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
+                    controller.viewLoadedFromBrowsing = true
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
@@ -940,8 +961,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let storyboard : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateViewControllerWithIdentifier("fileUploadPopover") as! UploadPopoverTableViewController
         vc.delegate = self
+        if (currentPath == "") {
+            vc.showingOnEmptyFilePath = true
+        }
         vc.modalPresentationStyle = UIModalPresentationStyle.Popover
-        vc.preferredContentSize = CGSize(width: 320, height: 420)
+        vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
             popover.barButtonItem = sender
             popover.delegate = self
@@ -1015,8 +1039,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
-    /// - date: 2016-01-28
+    /// - version: 3
+    /// - date: 2016-04-01
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
     ///                            current file or create a new one
@@ -1031,11 +1055,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // of the file to generate the file name
         var currentFileName = ""
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadFileLocation)!)")
-            currentFileName = settings.stringForKey(settingsUploadFileLocation)!
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadFileLocation)!
         } else {
-            logger.debug("Modifying the file name of: \(settings.stringForKey(settingsUploadPhotosLocation)!)")
-            currentFileName = settings.stringForKey(settingsUploadPhotosLocation)!
+            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
+            currentFileName = settings!.stringForKey(settingsUploadPhotosLocation)!
         }
         
         // Seeing if the file should overwrite the currently
@@ -1059,7 +1083,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // in the deleteFile function
             // See: http://www.dotnetperls.com/2d-array-swift
             var indexPosition = -1
-            for var arrayPosition = 0; arrayPosition < fileItems.count; arrayPosition++ {
+            for arrayPosition in 0 ..< fileItems.count {
                 if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
                     indexPosition = arrayPosition
@@ -1271,13 +1295,48 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         return fileName
     }
     
+    // MARK: Log out user
+    
+    /// Logs the user out of the app and shows the root view
+    ///
+    /// When a user has finished with using the app to browse
+    /// their files, and wants to pass the device onto another
+    /// person, then they should be logged out and their logon
+    /// tokens and other settings removed
+    ///
+    /// - note: Most of this function has now moved in the to HAPi
+    ///         class, so that it can be called by the AppDelegate
+    ///         and this function
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 5
+    /// - date: 2016-04-16
+    func logOutUser() {
+        // Calling the log out function
+        api.logOutUser()
+        
+        // Stopping the app delegate check timers, so as to
+        // avoid updating the last successful contact time
+        // for the API if no user is logged in to the app or
+        // attempting to log the user out
+        logger.debug("Stopping check timers as no user is logged in")
+        let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+        delegate!.stopTimers()
+        
+        // Removing all of the navigation views and showing
+        // the login view controller
+        // See: http://sketchytech.blogspot.co.uk/2012/09/return-to-root-view-controller-from.html
+        self.view.window?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.FullScreen
     }
     
     func presentationController(controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
         let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
-        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: "dismiss")
+        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .Done, target: self, action: #selector(MasterViewController.dismiss))
         navigationController.topViewController!.navigationItem.rightBarButtonItem = btnCancelUploadPopover
         // Setting the navigation bar colour
         navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
@@ -1288,6 +1347,33 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     
     func dismiss() {
         self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: App Restoration
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        // Saving the variables used in this class so that they
+        // can be restored at when the app is opened again
+        coder.encodeObject(detailViewController, forKey: "detailViewController")
+        coder.encodeObject(objects, forKey: "objects")
+        coder.encodeBool(collapseDetailViewController, forKey: "collapseDetailViewController")
+        coder.encodeBool(showFileExistsAlert, forKey: "showFileExistsAlert")
+        coder.encodeObject(currentPath, forKey: "currentPath")
+        coder.encodeObject(self.fileItems, forKey: "fileItems")
+        
+        super.encodeRestorableStateWithCoder(coder)
+    }
+    
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        // Restoring the variables used in this class
+        // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
+        detailViewController = coder.decodeObjectForKey("detailViewController") as? DetailViewController
+        objects = coder.decodeObjectForKey("objects") as! [AnyObject]
+        collapseDetailViewController = coder.decodeBoolForKey("collapseDetailViewController")
+        showFileExistsAlert = coder.decodeBoolForKey("showFileExistsAlert")
+        currentPath = coder.decodeObjectForKey("currentPath") as! String
+        self.fileItems = coder.decodeObjectForKey("fileItems") as! [NSArray]
+        
+        super.decodeRestorableStateWithCoder(coder)
     }
 
 

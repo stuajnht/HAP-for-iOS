@@ -21,6 +21,7 @@
 
 import UIKit
 import ChameleonFramework
+import Locksmith
 import MBProgressHUD
 import XCGLogger
 
@@ -75,19 +76,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tbxPassword.returnKeyType = .Go
         
         // Filling in any settings that are saved
-        if let hapServer = settings.stringForKey(settingsHAPServer)
-        {
-            logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
-            tblHAPServer.text = hapServer
-            tblHAPServer.hidden = true
-            lblHAPServer.hidden = true
-            
-            // Checking the URL is still correct (it is) but this
-            // function needs to be called otherwise when attempting
-            // to log in it will say the URL is incorrect
-            formatHAPURL(self)
-        }
-        if let siteName = settings.stringForKey(settingsSiteName)
+        if let siteName = settings!.stringForKey(settingsSiteName)
         {
             logger.debug("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
@@ -96,10 +85,94 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
     }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Clearing the username and password from the textboxes,
+        // as when the user logs out the app will crash if it
+        // still contains data in the textboxes and the user
+        // just presses the 'login' button
+        self.tblUsername.text = ""
+        self.tbxPassword.text = ""
+        
+        // Showing the scroll container so that the textboxes
+        // can be visible, if it has been hidden when trying
+        // to log the user in if the app has been closed
+        sclLoginTextboxes.hidden = false
+        
+        // Showing the HAP+ server textbox when UI Testing
+        // is taking place, so that the test doesn't fail
+        // See: http://stackoverflow.com/a/33774166
+        // See: http://onefootball.github.io/resetting-application-data-after-each-test-with-xcode7-ui-testing/
+        let args = NSProcessInfo.processInfo().arguments
+        if args.contains("UI_TESTING_RESET_SETTINGS") {
+            logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
+            tblHAPServer.hidden = false
+            lblHAPServer.hidden = false
+        } else {
+            // Hiding the HAP+ server textbox, as if this is the
+            // first setup / login on the device and the user
+            // logs out, then the field will be editable again
+            if let hapServer = settings!.stringForKey(settingsHAPServer) {
+                logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
+                tblHAPServer.text = hapServer
+                tblHAPServer.hidden = true
+                lblHAPServer.hidden = true
+                
+                // Checking the URL is still correct (it is) but this
+                // function needs to be called otherwise when attempting
+                // to log in it will say the URL is incorrect
+                formatHAPURL(self)
+            }
+            
+            // Attempting to log the user in if they've logged in
+            // before, but have closed the app (from the app switcher)
+            // or restarted the device, rather than just backgrounding
+            // the app
+            if let username = settings!.stringForKey(settingsUsername) {
+                // Hiding the view controls to prevent the user from
+                // being able to do anything which may interfere with
+                // the login process
+                sclLoginTextboxes.hidden = true
+                
+                // Filling in the username and password controls, so
+                // that the loginUser function can access them
+                tblUsername.text = username
+                let dictionary = Locksmith.loadDataForUserAccount(username)
+                tbxPassword.text = (dictionary?[settingsPassword])! as? String
+                
+                // Attempt to log the user in to the HAP+ server and app
+                hudShow("Checking login details")
+                loginUser()
+            }
+        }
+        
+        super.viewWillAppear(animated)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    /// Performs the segue to the master view controller
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-03-03
+    ///
+    /// - seealso: shouldPerformSegueWithIdentifier
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Setting the viewLoadedFromBrowsing variable to
+        // be true, so that the loadFileBrowser() function
+        // will be called once the login has taken place
+        // This is to work around the repeated calling
+        // to the above named function on app restoration
+        if segue.identifier == "login.btnLoginSegue" {
+            let controller = (segue.destinationViewController as! UISplitViewController).viewControllers[0] as! UINavigationController
+            let masterController = controller.topViewController as! MasterViewController
+            masterController.viewLoadedFromBrowsing = true
+        }
     }
     
     override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
@@ -208,12 +281,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///         attempt. If the user doesn't type "/hap" at the end of the URL but the
     ///         site needs it, this is when the function is called again with this appended
     ///         to hopefully guess what should be in there. Any server set up different to
-    ///         this will fail on the second attempt, and let the user know
+    ///         this will fail on the second attempt, and let the user know. This can also
+    ///         fail if the HAP+ server is not set up to use TLS 1.2 or has a SSL certificate
+    ///         that is not configured correctly (self signed, expired, domain name mismatch)
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 2
-    /// - date: 2015-12-03
+    /// - version: 3
+    /// - date: 2016-03-18
     ///
     /// - parameter hapServer: The URL to the HAP+ server
     /// - parameter attempt: How many times this function has been called
@@ -233,7 +308,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == false && attempt != 1) {
                 self.hudHide()
                 
-                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
+                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(apiFailController, animated: true, completion: nil)
             }
@@ -243,7 +318,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Saving the HAP+ server API address to use later
-                settings.setObject(hapServer, forKey: settingsHAPServer)
+                settings!.setObject(hapServer, forKey: settingsHAPServer)
                 
                 // Continue with the login attempt by validating the credentials
                 self.hudUpdateLabel("Checking login details")
@@ -259,8 +334,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-07
+    /// - version: 4
+    /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
         // the network
@@ -278,10 +353,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // perform the login to master view controller segue
                 logger.debug("Successfully logged in user to HAP+")
                 
+                // Starting the startAPITestCheckTimer from the AppDelegate,
+                // to keep the user logon tokens valid, as it wouldn't have
+                // been started if a user wasn't logged in on app launch
+                logger.debug("Starting API test check timer to keep logon tokens valid")
+                let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+                delegate!.startAPITestCheckTimer()
+                
                 // Find out what the device should be set up as: Personal, Shared
                 // or Single so that it can be used later. This is shown run if it
                 // hasn't been set before (i.e. the very first setup of this device)
-                if let deviceType = settings.stringForKey(settingsDeviceType) {
+                if let deviceType = settings!.stringForKey(settingsDeviceType) {
                     // Device is set up, so nothing to do here
                     logger.info("This device is set up in \(deviceType) mode")
                 } else {
@@ -304,6 +386,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                
+                // Showing the login textboxes scroll area, as it may
+                // have been hidden if the user has opened up the
+                // app from the beginning, and not from app restoration
+                self.sclLoginTextboxes.hidden = false
             }
         })
     }
@@ -330,7 +417,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - param deviceType: The type of device this is going to be
     func setDeviceType(deviceType: String) {
         logger.info("This device is being set up in \(deviceType) mode")
-        settings.setObject(deviceType, forKey: settingsDeviceType)
+        settings!.setObject(deviceType, forKey: settingsDeviceType)
         // Performing the segue to the master detail view
         self.successfulLogin = true
         self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
@@ -490,8 +577,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // See: http://stackoverflow.com/a/28813720
     func registerForKeyboardNotifications() {
         // Adding notifies on keyboard appearing
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWasShown:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillBeHidden:", name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LoginViewController.keyboardWasShown(_:)), name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LoginViewController.keyboardWillBeHidden(_:)), name: UIKeyboardWillHideNotification, object: nil)
     }
     
     func deregisterFromKeyboardNotifications() {

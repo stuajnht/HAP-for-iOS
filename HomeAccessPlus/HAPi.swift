@@ -143,8 +143,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
-    /// - date: 2015-12-07
+    /// - version: 3
+    /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
@@ -175,31 +175,67 @@ class HAPi {
                             // the NSUserDefaults settings variable
                             let siteName = JSON["SiteName"]
                             logger.debug("Site name from JSON: \(siteName)")
-                            settings.setObject(siteName, forKey: settingsSiteName)
-                            settings.setObject(JSON["FirstName"], forKey: settingsFirstName)
-                            settings.setObject(JSON["Username"], forKey: settingsUsername)
-                            settings.setObject(JSON["Token1"], forKey: settingsToken1)
-                            settings.setObject(JSON["Token2"], forKey: settingsToken2)
-                            settings.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
+                            settings!.setObject(siteName, forKey: settingsSiteName)
+                            settings!.setObject(JSON["FirstName"], forKey: settingsFirstName)
+                            settings!.setObject(JSON["Username"], forKey: settingsUsername)
+                            settings!.setObject(JSON["Token1"], forKey: settingsToken1)
+                            settings!.setObject(JSON["Token2"], forKey: settingsToken2)
+                            settings!.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
                             
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
                             do {
-                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings.stringForKey(settingsUsername)!)
+                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings!.stringForKey(settingsUsername)!)
                                 logger.debug("Securely saved user password")
                             } catch {
                                 logger.error("Failed to securely save password")
                             }
                             
+                            // Logging the last successful contact to the HAP+
+                            // API, to reset the session cookies. This is saved
+                            // as a time since Unix epoch
+                            logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                            settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                            
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
-                                    logger.info("Successfully set the roles for \(settings.stringForKey(settingsUsername)!)")
-                                    logger.debug("Roles for \(settings.stringForKey(settingsUsername)!): \(settings.stringForKey(settingsUserRoles)!)")
+                                    logger.info("Successfully set the roles for \(settings!.stringForKey(settingsUsername)!)")
+                                    logger.debug("Roles for \(settings!.stringForKey(settingsUsername)!): \(settings!.stringForKey(settingsUserRoles)!)")
                                 } else {
-                                    logger.warning("Failed to set the roles for \(settings.stringForKey(settingsUsername)!)")
+                                    logger.warning("Failed to set the roles for \(settings!.stringForKey(settingsUsername)!)")
                                 }
                             })
+                            
+                            // Attempting to get the timetable for the current user,
+                            // only if the device type is not set up or in "shared" mode
+                            if ((settings!.stringForKey(settingsDeviceType) == "shared") || (settings!.stringForKey(settingsDeviceType) == nil)) {
+                                logger.debug("Device is new or in shared mode, so attempting to retreive a timetable for the current user")
+                                
+                                self.getTimetable({ (result: Bool) -> Void in
+                                    if (result) {
+                                        logger.info("Successfully collected a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                        
+                                        // Enabling auto-logout for the current logged in user
+                                        logger.info("Enabling auto-logout for the current user")
+                                        settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
+                                        
+                                        // Seeing if this code is being compiled for the main app
+                                        // or the app extensions. This hacky way is needed as app
+                                        // extensions don't allow the use of sharedApplication()
+                                        // See: http://stackoverflow.com/a/25048511
+                                        // See: http://stackoverflow.com/a/24152730
+                                        #if TARGET_IS_APP
+                                            logger.debug("Starting auto-log out timer")
+                                            let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+                                            delegate!.startAutoLogOutCheckTimer()
+                                        #endif
+                                    } else {
+                                        logger.warning("Did not get a timetable for \(settings!.stringForKey(settingsUsername)!), or it is currently outside a timetabled lesson")
+                                        logger.info("Not enabling auto-logout for the current user")
+                                    }
+                                })
+                            }
                             
                             // Letting the callback know we have successfully logged in
                             callback(true)
@@ -251,16 +287,23 @@ class HAPi {
     /// - date: 2015-12-12
     /// - seealso: loginUser
     func setRoles(callback:(Bool) -> Void) -> Void {
-        Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings.stringForKey(settingsUsername)!)
+        Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings!.stringForKey(settingsUsername)!)
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set
             case.Success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
-                settings.setObject(response.result.value, forKey: settingsUserRoles)
+                settings!.setObject(response.result.value, forKey: settingsUserRoles)
+                
+                // Logging the last successful contact to the HAP+
+                // API, to reset the session cookies. This is saved
+                // as a time since Unix epoch
+                logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                
                 callback(true)
                 
                 // We were not able to contact the HAP+ server, so we cannot
@@ -269,9 +312,230 @@ class HAPi {
                 logger.verbose("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
-                settings.setObject("[\"\"]", forKey: settingsUserRoles)
+                settings!.setObject("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
+        }
+    }
+    
+    /// Attempts to get the timetable for the currently logged in user
+    ///
+    /// Once a user has successfully logged in, attempt to load their timetable
+    /// from the HAP+ server, so that if the device is set up in "Shared" mode,
+    /// they can be logged out automatically when the lesson its over (as some
+    /// students may forget to do this and just put the device away)
+    ///
+    /// This check is always completed on the first successful log in as it is
+    /// not yet known what mode the device is going to be in. All future successful
+    /// log in attempts will call this function only if the device is set up in
+    /// "shared" mode, to prevent unneeded server API calls
+    ///
+    /// The API call used in this function is "/api/timetable/LoadUser/{username}"
+    /// and not "/api/timetable/LoadUser/" as this didn't always seem to work as
+    /// expected during initial testing, even though it calls pretty much the same
+    /// functions on the HAP+ server. It is currently unclear why this is (but
+    /// most likely due to the author doing something stupid! Besides, we know
+    /// the username, why not utilise it?)
+    ///
+    /// If the timetabled user logs on to the device outside of their timetabled
+    /// lessons (such as they have logged in to the device during a breaktime)
+    /// then it is up to the user to log themselves out of the app. It cannot be
+    /// assumed that the start time of their first lesson the next day should be used
+    /// to log them out, as they may not have a lesson during period 1 (for example,
+    /// sixth form students) when another student (a year 7) would, meaning they
+    /// would still be logged in
+    ///
+    /// If there is no timetable for the user loaded from the HAP+ server (such
+    /// as a member of the IT department logs in to the device) the HAP+ server
+    /// will return an empty array. As it is not a good idea to log this user
+    /// out if they have borrowed the device with a reason of "Your lesson has
+    /// come to an end" due to it being unexpected for them. Therefore, the app
+    /// will behave as though it is in "personal" mode
+    ///
+    /// - seealso: loginUser
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-beta
+    /// - version: 1
+    /// - date: 2016-04-16
+    func getTimetable(callback:(Bool) -> Void) -> Void {
+        // Seeing if auto-logout should be enabled. This is set to
+        // false by default as we don't want users being logged out
+        // of the device if they are not in a lesson, and only set
+        // to true when it has been confirmed that a user is using
+        // the device during a timetabled lesson
+        var enableAutoLogout = false
+        
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            let httpHeaders = [
+                "Content-Type": "application/json"
+            ]
+            
+            // Connecting to the API to attempt to load the users timetable
+            logger.debug("Attempting to get the timetable for: \(settings!.stringForKey(settingsUsername)!)")
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.stringForKey(settingsUsername)!, headers: httpHeaders, encoding: .JSON)
+                // Parsing the JSON response
+                // See: http://stackoverflow.com/a/33022923
+                .responseString { response in
+                    
+                    logger.debug("Timetable API response successful: \(response.result.isSuccess)")
+                    logger.verbose("Timetable API data: \(response.result.value!)")
+                    
+                    switch response.result {
+                    case .Success:
+                        // Formatting the JSON response as a string, to
+                        // see if there is any content returned
+                        let jsonString = JSON(response.result.value!)
+                        logger.verbose("Response JSON for tabletable (string): \(jsonString)")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
+                        // Seeing if the timetable returned has anything in it
+                        // This can be checked by having at least one timetabled
+                        // day and lesson, otherwise the returned API JSON is []
+                        if jsonString.rawString() != "[]" {
+                            logger.info("Valid timetable found for \(settings!.stringForKey(settingsUsername)!)")
+                            logger.info("Enabling automatic log out of user at the end of the current lesson, if applicable")
+                            
+                            // Converting the JSON string returned from the server
+                            // into a JSON object, otherwise it's not possible to
+                            // access any data
+                            // See: https://www.hackingwithswift.com/example-code/libraries/how-to-parse-json-using-swiftyjson
+                            if let data = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding) {
+                                let json = JSON(data: data)
+                                logger.verbose("Response JSON for timetable (JSON): \(json)")
+                                
+                                /// Array to hold the lessons that the user takes
+                                ///
+                                /// - note: The order of and data stored in this array is in
+                                ///         the following order:
+                                ///   1. Day number
+                                ///   2. Lesson period
+                                ///   3. The start time of the lesson
+                                ///   4. The end time of the lesson
+                                var lessons: [NSArray] = []
+                                
+                                // Looping through the days presented, to save the timetable
+                                for (_,subJson) in json {
+                                    let dayNumber = subJson["Day"].stringValue
+                                    logger.debug("Getting lessons for \(settings!.stringForKey(settingsUsername)!) on day: \(dayNumber)")
+                                    
+                                    // Retreiving details for the days lessons
+                                    for lesson in subJson["Lessons"].arrayValue {
+                                        let period = lesson["Period"].stringValue
+                                        let startTime = lesson["StartTime"].stringValue
+                                        let endTime = lesson["EndTime"].stringValue
+                                        logger.verbose("Day: \(dayNumber), Lesson: \(period), Starts: \(startTime), Ends: \(endTime)")
+                                        
+                                        // Adding the current lesson to the array
+                                        var lesson: [String] = []
+                                        lesson = [dayNumber, period, startTime, endTime]
+                                        lessons.append(lesson)
+                                    }
+                                }
+                                
+                                logger.verbose("Lessons array for current user: \(lessons)")
+                                
+                                // Getting the yyyy-MM-dd format of today, as the response
+                                // from the HAP+ API only includes a time, so the timeFormatter
+                                // variable will put the date as 2001-01-01 if todays date is
+                                // not included
+                                // See: http://stackoverflow.com/a/28347285
+                                let formatShortDate = NSDateFormatter()
+                                formatShortDate.dateFormat = "yyyy-MM-dd"
+                                let today = formatShortDate.stringFromDate(NSDate())
+                                logger.debug("Todays date is: \(today)")
+                                
+                                // Getting a time the current lesson ends, if applicable
+                                // Note: HAP+ returns the days as Monday - 1, Tuesday - 2, etc...
+                                //       the following code does Sun - 1, Mon - 2, etc...
+                                //       so 1 is taken from the result
+                                // See: http://stackoverflow.com/a/35006174
+                                let cal: NSCalendar = NSCalendar.currentCalendar()
+                                let comp: NSDateComponents = cal.components(.Weekday, fromDate: NSDate())
+                                let dayNumberToday = comp.weekday - 1
+                                logger.debug("Today is day number: \(dayNumberToday)")
+                                
+                                // Setting up a formatter so that the dates that are returned
+                                // from the JSON request, along with the current date time, are
+                                // formatted in a standard way so that they can be compared
+                                // See: http://stackoverflow.com/a/28627873
+                                let timeFormatter = NSDateFormatter()
+                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+                                timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                                
+                                // Getting the date time as of now, so that it can be
+                                // compared against the lesson start and end times
+                                let timeNow = timeFormatter.stringFromDate(NSDate())
+                                logger.debug("Date time now is: \(timeNow)")
+                                
+                                // Looping around the items in the lessons array, to find
+                                // what lesson we are currently in
+                                for arrayPosition in 0 ..< lessons.count {
+                                    // Seeing if the lesson array is the same as today, and
+                                    // skip it if not
+                                    let lessonDayNumber = lessons[arrayPosition][0] as! String
+                                    if (lessonDayNumber == String(dayNumberToday)) {
+                                        logger.debug("Lesson found happening today: \(lessons[arrayPosition][1])")
+                                        
+                                        // Formatting the time from the string to be a valid
+                                        // NSDate, composed of todays date and the time returned
+                                        // from the JSON response
+                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
+                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
+                                        logger.debug("Lesson being checked starts at \(lessonStartTime) and ends at \(lessonEndTime)")
+                                        
+                                        // Seeing if the current time is between the lesson
+                                        // start and end times
+                                        // Note: There seems to be many ways to do this from
+                                        //       the stackoverflow answers, so this may not be
+                                        //       entirely efficient
+                                        // See: http://stackoverflow.com/a/29653553
+                                        let currentTime = timeFormatter.dateFromString(timeNow)!
+                                        if lessonStartTime.compare(currentTime) == .OrderedAscending && lessonEndTime.compare(currentTime) == .OrderedDescending {
+                                            // The user is currently using the device in a timetabled
+                                            // lesson, so we can auto log them out
+                                            logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
+                                            enableAutoLogout = true
+                                            
+                                            // Setting the time that the device should log the user
+                                            // out by, so that it can be checked in the AppDelegate
+                                            // autoLogOutTimer
+                                            logger.debug("Setting auto-log out time to be: \(lessonEndTime.timeIntervalSince1970)")
+                                            settings!.setDouble(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
+                                        } else {
+                                            logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Letting the callback know if we have successfully collected
+                            // a timetable for the logged in user, and if the auto-logout
+                            // should be enabled
+                            callback(enableAutoLogout)
+                        } else {
+                            // No timetable was found for the user, so disable
+                            // automatically logging out the logged in user
+                            logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
+                            callback(enableAutoLogout)
+                        }
+                        
+                    case .Failure(let error):
+                        logger.warning("Request failed with error: \(error)")
+                        callback(enableAutoLogout)
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(enableAutoLogout)
         }
     }
     
@@ -298,16 +562,23 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to get the drive listing
             logger.debug("Attempting to get drives available")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
                         logger.verbose("Response JSON for drive listing: \(JSON)")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
                         // Letting the callback know we have successfully logged in
                         callback(result: true, response: JSON)
                     
@@ -343,7 +614,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Replacing the escaped slashes with a forward slash
@@ -356,11 +627,18 @@ class HAPi {
             
             // Connecting to the API to get the folder listing
             logger.debug("Attempting to get folder listing")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
                     logger.verbose("Response JSON for folder listing: \(JSON)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     // Letting the callback know we have successfully logged in
                     callback(result: true, response: JSON)
                     
@@ -403,7 +681,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Replacing the '../' navigation browsing up that the HAP+
@@ -427,7 +705,7 @@ class HAPi {
             )
             
             // Downloading the file
-            Alamofire.download(.GET, settings.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
+            Alamofire.download(.GET, settings!.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
                 .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
                     logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
@@ -436,6 +714,13 @@ class HAPi {
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
                     logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
             }
             
@@ -518,7 +803,7 @@ class HAPi {
             // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
             let httpHeaders = [
                 "X_FILENAME": fileName,
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Formatting the path that we are going to be using to upload
@@ -530,7 +815,7 @@ class HAPi {
             logger.debug("Upload location formatted path: \(uploadLocation)")
             
             // Uploading the file
-            Alamofire.upload(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
+            Alamofire.upload(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
                 .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
                     logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
                     logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
@@ -538,6 +823,13 @@ class HAPi {
                 }
                 .response { request, response, _, error in
                     logger.verbose("Server response: \(response)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
             }
         } else {
@@ -553,8 +845,8 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 4
-    /// - date: 2016-01-24
+    /// - version: 5
+    /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
@@ -591,7 +883,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)! + "; token=" + settings.stringForKey(settingsToken1)!
+                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
             ]
             
             // Connecting to the API to delete the file item
@@ -601,7 +893,7 @@ class HAPi {
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
             logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
+            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
                     (convertible, params) in
                     let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
                     mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
@@ -658,7 +950,7 @@ class HAPi {
                     
                     while characterMapPosition < characterMap.count {
                         decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-                        characterMapPosition++
+                        characterMapPosition = characterMapPosition.successor()
                     }
                     
                     let formattedDeletionResponse = decodedString
@@ -667,6 +959,13 @@ class HAPi {
                     // Seeing if the file was deleted successfully or not
                     if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
                         logger.debug("\(fileName) was successfully deleted from the server")
+                        
+                        // Logging the last successful contact to the HAP+
+                        // API, to reset the session cookies. This is saved
+                        // as a time since Unix epoch
+                        logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        
                         callback(result: true)
                     } else {
                         logger.error("There was a problem deleting the file from the server")
@@ -725,16 +1024,23 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to create the new folder
             logger.debug("Attempting to create the new folder")
-            Alamofire.request(.POST, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success:
                     logger.debug("Response from creating new folder: \(response.data)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
                     // Letting the callback know we have successfully logged in
                     callback(result: true)
                     
@@ -796,17 +1102,23 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings.stringForKey(settingsToken1)! + "; " + settings.stringForKey(settingsToken2Name)! + "=" + settings.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
             ]
             
             // Connecting to the API to log in the user with the credentials
             logger.debug("Attempting to check if the file item already exists")
-            Alamofire.request(.GET, settings.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
                     logger.verbose("Response JSON for file item existing: \(JSON)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
@@ -911,5 +1223,55 @@ class HAPi {
         // Joining the file name array back up to pass it back to the
         // calling function
         return fileName.joinWithSeparator(".")
+    }
+    
+    // MARK: Log out user
+    
+    /// Logs the user out of the app
+    ///
+    /// When a user has finished with using the app to browse
+    /// their files, and wants to pass the device onto another
+    /// person, then they should be logged out and their logon
+    /// tokens and other settings removed
+    ///
+    /// - note: This used to live in the MasterViewController,
+    ///         but functions relating to removing data exist
+    ///         here instead, while tasks such as removing view
+    ///         controllers are left to the relevant calling
+    ///         classes
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.7.0-alpha
+    /// - version: 5
+    /// - date: 2016-04-16
+    func logOutUser() {
+        logger.info("Logging out user")
+        
+        // Removing user password from the Keychain
+        // Note: This needs to be done before the username setting
+        //       is cleared
+        do {
+            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            logger.debug("Successfully deleted password")
+        } catch {
+            logger.error("Failed to delete the password")
+        }
+        
+        // Clearing any settings that were created on logon
+        settings!.removeObjectForKey(settingsFirstName)
+        settings!.removeObjectForKey(settingsUsername)
+        settings!.removeObjectForKey(settingsToken1)
+        settings!.removeObjectForKey(settingsToken2)
+        settings!.removeObjectForKey(settingsToken2Name)
+        settings!.removeObjectForKey(settingsUserRoles)
+        
+        // Disabling auto-logout so that the next user to log in
+        // to the device isn't accidentally logged out if they
+        // don't have a timetable assigned to them. This is done
+        // here instead of before the HAPi getTimetable function,
+        // as it's to do with tidying up of the device from the
+        // recently logged in user
+        logger.debug("Disabling auto-logout as the user has been logged out")
+        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
     }
 }

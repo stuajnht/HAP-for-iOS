@@ -1,5 +1,25 @@
 # Home Access Plus+ iOS app change log
 
+## 0.7.0
+
+### Notes
+* Starting from build 729, this project uses Xcode 7.3 and Swift 2.2. These have been updated from Xcode 7.1.1 and Swift 2.1, which were used since this project began
+
+### New Stuff
+* Upload files to the HAP+ server from cloud storage providers (the relevant apps need to be installed on the iOS device too)
+* Files can be uploaded and downloaded in some external apps without needing to download from the Home Access Plus+ app first
+* Users can log out of the app if they want to pass it to another user - [#4](https://github.com/stuajnht/HAP-for-iOS/issues/4)
+* Users are automatically logged back in to the HAP+ server and if they do not use the app for a period of time (or their logon sessions are renewed constantly if the app is in the foreground), so they can continue where they left off almost straight away
+* Users who are using the device during a timetabled lesson are automatically logged out at the end of the lesson. The device needs to be set up in "shared" mode for this to work, and the [timetable plugin for HAP+](https://hap.codeplex.com/wikipage?title=Timetable%20Plugin&referringTitle=Documentation) needs to be installed
+
+### Changes
+* App restoration now takes place if the app is stopped in the background, so that when opened again the user remains in the same folder location they were before
+* Updated message on the login screen if the HAP+ server does not have a correctly configured SSL certificate (self signed, expired, domain name mismatch) - credit: [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
+
+### Bug Fixes
+* Fixed typo in upload popover description text from 'curent' to 'current' - [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19) credit: [@TestValleySchool](https://github.com/TestValleySchool)
+* Fixed bug where the upload popover would restore incorrectly as a full screen view if the user had to grant app permissions, rather than stay in the popover - [#20](https://github.com/stuajnht/HAP-for-iOS/issues/20)
+
 ## 0.6.0
 
 ### New Stuff
@@ -23,8 +43,8 @@
 * Files that are over a certain size (20MB on mobile connections, 100MB on WiFi) need to be allowed by the user before they are downloaded
 
 ### Bug Fixes
-* Stopped the file properties view appearing over the newly browsed to folder on small devices - #16
-* Stopped showing the drive space if the HAP+ server reports it as a negative value - #17
+* Stopped the file properties view appearing over the newly browsed to folder on small devices - [#16](https://github.com/stuajnht/HAP-for-iOS/issues/16)
+* Stopped showing the drive space if the HAP+ server reports it as a negative value - [#17](https://github.com/stuajnht/HAP-for-iOS/issues/17)
 
 ## 0.4.0
 
@@ -43,7 +63,7 @@
 * Nothing major from what is listed above
 
 ### Bug Fixes
-* Set the correct icon for the relevant folder / file that is being displayed in the file browser table - #13
+* Set the correct icon for the relevant folder / file that is being displayed in the file browser table - [#13](https://github.com/stuajnht/HAP-for-iOS/issues/13)
 * A number of other things that 
 
 ## 0.2.0
@@ -53,19 +73,19 @@
 * Added API to check for Internet connection
 * Added API to check that the HAP+ server is contactable
 * Added API to check the username and password for the user, and log them in if correct
-* Displayed loading spinner during the logon attempt - #2
+* Displayed loading spinner during the logon attempt - [#2](https://github.com/stuajnht/HAP-for-iOS/issues/2)
 * Presented option to choose the device type during first setup of HAP+
 * Collected the groups that the user is part of, to see if they are a domain admin
 * Locksmith is being used to securely store the users password for future authentication attempts
 
 ### Changes
-* Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - #1
-* Informed users that they need to be running TLS 1.2 on the HAP+ server - #11
-* Disabled auto correction and predictive text on logon textboxes, and set HAP+ address keyboard display type to URLs - #12
+* Updated the background colour of the login view and master-detail view to reflect those used in HAP+ - [#1](https://github.com/stuajnht/HAP-for-iOS/issues/1)
+* Informed users that they need to be running TLS 1.2 on the HAP+ server - [#11](https://github.com/stuajnht/HAP-for-iOS/issues/11)
+* Disabled auto correction and predictive text on logon textboxes, and set HAP+ address keyboard display type to URLs - [#12](https://github.com/stuajnht/HAP-for-iOS/issues/17)
 
 ### Bug Fixes
-* If the HAP+ server address already begins with https://, do not prepend it again - #10
-* When an invalid HAP+ server DNS address is typed in, prevent the app crashing - #11
+* If the HAP+ server address already begins with https://, do not prepend it again - [#10](https://github.com/stuajnht/HAP-for-iOS/issues/10)
+* When an invalid HAP+ server DNS address is typed in, prevent the app crashing - [#11](https://github.com/stuajnht/HAP-for-iOS/issues/11)
 
 ## 0.1.0
 

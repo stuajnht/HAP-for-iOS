@@ -5,7 +5,7 @@ A powerful, protocol-oriented library for working with the keychain in Swift.
 - [x] 📱 iOS 8.0+
 - [x] 💻 Mac OS X 10.10+
 - [x] ⌚️ watchOS 2
-- [ ] 📺 tvOS (*coming soon?*)
+- [x] 📺 tvOS
 
 How is Locksmith different to other keychain wrappers?
 
@@ -27,6 +27,12 @@ How is Locksmith different to other keychain wrappers?
 Locksmith is available through [CocoaPods](http://cocoapods.org).
 
     pod 'Locksmith'
+
+### Carthage
+
+Locksmith is available through [Carthage](https://github.com/Carthage/Carthage).
+
+    github 'matthewpalmer/Locksmith'
 
 ## Quick start
 

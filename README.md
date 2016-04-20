@@ -12,9 +12,25 @@ Before asking for help or reporting a bug, please read through the [Frequently A
 
 ## Contributing
 Thanks for your interest in contributing to this project. You can contribute or report issues in the following ways:
-* [Sign up for beta testing](http://www.edugeek.net/forums/home-access-plus/164699-home-access-plus-ios-app-request-testers.html) to explore and test the app
+
+### Beta Testing
+* [Sign up for beta testing](http://www.edugeek.net/forums/home-access-plus/164699-home-access-plus-ios-app-request-testers.html) to explore and test the app through [Testflight](https://developer.apple.com/testflight/)
+* [Download a release](https://github.com/stuajnht/HAP-for-iOS/releases) or [clone the latest](https://github.com/stuajnht/HAP-for-iOS.git) code and run it on your own device ([Xcode](https://developer.apple.com/xcode/) is needed to build the project)
+
+### Reporting Issues
 * [Report a bug](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/bug) if something isn't working as you expect it to
 * [Suggest an improvement](http://issuetemplate.com/#/stuajnht/HAP-for-iOS/request) for something that you'd like to see
+
+### Pull Requests
+If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
+
+The current development environment is with Xcode 7.3 and Swift 2.2. Please make sure you are using these versions before  submitting any pull requests
+
+### Contributors
+The following users have contributed code or suggestions to this project:
+* [@TestValleySchool](https://github.com/TestValleySchool):
+  * [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19)
+* [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
 
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
@@ -40,14 +56,16 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
 ### 0.7.0
-* Auto re-login for devices that are in 'personal' or 'single' mode
-* Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)
-* Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished
+* ~~Auto re-login for devices that are in 'personal' or 'single' mode~~
+* ~~Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)~~
+* ~~Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished~~
+* ~~Use the document picker control to access files from some apps which don't allow the file to be copied to the app~~
+
+### 0.8.0
 * A settings menu of some sort (either in-app or the main settings app)
-* Use the document picker control to access files from some apps which don't allow the file to be copied to the app
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
-### 0.8.0
+### 0.9.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder
 * Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover
