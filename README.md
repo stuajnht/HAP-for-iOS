@@ -59,11 +59,13 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * ~~Auto re-login for devices that are in 'personal' or 'single' mode~~
 * ~~Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)~~
 * ~~Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished~~
-* A settings menu of some sort (either in-app or the main settings app)
 * ~~Use the document picker control to access files from some apps which don't allow the file to be copied to the app~~
+
+### 0.8.0
+* A settings menu of some sort (either in-app or the main settings app)
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
-### 0.8.0
+### 0.9.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder
 * Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover
