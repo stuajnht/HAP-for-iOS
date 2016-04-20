@@ -239,8 +239,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 3
-    /// - date: 2016-03-15
+    /// - version: 4
+    /// - date: 2016-04-20
     func renewUserSessionTokens() {
         // Preventing any API last access checks taking place if there
         // is no user logged in to the app, as there will be no session
@@ -269,7 +269,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // open the app). 18 minutes gives just enough time to renew the
             // tokens before the session tokens expire on the server, hopefully
             // not inconveniencing the user while this takes place
-            if (timeDifference > 1080) {
+            // Also a check is in place for any time difference under 0 seconds,
+            // as this has most likely happened due to a user changing the time
+            // for some reason
+            if ((timeDifference < 0) || (timeDifference > 1080)) {
                 logger.debug("Attempting to log the user in, to generate new session tokens")
                 
                 // Attempting to log the user in with the provided details
@@ -432,8 +435,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 3
-    /// - date: 2016-03-15
+    /// - version: 4
+    /// - date: 2016-04-20
     ///
     /// - seealso: renewUserSessionTokens
     func apiTestCheck() {
@@ -448,7 +451,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             // Seeing if the time since last API access is over 18 minutes
             // 1080 seconds, and if so, attempt to log the user in again
-            if (timeDifference > 1080) {
+            // Also a check is in place for any time difference under 0 seconds,
+            // as this has most likely happened due to a user changing the time
+            // for some reason
+            // Note: While the lower bound check isn't really needed here, as
+            //       this function gets called after renewUserSessionTokens is
+            //       called, which should reset the time difference, if the
+            //       device is offline during that attempt then this check will
+            //       be used instead
+            if ((timeDifference < 0) || (timeDifference > 1080)) {
                 // Invalidating the timer, as it'll be recreated again
                 // once the renewUserSessionTokens function completes
                 stopAPITestCheckTimer()
