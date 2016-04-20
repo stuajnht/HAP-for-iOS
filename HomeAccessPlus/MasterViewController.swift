@@ -1304,37 +1304,25 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// person, then they should be logged out and their logon
     /// tokens and other settings removed
     ///
+    /// - note: Most of this function has now moved in the to HAPi
+    ///         class, so that it can be called by the AppDelegate
+    ///         and this function
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 2
-    /// - date: 2016-03-15
+    /// - version: 5
+    /// - date: 2016-04-16
     func logOutUser() {
-        logger.info("Logging out user")
+        // Calling the log out function
+        api.logOutUser()
         
-        // Removing user password from the Keychain
-        // Note: This needs to be done before the username setting
-        //       is cleared
-        do {
-            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
-            logger.debug("Successfully deleted password")
-        } catch {
-            logger.error("Failed to delete the password")
-        }
-        
-        // Clearing any settings that were created on logon
-        settings!.removeObjectForKey(settingsFirstName)
-        settings!.removeObjectForKey(settingsUsername)
-        settings!.removeObjectForKey(settingsToken1)
-        settings!.removeObjectForKey(settingsToken2)
-        settings!.removeObjectForKey(settingsToken2Name)
-        settings!.removeObjectForKey(settingsUserRoles)
-        
-        // Stopping the app delegate API test check timer, so
-        // as to avoid updating the last successful contact time
-        // for the API if no user is logged in to the app
-        logger.debug("Stopping API test check timer as no user is logged in")
+        // Stopping the app delegate check timers, so as to
+        // avoid updating the last successful contact time
+        // for the API if no user is logged in to the app or
+        // attempting to log the user out
+        logger.debug("Stopping check timers as no user is logged in")
         let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
-        delegate!.stopAPITestCheckTimer()
+        delegate!.stopTimers()
         
         // Removing all of the navigation views and showing
         // the login view controller
