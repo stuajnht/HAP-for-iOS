@@ -432,7 +432,7 @@ class HAPi {
                                         let period = lesson["Period"].stringValue
                                         let startTime = lesson["StartTime"].stringValue
                                         let endTime = lesson["EndTime"].stringValue
-                                        logger.debug("Day: \(dayNumber), Lesson: \(period), Starts: \(startTime), Ends: \(endTime)")
+                                        logger.verbose("Day: \(dayNumber), Lesson: \(period), Starts: \(startTime), Ends: \(endTime)")
                                         
                                         // Adding the current lesson to the array
                                         var lesson: [String] = []
