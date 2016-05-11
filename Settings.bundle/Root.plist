@@ -16,9 +16,17 @@
 			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 			<key>Title</key>
-			<string>CocoaPods Acknowledgements</string>
+			<string>Acknowledgements - CocoaPods</string>
 			<key>File</key>
-			<string>CocoaPodsAcknowledgements</string>
+			<string>AcknowledgementsCocoaPods</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+			<key>Title</key>
+			<string>Acknowledgements - Other Projects</string>
+			<key>File</key>
+			<string>AcknowledgementsOtherProjects</string>
 		</dict>
 	</array>
 </dict>
