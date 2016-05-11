@@ -52,6 +52,7 @@ let settingsUploadPhotosLocation = "uploadPhotosLocation"
 let settingsLastAPIAccessTime = "lastAPIAccessTime"
 let settingsAutoLogOutEnabled = "autoLogOutEnabled"
 let settingsAutoLogOutTime = "autoLogOutTime"
+let settingsVersionBuildNumber = "versionBuildNumber"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -100,6 +101,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 settings!.removeObjectForKey(key)
             }
         }
+        
+        // Generating a version and build number to display in the
+        // settings app, so that users know what build / version
+        // they are currently on. This will show "- (-)" in the main
+        // iOS settings app until this app is run once. Doing it this
+        // way also seems to get around the problem of addind a new
+        // setting to the Root.plist breaks any scripts that look for
+        // a specific node number
+        // See: http://dev.iachieved.it/iachievedit/a-technique-for-displaying-ios-build-versions-in-swift/
+        let appInfo = NSBundle.mainBundle().infoDictionary! as Dictionary<String, AnyObject>
+        let versionNumber = appInfo["CFBundleShortVersionString"] as! String
+        let buildNumber = appInfo["CFBundleVersion"] as! String
+        settings!.setObject(versionNumber + " (" + buildNumber + ")", forKey: settingsVersionBuildNumber)
         
         return true
     }

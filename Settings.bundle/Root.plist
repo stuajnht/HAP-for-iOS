@@ -4,6 +4,8 @@
 <dict>
 	<key>StringsTable</key>
 	<string>Root</string>
+    <key>ApplicationGroupContainerIdentifier</key>
+    <string>group.uk.co.stuajnht.ios.HomeAccessPlus</string>
 	<key>PreferenceSpecifiers</key>
 	<array>
 		<dict>
@@ -11,6 +13,16 @@
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>About</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTitleValueSpecifier</string>
+			<key>Title</key>
+			<string>Version</string>
+			<key>Key</key>
+			<string>versionBuildNumber</string>
+			<key>DefaultValue</key>
+			<string>- (-)</string>
 		</dict>
 		<dict>
 			<key>Type</key>
