@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (3.3.1)
+  - Alamofire (3.4.0)
   - ChameleonFramework (2.1.0):
     - ChameleonFramework/Default (= 2.1.0)
   - ChameleonFramework/Default (2.1.0)
@@ -21,7 +21,7 @@ DEPENDENCIES:
   - XCGLogger
 
 SPEC CHECKSUMS:
-  Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
+  Alamofire: c19a627cefd6a95f840401c49ab1f124e07f54ee
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
   Font-Awesome-Swift: 0131fd0f683ac024ce9abf1fdbc9fb482150ce49
   Locksmith: a8ed41ac4c06506ea8cb199d8ec8a8d3d108eb2a

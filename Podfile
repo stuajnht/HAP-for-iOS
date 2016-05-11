@@ -18,3 +18,8 @@ target 'HomeAccessPlusTests' do
 
 end
 
+post_install do | installer |
+  require 'fileutils'
+  FileUtils.cp_r('Pods/Target Support Files/Pods-HomeAccessPlus/Pods-HomeAccessPlus-acknowledgements.plist', 'Settings.bundle/AcknowledgementsCocoaPods.plist', :remove_destination => true)
+end
+
