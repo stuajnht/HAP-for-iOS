@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 0.8.0
+
+### New Stuff
+* The licenses for the [various projects](README.md#license-terms) this app uses are shown in the main iOS Settings app
+
 ## 0.7.0
 
 ### Notes
