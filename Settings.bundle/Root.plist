@@ -4,8 +4,8 @@
 <dict>
 	<key>StringsTable</key>
 	<string>Root</string>
-    <key>ApplicationGroupContainerIdentifier</key>
-    <string>group.uk.co.stuajnht.ios.HomeAccessPlus</string>
+	<key>ApplicationGroupContainerIdentifier</key>
+	<string>group.uk.co.stuajnht.ios.HomeAccessPlus</string>
 	<key>PreferenceSpecifiers</key>
 	<array>
 		<dict>
@@ -13,6 +13,8 @@
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>About</string>
+			<key>FooterText</key>
+			<string>Copyright (C) 2015, 2016 Jonathan Hart</string>
 		</dict>
 		<dict>
 			<key>Type</key>
