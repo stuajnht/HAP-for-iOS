@@ -14,6 +14,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>DKImagePickerController.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Font-Awesome-Swift-Font-Awesome-Swift.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -57,7 +62,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>60E9B5B85107BB05033A275D05EE8823</key>
+		<key>54C375EA061439CFACF47F5C0720D4ED</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7116AA14740A17264FF47B18C2B67020</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -82,7 +92,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AD19AF81872ACF7D173D357F578929DE</key>
+		<key>9C2ED189B2555ED3490FCE08B73CB486</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -92,7 +102,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>CE588DF420E82E05D2B1986675952854</key>
+		<key>C99A96CD83CDF451C2616563E73D7178</key>
 		<dict>
 			<key>primary</key>
 			<true/>
