@@ -324,6 +324,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     var assets: [DKAsset]?
                     let pickerController = DKImagePickerController()
                     
+                    // Hiding the 'camera' option
+                    pickerController.sourceType = .Photo
+                    
+                    // Setting the overlay to show in the current popover
+                    pickerController.modalPresentationStyle = .CurrentContext
+                    
+                    pickerController.assetType = .AllPhotos
+                    pickerController.showsCancelButton = true
+                    pickerController.showsEmptyAlbums = false
+                    
                     pickerController.didSelectAssets = { (assets: [DKAsset]) in
                         logger.debug("didSelectAssets")
                         logger.debug("Assets: \(assets)")
