@@ -53,6 +53,8 @@ let settingsLastAPIAccessTime = "lastAPIAccessTime"
 let settingsAutoLogOutEnabled = "autoLogOutEnabled"
 let settingsAutoLogOutTime = "autoLogOutTime"
 let settingsVersionBuildNumber = "versionBuildNumber"
+let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
+let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

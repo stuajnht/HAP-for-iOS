@@ -260,6 +260,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// be any way to access both the photos and videos on the same
     /// image picker, it is split into 2 cells
     ///
+    /// The default UIImagePickerController() only allows selecting
+    /// a single photo or video for uploading, so DKImagePickerController()
+    /// is also used to allow selecting multiple photos or videos to
+    /// upload to the HAP+ server. The user is able to choose what
+    /// picker they want to use by making a choice in the main iOS
+    /// Settings app; the default is to use the multi picker
+    ///
     /// - note: The table cells and sections are hardcoded, in the
     ///         following order. If there are any changes, make sure
     ///         to check this function first and make any modifications
@@ -276,8 +283,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 10
-    /// - date: 2016-02-29
+    /// - version: 11
+    /// - date: 2016-05-12
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -298,12 +305,21 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 logger.debug("Got permission results: \(results)")
                 logger.debug("Permissions granted to access the photos library")
                 
-                // Calling the image picker
-                self.imagePicker.allowsEditing = false
-                self.imagePicker.sourceType = .PhotoLibrary
-                self.imagePicker.mediaTypes = [kUTTypeImage as String]
-                
-                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                // Seeing if the basic or multi photo uploader shoud
+                // be used to select the file (chosen by the user in
+                // the main settings app)
+                if (settings!.boolForKey(settingsBasicPhotoUploaderEnabled)) {
+                    logger.debug("Using basic photo uploader")
+                    
+                    // Calling the image picker
+                    self.imagePicker.allowsEditing = false
+                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.mediaTypes = [kUTTypeImage as String]
+                    
+                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                } else {
+                    logger.debug("Using multi photo uploader")
+                }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
@@ -321,12 +337,21 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 logger.debug("Got permission results: \(results)")
                 logger.debug("Permissions granted to access the photos library")
                 
-                // Calling the image picker
-                self.imagePicker.allowsEditing = false
-                self.imagePicker.sourceType = .PhotoLibrary
-                self.imagePicker.mediaTypes = [kUTTypeMovie as String]
-                
-                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                // Seeing if the basic or multi video uploader shoud
+                // be used to select the file (chosen by the user in
+                // the main settings app)
+                if (settings!.boolForKey(settingsBasicVideoUploaderEnabled)) {
+                    logger.debug("Using basic video uploader")
+                    
+                    // Calling the image picker
+                    self.imagePicker.allowsEditing = false
+                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.mediaTypes = [kUTTypeMovie as String]
+                    
+                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                } else {
+                    logger.debug("Using multi video uploader")
+                }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
