@@ -19,6 +19,7 @@
 //  HomeAccessPlus
 //
 
+import DKImagePickerController
 import MobileCoreServices
 import PermissionScope
 import UIKit
@@ -319,6 +320,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     self.presentViewController(self.imagePicker, animated: true, completion: nil)
                 } else {
                     logger.debug("Using multi photo uploader")
+                    
+                    var assets: [DKAsset]?
+                    let pickerController = DKImagePickerController()
+                    
+                    pickerController.didSelectAssets = { (assets: [DKAsset]) in
+                        logger.debug("didSelectAssets")
+                        logger.debug("Assets: \(assets)")
+                    }
+                    
+                    self.presentViewController(pickerController, animated: true, completion: nil)
                 }
                 
                 }, cancelled: { (results) -> Void in
