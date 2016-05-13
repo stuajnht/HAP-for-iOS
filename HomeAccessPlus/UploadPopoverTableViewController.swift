@@ -337,6 +337,21 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     pickerController.didSelectAssets = { (assets: [DKAsset]) in
                         logger.debug("didSelectAssets")
                         logger.debug("Assets: \(assets)")
+                        
+                        // Getting the information for each the selected image
+                        // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
+                        // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
+                        for asset in assets {
+                            asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
+                            
+                                logger.debug("Image: \(image!)")
+                                logger.debug("Info: \(info!)")
+                                logger.debug("Image URL: \(info!["PHImageFileURLKey"]!)")
+                            }
+                        }
+                        
+                        // Dismissing the popover as it's done what is needed
+                        self.dismissViewControllerAnimated(true, completion: nil)
                     }
                     
                     self.presentViewController(pickerController, animated: true, completion: nil)
