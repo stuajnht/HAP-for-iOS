@@ -321,40 +321,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 } else {
                     logger.debug("Using multi photo uploader")
                     
-                    var assets: [DKAsset]?
-                    let pickerController = DKImagePickerController()
-                    
-                    // Hiding the 'camera' option
-                    pickerController.sourceType = .Photo
-                    
-                    // Setting the overlay to show in the current popover
-                    pickerController.modalPresentationStyle = .CurrentContext
-                    
-                    pickerController.assetType = .AllPhotos
-                    pickerController.showsCancelButton = true
-                    pickerController.showsEmptyAlbums = false
-                    
-                    pickerController.didSelectAssets = { (assets: [DKAsset]) in
-                        logger.debug("didSelectAssets")
-                        logger.debug("Assets: \(assets)")
-                        
-                        // Getting the information for each the selected image
-                        // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
-                        // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
-                        for asset in assets {
-                            asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
-                            
-                                logger.debug("Image: \(image!)")
-                                logger.debug("Info: \(info!)")
-                                logger.debug("Image URL: \(info!["PHImageFileURLKey"]!)")
-                            }
-                        }
-                        
-                        // Dismissing the popover as it's done what is needed
-                        self.dismissViewControllerAnimated(true, completion: nil)
-                    }
-                    
-                    self.presentViewController(pickerController, animated: true, completion: nil)
+                    // Calling the multi image picker
+                    self.showMultiPicker(.AllPhotos, selectedRowIndexPath: indexPath)
                 }
                 
                 }, cancelled: { (results) -> Void in
@@ -387,6 +355,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     self.presentViewController(self.imagePicker, animated: true, completion: nil)
                 } else {
                     logger.debug("Using multi video uploader")
+                    
+                    // Calling the multi video picker
+                    self.showMultiPicker(.AllVideos, selectedRowIndexPath: indexPath)
                 }
                 
                 }, cancelled: { (results) -> Void in
@@ -781,6 +752,81 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Deselecting the selected row, so that it is not kept
         // selected if the user cancels the document picker
         self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
+    }
+    
+    // MARK: Multi Picker
+    
+    /// Shows the multi picker to the user
+    ///
+    /// To reduce repetition of the code that is used to show
+    /// the multi picker to the user, both the upload photos and
+    /// upload videos cells when tapped call this function, if the
+    /// basic uploader settings option isn't enabled
+    ///
+    /// The multi picker is then shown to the user to allow them to
+    /// select either a single or multiple photos or videos from the
+    /// photos library on the device
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.8.0-alpha
+    /// - version: 1
+    /// - date: 2016-05-13
+    ///
+    /// - parameter mediaType: The type of media that is to be shown in the multi picker
+    /// - parameter selectedRowIndexPath: The currently selected upload popover table row
+    ///                                   so it can be deselected if the user cancels the
+    ///                                   multi picker
+    func showMultiPicker(mediaType: DKImagePickerControllerAssetType, selectedRowIndexPath: NSIndexPath) {
+        // Creating an instance of the multi picker, so that
+        // users can upload multiple photos or videos at once
+        let multiPickerController = DKImagePickerController()
+        
+        // Setting the multi picker to show in the current popover
+        multiPickerController.modalPresentationStyle = .CurrentContext
+        
+        // Setting options for the multi picker that are against
+        // the default settings
+        multiPickerController.showsCancelButton = true
+        multiPickerController.showsEmptyAlbums = false
+        
+        // Hiding the 'camera' option from the multi picker,
+        // as we don't want users taking items now
+        multiPickerController.sourceType = .Photo
+        
+        // Selecting the source file type for the multi picker,
+        // based on the tapped table cell in the popover
+        multiPickerController.assetType = mediaType
+        
+        // Setting up a call to the function to process and
+        // upload all of the selected files
+        multiPickerController.didSelectAssets = { (assets: [DKAsset]) in
+            logger.debug("User selected the following assets from the multi picker: \(assets)")
+            
+            // Getting the information for each the selected image
+            // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
+            // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
+            for asset in assets {
+                asset.fetchOriginalImageWithCompleteBlock { (_, info) -> Void in
+                    
+                    logger.verbose("File Info: \(info!)")
+                    logger.debug("File URL: \(info!["PHImageFileURLKey"]!)")
+                }
+            }
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismissViewControllerAnimated(true, completion: nil)
+        }
+        
+        // Setting up the 'cancel' option for the multi picker, so
+        // that the selected popover table row can be deselected
+        multiPickerController.didCancel = { Void in
+            logger.info("User cancelled the multi picker")
+            self.tableView.deselectRowAtIndexPath(selectedRowIndexPath, animated: true)
+        }
+        
+        // Showing the multi picker to the user, so that they can
+        // select any photos or videos they want to upload
+        self.presentViewController(multiPickerController, animated: true, completion: nil)
     }
     
     /// Creates a local copy of the selected image in the documents
