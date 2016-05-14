@@ -802,34 +802,48 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         multiPickerController.didSelectAssets = { (assets: [DKAsset]) in
             logger.debug("User selected the following assets from the multi picker: \(assets)")
             
+            // Used to hold the in-app file location of the currently
+            // processing file
+            var filePath = ""
+            
             // Getting the information for each the selected image
             // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
             // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
             for asset in assets {
-                asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
-                    logger.verbose("Asset file image: \(image!)")
-                    logger.verbose("Asset file info: \(info!)")
-                    logger.debug("Uploading asset from on device location: \(info!["PHImageFileURLKey"]!)")
-                    
-                    // Used to hold the in-app file location of the currently
-                    // processing file
-                    var filePath = ""
-                    
-                    // Seeing if we are uploading images or videos from
-                    // the multi picker, and generating a local file
-                    // to be used to upload the file from
-                    if (mediaType == DKImagePickerControllerAssetType.AllPhotos) {
+                // Seeing if we are uploading images or videos from
+                // the multi picker, and generating a local file
+                // to be used to upload the file from
+                if (mediaType == DKImagePickerControllerAssetType.AllPhotos) {
+                    // An image is to be uploaded
+                    asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
+                        logger.verbose("Asset file image: \(image!)")
+                        logger.verbose("Asset file info: \(info!)")
+                        logger.debug("Uploading asset image file from on device location: \(info!["PHImageFileURLKey"]!)")
+                        
                         filePath = self.createLocalImage(image!, fileLocation: info!["PHImageFileURLKey"]! as! NSURL, multiPickerUsed: true)
+                        
+                        // Setting the location of the file in the settings
+                        settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
                     }
-                    
-                    // Setting the location of the file in the settings
-                    settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
-                    
-                    // Uploading the file to the HAP+ server
-                    self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
-                        self.delegate?.showFileExistsMessage(true)
+                } else {
+                    // A video is to be uploaded
+                    // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167025363
+                    asset.fetchAVAssetWithCompleteBlock({ (AVAsset, info) in
+                        logger.debug("Uploading asset video file from on device location: \(AVAsset!)")
+                        logger.verbose("Asset file info: \(info!)")
+                        logger.verbose("Raw asset file video data: \(NSData(contentsOfURL: AVAsset!.URL)!)")
+                        
+                        filePath = self.createLocalVideo(AVAsset!.URL)
+                        
+                        // Setting the location of the file in the settings
+                        settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
                     })
                 }
+                
+                // Uploading the file to the HAP+ server
+                self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+                    self.delegate?.showFileExistsMessage(true)
+                })
             }
             
             // Dismissing the popover as it's done what is needed
