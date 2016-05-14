@@ -34,8 +34,8 @@ import UIKit
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 2
-/// - date: 2016-02-26
+/// - version: 3
+/// - date: 2016-05-14
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
@@ -55,6 +55,10 @@ protocol uploadFileDelegate {
     // root view controller (login view)
     // See: http://stackoverflow.com/a/16825683
     func logOutUser()
+    
+    // This uploads multipe files from the device, selected
+    // when the multi picker is in use
+    func uploadMultipleFiles(uploadFileLocations: NSArray)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
@@ -769,8 +773,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 1
-    /// - date: 2016-05-13
+    /// - version: 2
+    /// - date: 2016-05-14
     ///
     /// - parameter mediaType: The type of media that is to be shown in the multi picker
     /// - parameter selectedRowIndexPath: The currently selected upload popover table row
@@ -806,6 +810,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // processing file
             var filePath = ""
             
+            // Used to hold the array of on-device file locations, that
+            // will be passed to the multiple file uploader delegate
+            var filePaths = [String]()
+            
             // Getting the information for each the selected image
             // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
             // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
@@ -822,8 +830,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         
                         filePath = self.createLocalImage(image!, fileLocation: info!["PHImageFileURLKey"]! as! NSURL, multiPickerUsed: true)
                         
-                        // Setting the location of the file in the settings
-                        settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
+                        // Adding the currently selected file to the array of files
+                        filePaths.append(filePath)
+                        
+                        // Uploading the files to the HAP+ server
+                        self.delegate?.uploadMultipleFiles(filePaths)
                     }
                 } else {
                     // A video is to be uploaded
@@ -835,15 +846,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         
                         filePath = self.createLocalVideo(AVAsset!.URL)
                         
-                        // Setting the location of the file in the settings
-                        settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
+                        // Adding the currently selected file to the array of files
+                        filePaths.append(filePath)
+                        
+                        // Uploading the files to the HAP+ server
+                        self.delegate?.uploadMultipleFiles(filePaths)
                     })
                 }
-                
-                // Uploading the file to the HAP+ server
-                self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
-                    self.delegate?.showFileExistsMessage(true)
-                })
             }
             
             // Dismissing the popover as it's done what is needed
