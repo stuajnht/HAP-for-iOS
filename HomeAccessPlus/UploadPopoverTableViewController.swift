@@ -600,8 +600,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 3
-    /// - date: 2016-01-27
+    /// - version: 4
+    /// - date: 2016-05-14
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Getting the type of file the user has selected, as it
         // is stored in different locations based on what it is
@@ -624,11 +624,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerEditedImage\": \(possibleImage)")
-            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL, multiPickerUsed: false)
         } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerOriginalImage\": \(possibleImage)")
-            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL, multiPickerUsed: false)
         } else {
             if (fileMediaType as! String == "public.movie") {
                 logger.debug("Media file selected is a video")
@@ -806,10 +806,29 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
             // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
             for asset in assets {
-                asset.fetchOriginalImageWithCompleteBlock { (_, info) -> Void in
+                asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
+                    logger.verbose("Asset file image: \(image!)")
+                    logger.verbose("Asset file info: \(info!)")
+                    logger.debug("Uploading asset from on device location: \(info!["PHImageFileURLKey"]!)")
                     
-                    logger.verbose("File Info: \(info!)")
-                    logger.debug("File URL: \(info!["PHImageFileURLKey"]!)")
+                    // Used to hold the in-app file location of the currently
+                    // processing file
+                    var filePath = ""
+                    
+                    // Seeing if we are uploading images or videos from
+                    // the multi picker, and generating a local file
+                    // to be used to upload the file from
+                    if (mediaType == DKImagePickerControllerAssetType.AllPhotos) {
+                        filePath = self.createLocalImage(image!, fileLocation: info!["PHImageFileURLKey"]! as! NSURL, multiPickerUsed: true)
+                    }
+                    
+                    // Setting the location of the file in the settings
+                    settings!.setObject(String(filePath), forKey: settingsUploadPhotosLocation)
+                    
+                    // Uploading the file to the HAP+ server
+                    self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+                        self.delegate?.showFileExistsMessage(true)
+                    })
                 }
             }
             
@@ -836,29 +855,49 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// it needs to be created locally in the app before it can be
     /// uploaded to the HAP+ server
     ///
+    /// If the multi picker was used to select the file, then it already
+    /// contains a usable file name stored in the fileLocation variable,
+    /// so a file name is not needed to be generated from the file name from
+    /// the photos library
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-11
+    /// - version: 2
+    /// - date: 2016-05-14
     ///
     /// - parameter newImage: A reference to the image from the asset library
     /// - parameter fileLocation: The location in the asset library, to generate
     ///                           the name of the file from
+    /// - parameter multiPickerUsed: If the multi picker was used to select the file
     /// - returns: The path to the image in the app
-    func createLocalImage(newImage: UIImage, fileLocation: NSURL) -> String {
-        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: true))
+    func createLocalImage(newImage: UIImage, fileLocation: NSURL, multiPickerUsed: Bool) -> String {
+        // Seeing if the file name should be generated from the on
+        // device location, or just to use the last part of the path.
+        // This depends on if the multi picker was used, as it puts a
+        // full file path in the fileLocation variable, whereas the
+        // imagePicker controller passes obscure file locations and
+        // a name needs to be generated from it
+        var imagePath = getDocumentsDirectory()
+        if (multiPickerUsed) {
+            logger.debug("Using the file name from the multi picker")
+            let fileName = String(fileLocation).componentsSeparatedByString("/").last!.stringByRemovingPercentEncoding!
+            imagePath = imagePath.stringByAppendingPathComponent(fileName)
+        } else {
+            logger.debug("Generating a file name for the image")
+            imagePath = imagePath.stringByAppendingPathComponent(createFileName(fileLocation, imageFile: true))
+        }
         
         if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
             logger.verbose("Before writing image to documents folder")
             
-            jpegData.writeToFile(imagePath, atomically: true)
+            jpegData.writeToFile(imagePath as String, atomically: true)
             
             logger.verbose("JPEG file raw data: \(jpegData)")
             logger.verbose("After writing image to documents folder")
         }
         
         logger.debug("Selected media file written to: \(imagePath)")
-        return imagePath
+        return imagePath as String
     }
     
     /// Creates a local copy of the selected video in the documents
