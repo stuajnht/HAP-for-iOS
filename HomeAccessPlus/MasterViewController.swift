@@ -552,7 +552,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // file has been uploaded (or renamed) before attempting to
         // upload the next file. This also allows the upload popover
         // to be removed from display while the uploads carry on
-        multipleFilesUploadTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(self.uploadMultipleFilesCheck), userInfo: nil, repeats: true)
+        multipleFilesUploadTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(self.uploadMultipleFilesCheck), userInfo: nil, repeats: false)
     }
     
     /// Checks to see if there are currently any files to be uploaded
@@ -605,9 +605,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         
         // Stopping the multiple files upload timer if the number
-        // of files to upload has been reached
-        if (self.multipleFilesCurrentFileNumber == self.multipleFilesTotalFiles) {
-            multipleFilesUploadTimer.invalidate()
+        // of files to upload has been reached. The timer check is
+        // re-run on each call to this function if the number of
+        // files uploaded isn't the total number to be uploaded.
+        // A call to multipleFilesUploadTimer.invalidate() can't
+        // be used as it's run from this function, which is started
+        // on a separate thread to the multipleFilesUploadTimer, so
+        // it can't be accessed. Doing it this way where it creates
+        // a new one use timer seems to be the best way around it
+        // See: http://stackoverflow.com/a/18745371
+        if (self.multipleFilesCurrentFileNumber < self.multipleFilesTotalFiles) {
+            multipleFilesUploadTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(self.uploadMultipleFilesCheck), userInfo: nil, repeats: false)
+            logger.verbose("Files are still to be uploaded. Running multiple upload files timer again")
+        } else {
             logger.debug("Stopping the multiple files upload timer as all selected files have been uploaded")
         }
     }
