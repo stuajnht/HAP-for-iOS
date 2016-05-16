@@ -19,6 +19,7 @@
 //  HomeAccessPlus
 //
 
+import DKImagePickerController
 import MobileCoreServices
 import PermissionScope
 import UIKit
@@ -33,8 +34,8 @@ import UIKit
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 2
-/// - date: 2016-02-26
+/// - version: 3
+/// - date: 2016-05-14
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
@@ -54,6 +55,10 @@ protocol uploadFileDelegate {
     // root view controller (login view)
     // See: http://stackoverflow.com/a/16825683
     func logOutUser()
+    
+    // This uploads multipe files from the device, selected
+    // when the multi picker is in use
+    func uploadMultipleFiles(uploadFileLocations: NSArray)
 }
 
 class UploadPopoverTableViewController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UIDocumentPickerDelegate {
@@ -260,6 +265,13 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// be any way to access both the photos and videos on the same
     /// image picker, it is split into 2 cells
     ///
+    /// The default UIImagePickerController() only allows selecting
+    /// a single photo or video for uploading, so DKImagePickerController()
+    /// is also used to allow selecting multiple photos or videos to
+    /// upload to the HAP+ server. The user is able to choose what
+    /// picker they want to use by making a choice in the main iOS
+    /// Settings app; the default is to use the multi picker
+    ///
     /// - note: The table cells and sections are hardcoded, in the
     ///         following order. If there are any changes, make sure
     ///         to check this function first and make any modifications
@@ -276,8 +288,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 10
-    /// - date: 2016-02-29
+    /// - version: 11
+    /// - date: 2016-05-12
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let section = indexPath.section
         let row = indexPath.row
@@ -298,12 +310,24 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 logger.debug("Got permission results: \(results)")
                 logger.debug("Permissions granted to access the photos library")
                 
-                // Calling the image picker
-                self.imagePicker.allowsEditing = false
-                self.imagePicker.sourceType = .PhotoLibrary
-                self.imagePicker.mediaTypes = [kUTTypeImage as String]
-                
-                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                // Seeing if the basic or multi photo uploader shoud
+                // be used to select the file (chosen by the user in
+                // the main settings app)
+                if (settings!.boolForKey(settingsBasicPhotoUploaderEnabled)) {
+                    logger.debug("Using basic photo uploader")
+                    
+                    // Calling the image picker
+                    self.imagePicker.allowsEditing = false
+                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.mediaTypes = [kUTTypeImage as String]
+                    
+                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                } else {
+                    logger.debug("Using multi photo uploader")
+                    
+                    // Calling the multi image picker
+                    self.showMultiPicker(.AllPhotos, selectedRowIndexPath: indexPath)
+                }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
@@ -321,12 +345,24 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 logger.debug("Got permission results: \(results)")
                 logger.debug("Permissions granted to access the photos library")
                 
-                // Calling the image picker
-                self.imagePicker.allowsEditing = false
-                self.imagePicker.sourceType = .PhotoLibrary
-                self.imagePicker.mediaTypes = [kUTTypeMovie as String]
-                
-                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                // Seeing if the basic or multi video uploader shoud
+                // be used to select the file (chosen by the user in
+                // the main settings app)
+                if (settings!.boolForKey(settingsBasicVideoUploaderEnabled)) {
+                    logger.debug("Using basic video uploader")
+                    
+                    // Calling the image picker
+                    self.imagePicker.allowsEditing = false
+                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.mediaTypes = [kUTTypeMovie as String]
+                    
+                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                } else {
+                    logger.debug("Using multi video uploader")
+                    
+                    // Calling the multi video picker
+                    self.showMultiPicker(.AllVideos, selectedRowIndexPath: indexPath)
+                }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
@@ -568,8 +604,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 3
-    /// - date: 2016-01-27
+    /// - version: 4
+    /// - date: 2016-05-14
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Getting the type of file the user has selected, as it
         // is stored in different locations based on what it is
@@ -592,11 +628,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerEditedImage\": \(possibleImage)")
-            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL, multiPickerUsed: false)
         } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
             newImage = possibleImage
             logger.debug("Selected image from \"UIImagePickerControllerOriginalImage\": \(possibleImage)")
-            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL)
+            imagePath = createLocalImage(newImage, fileLocation: fileDeviceLocation as! NSURL, multiPickerUsed: false)
         } else {
             if (fileMediaType as! String == "public.movie") {
                 logger.debug("Media file selected is a video")
@@ -722,6 +758,119 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         self.tableView.deselectRowAtIndexPath(self.currentlySelectedRow!, animated: true)
     }
     
+    // MARK: Multi Picker
+    
+    /// Shows the multi picker to the user
+    ///
+    /// To reduce repetition of the code that is used to show
+    /// the multi picker to the user, both the upload photos and
+    /// upload videos cells when tapped call this function, if the
+    /// basic uploader settings option isn't enabled
+    ///
+    /// The multi picker is then shown to the user to allow them to
+    /// select either a single or multiple photos or videos from the
+    /// photos library on the device
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.8.0-alpha
+    /// - version: 2
+    /// - date: 2016-05-14
+    ///
+    /// - parameter mediaType: The type of media that is to be shown in the multi picker
+    /// - parameter selectedRowIndexPath: The currently selected upload popover table row
+    ///                                   so it can be deselected if the user cancels the
+    ///                                   multi picker
+    func showMultiPicker(mediaType: DKImagePickerControllerAssetType, selectedRowIndexPath: NSIndexPath) {
+        // Creating an instance of the multi picker, so that
+        // users can upload multiple photos or videos at once
+        let multiPickerController = DKImagePickerController()
+        
+        // Setting the multi picker to show in the current popover
+        multiPickerController.modalPresentationStyle = .CurrentContext
+        
+        // Setting options for the multi picker that are against
+        // the default settings
+        multiPickerController.showsCancelButton = true
+        multiPickerController.showsEmptyAlbums = false
+        
+        // Hiding the 'camera' option from the multi picker,
+        // as we don't want users taking items now
+        multiPickerController.sourceType = .Photo
+        
+        // Selecting the source file type for the multi picker,
+        // based on the tapped table cell in the popover
+        multiPickerController.assetType = mediaType
+        
+        // Setting up a call to the function to process and
+        // upload all of the selected files
+        multiPickerController.didSelectAssets = { (assets: [DKAsset]) in
+            logger.debug("User selected the following assets from the multi picker: \(assets)")
+            
+            // Used to hold the in-app file location of the currently
+            // processing file
+            var filePath = ""
+            
+            // Used to hold the array of on-device file locations, that
+            // will be passed to the multiple file uploader delegate
+            var filePaths = [String]()
+            
+            // Getting the information for each the selected image
+            // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167327653
+            // See: https://codedump.io/share/YprjGK8k1AE/1/images-duplicating-when-adding-to-array
+            for asset in assets {
+                // Seeing if we are uploading images or videos from
+                // the multi picker, and generating a local file
+                // to be used to upload the file from
+                if (mediaType == DKImagePickerControllerAssetType.AllPhotos) {
+                    // An image is to be uploaded
+                    asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
+                        logger.verbose("Asset file image: \(image!)")
+                        logger.verbose("Asset file info: \(info!)")
+                        logger.debug("Uploading asset image file from on device location: \(info!["PHImageFileURLKey"]!)")
+                        
+                        filePath = self.createLocalImage(image!, fileLocation: info!["PHImageFileURLKey"]! as! NSURL, multiPickerUsed: true)
+                        
+                        // Adding the currently selected file to the array of files
+                        filePaths.append(filePath)
+                        
+                        // Uploading the files to the HAP+ server
+                        self.delegate?.uploadMultipleFiles(filePaths)
+                    }
+                } else {
+                    // A video is to be uploaded
+                    // See: https://github.com/zhangao0086/DKImagePickerController/issues/53#issuecomment-167025363
+                    asset.fetchAVAssetWithCompleteBlock({ (AVAsset, info) in
+                        logger.debug("Uploading asset video file from on device location: \(AVAsset!)")
+                        logger.verbose("Asset file info: \(info!)")
+                        logger.verbose("Raw asset file video data: \(NSData(contentsOfURL: AVAsset!.URL)!)")
+                        
+                        filePath = self.createLocalVideo(AVAsset!.URL)
+                        
+                        // Adding the currently selected file to the array of files
+                        filePaths.append(filePath)
+                        
+                        // Uploading the files to the HAP+ server
+                        self.delegate?.uploadMultipleFiles(filePaths)
+                    })
+                }
+            }
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismissViewControllerAnimated(true, completion: nil)
+        }
+        
+        // Setting up the 'cancel' option for the multi picker, so
+        // that the selected popover table row can be deselected
+        multiPickerController.didCancel = { Void in
+            logger.info("User cancelled the multi picker")
+            self.tableView.deselectRowAtIndexPath(selectedRowIndexPath, animated: true)
+        }
+        
+        // Showing the multi picker to the user, so that they can
+        // select any photos or videos they want to upload
+        self.presentViewController(multiPickerController, animated: true, completion: nil)
+    }
+    
     /// Creates a local copy of the selected image in the documents
     /// directory, to upload it to the HAP+ server
     ///
@@ -729,29 +878,49 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// it needs to be created locally in the app before it can be
     /// uploaded to the HAP+ server
     ///
+    /// If the multi picker was used to select the file, then it already
+    /// contains a usable file name stored in the fileLocation variable,
+    /// so a file name is not needed to be generated from the file name from
+    /// the photos library
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
-    /// - date: 2016-01-11
+    /// - version: 2
+    /// - date: 2016-05-14
     ///
     /// - parameter newImage: A reference to the image from the asset library
     /// - parameter fileLocation: The location in the asset library, to generate
     ///                           the name of the file from
+    /// - parameter multiPickerUsed: If the multi picker was used to select the file
     /// - returns: The path to the image in the app
-    func createLocalImage(newImage: UIImage, fileLocation: NSURL) -> String {
-        let imagePath = getDocumentsDirectory().stringByAppendingPathComponent(createFileName(fileLocation, imageFile: true))
+    func createLocalImage(newImage: UIImage, fileLocation: NSURL, multiPickerUsed: Bool) -> String {
+        // Seeing if the file name should be generated from the on
+        // device location, or just to use the last part of the path.
+        // This depends on if the multi picker was used, as it puts a
+        // full file path in the fileLocation variable, whereas the
+        // imagePicker controller passes obscure file locations and
+        // a name needs to be generated from it
+        var imagePath = getDocumentsDirectory()
+        if (multiPickerUsed) {
+            logger.debug("Using the file name from the multi picker")
+            let fileName = String(fileLocation).componentsSeparatedByString("/").last!.stringByRemovingPercentEncoding!
+            imagePath = imagePath.stringByAppendingPathComponent(fileName)
+        } else {
+            logger.debug("Generating a file name for the image")
+            imagePath = imagePath.stringByAppendingPathComponent(createFileName(fileLocation, imageFile: true))
+        }
         
         if let jpegData = UIImageJPEGRepresentation(newImage, 80) {
             logger.verbose("Before writing image to documents folder")
             
-            jpegData.writeToFile(imagePath, atomically: true)
+            jpegData.writeToFile(imagePath as String, atomically: true)
             
             logger.verbose("JPEG file raw data: \(jpegData)")
             logger.verbose("After writing image to documents folder")
         }
         
         logger.debug("Selected media file written to: \(imagePath)")
-        return imagePath
+        return imagePath as String
     }
     
     /// Creates a local copy of the selected video in the documents

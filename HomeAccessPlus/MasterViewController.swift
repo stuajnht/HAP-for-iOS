@@ -85,7 +85,34 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
     var fileItems: [NSArray] = []
-
+    
+    /// If the multi picker is used in the upload popover, then
+    /// this variable is used to see if there is currently a file
+    /// being uploaded before attempting to upload the next file
+    var uploadingFile : Bool = false
+    
+    /// If multiple files are to be uploaded, then this variable
+    /// should be set to true, so that various functions know
+    /// what options to show. This function should not be used
+    /// to signify that there is a file being uploaded, instead
+    /// uploadingFile should be used
+    var multipleFilesUploadEnabled : Bool = false
+    
+    /// If the multi picker is used, then this array will contain a
+    /// list of on-device file path locations, that are used to
+    /// know when to upload the file from
+    var multipleFilesFileList: NSArray = []
+    
+    /// If the multi picker is used, then it is useful to know the
+    /// total number of files that are to be uploaded, so that the
+    /// progress bars can be filled in accordingly
+    var multipleFilesTotalFiles = 0
+    
+    /// If multiple files are being uploaded, keep a count of the current
+    /// file number that is being uploaded, so that the progress bars
+    /// can be updated correctly
+    var multipleFilesCurrentFileNumber = 0
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -344,8 +371,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 6
-    /// - date: 2016-01-28
+    /// - version: 9
+    /// - date: 2016-05-16
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -377,6 +404,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         
         hudUploadingShow()
+        
+        // Showing the file number currently being uploaded
+        // if multiple files are being processed, and there
+        // is more than one file being uploaded
+        if (multipleFilesTotalFiles > 1) {
+            hudUpdateLabel("Uploading file \(multipleFilesCurrentFileNumber) of \(multipleFilesTotalFiles)")
+        }
         
         // Seeing if a name for the file needs to be generated
         // or one has already been created from the user choosing
@@ -421,7 +455,6 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // refresh the current folder to show it, and delete the
                     // local copy of the file from the device
                     if ((result == true) && (uploading == false)) {
-                        self.hudHide()
                         logger.debug("File has been uploaded to: \(self.currentPath)")
                         
                         // If the file uploaded is not a photo, then set the
@@ -440,8 +473,39 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // upload to the HAP+ server
                         self.deleteUploadedLocalFile(fileDeviceLocation)
                         
-                        // Refreshing the file browser table
-                        self.loadFileBrowser()
+                        // Hiding the HUD from view. If only a single file is
+                        // being uploaded, then multipleFilesUploadEnabled will
+                        // be false and the HUD will be hidden once the upload
+                        // has taken place. If multiple files are being uploaded,
+                        // then only on the last file when multipleFilesUploadEnabled
+                        // is set to false again will the HUD be hidden
+                        // The file browser table is also only refreshed once all
+                        // files have been uploaded, due to 1) the refreshing HUD
+                        // overlays the upload progress bar and looks messy and,
+                        // 2) it's easier to have to write the code to only hide
+                        // the HUD once all the files have been uploaded than
+                        // also prevent the HUD from hiding on the loading of the
+                        // file browser function
+                        if (!self.multipleFilesUploadEnabled) {
+                            self.hudHide()
+                            
+                            // Refreshing the file browser table
+                            self.loadFileBrowser()
+                            
+                            // Resetting the multipleFilesCurrentFileNumber and
+                            // multipleFilesTotalFiles so that in the future
+                            // multi uploads can take place, if some uploads have
+                            // already happened, and also if the user swaps to
+                            // the single uploader it doesn't show an incorrect
+                            // "Uploading file x of y" HUD message
+                            self.multipleFilesCurrentFileNumber = 0
+                            self.multipleFilesTotalFiles = 0
+                        }
+                        
+                        // Letting any calling functions know that there are
+                        // currently no files being uploaded (mainly the multiple
+                        // file uploader)
+                        self.uploadingFile = false
                     }
                 })
             }
@@ -462,6 +526,139 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 fileExistsCallback(fileExists: true)
             }
         })
+    }
+    
+    // MARK: Multiple Files
+    
+    /// Processes a list of multiple files to upload, and uploads them
+    ///
+    /// If the multi picker is used in the upload popover, then simply
+    /// calling the uploadFile() function multiple times from it results
+    /// in quite a large mess (the progress bars jump, not all files are
+    /// uploaded, remnants of files are left on the device as they're not
+    /// deleted on upload, multiple renamings don't show) as that function
+    /// is only intended to upload one file at a time
+    ///
+    /// This function takes a list of file locations and sets them up ready
+    /// to be processed by the uploadMultipleFilesCheck function, as the timer
+    /// for that function is started once this function has been called
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.8.0-alpha
+    /// - version: 4
+    /// - date: 2016-05-16
+    ///
+    /// - seealso: uploadFile
+    /// - seealso: uploadMultipleFilesCheck
+    ///
+    /// - parameter uploadFileLocations: The on-device file locations of the
+    ///                                  files to be uploaded
+    func uploadMultipleFiles(uploadFileLocations: NSArray) {
+        logger.debug("Uploading multiple files from the following locations: \(uploadFileLocations)")
+        
+        // Saving the total number of file items being uploaded, so
+        // that the current upload progress can be monitored
+        multipleFilesTotalFiles = uploadFileLocations.count
+        
+        // Adding the list of files to upload to the current class
+        // multipleFilesFileList, so that it can be removed once
+        // a file has been uploaded
+        multipleFilesFileList = uploadFileLocations
+        
+        // Setting the variable to signify multiple files are to be
+        // uploaded, so that the uploadFile function knows what to
+        // display and remove from the array
+        multipleFilesUploadEnabled = true
+        
+        // Starting a timer loop to check if there's a file currently
+        // uploading to the server. If there is, then wait until the
+        // file has been uploaded (or renamed) before attempting to
+        // upload the next file. This also allows the upload popover
+        // to be removed from display while the uploads carry on
+        // A NSTimer isn't used here, as for some unknown reason the
+        // timer will not fire when any videos are attempted to be
+        // uploaded, yet will work every time multiple photos are
+        // processed. I don't know why this is, and probably at some
+        // point I will realise why, but until then, calling this
+        // code seems to do what is needed, albeit partially hacky
+        let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+        dispatch_after(time, dispatch_get_main_queue()) {
+            self.uploadMultipleFilesCheck()
+        }
+    }
+    
+    /// Checks to see if there are currently any files to be uploaded
+    ///
+    /// This function takes a list of file locations and processes them
+    /// synchronously, after each file has been uploaded, by waiting
+    /// until the uploadFile() function has finished uploading a file.
+    /// It is called every second from the multipleFilesUploadTimer that
+    /// was started in the uploadMultipleFiles function
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.8.0-alpha
+    /// - version: 3
+    /// - date: 2016-05-16
+    ///
+    /// - seealso: uploadMultipleFiles
+    /// - seealso: uploadMultipleFilesCheck
+    func uploadMultipleFilesCheck() {
+        // Seeing if there is currently a file being uploaded,
+        // or if there is an available slot to attempt the
+        // upload, and we haven't reached the total number of
+        // files that are to be uploaded
+        if ((self.uploadingFile == false) && (self.multipleFilesCurrentFileNumber < self.multipleFilesTotalFiles)) {
+            logger.debug("There are currently no files being uploaded. Attempting upload of next picked multiple file")
+            
+            // Setting the uploading file variable to be true, so
+            // that this function doesn't get called again too early.
+            // This is done here and not in the uploadFile function
+            // as the fileExists checks may still be taking place
+            // when this is called on the next timer tick
+            self.uploadingFile = true
+            
+            // Updating the file number that is currently being uploaded
+            // so that the progress bars can be drawn correctly
+            self.multipleFilesCurrentFileNumber += 1
+            logger.debug("Attempting upload of multiple file number \(self.multipleFilesCurrentFileNumber) of \(self.multipleFilesTotalFiles)")
+            
+            // Setting the location of the file in the settings, so
+            // that the uploadFile function can access it. The path
+            // used is pulled from the array index of the
+            // multipleFilesCurrentFileNumber variable, less 1 as arrays
+            // start on 0
+            logger.debug("Attempting upload of file at on-device location: \(self.multipleFilesFileList[self.multipleFilesCurrentFileNumber - 1])")
+            settings!.setObject(self.multipleFilesFileList[self.multipleFilesCurrentFileNumber - 1], forKey: settingsUploadPhotosLocation)
+            
+            // Uploading the file to the HAP+ server
+            self.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+                self.showFileExistsMessage(true)
+            })
+        }
+        
+        // Stopping the multiple files upload checks if the number
+        // of files to upload has been reached. The timer check is
+        // re-run on each call to this function if the number of
+        // files uploaded isn't the total number to be uploaded.
+        // A NSTimer isn't used here, as for some unknown reason the
+        // timer will not fire when any videos are attempted to be
+        // uploaded, yet will work every time multiple photos are
+        // processed. I don't know why this is, and probably at some
+        // point I will realise why, but until then, calling this
+        // code seems to do what is needed, albeit partially hacky
+        if (self.multipleFilesCurrentFileNumber < self.multipleFilesTotalFiles) {
+            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
+            dispatch_after(time, dispatch_get_main_queue()) {
+                logger.verbose("Files are still to be uploaded. Running multiple upload files timer check again")
+                self.uploadMultipleFilesCheck()
+            }
+        } else {
+            logger.debug("Stopping the multiple files upload timer check as all selected files have been uploaded")
+            
+            // Setting multiple files uploading to be false so that
+            // the HUD can be hidden when the last file is uploaded
+            self.multipleFilesUploadEnabled = false
+        }
     }
     
     /// Creates a new folder inside the currently browsed to folder

@@ -41,6 +41,7 @@ The name "Home Access Plus+" and all server side code are copyright Nick Brown (
 This project uses Cocoapods. Their project source code pages and licenses can be found below:
 * [Alamofire](https://github.com/Alamofire/Alamofire/)
 * [ChameleonFramework](https://github.com/ViccAlexander/Chameleon)
+* [DKImagePickerController](https://github.com/zhangao0086/DKImagePickerController)
 * [Font Awesome Swift](https://github.com/Vaberer/Font-Awesome-Swift)
 * [Locksmith](https://github.com/matthewpalmer/Locksmith)
 * [MBProgressHUD](https://github.com/jdg/MBProgressHUD)
@@ -57,12 +58,12 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 
 ### 0.8.0
 * A settings menu of some sort (in the main settings app)
-  * Enable simple image uploader
+  * ~~Enable simple image uploader~~
   * Change log level, save to files, save to console
     * Include / exclude timer checks, as this may fill up the logs with unnecessary info due to the run frequency
     * Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)
   * ~~Links to show the licenses for projects this app uses~~
-* Image picker multiple select / multiple upload
+* ~~Image picker multiple select / multiple upload~~
 * Remove "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner

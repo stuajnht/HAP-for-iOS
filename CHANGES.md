@@ -3,7 +3,11 @@
 ## 0.8.0
 
 ### New Stuff
+* Multiple photos or videos can be selected and uploaded at once to the HAP+ server
 * The licenses for the [various projects](README.md#license-terms) this app uses are shown in the main iOS Settings app
+
+### Changes
+* The old functionality to upload one photo or video at a time to the HAP+ server can be enabled in the main iOS settings app
 
 ## 0.7.0
 
