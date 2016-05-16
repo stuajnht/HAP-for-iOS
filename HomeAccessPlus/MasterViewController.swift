@@ -371,7 +371,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 8
+    /// - version: 9
     /// - date: 2016-05-16
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
@@ -404,6 +404,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         
         hudUploadingShow()
+        
+        // Showing the file number currently being uploaded
+        // if multiple files are being processed, and there
+        // is more than one file being uploaded
+        if (multipleFilesTotalFiles > 1) {
+            hudUpdateLabel("Uploading file \(multipleFilesCurrentFileNumber) of \(multipleFilesTotalFiles)")
+        }
         
         // Seeing if a name for the file needs to be generated
         // or one has already been created from the user choosing
@@ -484,6 +491,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                             
                             // Refreshing the file browser table
                             self.loadFileBrowser()
+                            
+                            // Resetting the multipleFilesCurrentFileNumber and
+                            // multipleFilesTotalFiles so that in the future
+                            // multi uploads can take place, if some uploads have
+                            // already happened, and also if the user swaps to
+                            // the single uploader it doesn't show an incorrect
+                            // "Uploading file x of y" HUD message
+                            self.multipleFilesCurrentFileNumber = 0
+                            self.multipleFilesTotalFiles = 0
                         }
                         
                         // Letting any calling functions know that there are
@@ -529,7 +545,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-05-16
     ///
     /// - seealso: uploadFile
@@ -543,11 +559,6 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Saving the total number of file items being uploaded, so
         // that the current upload progress can be monitored
         multipleFilesTotalFiles = uploadFileLocations.count
-        
-        // Resetting the multipleFilesCurrentFileNumber so
-        // multi uploads can take place, if some uploads have
-        // already happened
-        multipleFilesCurrentFileNumber = 0
         
         // Adding the list of files to upload to the current class
         // multipleFilesFileList, so that it can be removed once
