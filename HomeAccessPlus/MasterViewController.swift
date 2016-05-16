@@ -371,8 +371,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 7
-    /// - date: 2016-05-14
+    /// - version: 8
+    /// - date: 2016-05-16
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -448,7 +448,6 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // refresh the current folder to show it, and delete the
                     // local copy of the file from the device
                     if ((result == true) && (uploading == false)) {
-                        self.hudHide()
                         logger.debug("File has been uploaded to: \(self.currentPath)")
                         
                         // If the file uploaded is not a photo, then set the
@@ -467,8 +466,25 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // upload to the HAP+ server
                         self.deleteUploadedLocalFile(fileDeviceLocation)
                         
-                        // Refreshing the file browser table
-                        self.loadFileBrowser()
+                        // Hiding the HUD from view. If only a single file is
+                        // being uploaded, then multipleFilesUploadEnabled will
+                        // be false and the HUD will be hidden once the upload
+                        // has taken place. If multiple files are being uploaded,
+                        // then only on the last file when multipleFilesUploadEnabled
+                        // is set to false again will the HUD be hidden
+                        // The file browser table is also only refreshed once all
+                        // files have been uploaded, due to 1) the refreshing HUD
+                        // overlays the upload progress bar and looks messy and,
+                        // 2) it's easier to have to write the code to only hide
+                        // the HUD once all the files have been uploaded than
+                        // also prevent the HUD from hiding on the loading of the
+                        // file browser function
+                        if (!self.multipleFilesUploadEnabled) {
+                            self.hudHide()
+                            
+                            // Refreshing the file browser table
+                            self.loadFileBrowser()
+                        }
                         
                         // Letting any calling functions know that there are
                         // currently no files being uploaded (mainly the multiple
@@ -570,7 +586,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-05-16
     ///
     /// - seealso: uploadMultipleFiles
@@ -627,6 +643,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             }
         } else {
             logger.debug("Stopping the multiple files upload timer check as all selected files have been uploaded")
+            
+            // Setting multiple files uploading to be false so that
+            // the HUD can be hidden when the last file is uploaded
+            self.multipleFilesUploadEnabled = false
         }
     }
     
