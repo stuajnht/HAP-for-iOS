@@ -49,6 +49,8 @@ While HAP+ server contains [support for a large number of common file types](htt
 3. Save the file
 4. Open IIS manager and restart the IIS server service (or if you have other websites running, navigate to and restart just the HAP+ website)
 
+> :information_source: If a new file extension is added to `knownicons.xml`, then the icon for it will probably not exist in the `~\images\icons\` folder. You can use [Nirsoft IconsExtract](http://www.nirsoft.net/utils/iconsext.html) to extract the file icon from the main program executable, convert it to a *.png file with [ImageMagick](http://www.imagemagick.org/script/index.php) (`convert <file>.ico <file>.png`) and copy it to the `~\images\icons\` folder.
+
 ## When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder
 By default, your institutions Home Access Plus+ server is set to only accept a limited number of file types. The app that you are using probably saves in a format that is not common, so HAP+ doesn't allow the file to be added. You will need to speak to your institutions network manager to allow support for additional file types. Point them here for the instructions on how to do this:
 1. Log in to your HAP+ servers web interface and go to the setup page (something like: https://&lt;_domain_&gt;/hap/setup.aspx)
