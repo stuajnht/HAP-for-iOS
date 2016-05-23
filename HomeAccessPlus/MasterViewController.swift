@@ -1181,8 +1181,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 4
-    /// - date: 2016-01-29
+    /// - version: 5
+    /// - date: 2016-05-23
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
@@ -1208,7 +1208,20 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")
                 
-                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
+                // Generating the name of the file that is being uploaded,
+                // so that the user knows what file is going to be overwritten
+                // (even if it's not that useful to them, e.g. IMG_2389.png)
+                // This code is a shortened version of that used in uploadFile()
+                var fileLocation = ""
+                if (fileFromPhotoLibrary == false) {
+                    fileLocation = settings!.stringForKey(settingsUploadFileLocation)!
+                } else {
+                    fileLocation = settings!.stringForKey(settingsUploadPhotosLocation)!
+                }
+                
+                let fileName = String(fileLocation).componentsSeparatedByString("/").last!
+                
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file \"\(fileName)\" already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
                 fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler:  {(alertAction) -> Void in
                     self.overwriteFile(true, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
                 fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler:  {(alertAction) -> Void in
