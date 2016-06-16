@@ -10,6 +10,9 @@
 * The old functionality to upload one photo or video at a time to the HAP+ server can be enabled in the main iOS settings app
 * Displayed the name of the file being uploaded on the "file exists" alert, so that it is known which file the message is referring to
 
+### Bug Fixes
+* Fixed bug where the app would crash if the user logged out when the device is in portrait mode (The master view controller would stay visible, causing subsequent actions to try and access settings that are nil)
+
 ## 0.7.0
 
 ### Notes
