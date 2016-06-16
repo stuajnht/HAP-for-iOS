@@ -244,6 +244,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // Hiding the HUD and adding the drives available to the table
                     self.hudHide()
                     self.tableView.reloadData()
+                    
+                    // Showing the master view controller if the device is in portrait
+                    // mode (it will have to be shown when the device is in landscape)
+                    // This is only done when the file browser has been shown after
+                    // initial log on, rather than after browsing each folder
+                    self.splitViewController?.showMasterView()
                 } else {
                     logger.warning("There was a problem getting the drive JSON data")
                     self.hudHide()
@@ -1544,7 +1550,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // this, as the app starts up, but crashes when trying to
         // interact with anything as some settings are nil)
         // See: http://stackoverflow.com/a/34560694
-        self.splitViewController?.toggleMasterView()
+        self.splitViewController?.hideMasterView()
         
         // Removing all of the navigation views and showing
         // the login view controller
@@ -1603,7 +1609,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
 
 /// Extending the appearance of the master view controller
 /// in the split view controller, so that it can be hidden
-/// manually
+/// or shown manually, as well as toggled if needed
 ///
 /// If the device is in portrait mode and the user logs out,
 /// the master view controller doesn't become hidden, leading
@@ -1611,14 +1617,21 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
 /// The only way to get out of this infinate loop is to remove
 /// and reinstall the app (app restoration won't catch this
 /// as the app starts up, but crashes when trying to interact
-/// with anything as some settings are nil)
+/// with anything as some settings are nil). The hide function
+/// is called during logging out of the device, to cause the
+/// master view controller to hide before continuing
 ///
-/// This extension is called during logging out of the device,
-/// to cause the master view controller to hide before continuing
+/// If the device is in portrait mode when the initial log on
+/// has taken place, then the master view controller will by
+/// default be hidden, causing the user to have to unhide it
+/// first. The show function allows the master view controller
+/// to be shown as needed
+///
+/// See: http://stackoverflow.com/a/34560694
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.8.0-alpha
-/// - version: 1
+/// - version: 2
 /// - date: 2016-06-16
 ///
 /// - seealso: logOutUser
@@ -1633,6 +1646,18 @@ extension UISplitViewController {
         }
         UIView.animateWithDuration(0.5) { () -> Void in
             self.preferredDisplayMode = nextDisplayMode
+        }
+    }
+    
+    func showMasterView() {
+        UIView.animateWithDuration(0.5) { () -> Void in
+            self.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible
+        }
+    }
+    
+    func hideMasterView() {
+        UIView.animateWithDuration(0.5) { () -> Void in
+            self.preferredDisplayMode = UISplitViewControllerDisplayMode.PrimaryHidden
         }
     }
 }
