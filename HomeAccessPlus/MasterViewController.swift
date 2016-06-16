@@ -1520,8 +1520,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 5
-    /// - date: 2016-04-16
+    /// - version: 6
+    /// - date: 2016-06-16
+    ///
+    /// - seealso: toggleMasterView
     func logOutUser() {
         // Calling the log out function
         api.logOutUser()
@@ -1533,6 +1535,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Stopping check timers as no user is logged in")
         let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
         delegate!.stopTimers()
+        
+        // Hiding the master view controller before the modal
+        // is dismissed, as attempting to log out of the app when
+        // a large screen device is in portrait mode causes the
+        // master view to remain in place, which then causes the
+        // app to crash from then on (app restoration won't catch
+        // this, as the app starts up, but crashes when trying to
+        // interact with anything as some settings are nil)
+        // See: http://stackoverflow.com/a/34560694
+        self.splitViewController?.toggleMasterView()
         
         // Removing all of the navigation views and showing
         // the login view controller
@@ -1587,5 +1599,41 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     }
 
 
+}
+
+/// Extending the appearance of the master view controller
+/// in the split view controller, so that it can be hidden
+/// manually
+///
+/// If the device is in portrait mode and the user logs out,
+/// the master view controller doesn't become hidden, leading
+/// any subsequent actions in the app to cause it to crash.
+/// The only way to get out of this infinate loop is to remove
+/// and reinstall the app (app restoration won't catch this
+/// as the app starts up, but crashes when trying to interact
+/// with anything as some settings are nil)
+///
+/// This extension is called during logging out of the device,
+/// to cause the master view controller to hide before continuing
+///
+/// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+/// - since: 0.8.0-alpha
+/// - version: 1
+/// - date: 2016-06-16
+///
+/// - seealso: logOutUser
+extension UISplitViewController {
+    func toggleMasterView() {
+        var nextDisplayMode: UISplitViewControllerDisplayMode
+        switch(self.preferredDisplayMode){
+        case .PrimaryHidden:
+            nextDisplayMode = .AllVisible
+        default:
+            nextDisplayMode = .PrimaryHidden
+        }
+        UIView.animateWithDuration(0.5) { () -> Void in
+            self.preferredDisplayMode = nextDisplayMode
+        }
+    }
 }
 
