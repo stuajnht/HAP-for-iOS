@@ -153,6 +153,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // Loading the contents in the folder that has been browsed
             // to, or lising the drives if no folder has been navigated to
             loadFileBrowser()
+        } else {
+            // When app restoration has taken place, the master view
+            // controller does not take on its adjustable appearance, as this
+            // is only set when the user browses through their drives. The
+            // call to show it again is added here, so that it can be set up
+            // properly again
+            self.splitViewController?.showMasterView()
         }
     }
 
