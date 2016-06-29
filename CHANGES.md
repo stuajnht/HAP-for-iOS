@@ -16,6 +16,7 @@
 ### Bug Fixes
 * Fixed bug where the app would crash if the user logged out when the device is in portrait mode (The master view controller would stay visible, causing subsequent actions to try and access settings that are nil)
 * Fixed bug where the upload popover would show an incorrect lanuch location if the device is rotated when the popover is visible
+* Fixed bug where if the currently selected file is downloaded immediately again, but the file data has been changed on a remote device, the correct version of the file is shown
 
 ## 0.7.0
 
