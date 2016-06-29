@@ -128,42 +128,8 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // none have been downloaded yet (such as browsing through
         // the file structure but not selecting a file)
         if (fileDeviceLocation != "") {
-            // Getting a list of the files currently in the caches
-            // directory before any deletion attempt happens
-            var cacheDirectoryPath = getLocalCacheFolderFileListing()
-            
-            // As the view will be disappearing, we can delete the
-            // files that the user has downloaded to the caches folder
-            // directory on the device
-            // See: http://stackoverflow.com/a/32744011
-            if let enumerator = NSFileManager.defaultManager().enumeratorAtPath(cacheDirectoryPath) {
-                while let fileName = enumerator.nextObject() as? String {
-                    let localFilePath = cacheDirectoryPath + "/" + fileName
-                    logger.debug("Attempting to delete the file: \(localFilePath)")
-                    do {
-                        // Checking to see if the file currently being
-                        // deleted is the one the user is looking at
-                        // Also preventing attempts to delete the 'snapshots'
-                        // file as deleting it is not a premitted operation
-                        if ((localFilePath == formatLocalFilePath()) || (fileName == "Snapshots")) {
-                            logger.debug("Skipping deleting file: \(localFilePath)")
-                        } else {
-                            try NSFileManager.defaultManager().removeItemAtPath("\(localFilePath)")
-                            logger.debug("Successfully deleted file: \(localFilePath)")
-                        }
-                    }
-                    catch let errorMessage as NSError {
-                        logger.error("There was a problem deleting the file. Error: \(errorMessage)")
-                    }
-                    catch {
-                        logger.error("There was an unknown problem when deleting the file.")
-                    }
-                }
-            }
-            
-            // Getting a file listing again, to make sure that the
-            // file was deleted
-            cacheDirectoryPath = getLocalCacheFolderFileListing()
+            // Deleting any cached files from the device
+            deleteCacheFiles()
         }
         
         super.viewWillDisappear(animated)
@@ -210,6 +176,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     /// - date: 2016-01-16
     func downloadFile() ->Void {
         hudShow()
+        
+        // Deleting any cached files from the device
+        deleteCacheFiles()
+        
         api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
             
             // There was a problem with downloading the file, so let the
@@ -543,6 +513,65 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                 logger.debug("File being downloaded is smaller than the maximum allowed")
                 return false
         }
+    }
+    
+    /// Deleting any files that are in the app cached folder
+    ///
+    /// Files downloaded from the HAP+ server are saved into the
+    /// apps cached data folder. To prevent an accidental build-up
+    /// of files that are stored in here, whenever a new file is
+    /// to be downloaded, this folder is emptied, apart from
+    /// reserved app files / folders
+    ///
+    /// This function is called whenever the detail view controller
+    /// is to be removed from view, or when a new file to be downloaded
+    ///
+    /// - note: The files need to be cleared before a new download
+    ///         takes place. If the same file name is being downloaded
+    ///         again, and the file is currently selected but modified
+    ///         on a remote device, the updated file will not download
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.8.0-alpha
+    /// - version: 1
+    /// - date: 2016-06-29
+    func deleteCacheFiles() {
+        // Getting a list of the files currently in the caches
+        // directory before any deletion attempt happens
+        var cacheDirectoryPath = getLocalCacheFolderFileListing()
+        
+        // As the view will be disappearing, we can delete the
+        // files that the user has downloaded to the caches folder
+        // directory on the device
+        // See: http://stackoverflow.com/a/32744011
+        if let enumerator = NSFileManager.defaultManager().enumeratorAtPath(cacheDirectoryPath) {
+            while let fileName = enumerator.nextObject() as? String {
+                let localFilePath = cacheDirectoryPath + "/" + fileName
+                logger.debug("Attempting to delete the file: \(localFilePath)")
+                do {
+                    // Checking to see if the file currently being
+                    // deleted is the one the user is looking at
+                    // Also preventing attempts to delete the 'snapshots'
+                    // file as deleting it is not a premitted operation
+                    if ((localFilePath == formatLocalFilePath()) || (fileName == "Snapshots")) {
+                        logger.debug("Skipping deleting file: \(localFilePath)")
+                    } else {
+                        try NSFileManager.defaultManager().removeItemAtPath("\(localFilePath)")
+                        logger.debug("Successfully deleted file: \(localFilePath)")
+                    }
+                }
+                catch let errorMessage as NSError {
+                    logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+                }
+                catch {
+                    logger.error("There was an unknown problem when deleting the file.")
+                }
+            }
+        }
+        
+        // Getting a file listing again, to make sure that the
+        // file was deleted
+        cacheDirectoryPath = getLocalCacheFolderFileListing()
     }
     
     // MARK: App Restoration
