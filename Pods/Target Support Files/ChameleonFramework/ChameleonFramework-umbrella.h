@@ -1,10 +1,12 @@
+#ifdef __OBJC__
 #import <UIKit/UIKit.h>
+#endif
 
 #import "Chameleon.h"
-#import "Chameleon_.h"
 #import "ChameleonConstants.h"
 #import "ChameleonEnums.h"
 #import "ChameleonMacros.h"
+#import "Chameleon_.h"
 #import "NSArray+Chameleon.h"
 #import "UIAppearance+Swift.h"
 #import "UIButton+Chameleon.h"
@@ -16,10 +18,10 @@
 #import "UIView+ChameleonPrivate.h"
 #import "UIViewController+Chameleon.h"
 #import "Chameleon.h"
-#import "Chameleon_.h"
 #import "ChameleonConstants.h"
 #import "ChameleonEnums.h"
 #import "ChameleonMacros.h"
+#import "Chameleon_.h"
 #import "NSArray+Chameleon.h"
 #import "UIAppearance+Swift.h"
 #import "UIButton+Chameleon.h"

@@ -8,13 +8,13 @@
 
 import UIKit
 
-public class DKAssetGroupGridLayout: UICollectionViewFlowLayout {
+open class DKAssetGroupGridLayout: UICollectionViewFlowLayout {
 	
-	public override func prepareLayout() {
-		super.prepareLayout()
+	open override func prepare() {
+		super.prepare()
 		
 		var minItemWidth: CGFloat = 80
-		if UI_USER_INTERFACE_IDIOM() == .Pad {
+		if UI_USER_INTERFACE_IDIOM() == .pad {
 			minItemWidth = 100
 		}
 		
@@ -22,7 +22,7 @@ public class DKAssetGroupGridLayout: UICollectionViewFlowLayout {
 		self.minimumInteritemSpacing = interval
 		self.minimumLineSpacing = interval
 		
-		let contentWidth = DKImagePickerController.sharedInstance().view.bounds.width
+		let contentWidth = self.collectionView!.bounds.width
 		
 		let itemCount = Int(floor(contentWidth / minItemWidth))
 		var itemWidth = (contentWidth - interval * (CGFloat(itemCount) - 1)) / CGFloat(itemCount)
