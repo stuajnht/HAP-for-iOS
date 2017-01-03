@@ -60,23 +60,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         // Setting up the colours for the login scene
         view.backgroundColor = UIColor(hexString: hapMainColour)
-        lblAppName.textColor = UIColor.flatWhiteColor()
-        lblMessage.textColor = UIColor.flatWhiteColor()
-        lblHAPServer.textColor = UIColor.flatWhiteColor()
-        lblUsername.textColor = UIColor.flatWhiteColor()
-        lblPassword.textColor = UIColor.flatWhiteColor()
-        btnLogin.tintColor = UIColor.flatWhiteColor()
+        lblAppName.textColor = UIColor.flatWhite()
+        lblMessage.textColor = UIColor.flatWhite()
+        lblHAPServer.textColor = UIColor.flatWhite()
+        lblUsername.textColor = UIColor.flatWhite()
+        lblPassword.textColor = UIColor.flatWhite()
+        btnLogin.tintColor = UIColor.flatWhite()
         
         // Handle the text field’s user input
         tblHAPServer.delegate = self
         tblUsername.delegate = self
         tbxPassword.delegate = self
-        tblHAPServer.returnKeyType = .Next
-        tblUsername.returnKeyType = .Next
-        tbxPassword.returnKeyType = .Go
+        tblHAPServer.returnKeyType = .next
+        tblUsername.returnKeyType = .next
+        tbxPassword.returnKeyType = .go
         
         // Filling in any settings that are saved
-        if let siteName = settings!.stringForKey(settingsSiteName)
+        if let siteName = settings!.string(forKey: settingsSiteName)
         {
             logger.debug("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
@@ -86,7 +86,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         registerForKeyboardNotifications()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         // Clearing the username and password from the textboxes,
         // as when the user logs out the app will crash if it
         // still contains data in the textboxes and the user
@@ -97,26 +97,26 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Showing the scroll container so that the textboxes
         // can be visible, if it has been hidden when trying
         // to log the user in if the app has been closed
-        sclLoginTextboxes.hidden = false
+        sclLoginTextboxes.isHidden = false
         
         // Showing the HAP+ server textbox when UI Testing
         // is taking place, so that the test doesn't fail
         // See: http://stackoverflow.com/a/33774166
         // See: http://onefootball.github.io/resetting-application-data-after-each-test-with-xcode7-ui-testing/
-        let args = NSProcessInfo.processInfo().arguments
+        let args = ProcessInfo.processInfo.arguments
         if args.contains("UI_TESTING_RESET_SETTINGS") {
             logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
-            tblHAPServer.hidden = false
-            lblHAPServer.hidden = false
+            tblHAPServer.isHidden = false
+            lblHAPServer.isHidden = false
         } else {
             // Hiding the HAP+ server textbox, as if this is the
             // first setup / login on the device and the user
             // logs out, then the field will be editable again
-            if let hapServer = settings!.stringForKey(settingsHAPServer) {
+            if let hapServer = settings!.string(forKey: settingsHAPServer) {
                 logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
                 tblHAPServer.text = hapServer
-                tblHAPServer.hidden = true
-                lblHAPServer.hidden = true
+                tblHAPServer.isHidden = true
+                lblHAPServer.isHidden = true
                 
                 // Checking the URL is still correct (it is) but this
                 // function needs to be called otherwise when attempting
@@ -128,11 +128,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             // before, but have closed the app (from the app switcher)
             // or restarted the device, rather than just backgrounding
             // the app
-            if let username = settings!.stringForKey(settingsUsername) {
+            if let username = settings!.string(forKey: settingsUsername) {
                 // Hiding the view controls to prevent the user from
                 // being able to do anything which may interfere with
                 // the login process
-                sclLoginTextboxes.hidden = true
+                sclLoginTextboxes.isHidden = true
                 
                 // Filling in the username and password controls, so
                 // that the loginUser function can access them
@@ -162,20 +162,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - date: 2016-03-03
     ///
     /// - seealso: shouldPerformSegueWithIdentifier
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Setting the viewLoadedFromBrowsing variable to
         // be true, so that the loadFileBrowser() function
         // will be called once the login has taken place
         // This is to work around the repeated calling
         // to the above named function on app restoration
         if segue.identifier == "login.btnLoginSegue" {
-            let controller = (segue.destinationViewController as! UISplitViewController).viewControllers[0] as! UINavigationController
+            let controller = (segue.destination as! UISplitViewController).viewControllers[0] as! UINavigationController
             let masterController = controller.topViewController as! MasterViewController
             masterController.viewLoadedFromBrowsing = true
         }
     }
     
-    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         // Preventing the login button from progressing until the
         // login checks have been validated
         // From: http://jamesleist.com/ios-swift-tutorial-stop-segue-show-alert-text-box-empty/
@@ -201,7 +201,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - since: 0.2.0-alpha
     /// - version: 1
     /// - date: 2015-12-06
-    @IBAction func formatHAPURL(sender: AnyObject) {
+    @IBAction func formatHAPURL(_ sender: AnyObject) {
         // Making sure that https:// is at the beginning of the sting.
         // This is needed as by default HAP+ server only works over https
         // See: https://hap.codeplex.com/SourceControl/changeset/87691
@@ -214,7 +214,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Seeing if server has http at the start
         if (hapServerAddress.hasPrefix(http)) {
             // Replacing the http:// in the URL to be https://
-            hapServerAddress = hapServerAddress.stringByReplacingOccurrencesOfString(http, withString: https)
+            hapServerAddress = hapServerAddress.replacingOccurrences(of: http, with: https)
         } else {
             // Fix for issue #10 - See: https://github.com/stuajnht/HAP-for-iOS/issues/10
             // If the HAP+ address already includes https:// at the start, do
@@ -228,13 +228,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Removing any trailing '/' characters, as we add these in
         // during any API calls
         if (hapServerAddress.hasSuffix("/")) {
-            hapServerAddress = hapServerAddress.substringToIndex(hapServerAddress.endIndex.predecessor())
+            hapServerAddress = hapServerAddress.substring(to: hapServerAddress.characters.index(before: hapServerAddress.endIndex))
         }
         
         logger.debug("Formatted HAP+ URL: \(hapServerAddress)")
     }
     
-    @IBAction func attemptLogin(sender: AnyObject) {
+    @IBAction func attemptLogin(_ sender: AnyObject) {
         // Hiding the keyboard, as if the user presses the login button
         // when the keyboard is still showing, it will cover the HUD and
         // pop up and down when any alerts are shown, which looks messy
@@ -243,9 +243,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Seeing if the textboxes are valid before attempting
         // any login attempts
         if (textboxesValid() == false) {
-            let textboxesValidAlertController = UIAlertController(title: "Incorrect Information", message: "Please check that you have entered all correct information, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-            textboxesValidAlertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(textboxesValidAlertController, animated: true, completion: nil)
+            let textboxesValidAlertController = UIAlertController(title: "Incorrect Information", message: "Please check that you have entered all correct information, then try again", preferredStyle: UIAlertControllerStyle.alert)
+            textboxesValidAlertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+            self.present(textboxesValidAlertController, animated: true, completion: nil)
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
@@ -262,9 +262,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // should make sure they have an active connection
                 hudHide()
                 
-                let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-                apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(apiCheckConnectionController, animated: true, completion: nil)
+                let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.alert)
+                apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(apiCheckConnectionController, animated: true, completion: nil)
             }
         }
     }
@@ -292,7 +292,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - parameter hapServer: The URL to the HAP+ server
     /// - parameter attempt: How many times this function has been called
-    func checkAPI(hapServer: String, attempt: Int) -> Void {
+    func checkAPI(_ hapServer: String, attempt: Int) -> Void {
         logger.debug("Attempting to contact the HAP+ server at the URL: \(hapServer)")
         
         api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
@@ -308,9 +308,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == false && attempt != 1) {
                 self.hudHide()
                 
-                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.Alert)
-                apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(apiFailController, animated: true, completion: nil)
+                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.alert)
+                apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(apiFailController, animated: true, completion: nil)
             }
             if (result) {
                 // Successful HAP+ API check, so we now have a fully valid
@@ -318,7 +318,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.hapServerAddress = hapServer
                 
                 // Saving the HAP+ server API address to use later
-                settings!.setObject(hapServer, forKey: settingsHAPServer)
+                settings!.set(hapServer, forKey: settingsHAPServer)
                 
                 // Continue with the login attempt by validating the credentials
                 self.hudUpdateLabel("Checking login details")
@@ -357,40 +357,40 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // to keep the user logon tokens valid, as it wouldn't have
                 // been started if a user wasn't logged in on app launch
                 logger.debug("Starting API test check timer to keep logon tokens valid")
-                let delegate = UIApplication.sharedApplication().delegate as? AppDelegate
+                let delegate = UIApplication.shared.delegate as? AppDelegate
                 delegate!.startAPITestCheckTimer()
                 
                 // Find out what the device should be set up as: Personal, Shared
                 // or Single so that it can be used later. This is shown run if it
                 // hasn't been set before (i.e. the very first setup of this device)
-                if let deviceType = settings!.stringForKey(settingsDeviceType) {
+                if let deviceType = settings!.string(forKey: settingsDeviceType) {
                     // Device is set up, so nothing to do here
                     logger.info("This device is set up in \(deviceType) mode")
                 } else {
-                    let loginUserDeviceType = UIAlertController(title: "Please Select Device Type", message: "Personal - A device you have bought\nShared - School owned class set\nSingle - School owned 1:1 scheme", preferredStyle: UIAlertControllerStyle.Alert)
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Personal", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                    let loginUserDeviceType = UIAlertController(title: "Please Select Device Type", message: "Personal - A device you have bought\nShared - School owned class set\nSingle - School owned 1:1 scheme", preferredStyle: UIAlertControllerStyle.alert)
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Personal", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                         self.setDeviceType("personal") }))
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Shared", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Shared", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                         self.setDeviceType("shared") }))
-                    loginUserDeviceType.addAction(UIAlertAction(title: "Single", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+                    loginUserDeviceType.addAction(UIAlertAction(title: "Single", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                         self.setDeviceType("single") }))
-                    self.presentViewController(loginUserDeviceType, animated: true, completion: nil)
+                    self.present(loginUserDeviceType, animated: true, completion: nil)
                 }
                 
                 // Performing the segue to the master detail view
                 self.successfulLogin = true
-                self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
+                self.performSegue(withIdentifier: "login.btnLoginSegue", sender: self)
             } else {
                 // Inform the user they didn't have a valid username or password
                 logger.warning("The username or password was not valid")
-                let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(loginUserFailController, animated: true, completion: nil)
                 
                 // Showing the login textboxes scroll area, as it may
                 // have been hidden if the user has opened up the
                 // app from the beginning, and not from app restoration
-                self.sclLoginTextboxes.hidden = false
+                self.sclLoginTextboxes.isHidden = false
             }
         })
     }
@@ -415,12 +415,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - date: 2015-12-09
     ///
     /// - param deviceType: The type of device this is going to be
-    func setDeviceType(deviceType: String) {
+    func setDeviceType(_ deviceType: String) {
         logger.info("This device is being set up in \(deviceType) mode")
-        settings!.setObject(deviceType, forKey: settingsDeviceType)
+        settings!.set(deviceType, forKey: settingsDeviceType)
         // Performing the segue to the master detail view
         self.successfulLogin = true
-        self.performSegueWithIdentifier("login.btnLoginSegue", sender: self)
+        self.performSegue(withIdentifier: "login.btnLoginSegue", sender: self)
     }
     
     /// Looking after moving the focus onto each textfield when the next
@@ -438,7 +438,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - param textfield: The identifier for the textfield
     /// - returns: Indicates that the text field should respond to the user
     ///            pressing the next / go key
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // Hide the keyboard and move it to the next textfield
         if textField == self.tblHAPServer {
             self.tblUsername.becomeFirstResponder()
@@ -479,37 +479,37 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Length validation checks
         if (tblHAPServer.text == "") {
             valid = false
-            tblHAPServer.textColor = UIColor.flatRedColor()
-            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblHAPServer.textColor = UIColor.flatRed()
+            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().cgColor
             tblHAPServer.layer.borderWidth = 2
             logger.warning("HAP+ server address missing")
         } else {
-            tblHAPServer.textColor = UIColor.flatBlackColor()
-            tblHAPServer.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblHAPServer.textColor = UIColor.flatBlack()
+            tblHAPServer.layer.borderColor = UIColor.flatBlack().cgColor
             tblHAPServer.layer.borderWidth = 0
         }
         
         if (tblUsername.text == "") {
             valid = false
-            tblUsername.textColor = UIColor.flatRedColor()
-            tblUsername.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblUsername.textColor = UIColor.flatRed()
+            tblUsername.layer.borderColor = UIColor.flatYellowColorDark().cgColor
             tblUsername.layer.borderWidth = 2
             logger.warning("Username missing")
         } else {
-            tblUsername.textColor = UIColor.flatBlackColor()
-            tblUsername.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblUsername.textColor = UIColor.flatBlack()
+            tblUsername.layer.borderColor = UIColor.flatBlack().cgColor
             tblUsername.layer.borderWidth = 0
         }
         
         if (tbxPassword.text == "") {
             valid = false
-            tbxPassword.textColor = UIColor.flatRedColor()
-            tbxPassword.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tbxPassword.textColor = UIColor.flatRed()
+            tbxPassword.layer.borderColor = UIColor.flatYellowColorDark().cgColor
             tbxPassword.layer.borderWidth = 2
             logger.warning("Password missing")
         } else {
-            tbxPassword.textColor = UIColor.flatBlackColor()
-            tbxPassword.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tbxPassword.textColor = UIColor.flatBlack()
+            tbxPassword.layer.borderColor = UIColor.flatBlack().cgColor
             tbxPassword.layer.borderWidth = 0
         }
         
@@ -518,15 +518,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // See: http://stackoverflow.com/a/24207852
         let urlPattern = "(https:\\/\\/)((\\w|\\d|-)+\\.)+(\\w|\\d){2,6}(\\/(\\w|\\d|\\+|-)+)*"
         let predicate = NSPredicate(format:"SELF MATCHES %@", argumentArray:[urlPattern])
-        if (predicate.evaluateWithObject(hapServerAddress) == false) {
+        if (predicate.evaluate(with: hapServerAddress) == false) {
             valid = false
-            tblHAPServer.textColor = UIColor.flatRedColor()
-            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().CGColor
+            tblHAPServer.textColor = UIColor.flatRed()
+            tblHAPServer.layer.borderColor = UIColor.flatYellowColorDark().cgColor
             tblHAPServer.layer.borderWidth = 2
             logger.warning("HAP+ server address is an invalid format")
         } else {
-            tblHAPServer.textColor = UIColor.flatBlackColor()
-            tblHAPServer.layer.borderColor = UIColor.flatBlackColor().CGColor
+            tblHAPServer.textColor = UIColor.flatBlack()
+            tblHAPServer.layer.borderColor = UIColor.flatBlack().cgColor
             tblHAPServer.layer.borderWidth = 0
         }
         
@@ -541,8 +541,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // See: https://github.com/jdg/MBProgressHUD/blob/master/Demo/Classes/HudDemoViewController.m
     // See: http://stackoverflow.com/a/26882235
     // See: http://stackoverflow.com/a/32285621
-    func hudShow(detailLabel: String) {
-        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+    func hudShow(_ detailLabel: String) {
+        hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud.labelText = "Please wait..."
         hud.detailsLabelText = detailLabel
     }
@@ -557,12 +557,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     /// - seealso: hudHide
     ///
     /// - parameter labelText: The text that should be shown for the HUD label
-    func hudUpdateLabel(labelText: String) {
+    func hudUpdateLabel(_ labelText: String) {
         hud.detailsLabelText = labelText
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
+        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
     }
     
     // MARK: Keyboard
@@ -577,21 +577,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // See: http://stackoverflow.com/a/28813720
     func registerForKeyboardNotifications() {
         // Adding notifies on keyboard appearing
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LoginViewController.keyboardWasShown(_:)), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LoginViewController.keyboardWillBeHidden(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWasShown(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWillBeHidden(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     func deregisterFromKeyboardNotifications() {
         // Removing notifies on keyboard appearing
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
-    func keyboardWasShown(notification: NSNotification) {
+    func keyboardWasShown(_ notification: Notification) {
         // Need to calculate keyboard exact size due to Apple suggestions
-        self.sclLoginTextboxes.scrollEnabled = true
-        let info : NSDictionary = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        self.sclLoginTextboxes.isScrollEnabled = true
+        let info : NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
         let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize!.height, 0.0)
         
         self.sclLoginTextboxes.contentInset = contentInsets
@@ -600,29 +600,29 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         var aRect : CGRect = self.view.frame
         aRect.size.height -= keyboardSize!.height
         if let _ = activeField {
-            if (!CGRectContainsPoint(aRect, activeField!.frame.origin)) {
+            if (!aRect.contains(activeField!.frame.origin)) {
                 self.sclLoginTextboxes.scrollRectToVisible(activeField!.frame, animated: true)
             }
         }
     }
     
-    func keyboardWillBeHidden(notification: NSNotification) {
+    func keyboardWillBeHidden(_ notification: Notification) {
         // Once keyboard disappears, restore original positions
-        let info : NSDictionary = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        let info : NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
         let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -keyboardSize!.height, 0.0)
         self.sclLoginTextboxes.contentInset = contentInsets
         self.sclLoginTextboxes.scrollIndicatorInsets = contentInsets
         self.view.endEditing(true)
-        self.sclLoginTextboxes.scrollEnabled = false
+        self.sclLoginTextboxes.isScrollEnabled = false
         
     }
     
-    func textFieldDidBeginEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         activeField = textField
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         activeField = nil
     }
 

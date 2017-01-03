@@ -442,18 +442,22 @@
 					FC2AEBEB1C653C4A009BB69C = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
+						LastSwiftMigration = 0820;
 					};
 					FC2AEBF91C653C4A009BB69C = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
+						LastSwiftMigration = 0820;
 					};
 					FC78D3081C5D7E5E00254B07 = {
 						CreatedOnToolsVersion = 7.1.1;
+						LastSwiftMigration = 0820;
 						TestTargetID = FCB1D9E51C09F54C00DEC02E;
 					};
 					FCB1D9E51C09F54C00DEC02E = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 4ES87YFE58;
+						LastSwiftMigration = 0820;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -468,6 +472,7 @@
 					};
 					FCB1D9FB1C09F54C00DEC02E = {
 						CreatedOnToolsVersion = 7.1.1;
+						LastSwiftMigration = 0820;
 						TestTargetID = FCB1D9E51C09F54C00DEC02E;
 					};
 				};
@@ -790,6 +795,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -806,6 +812,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -822,6 +829,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -838,6 +846,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -848,6 +857,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = HomeAccessPlus;
 				USES_XCTRUNNER = YES;
 			};
@@ -860,6 +870,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = HomeAccessPlus;
 				USES_XCTRUNNER = YES;
 			};
@@ -967,6 +978,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -989,6 +1001,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1001,6 +1014,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HomeAccessPlus.app/HomeAccessPlus";
 			};
 			name = Debug;
@@ -1014,6 +1028,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.stuajnht.ios.HomeAccessPlusTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HomeAccessPlus.app/HomeAccessPlus";
 			};
 			name = Release;

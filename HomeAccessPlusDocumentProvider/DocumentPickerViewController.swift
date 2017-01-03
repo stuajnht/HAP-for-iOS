@@ -39,7 +39,7 @@ import XCGLogger
 /// - since: 0.7.0-alpha
 /// - version: 5
 /// - date: 2016-04-01
-class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, NSFileManagerDelegate {
+class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UITableViewDelegate, UITableViewDataSource, FileManagerDelegate {
     
     // Adding a reference to the file browser table,
     // so that it can be reloaded in the code
@@ -79,7 +79,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     
     /// A reference to the original URL path to the file that
     /// has been passed to the document provider
-    var originalFileURL : NSURL?
+    var originalFileURL : URL?
     
     // Checked when the viewWillAppear to see if an alert
     // needs to be shown to ask the user what to do if
@@ -93,20 +93,20 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // See: https://www.cocoanetics.com/2014/08/dismissal-completion-handler/
     var showFileExistsAlert : Bool = false
 
-    @IBAction func openDocument(sender: AnyObject?) {
-        let documentURL = self.documentStorageURL!.URLByAppendingPathComponent("Untitled.txt")
+    @IBAction func openDocument(_ sender: AnyObject?) {
+        let documentURL = self.documentStorageURL!.appendingPathComponent("Untitled.txt")
       
         // TODO: if you do not have a corresponding file provider, you must ensure that the URL returned here is backed by a file
-        self.dismissGrantingAccessToURL(documentURL)
+        self.dismissGrantingAccess(to: documentURL)
     }
 
-    override func prepareForPresentationInMode(mode: UIDocumentPickerMode) {
+    override func prepareForPresentation(in mode: UIDocumentPickerMode) {
         // TODO: present a view controller appropriate for picker mode here
         
         // Configuring the logger options
         logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
         
-        if let siteName = settings!.stringForKey(settingsSiteName) {
+        if let siteName = settings!.string(forKey: settingsSiteName) {
             logger.debug("HAP+ document provider opened for site: \(siteName)")
         }
         
@@ -118,10 +118,10 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // See: http://stackoverflow.com/a/34216809
         // See: https://github.com/xamarin/monotouch-samples/blob/master/ios8/NewBox/NBox/DocumentPickerViewController.cs#L61
         switch mode {
-            case .Import, .Open:
+            case .import, .open:
                 logger.verbose("Document picker toolbar is hidden")
                 self.navigationController!.setToolbarHidden(true, animated: false)
-            case .ExportToService, .MoveToService:
+            case .exportToService, .moveToService:
                 logger.verbose("Document picker toolbar is visible")
                 self.navigationController!.setToolbarHidden(false, animated: false)
                 
@@ -130,16 +130,16 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // user attempts to upload a file
                 logger.debug("Original file located at URL: \(self.originalURL!)")
                 originalFileURL = self.originalURL!
-                settings!.setURL(originalFileURL, forKey: settingsUploadFileLocation)
+                settings!.set(originalFileURL, forKey: settingsUploadFileLocation)
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         // Deselecting the table row if the user has browsed
         // 'back' through the navigation history
         // See: http://stackoverflow.com/a/33721607
         if let selectedTableRow = tblFileBrowser.indexPathForSelectedRow {
-            tblFileBrowser.deselectRowAtIndexPath(selectedTableRow, animated: true)
+            tblFileBrowser.deselectRow(at: selectedTableRow, animated: true)
         }
         logger.debug("Current path: \(currentPath)")
         
@@ -160,18 +160,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // is slightly different from the login view controller one, as we need
     // to get it to show on top of the table view
     // See: http://stackoverflow.com/a/26901328
-    func hudShow(detailLabel: String) {
-        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
+    func hudShow(_ detailLabel: String) {
+        hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
         hud.labelText = "Please wait..."
         hud.detailsLabelText = detailLabel
     }
     
     // This is shown when the user selects a file to download
     func hudDownloadShow() {
-        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud.detailsLabelText = "Downloading..."
         // See: http://stackoverflow.com/a/26882235
-        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+        hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }
     
     /// Updating the detail label that is shown in the HUD
@@ -184,7 +184,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// - seealso: hudHide
     ///
     /// - parameter labelText: The text that should be shown for the HUD label
-    func hudUpdateLabel(labelText: String) {
+    func hudUpdateLabel(_ labelText: String) {
         hud.detailsLabelText = labelText
     }
     
@@ -192,10 +192,10 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // progress so that the user knows that something is happening.
     // See: http://stackoverflow.com/a/26901328
     func hudUploadingShow() {
-        hud = MBProgressHUD.showHUDAddedTo(self.navigationController!.view, animated: true)
+        hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
         hud.detailsLabelText = "Uploading..."
         // See: http://stackoverflow.com/a/26882235
-        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+        hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }
     
     /// Updating the progress bar that is shown in the HUD, so the user
@@ -210,14 +210,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter currentDownloadedBytes: The amount in bytes that has been uploaded
     /// - parameter totalBytes: The total amount of bytes that is to be uploaded
-    func hudUpdatePercentage(currentUploadedBytes: Int64, totalBytes: Int64) {
+    func hudUpdatePercentage(_ currentUploadedBytes: Int64, totalBytes: Int64) {
         let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
         logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
         hud.progress = currentPercentage
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDsForView(self.navigationController!.view, animated: true)
+        MBProgressHUD.hideAllHUDs(for: self.navigationController!.view, animated: true)
     }
     
     /// Gets the list of files, folders or drives to display
@@ -248,7 +248,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if (currentPath == "") {
             // Preventing the "save" button being available
             // if only the drives are being shown
-            btnExportMoveFile.enabled = false
+            btnExportMoveFile.isEnabled = false
             logger.debug("Loading the drives available to the user")
             hudShow("Loading drives")
             navigationItem.title = "My Drives"
@@ -308,17 +308,17 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                     // The cancel and default action styles are back to front, as
                     // the cancel option is bold, which we want the 'try again'
                     // option to be chosen by the user
-                    let driveCheckProblemAlert = UIAlertController(title: "Unable to load drives", message: "Please check that you have logged in to the Home Access Plus+ app, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
-                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                    let driveCheckProblemAlert = UIAlertController(title: "Unable to load drives", message: "Please check that you have logged in to the Home Access Plus+ app, then try again", preferredStyle: UIAlertControllerStyle.alert)
+                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+                    driveCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.cancel, handler: {(alertAction) -> Void in
                         self.loadFileBrowser() }))
-                    self.presentViewController(driveCheckProblemAlert, animated: true, completion: nil)
+                    self.present(driveCheckProblemAlert, animated: true, completion: nil)
                 }
             })
         } else {
             // Enabling the "save" button as the user is browsing
             // the folder, so they should be able to upload
-            btnExportMoveFile.enabled = true
+            btnExportMoveFile.isEnabled = true
             logger.debug("Loading the contents of the folder: \(currentPath)")
             hudShow("Loading folder")
             // Show the files and folders in the path the
@@ -365,11 +365,11 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                     // The cancel and default action styles are back to front, as
                     // the cancel option is bold, which we want the 'try again'
                     // option to be chosen by the user
-                    let folderCheckProblemAlert = UIAlertController(title: "Unable to load folder", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
-                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                    let folderCheckProblemAlert = UIAlertController(title: "Unable to load folder", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.alert)
+                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+                    folderCheckProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.cancel, handler: {(alertAction) -> Void in
                         self.loadFileBrowser() }))
-                    self.presentViewController(folderCheckProblemAlert, animated: true, completion: nil)
+                    self.present(folderCheckProblemAlert, animated: true, completion: nil)
                 }
             })
         }
@@ -394,14 +394,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// - parameter type: The type of item this is (Drive, Directory, File Type)
     /// - parameter fileExtension: The extension of the file, or empty if it is a directory
     /// - parameter details: Additional info for the file (size, modified date, etc...)
-    func addFileItem(name: String, path: String, type: String, fileExtension: String, details: String) {
+    func addFileItem(_ name: String, path: String, type: String, fileExtension: String, details: String) {
         // Creating an array to hold the current item that is being processed
         var currentItem: [AnyObject] = []
         logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
         
         // Adding the current item to the array
-        currentItem = [name, path, type, fileExtension, details]
-        self.fileItems.append(currentItem)
+        currentItem = [name as AnyObject, path as AnyObject, type as AnyObject, fileExtension as AnyObject, details as AnyObject]
+        self.fileItems.append(currentItem as NSArray)
     }
     
     /// Checks to see if the current item is a file or a folder/drive
@@ -420,13 +420,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter fileType: The type of file according to the HAP+ server
     /// - returns: Is the current item a file or a folder/drive
-    func isFile(fileType: String) -> Bool {
+    func isFile(_ fileType: String) -> Bool {
         // Seeing if this is a Directory based on the file type
         // that has been passed - issue #13
         // The "Drive" value is looked for in any part of the
         // fileType string, as we include the drive letter in
         // the array value - issue #17
-        if ((fileType == "") || (fileType.rangeOfString("Drive") != nil) || (fileType == "Directory")) {
+        if ((fileType == "") || (fileType.range(of: "Drive") != nil) || (fileType == "Directory")) {
             return false
         } else {
             return true
@@ -453,20 +453,20 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// - parameter fileDownloadPath: The location on the HAP+
     ///                               server that the file is being
     ///                               downloaded from
-    func downloadFile(fileDownloadPath: String) {
+    func downloadFile(_ fileDownloadPath: String) {
         //1
-        let filename = String(fileDownloadPath).componentsSeparatedByString("/").last!
+        let filename = String(fileDownloadPath).components(separatedBy: "/").last!
         
         hudDownloadShow()
-        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
+        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: URL) -> Void in
             
             // There was a problem with downloading the file, so let the
             // user know about it
             if ((result == false) && (downloading == false)) {
                 logger.error("There was a problem downloading the file")
-                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(loginUserFailController, animated: true, completion: nil)
             }
             
             // Seeing if the progress bar should update with the amount
@@ -480,22 +480,22 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             if ((result == true) && (downloading == false)) {
                 self.hudHide()
                 
-                let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
+                let container: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.uk.co.stuajnht.ios.HomeAccessPlus")!
                 
                 let imageUrl = downloadLocation
                 
                 //2
-                let outUrl = container.URLByAppendingPathComponent(filename)
+                let outUrl = container.appendingPathComponent(filename)
                 // 3
                 let coordinator = NSFileCoordinator()
-                coordinator.coordinateWritingItemAtURL(outUrl,
-                    options: .ForReplacing, error: nil,
+                coordinator.coordinate(writingItemAt: outUrl,
+                    options: .forReplacing, error: nil,
                     byAccessor: { newURL in
                     //4
-                    let fm = NSFileManager()
+                    let fm = FileManager()
                     fm.delegate = self
                     do {
-                        try fm.copyItemAtURL(imageUrl, toURL: newURL)
+                        try fm.copyItem(at: imageUrl, to: newURL)
                         logger.debug("File copied from \"\(imageUrl)\" to \"\(newURL)\"")
                     }
                         catch let error as NSError {
@@ -504,14 +504,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 })
                 // 5
                 logger.debug("Dismissing view document picker with URL: \(outUrl)")
-                self.dismissGrantingAccessToURL(outUrl)
+                self.dismissGrantingAccess(to: outUrl)
             }
         })
     }
     
     // MARK: NSFileManagerDelegate
-    func fileManager(fileManager: NSFileManager, shouldProceedAfterError error: NSError, copyingItemAtURL srcURL: NSURL,
-            toURL dstURL: NSURL) -> Bool {
+    func fileManager(_ fileManager: FileManager, shouldProceedAfterError error: Error, copyingItemAt srcURL: URL,
+            to dstURL: URL) -> Bool {
             return true
     }
     
@@ -526,18 +526,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// - date: 2016-02-24
     ///
     /// See: https://github.com/xamarin/monotouch-samples/blob/master/ios8/NewBox/NBox/DocumentPickerViewController.cs#L103
-    @IBAction func exportMoveFile(sender: AnyObject) {
+    @IBAction func exportMoveFile(_ sender: AnyObject) {
         logger.verbose("Save button pressed on document provider")
         
         // Export/Move Document Picker mode:
         // Before calling DismissGrantingAccess method, copy the file to the selected destination.
         // Your extensions also need to track the file and make sure it is synced to your server (if needed).
         // After the copy is complete, call DismissGrantingAccess method, and provide the URL to the new copy
-        let container: NSURL = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier("group.uk.co.stuajnht.ios.HomeAccessPlus")!
-        let fileName = originalFileURL!.lastPathComponent!
+        let container: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.uk.co.stuajnht.ios.HomeAccessPlus")!
+        let fileName = originalFileURL!.lastPathComponent
         logger.debug("File name of uploaded file: \(fileName)")
         
-        let destinationURL = container.URLByAppendingPathComponent(fileName)
+        let destinationURL = container.appendingPathComponent(fileName)
         logger.debug("Destination URL for file being exported: \(destinationURL)")
         
         // Uploading the file to the HAP+ server
@@ -562,27 +562,27 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///                             and the user has chosen to create a new file and
     ///                             not overwrite it, then this is the custom file name
     ///                             that should be used
-    func uploadFile(fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(fileExists: Bool) -> Void) -> Void {
+    func uploadFile(_ fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:@escaping (_ fileExists: Bool) -> Void) -> Void {
         // Holding the location of the file on the device, that
         // is going to be uploaded
         var fileLocation = ""
         
-        var fileDeviceLocation : NSURL
+        var fileDeviceLocation : URL
         
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
             logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings!.stringForKey(settingsUploadFileLocation)!
+            fileLocation = settings!.string(forKey: settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
-            fileDeviceLocation = NSURL(fileURLWithPath: fileLocation)
+            fileDeviceLocation = URL(fileURLWithPath: fileLocation)
         } else {
             logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
-            fileLocation = settings!.stringForKey(settingsUploadPhotosLocation)!
+            fileLocation = settings!.string(forKey: settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
-            fileDeviceLocation = NSURL(string: fileLocation)!
+            fileDeviceLocation = URL(string: fileLocation)!
         }
         
         hudUploadingShow()
@@ -594,7 +594,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if (customFileName == "") {
             // Checking to make sure that a file doesn't already
             // exist in the current folder with the same name
-            fileExistsPath = currentPath + "/" + String(fileLocation).componentsSeparatedByString("/").last!
+            fileExistsPath = currentPath + "/" + String(fileLocation).components(separatedBy: "/").last!
         } else {
             // Use the generated file name with the current file
             // path
@@ -615,9 +615,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                     // There was a problem with uploading the file, so let the
                     // user know about it
                     if ((result == false) && (uploading == false)) {
-                        let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(uploadFailController, animated: true, completion: nil)
+                        let uploadFailController = UIAlertController(title: "Unable to upload file", message: "The file was not successfully uploaded. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
+                        uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                        self.present(uploadFailController, animated: true, completion: nil)
                     }
                     
                     // Seeing if the progress bar should update with the amount
@@ -635,7 +635,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                         
                         // Dismissing the document provider, as the file has
                         // successfully been uploaded
-                        self.dismissGrantingAccessToURL(settings!.URLForKey(settingsUploadFileLocation))
+                        self.dismissGrantingAccess(to: settings!.url(forKey: settingsUploadFileLocation))
                         
                         // If the file uploaded is not a photo, then set the
                         // "settingsUploadFileLocation" value to be nil so that
@@ -646,7 +646,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                         // another time
                         if (fileFromPhotoLibrary == false) {
                             logger.debug("Setting local file location to nil as it's been uploaded")
-                            settings!.setURL(nil, forKey: settingsUploadFileLocation)
+                            settings!.set(nil, forKey: settingsUploadFileLocation)
                         }
                         
                         // Deleting the local copy of the file that was used to
@@ -686,14 +686,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (either the
     ///                                 Documents folder: photos, videos; Inbox folder: files)
-    func deleteUploadedLocalFile(fileDeviceLocation: NSURL) {
+    func deleteUploadedLocalFile(_ fileDeviceLocation: URL) {
         // If the file is coming from an external app, the value
         // in fileDeviceLocation may contain encoded characters
         // in the file name, which the "removeItemAtPath" function
         // doesn't like and can't find the file. These characters
         // need to be decoded before attempting to delete the file
         logger.debug("Original raw path of file to delete: \(fileDeviceLocation)")
-        var pathArray = String(fileDeviceLocation).componentsSeparatedByString("/")
+        var pathArray = String(describing: fileDeviceLocation).components(separatedBy: "/")
         
         // Getting the name of the file, which is the last item
         // in the pathArray array
@@ -703,18 +703,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // the file can be deleted successfully, and saving back
         // into the array in the last position
         let newFileName = fileName.stringByRemovingPercentEncoding!
-        pathArray.removeAtIndex(pathArray.indexOf(fileName)!)
+        pathArray.remove(at: pathArray.index(of: fileName)!)
         pathArray.append(newFileName)
         
         // Joining the items in the array back together, and removing
         // the file:// protocol at the start
-        var filePath = pathArray.joinWithSeparator("/")
-        filePath = filePath.stringByReplacingOccurrencesOfString("file://", withString: "")
+        var filePath = pathArray.joined(separator: "/")
+        filePath = filePath.replacingOccurrences(of: "file://", with: "")
         
         // See: http://stackoverflow.com/a/32744011
         logger.debug("Attempting to delete the file at location: \(filePath)")
         do {
-            try NSFileManager.defaultManager().removeItemAtPath("\(filePath)")
+            try FileManager.default.removeItem(atPath: "\(filePath)")
             logger.debug("Successfully deleted file: \(filePath)")
         }
         catch let errorMessage as NSError {
@@ -741,7 +741,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func showFileExistsMessage(fileFromPhotoLibrary: Bool) {
+    func showFileExistsMessage(_ fileFromPhotoLibrary: Bool) {
         // Seeing if the overwrite file alert needs to
         // be shown to the user, once the upload popover
         // has been dismissed
@@ -758,18 +758,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // If there is something that is likely to break,
             // this is probably the most likely place to check
             // See: http://stackoverflow.com/a/32696605
-            let time = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), 1 * Int64(NSEC_PER_SEC))
-            dispatch_after(time, dispatch_get_main_queue()) {
+            let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
+            DispatchQueue.main.asyncAfter(deadline: time) {
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")
                 
-                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.Alert)
-                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.Destructive, handler:  {(alertAction) -> Void in
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file already exists in the current folder", preferredStyle: UIAlertControllerStyle.alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.destructive, handler:  {(alertAction) -> Void in
                     self.overwriteFile(true, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
-                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.Default, handler:  {(alertAction) -> Void in
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
                     self.overwriteFile(false, fileFromPhotoLibrary: fileFromPhotoLibrary) }))
-                fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(fileExistsController, animated: true, completion: nil)
+                fileExistsController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+                self.present(fileExistsController, animated: true, completion: nil)
                 
                 // Preventing the alert being shown on each
                 // time the view controller is shown
@@ -798,7 +798,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///                            current file or create a new one
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func overwriteFile(overwriteFile: Bool, fileFromPhotoLibrary: Bool) {
+    func overwriteFile(_ overwriteFile: Bool, fileFromPhotoLibrary: Bool) {
         logger.debug("Overwriting file: \(overwriteFile)")
         logger.debug("File exists in photo library: \(fileFromPhotoLibrary)")
         
@@ -808,17 +808,17 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         var currentFileName = ""
         if (fileFromPhotoLibrary == false) {
             logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
-            currentFileName = settings!.stringForKey(settingsUploadFileLocation)!
+            currentFileName = settings!.string(forKey: settingsUploadFileLocation)!
         } else {
             logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
-            currentFileName = settings!.stringForKey(settingsUploadPhotosLocation)!
+            currentFileName = settings!.string(forKey: settingsUploadPhotosLocation)!
         }
         
         // Seeing if the file should overwrite the currently
         // existing one, or to create a new one
         if (overwriteFile) {
             // Getting the file name from the uploaded path
-            let pathArray = String(currentFileName).componentsSeparatedByString("/")
+            let pathArray = String(currentFileName).components(separatedBy: "/")
             
             // Getting just the file name
             var fileName = pathArray.last!
@@ -836,7 +836,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // See: http://www.dotnetperls.com/2d-array-swift
             var indexPosition = -1
             for arrayPosition in 0 ..< fileItems.count {
-                if (String(fileItems[arrayPosition][1]).componentsSeparatedByString("/").last == fileName) {
+                if (String(describing: fileItems[arrayPosition][1]).components(separatedBy: "/").last == fileName) {
                     logger.debug("\(fileName) found at fileItems array position: \(arrayPosition)")
                     indexPosition = arrayPosition
                 }
@@ -848,7 +848,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             if (indexPosition > -1) {
                 // Deleting the file from the current folder
                 // See: http://stackoverflow.com/a/29428205
-                let indexPath = NSIndexPath(forRow: indexPosition, inSection: 0)
+                let indexPath = IndexPath(row: indexPosition, section: 0)
                 deleteFile(indexPath, fileOrFolder: "file", fileDeletedCallback: { (fileDeleted: Bool) -> Void in
                     // Waiting to make sure that the file has been
                     // successfully deleted before uploading the
@@ -867,9 +867,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                             // hasn't worked
                             logger.error("Overwriting file deletion succeeded but failed when uploading the file")
                             
-                            let overwriteUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
-                            overwriteUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                            self.presentViewController(overwriteUploadFailedController, animated: true, completion: nil)
+                            let overwriteUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.alert)
+                            overwriteUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                            self.present(overwriteUploadFailedController, animated: true, completion: nil)
                         })
                     }
                 })
@@ -878,9 +878,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // trying to find the file in the array
                 logger.error("\(fileName) was not found in the current folder")
                 
-                let fileNotFoundController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
-                fileNotFoundController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(fileNotFoundController, animated: true, completion: nil)
+                let fileNotFoundController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.alert)
+                fileNotFoundController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(fileNotFoundController, animated: true, completion: nil)
             }
         } else {
             // Showing the HUD so that the user knows that something
@@ -917,7 +917,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// - parameter fileOrFolder: Whether the item being deleted is a file
     ///                           or a folder, so that the error message can
     ///                           be customised correctly
-    func deleteFile(indexPath: NSIndexPath, fileOrFolder: String, fileDeletedCallback:(fileDeleted: Bool) -> Void) -> Void {
+    func deleteFile(_ indexPath: IndexPath, fileOrFolder: String, fileDeletedCallback:@escaping (_ fileDeleted: Bool) -> Void) -> Void {
         hudShow("Deleting " + fileOrFolder)
         let deleteItemAtLocation = fileItems[indexPath.row][1] as! String
         api.deleteFile(deleteItemAtLocation, callback: { (result: Bool) -> Void in
@@ -931,18 +931,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // The cancel and default action styles are back to front, as
                 // the cancel option is bold, which we want the 'try again'
                 // option to be chosen by the user
-                let deletionProblemAlert = UIAlertController(title: "Unable to delete " + fileOrFolder, message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.Alert)
-                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: nil))
+                let deletionProblemAlert = UIAlertController(title: "Unable to delete " + fileOrFolder, message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.alert)
+                deletionProblemAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
                 // Setting the try again button style to be cancel, so
                 // that it is emboldened in the alert and looks like
                 // the default button to press
-                deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.Cancel, handler: {(alertAction) -> Void in
+                deletionProblemAlert.addAction(UIAlertAction(title: "Try Again", style: UIAlertActionStyle.cancel, handler: {(alertAction) -> Void in
                     self.deleteFile(indexPath, fileOrFolder: fileOrFolder, fileDeletedCallback: { (fileDeleted: Bool) -> Void in
                         // The code in here shouldn't run, as this is only
                         // used for the overwriting file function
                     })
                 }))
-                self.presentViewController(deletionProblemAlert, animated: true, completion: nil)
+                self.present(deletionProblemAlert, animated: true, completion: nil)
             }
             
             // The file was deleted, so remove the item from the
@@ -982,7 +982,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///                       is to be checked to see if it exists
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func checkGeneratedFileName(fileName: String, fileFromPhotoLibrary: Bool) {
+    func checkGeneratedFileName(_ fileName: String, fileFromPhotoLibrary: Bool) {
         // Creating a new file name for the file being uploaded
         let newFileName = generateFileName(fileName)
         
@@ -1007,9 +1007,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                     // hasn't worked
                     logger.error("Generated file name checking succeeded but failed when uploading the file")
                     
-                    let generatedFileNameUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.Alert)
-                    generatedFileNameUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                    self.presentViewController(generatedFileNameUploadFailedController, animated: true, completion: nil)
+                    let generatedFileNameUploadFailedController = UIAlertController(title: "Problem uploading file", message: "Please rename the file and try uploading it again", preferredStyle: UIAlertControllerStyle.alert)
+                    generatedFileNameUploadFailedController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                    self.present(generatedFileNameUploadFailedController, animated: true, completion: nil)
                 })
             }
             
@@ -1033,13 +1033,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter currentFileName: The current name of the file
     ///                              is to renamed
-    func generateFileName(currentFileName: String) -> String {
+    func generateFileName(_ currentFileName: String) -> String {
         logger.debug("Current file name and path: \(currentFileName)")
         // Getting the name of the file from the device location. We
         // can just split the path and get the file name from the last
         // array value
         // fullFileName = ["path", "to", "file-1.ext"]
-        let fullFileName = currentFileName.componentsSeparatedByString("/")
+        let fullFileName = currentFileName.components(separatedBy: "/")
         logger.verbose("fullFileName: \(fullFileName)")
         
         // Getting the name of the file from the full file name
@@ -1049,22 +1049,22 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         
         // Getting the name of the file less extension
         // fileNameArray = ["file-1", "ext"]
-        var fileNameArray = fileNameExtension.componentsSeparatedByString(".")
+        var fileNameArray = fileNameExtension.components(separatedBy: ".")
         logger.verbose("fileNameArray: \(fileNameArray)")
         
         // Splitting the file name on any hyphenated last characters,
         // to get the number at the end of the name
         // fileNameNumber = ["file", "1"]
-        var fileNameNumber = fileNameArray.first!.componentsSeparatedByString("-")
+        var fileNameNumber = fileNameArray.first!.components(separatedBy: "-")
         logger.verbose("fileNameNumber: \(fileNameNumber)")
         
         // Trying to add 1 to the number at the end, or put a 1
         // if it fails
         // See: http://stackoverflow.com/a/28766901
         var number = 1
-        if let myNumber = NSNumberFormatter().numberFromString(fileNameNumber.last!) {
+        if let myNumber = NumberFormatter().number(from: fileNameNumber.last!) {
             // number = 2
-            number = myNumber.integerValue + 1
+            number = myNumber.intValue + 1
             logger.verbose("number: \(number)")
             
             // Removing the last value of the array, as there was
@@ -1081,18 +1081,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         
         // Joining the file name with the number at the end
         // fileNameAppended = ["file-2"]
-        let fileNameAppended = fileNameNumber.joinWithSeparator("-")
+        let fileNameAppended = fileNameNumber.joined(separator: "-")
         logger.verbose("fileNameAppended: \(fileNameAppended)")
         
         // Joining the file name with the extension
         // fileNameArray = ["file-2", "ext"]
         fileNameArray.removeFirst()
-        fileNameArray.insert(fileNameAppended, atIndex: 0)
+        fileNameArray.insert(fileNameAppended, at: 0)
         logger.verbose("fileNameArray: \(fileNameArray)")
         
         // Combining the full name of the file
         // fileName = "file-2.ext"
-        var fileName = fileNameArray.joinWithSeparator(".")
+        var fileName = fileNameArray.joined(separator: ".")
         logger.verbose("fileName: \(fileName)")
         
         // Removing any encoded characters from the file name, so
@@ -1113,18 +1113,18 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     
     // MARK: - Table View
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return fileItems.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Table view cells are reused and should be dequeued using a cell identifier.
         let cellIdentifier = "FileTableViewCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! DocumentProviderFileTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! DocumentProviderFileTableViewCell
         
         // Fetches the current file from the fileItems array
         let file = fileItems[indexPath.row]
@@ -1135,22 +1135,22 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         
         // Deciding if a disclosure indicator ("next arrow") should be shown
         if (!isFile((file[2] as? String)!)) {
-            cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+            cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         } else {
             // Removing the disclosure indicator if the current row
             // is a file and not a folder - issue #13
-            cell.accessoryType = UITableViewCellAccessoryType.None
+            cell.accessoryType = UITableViewCellAccessoryType.none
         }
         
         return cell
     }
     
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // The user has selected a table row, so see if it
         // is a drive or folder, and if so, browse to it.
         // Otherwise, set the file to be downloaded for the
@@ -1162,7 +1162,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if (!isFile(fileType)) {
             logger.debug("Browsing to new folder")
             
-            let controller: DocumentPickerViewController = storyboard?.instantiateViewControllerWithIdentifier("browser") as! DocumentPickerViewController
+            let controller: DocumentPickerViewController = storyboard?.instantiateViewController(withIdentifier: "browser") as! DocumentPickerViewController
             controller.title = folderTitle
             logger.debug("Set title to: \(folderTitle)")
             controller.currentPath = itemPath

@@ -66,13 +66,13 @@ class HAPi {
         logger.debug("Checking connection to the Internet")
         let status = Reach().connectionStatus()
         switch status {
-        case .Unknown, .Offline:
+        case .unknown, .offline:
             logger.warning("No available connection to the Internet")
             return false
-        case .Online(.WWAN):
+        case .online(.wwan):
             logger.info("Connection to the Intenet via WWAN")
             return true
-        case .Online(.WiFi):
+        case .online(.wiFi):
             logger.info("Connection to the Internet via WiFi")
             return true
         }
@@ -97,7 +97,7 @@ class HAPi {
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - returns: Can the HAP+ server API be contacted
-    func checkAPI(hapServer: String, callback:(Bool) -> Void) -> Void {
+    func checkAPI(_ hapServer: String, callback:@escaping (Bool) -> Void) -> Void {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
         Alamofire.request(.GET, hapServer + "/api/test")
@@ -149,7 +149,7 @@ class HAPi {
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
     /// - parameter password: The password entered for the username provided
-    func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
+    func loginUser(_ hapServer: String, username: String, password: String, callback:@escaping (Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -286,7 +286,7 @@ class HAPi {
     /// - version: 1
     /// - date: 2015-12-12
     /// - seealso: loginUser
-    func setRoles(callback:(Bool) -> Void) -> Void {
+    func setRoles(_ callback:@escaping (Bool) -> Void) -> Void {
         Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings!.stringForKey(settingsUsername)!)
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
@@ -358,7 +358,7 @@ class HAPi {
     /// - since: 0.7.0-beta
     /// - version: 1
     /// - date: 2016-04-16
-    func getTimetable(callback:(Bool) -> Void) -> Void {
+    func getTimetable(_ callback:@escaping (Bool) -> Void) -> Void {
         // Seeing if auto-logout should be enabled. This is set to
         // false by default as we don't want users being logged out
         // of the device if they are not in a lesson, and only set
@@ -552,7 +552,7 @@ class HAPi {
     /// - since: 0.3.0-alpha
     /// - version: 1
     /// - date: 2015-12-14
-    func getDrives(callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+    func getDrives(_ callback:@escaping (_ result: Bool, _ response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -562,7 +562,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to get the drive listing
@@ -589,7 +589,7 @@ class HAPi {
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "")
+            callback(false, "" as AnyObject)
         }
     }
     
@@ -604,7 +604,7 @@ class HAPi {
     /// - date: 2015-12-15
     ///
     /// - parameter folderPath: The path of the folder the user has browsed to
-    func getFolder(folderPath: String, callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+    func getFolder(_ folderPath: String, callback:@escaping (_ result: Bool, _ response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -614,15 +614,15 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Replacing the escaped slashes with a forward slash
             logger.debug("Folder being browsed raw path: \(folderPath)")
-            var formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var formattedPath = folderPath.replacingOccurrences(of: "\\\\", with: "/")
+            formattedPath = formattedPath.replacingOccurrences(of: "\\", with: "/")
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            formattedPath = formattedPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("Folder being browsed formatted path: \(formattedPath)")
             
             // Connecting to the API to get the folder listing
@@ -649,7 +649,7 @@ class HAPi {
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "")
+            callback(false, "" as AnyObject)
         }
     }
     
@@ -671,7 +671,7 @@ class HAPi {
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void) -> Void {
+    func downloadFile(_ fileLocation: String, callback:@escaping (_ result: Bool, _ downloading: Bool, _ downloadedBytes: Int64, _ totalBytes: Int64, _ downloadLocation: URL) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -681,7 +681,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Replacing the '../' navigation browsing up that the HAP+
@@ -691,9 +691,9 @@ class HAPi {
             // HAP+ server as <hapServer>/api/myfiles/../Download/H/file.txt
             // but needs to be <hapServer>/api/Download/H/file.txt
             logger.debug("File being downloaded raw path: \(fileLocation)")
-            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
+            var formattedPath = fileLocation.replacingOccurrences(of: "../", with: "")
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            formattedPath = formattedPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
             // Setting the download directory to be the caches folder on the
@@ -726,7 +726,7 @@ class HAPi {
             
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
+            callback(false, false, 0, 0, URL(fileURLWithPath: ""))
         }
     }
     
@@ -753,7 +753,7 @@ class HAPi {
     ///                             and the user has chosen to create a new file and
     ///                             not overwrite it, then this is the custom file name
     ///                             that should be used
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    func uploadFile(_ deviceFileLocation: URL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:@escaping (_ result: Bool, _ uploading: Bool, _ uploadedBytes: Int64, _ totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
@@ -772,7 +772,7 @@ class HAPi {
                 // on the device in a physical location with an extension. We
                 // can just split the path and get the file name from the last
                 // array value
-                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                let pathArray = String(describing: deviceFileLocation).components(separatedBy: "/")
                 
                 // Forcing an unwrap of the value, otherwise the file name
                 // is Optional("<nale>") which causes the HAP+ server to
@@ -803,15 +803,15 @@ class HAPi {
             // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
             let httpHeaders = [
                 "X_FILENAME": fileName,
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Formatting the path that we are going to be using to upload
             // to, so that it is a valid URL, and also swapping the backslashes '\'
             // from the string passed with slashes '/'
             logger.debug("Upload location raw path: \(serverFileLocation)")
-            var uploadLocation = serverFileLocation.stringByReplacingOccurrencesOfString("\\", withString: "/")
-            uploadLocation = uploadLocation.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            var uploadLocation = serverFileLocation.replacingOccurrences(of: "\\", with: "/")
+            uploadLocation = uploadLocation.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("Upload location formatted path: \(uploadLocation)")
             
             // Uploading the file
@@ -834,7 +834,7 @@ class HAPi {
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, uploading: false, uploadedBytes: 0, totalBytes: 0)
+            callback(false, false, 0, 0)
         }
     }
     
@@ -850,18 +850,18 @@ class HAPi {
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
-    func deleteFile(deleteItemAtPath: String, callback:(result: Bool) -> Void) -> Void {
+    func deleteFile(_ deleteItemAtPath: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Replacing the '../Download' navigation path that the HAP+
             // API adds to the file path, so that it can be used to locate
             // the file item directly to be able to delete it
             logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
-            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            var formattedPath = deleteItemAtPath.replacingOccurrences(of: "../Download/", with: "")
             
             // Converting any backslashes from a folder path into forward
             // slashes, so that the HAP+ server is able to delete folders
-            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            formattedPath = formattedPath.replacingOccurrences(of: "\\", with: "/")
             
             // The HTTP request body need to have the file name enclosed in
             // square brackets and quotes, e.g. ["<filePath>"]
@@ -873,7 +873,7 @@ class HAPi {
             // server if the file item has been deleted properly
             // - seealso: uploadFile
             var fileName = ""
-            let pathArray = String(formattedPath).componentsSeparatedByString("/")
+            let pathArray = String(formattedPath).components(separatedBy: "/")
             fileName = pathArray.last!
             fileName = fileName.stringByRemovingPercentEncoding!
             fileName = formatInvalidName(fileName)
@@ -883,7 +883,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Connecting to the API to delete the file item
@@ -994,7 +994,7 @@ class HAPi {
     ///                            being shown to the user
     /// - parameter newFolderName: The name of the new folder that is to
     ///                            be created
-    func newFolder(currentFolder: String, newFolderName: String, callback:(result: Bool) -> Void) -> Void {
+    func newFolder(_ currentFolder: String, newFolderName: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             logger.debug("New folder to be created in location: \(currentFolder)")
@@ -1005,15 +1005,15 @@ class HAPi {
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
-            var folderFormattedPath = currentFolder.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            folderFormattedPath = folderFormattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var folderFormattedPath = currentFolder.replacingOccurrences(of: "\\\\", with: "/")
+            folderFormattedPath = folderFormattedPath.replacingOccurrences(of: "\\", with: "/")
             
             // Combining the path of the current folder with the name
             // of the new folder
             var fullNewFolderPath = folderFormattedPath + "/" + formattedNewFolderName
             
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            fullNewFolderPath = fullNewFolderPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
             logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
             
@@ -1024,7 +1024,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to create the new folder
@@ -1051,7 +1051,7 @@ class HAPi {
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false)
+            callback(false)
         }
     }
     
@@ -1080,18 +1080,18 @@ class HAPi {
     /// - parameter itemPath: Path to the file item that is currently
     ///                       being checked to see if it exists in the
     ///                       current folder already
-    func itemExists(itemPath: String, callback:(result: Bool) -> Void) -> Void {
+    func itemExists(_ itemPath: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             logger.debug("Checking to see if a file item exists at: \(itemPath)")
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
-            var fileItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            fileItemPath = fileItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var fileItemPath = itemPath.replacingOccurrences(of: "\\\\", with: "/")
+            fileItemPath = fileItemPath.replacingOccurrences(of: "\\", with: "/")
             
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            fileItemPath = fileItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            fileItemPath = fileItemPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
             logger.debug("Checking to see if a file item exists at formatted path: \(fileItemPath)")
             
@@ -1102,7 +1102,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to log in the user with the credentials
@@ -1154,7 +1154,7 @@ class HAPi {
             // so assume that there is to prevent any accidental
             // overwriting of files
             logger.warning("The connection to the Internet has been lost")
-            callback(result: true)
+            callback(true)
         }
     }
     
@@ -1184,7 +1184,7 @@ class HAPi {
     ///                       that is going to be given to the HAP+
     ///                       server to create the resource
     /// - returns: The item name with reserved characters modified
-    func formatInvalidName(fullName: String) -> String {
+    func formatInvalidName(_ fullName: String) -> String {
         // Making sure that the file name doesn't contain any reserved
         // names, which Windows forbids, meaning the file will be
         // inaccessable. See: https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
@@ -1201,18 +1201,18 @@ class HAPi {
         // found are replaced with an underscore "_"
         var formattedFullName = fullName
         for reservedCharacter in reservedCharacters {
-            formattedFullName = formattedFullName.stringByReplacingOccurrencesOfString(reservedCharacter, withString: "_")
+            formattedFullName = formattedFullName.replacingOccurrences(of: reservedCharacter, with: "_")
         }
         
         // Invalid file names are in the format <reservedNames>.<ext>
         // but <anything><reservedNames><anything>.<ext> are allowed
         // so we only really need to check if fileName[0] is invalid
-        var fileName = formattedFullName.componentsSeparatedByString(".")
+        var fileName = formattedFullName.components(separatedBy: ".")
         
         // Looping around each item in the reserved names array to see
         // if fileName[0] matches any of the items
         for reservedName in reservedNames {
-            if (reservedName.lowercaseString == fileName[0].lowercaseString) {
+            if (reservedName.lowercased() == fileName[0].lowercased()) {
                 // An invalid file name has been found, so modify it to
                 // contain an underscore at the end
                 logger.warning("Reserved file name found: \(fullName)")
@@ -1222,7 +1222,7 @@ class HAPi {
         
         // Joining the file name array back up to pass it back to the
         // calling function
-        return fileName.joinWithSeparator(".")
+        return fileName.joined(separator: ".")
     }
     
     // MARK: Log out user
@@ -1258,12 +1258,12 @@ class HAPi {
         }
         
         // Clearing any settings that were created on logon
-        settings!.removeObjectForKey(settingsFirstName)
-        settings!.removeObjectForKey(settingsUsername)
-        settings!.removeObjectForKey(settingsToken1)
-        settings!.removeObjectForKey(settingsToken2)
-        settings!.removeObjectForKey(settingsToken2Name)
-        settings!.removeObjectForKey(settingsUserRoles)
+        settings!.removeObject(forKey: settingsFirstName)
+        settings!.removeObject(forKey: settingsUsername)
+        settings!.removeObject(forKey: settingsToken1)
+        settings!.removeObject(forKey: settingsToken2)
+        settings!.removeObject(forKey: settingsToken2Name)
+        settings!.removeObject(forKey: settingsUserRoles)
         
         // Disabling auto-logout so that the next user to log in
         // to the device isn't accidentally logged out if they
@@ -1272,6 +1272,6 @@ class HAPi {
         // as it's to do with tidying up of the device from the
         // recently logged in user
         logger.debug("Disabling auto-logout as the user has been logged out")
-        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+        settings!.set(false, forKey: settingsAutoLogOutEnabled)
     }
 }

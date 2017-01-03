@@ -41,7 +41,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         // Initialization code
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state
@@ -80,7 +80,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
     ///
     /// - parameter fileType: The type of the file of the table cell
     /// - parameter fileExtension: The extension of the file in the table cell
-    func fileIcon(fileType: String, fileExtension: String) {
+    func fileIcon(_ fileType: String, fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
         
@@ -103,7 +103,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         }
         
         // Seeing what icon should be displayed
-        switch fileExtension.lowercaseString {
+        switch fileExtension.lowercased() {
             // Network drive
         case "drive":
             icon = FAType.FAHddO

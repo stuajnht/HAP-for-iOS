@@ -47,7 +47,7 @@ class HomeAccessPlusUITests: XCTestCase {
     // away without waiting long enough
     // See: http://stackoverflow.com/a/32228104
     let exists = NSPredicate(format: "exists == 1")
-    let expectationsTimeout : NSTimeInterval = 30
+    let expectationsTimeout : TimeInterval = 30
         
     override func setUp() {
         super.setUp()
@@ -99,11 +99,11 @@ class HomeAccessPlusUITests: XCTestCase {
     /// - since: 0.7.0-alpha
     /// - version: 1
     /// - date: 2016-01-31
-    func decryptString(encryptedString: String) -> String {
+    func decryptString(_ encryptedString: String) -> String {
         // Removing any characters from the string that shouldn't
         // be there, namely '<', '>' and ' '
         var formattedString = String(encryptedString)
-        formattedString = formattedString.stringByReplacingOccurrencesOfString(" ", withString: "")
+        formattedString = formattedString?.replacingOccurrences(of: " ", with: "")
         
         // Converting the hex string into Unicode values, to check
         // that the file item from the server has been successfully
@@ -111,7 +111,7 @@ class HomeAccessPlusUITests: XCTestCase {
         // See: http://stackoverflow.com/a/30795372
         var formattedStringCharacters = [Character]()
         
-        for characterPosition in formattedString.characters {
+        for characterPosition in (formattedString?.characters)! {
             formattedStringCharacters.append(characterPosition)
         }
         
@@ -119,7 +119,7 @@ class HomeAccessPlusUITests: XCTestCase {
         // hex to ascii example used above, so we need
         // to call a different function
         // See: http://stackoverflow.com/a/24372631
-        let characterMap =  0.stride(to: formattedStringCharacters.count, by: 2).map{
+        let characterMap =  stride(from: 0, to: formattedStringCharacters.count, by: 2).map{
             strtoul(String(formattedStringCharacters[$0 ..< $0+2]), nil, 16)
         }
         
@@ -127,12 +127,12 @@ class HomeAccessPlusUITests: XCTestCase {
         var characterMapPosition = 0
         
         while characterMapPosition < characterMap.count {
-            decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-            characterMapPosition = characterMapPosition.successor()
+            decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))!))
+            characterMapPosition = (characterMapPosition + 1)
         }
         
         // Reversing the string, just to obscure it a bit more
-        decodedString = String(decodedString.characters.reverse())
+        decodedString = String(decodedString.characters.reversed())
         
         return decodedString
     }
@@ -191,8 +191,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // checks take place, as they're asynchronous, and
         // the test would fail otherwise
         let invalidAddressAlert = app.alerts["Invalid HAP+ Address"]
-        expectationForPredicate(exists, evaluatedWithObject: invalidAddressAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: invalidAddressAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         
         invalidAddressAlert.collectionViews.buttons["OK"].tap()
     }
@@ -231,8 +231,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // checks take place, as they're asynchronous, and
         // the test would fail otherwise
         let invalidUsernameAlert = app.alerts["Invalid Username or Password"]
-        expectationForPredicate(exists, evaluatedWithObject: invalidUsernameAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: invalidUsernameAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         
         invalidUsernameAlert.collectionViews.buttons["OK"].tap()
     }
@@ -271,8 +271,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // checks take place, as they're asynchronous, and
         // the test would fail otherwise
         let invalidPasswordAlert = app.alerts["Invalid Username or Password"]
-        expectationForPredicate(exists, evaluatedWithObject: invalidPasswordAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: invalidPasswordAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         
         invalidPasswordAlert.collectionViews.buttons["OK"].tap()
     }
@@ -311,8 +311,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // The login is successful if the alert asking for
         // the device type is presented
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
-        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: deviceTypeAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
     }
     
     /// Performs a login to the HAP+ server using the full
@@ -348,8 +348,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // The login is successful if the alert asking for
         // the device type is presented
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
-        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: deviceTypeAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
     }
     
     /// Sets the device into "personal" mode once a successful
@@ -375,8 +375,8 @@ class HomeAccessPlusUITests: XCTestCase {
         
         // Setting the device into "personal" mode
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
-        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: deviceTypeAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Personal"].tap()
     }
     
@@ -403,8 +403,8 @@ class HomeAccessPlusUITests: XCTestCase {
         
         // Setting the device into "shared" mode
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
-        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: deviceTypeAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Shared"].tap()
     }
     
@@ -431,8 +431,8 @@ class HomeAccessPlusUITests: XCTestCase {
         
         // Setting the device into "single" mode
         let deviceTypeAlert = app.alerts["Please Select Device Type"]
-        expectationForPredicate(exists, evaluatedWithObject: deviceTypeAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: deviceTypeAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         deviceTypeAlert.collectionViews.buttons["Single"].tap()
     }
     
@@ -463,8 +463,8 @@ class HomeAccessPlusUITests: XCTestCase {
         let tablesQuery = app.tables
         
         let drive = tablesQuery.staticTexts["H: Drive"]
-        expectationForPredicate(exists, evaluatedWithObject: drive, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: drive, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         drive.tap()
     }
     
@@ -494,7 +494,7 @@ class HomeAccessPlusUITests: XCTestCase {
         let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
         
         // Opening the upload popover
-        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        app.navigationBars["My Drives"].children(matching: .button).element(boundBy: 1).tap()
         
         // Logging out the user
         app.tables.staticTexts["Log Out"].tap()
@@ -529,7 +529,7 @@ class HomeAccessPlusUITests: XCTestCase {
         let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
         
         // Opening the upload popover
-        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        app.navigationBars["My Drives"].children(matching: .button).element(boundBy: 1).tap()
         
         // Logging out the user
         app.tables.staticTexts["Log Out"].tap()
@@ -564,7 +564,7 @@ class HomeAccessPlusUITests: XCTestCase {
         let app = XCUIApplication()
         
         // Opening the upload popover
-        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        app.navigationBars["My Drives"].children(matching: .button).element(boundBy: 1).tap()
         
         let logOutStaticText = app.tables.staticTexts["Log Out"]
         logOutStaticText.tap()
@@ -602,7 +602,7 @@ class HomeAccessPlusUITests: XCTestCase {
         let app = XCUIApplication()
         
         // Opening the upload popover
-        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        app.navigationBars["My Drives"].children(matching: .button).element(boundBy: 1).tap()
         
         let logOutStaticText = app.tables.staticTexts["Log Out"]
         logOutStaticText.tap()
@@ -617,8 +617,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // As the HAPi needs to be used to check the username, wait
         // for the alert to be shown to the user
         let logOutAlert = app.alerts["Unable to Log Out"]
-        expectationForPredicate(exists, evaluatedWithObject: logOutAlert, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: logOutAlert, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         logOutAlert.collectionViews.buttons["OK"].tap()
     }
     
@@ -648,7 +648,7 @@ class HomeAccessPlusUITests: XCTestCase {
         let okButton = app.alerts["Incorrect Information"].collectionViews.buttons["OK"]
         
         // Opening the upload popover
-        app.navigationBars["My Drives"].childrenMatchingType(.Button).elementBoundByIndex(1).tap()
+        app.navigationBars["My Drives"].children(matching: .button).element(boundBy: 1).tap()
         
         let logOutStaticText = app.tables.staticTexts["Log Out"]
         logOutStaticText.tap()
@@ -657,7 +657,7 @@ class HomeAccessPlusUITests: XCTestCase {
         // decryptString function will correctly reverse it, but
         // for some reason the initial string cannot be reversed
         var correctUsername = decryptString(logOutAuthenticatedUsername)
-        correctUsername = String(correctUsername.characters.reverse())
+        correctUsername = String(correctUsername.characters.reversed())
         
         // Typing in a correct authenticated username should
         // log the user out and take them back to the login view
@@ -668,8 +668,8 @@ class HomeAccessPlusUITests: XCTestCase {
         // As the HAPi needs to be used to check the username, wait
         // for the login view to be shown to the user, then try logging
         // in with empty fields
-        expectationForPredicate(exists, evaluatedWithObject: loginButton, handler: nil)
-        waitForExpectationsWithTimeout(expectationsTimeout, handler: nil)
+        expectation(for: exists, evaluatedWith: loginButton, handler: nil)
+        waitForExpectations(timeout: expectationsTimeout, handler: nil)
         loginButton.tap()
         okButton.tap()
     }
