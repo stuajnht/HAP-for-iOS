@@ -25,6 +25,29 @@ import Locksmith
 import SwiftyJSON
 import XCGLogger
 
+
+// Extension for Alamofire encoding string text as body
+extension String: ParameterEncoding {
+    
+    /// Extension to allow Alamofire to post the path of the file that
+    /// should be deleted into the request body, as it is just a plain
+    /// string rather than the usual JSON file
+    /// See: http://stackoverflow.com/a/28552198
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 1
+    /// - date: 2017-01-06
+    ///
+    /// - seealso: deleteFile
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+        var request = try urlRequest.asURLRequest()
+        request.httpBody = data(using: .utf8, allowLossyConversion: false)
+        return request
+    }
+ 
+}
+
 /// HAPi class to format, get and return data from the HAP+ API
 ///
 /// The main class that is to be used to access the HAP+ API on the
@@ -845,7 +868,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
@@ -893,25 +916,20 @@ class HAPi {
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
             logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
-                    (convertible, params) in
-                    let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
-                    mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-                    return (mutableRequest, nil)
-                }))
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Delete", method: .post, parameters: [:], encoding: formattedJSONPath, headers: httpHeaders)
                 // Parsing the response
-                .response { request, response, data, error in
+                .response {response in
                     logger.verbose("Request: \(request)")
                     logger.verbose("Response: \(response)")
-                    logger.verbose("Data: \(data)")
-                    logger.verbose("Error: \(error)")
+                    logger.verbose("Data: \(response.data)")
+                    logger.verbose("Error: \(response.error)")
                     
                     // The response body that the HAP+ server responds
                     // with is ["Deleted <file item name>"] so we need
                     // to check to see if this is returned. If it is,
                     // then let the user know the file was deleted
                     // otherwise let them know there was a problem
-                    let deletionResponse = data!
+                    let deletionResponse = response.data!
                     logger.verbose("Raw response from server from deleting file item: \(deletionResponse)")
                     
                     // For some reason, the response body data is also
@@ -922,10 +940,10 @@ class HAPi {
                     // Removing any characters from the string that shouldn't
                     // be there, namely '<', '>' and ' ', as these cause
                     // problems parsing the string result
-                    var deletionString = String(deletionResponse)
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString("<", withString: "")
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString(">", withString: "")
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString(" ", withString: "")
+                    var deletionString = String(describing: deletionResponse)
+                    deletionString = deletionString.replacingOccurrences(of: "<", with: "")
+                    deletionString = deletionString.replacingOccurrences(of: ">", with: "")
+                    deletionString = deletionString.replacingOccurrences(of: " ", with: "")
                     
                     // Converting the hex string into Unicode values, to check
                     // that the file item from the server has been successfully
@@ -941,7 +959,7 @@ class HAPi {
                     // hex to ascii example used above, so we need
                     // to call a different function
                     // See: http://stackoverflow.com/a/24372631
-                    let characterMap =  0.stride(to: deletionStringCharacters.count, by: 2).map{
+                    let characterMap = stride(from: 0, to: deletionStringCharacters.count, by: 2).map{
                         strtoul(String(deletionStringCharacters[$0 ..< $0+2]), nil, 16)
                     }
                     
@@ -949,8 +967,8 @@ class HAPi {
                     var characterMapPosition = 0
                     
                     while characterMapPosition < characterMap.count {
-                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-                        characterMapPosition = characterMapPosition.successor()
+                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))!))
+                        characterMapPosition += 1 //characterMapPosition.successor()
                     }
                     
                     let formattedDeletionResponse = decodedString
@@ -964,12 +982,12 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
-                        callback(result: true)
+                        callback(true)
                     } else {
                         logger.error("There was a problem deleting the file from the server")
-                        callback(result: false)
+                        callback(false)
                     }
                 }
         }
