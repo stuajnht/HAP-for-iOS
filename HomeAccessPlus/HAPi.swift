@@ -106,7 +106,7 @@ class HAPi {
                 // server, so as to not try and get a value from a variable
                 // that is never set - issue #11
                 // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
-                case.Success(_):
+                case.success(_):
                     logger.verbose("Successful contact of server: \(response.result.isSuccess)")
                     logger.verbose("Response string from server API : \(response.result.value)")
                     // Seeing if the response is 'OK'
@@ -121,7 +121,7 @@ class HAPi {
                 // iOS 9 requires (the error logged below would have the following
                 // message: Error Domain=NSURLErrorDomain Code=-1200 "An SSL error
                 // has occurred and a secure connection to the server cannot be made.")
-                case .Failure(let error):
+                case .failure(let error):
                     logger.verbose("Connection to API failed with error: \(error)")
                     callback(false)
                 }
@@ -164,7 +164,7 @@ class HAPi {
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                    case .Success(let JSON):
+                    case .success(let JSON):
                         logger.verbose("Response JSON for login attempt: \(JSON)")
                         
                         // Seeing if there is a valid logon attempt, from the returned JSON
@@ -243,7 +243,7 @@ class HAPi {
                             callback(false)
                         }
                     
-                    case .Failure(let error):
+                    case .failure(let error):
                         logger.warning("Request failed with error: \(error)")
                         callback(false)
                     }
@@ -292,7 +292,7 @@ class HAPi {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set
-            case.Success(_):
+            case.success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
                 logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
@@ -308,7 +308,7 @@ class HAPi {
                 
                 // We were not able to contact the HAP+ server, so we cannot
                 // put the user into any groups
-            case .Failure(let error):
+            case .failure(let error):
                 logger.verbose("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
@@ -385,7 +385,7 @@ class HAPi {
                     logger.verbose("Timetable API data: \(response.result.value!)")
                     
                     switch response.result {
-                    case .Success:
+                    case .success:
                         // Formatting the JSON response as a string, to
                         // see if there is any content returned
                         let jsonString = JSON(response.result.value!)
@@ -528,7 +528,7 @@ class HAPi {
                             callback(enableAutoLogout)
                         }
                         
-                    case .Failure(let error):
+                    case .failure(let error):
                         logger.warning("Request failed with error: \(error)")
                         callback(enableAutoLogout)
                     }
@@ -570,7 +570,7 @@ class HAPi {
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Drives", encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                    case .Success(let JSON):
+                    case .success(let JSON):
                         logger.verbose("Response JSON for drive listing: \(JSON)")
                         
                         // Logging the last successful contact to the HAP+
@@ -580,11 +580,11 @@ class HAPi {
                         settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Letting the callback know we have successfully logged in
-                        callback(result: true, response: JSON)
+                        callback(true, JSON as AnyObject)
                     
-                    case .Failure(let error):
+                    case .failure(let error):
                         logger.warning("Request failed with error: \(error)")
-                        callback(result: false, response: "")
+                        callback(false, "" as AnyObject)
                     }
             }
         } else {
@@ -630,7 +630,7 @@ class HAPi {
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/" + formattedPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                case .Success(let JSON):
+                case .success(let JSON):
                     logger.verbose("Response JSON for folder listing: \(JSON)")
                     
                     // Logging the last successful contact to the HAP+
@@ -640,11 +640,11 @@ class HAPi {
                     settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
-                    callback(result: true, response: JSON)
+                    callback(true, JSON as AnyObject)
                     
-                case .Failure(let error):
+                case .failure(let error):
                     logger.warning("Request failed with error: \(error)")
-                    callback(result: false, response: "")
+                    callback(false, "" as AnyObject)
                     }
             }
         } else {
@@ -1032,7 +1032,7 @@ class HAPi {
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, method: .post, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                case .Success:
+                case .success:
                     logger.debug("Response from creating new folder: \(response.data)")
                     
                     // Logging the last successful contact to the HAP+
@@ -1044,7 +1044,7 @@ class HAPi {
                     // Letting the callback know we have successfully logged in
                     callback(true)
                     
-                case .Failure(let error):
+                case .failure(let error):
                     logger.warning("Request failed with error: \(error)")
                     callback(false)
                     }
@@ -1111,7 +1111,7 @@ class HAPi {
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                case .Success(let JSON):
+                case .success(let JSON):
                     logger.verbose("Response JSON for file item existing: \(JSON)")
                     
                     // Logging the last successful contact to the HAP+
@@ -1130,22 +1130,22 @@ class HAPi {
                         // a file item in the current location, so any
                         // functions called after this can continue
                         logger.debug("File item doesn't currently exist in the current folder")
-                        callback(result: false)
+                        callback(false)
                     } else {
                         // A file item exists in the current folder with
                         // the same name as what is attempting to be
                         // uploaded or created, so any functions called
                         // after this need to be confirmed by the user
-                        callback(result: true)
+                        callback(true)
                     }
                     
-                case .Failure(let error):
+                case .failure(let error):
                     // There was a problem checking to see if there
                     // is a file item existing in the current folder
                     // so assume that there is to prevent any accidental
                     // overwriting of files
                     logger.warning("Request failed with error: \(error)")
-                    callback(result: true)
+                    callback(true)
                     }
             }
         } else {
