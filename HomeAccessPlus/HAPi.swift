@@ -100,7 +100,7 @@ class HAPi {
     func checkAPI(_ hapServer: String, callback:@escaping (Bool) -> Void) -> Void {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
-        Alamofire.request(.GET, hapServer + "/api/test")
+        Alamofire.request(hapServer + "/api/test")
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
@@ -160,7 +160,7 @@ class HAPi {
             
             // Connecting to the API to log in the user with the credentials
             logger.debug("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
-            Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(hapServer + "/api/ad/?", method: .post, parameters: ["username": username, "password": password], encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
@@ -185,7 +185,7 @@ class HAPi {
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
                             do {
-                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings!.stringForKey(settingsUsername)!)
+                                try Locksmith.updateData(data: [settingsPassword: password], forUserAccount: settings!.string(forKey: settingsUsername)!)
                                 logger.debug("Securely saved user password")
                             } catch {
                                 logger.error("Failed to securely save password")
@@ -195,30 +195,30 @@ class HAPi {
                             // API, to reset the session cookies. This is saved
                             // as a time since Unix epoch
                             logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                            settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                            settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                             
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
-                                    logger.info("Successfully set the roles for \(settings!.stringForKey(settingsUsername)!)")
-                                    logger.debug("Roles for \(settings!.stringForKey(settingsUsername)!): \(settings!.stringForKey(settingsUserRoles)!)")
+                                    logger.info("Successfully set the roles for \(settings!.string(forKey: settingsUsername)!)")
+                                    logger.debug("Roles for \(settings!.string(forKey: settingsUsername)!): \(settings!.string(forKey: settingsUserRoles)!)")
                                 } else {
-                                    logger.warning("Failed to set the roles for \(settings!.stringForKey(settingsUsername)!)")
+                                    logger.warning("Failed to set the roles for \(settings!.string(forKey: settingsUsername)!)")
                                 }
                             })
                             
                             // Attempting to get the timetable for the current user,
                             // only if the device type is not set up or in "shared" mode
-                            if ((settings!.stringForKey(settingsDeviceType) == "shared") || (settings!.stringForKey(settingsDeviceType) == nil)) {
+                            if ((settings!.string(forKey: settingsDeviceType) == "shared") || (settings!.string(forKey: settingsDeviceType) == nil)) {
                                 logger.debug("Device is new or in shared mode, so attempting to retreive a timetable for the current user")
                                 
                                 self.getTimetable({ (result: Bool) -> Void in
                                     if (result) {
-                                        logger.info("Successfully collected a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                        logger.info("Successfully collected a timetable for \(settings!.string(forKey: settingsUsername)!)")
                                         
                                         // Enabling auto-logout for the current logged in user
                                         logger.info("Enabling auto-logout for the current user")
-                                        settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
+                                        settings!.set(true, forKey: settingsAutoLogOutEnabled)
                                         
                                         // Seeing if this code is being compiled for the main app
                                         // or the app extensions. This hacky way is needed as app
@@ -231,7 +231,7 @@ class HAPi {
                                             delegate!.startAutoLogOutCheckTimer()
                                         #endif
                                     } else {
-                                        logger.warning("Did not get a timetable for \(settings!.stringForKey(settingsUsername)!), or it is currently outside a timetabled lesson")
+                                        logger.warning("Did not get a timetable for \(settings!.string(forKey: settingsUsername)!), or it is currently outside a timetabled lesson")
                                         logger.info("Not enabling auto-logout for the current user")
                                     }
                                 })
@@ -287,22 +287,22 @@ class HAPi {
     /// - date: 2015-12-12
     /// - seealso: loginUser
     func setRoles(_ callback:@escaping (Bool) -> Void) -> Void {
-        Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings!.stringForKey(settingsUsername)!)
+        Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/ad/roles/" + settings!.string(forKey: settingsUsername)!)
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set
             case.Success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings!.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
-                settings!.setObject(response.result.value, forKey: settingsUserRoles)
+                settings!.set(response.result.value, forKey: settingsUserRoles)
                 
                 // Logging the last successful contact to the HAP+
                 // API, to reset the session cookies. This is saved
                 // as a time since Unix epoch
                 logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                 
                 callback(true)
                 
@@ -312,7 +312,7 @@ class HAPi {
                 logger.verbose("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
-                settings!.setObject("[\"\"]", forKey: settingsUserRoles)
+                settings!.set("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
         }
@@ -376,7 +376,7 @@ class HAPi {
             
             // Connecting to the API to attempt to load the users timetable
             logger.debug("Attempting to get the timetable for: \(settings!.string(forKey: settingsUsername)!)")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.stringForKey(settingsUsername)!, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.string(forKey: settingsUsername)!, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseString { response in
@@ -395,20 +395,20 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Seeing if the timetable returned has anything in it
                         // This can be checked by having at least one timetabled
                         // day and lesson, otherwise the returned API JSON is []
                         if jsonString.rawString() != "[]" {
-                            logger.info("Valid timetable found for \(settings!.stringForKey(settingsUsername)!)")
+                            logger.info("Valid timetable found for \(settings!.string(forKey: settingsUsername)!)")
                             logger.info("Enabling automatic log out of user at the end of the current lesson, if applicable")
                             
                             // Converting the JSON string returned from the server
                             // into a JSON object, otherwise it's not possible to
                             // access any data
                             // See: https://www.hackingwithswift.com/example-code/libraries/how-to-parse-json-using-swiftyjson
-                            if let data = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding) {
+                            if let data = response.result.value!.data(using: String.Encoding.utf8) {
                                 let json = JSON(data: data)
                                 logger.verbose("Response JSON for timetable (JSON): \(json)")
                                 
@@ -425,7 +425,7 @@ class HAPi {
                                 // Looping through the days presented, to save the timetable
                                 for (_,subJson) in json {
                                     let dayNumber = subJson["Day"].stringValue
-                                    logger.debug("Getting lessons for \(settings!.stringForKey(settingsUsername)!) on day: \(dayNumber)")
+                                    logger.debug("Getting lessons for \(settings!.string(forKey: settingsUsername)!) on day: \(dayNumber)")
                                     
                                     // Retreiving details for the days lessons
                                     for lesson in subJson["Lessons"].arrayValue {
@@ -437,7 +437,7 @@ class HAPi {
                                         // Adding the current lesson to the array
                                         var lesson: [String] = []
                                         lesson = [dayNumber, period, startTime, endTime]
-                                        lessons.append(lesson)
+                                        lessons.append(lesson as NSArray)
                                     }
                                 }
                                 
@@ -448,9 +448,9 @@ class HAPi {
                                 // variable will put the date as 2001-01-01 if todays date is
                                 // not included
                                 // See: http://stackoverflow.com/a/28347285
-                                let formatShortDate = NSDateFormatter()
+                                let formatShortDate = DateFormatter()
                                 formatShortDate.dateFormat = "yyyy-MM-dd"
-                                let today = formatShortDate.stringFromDate(NSDate())
+                                let today = formatShortDate.string(from: NSDate() as Date)
                                 logger.debug("Todays date is: \(today)")
                                 
                                 // Getting a time the current lesson ends, if applicable
@@ -458,8 +458,8 @@ class HAPi {
                                 //       the following code does Sun - 1, Mon - 2, etc...
                                 //       so 1 is taken from the result
                                 // See: http://stackoverflow.com/a/35006174
-                                let cal: NSCalendar = NSCalendar.currentCalendar()
-                                let comp: NSDateComponents = cal.components(.Weekday, fromDate: NSDate())
+                                let cal: NSCalendar = NSCalendar.current as NSCalendar
+                                let comp: NSDateComponents = cal.components(.weekday, from: NSDate() as Date) as NSDateComponents
                                 let dayNumberToday = comp.weekday - 1
                                 logger.debug("Today is day number: \(dayNumberToday)")
                                 
@@ -467,13 +467,13 @@ class HAPi {
                                 // from the JSON request, along with the current date time, are
                                 // formatted in a standard way so that they can be compared
                                 // See: http://stackoverflow.com/a/28627873
-                                let timeFormatter = NSDateFormatter()
-                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+                                let timeFormatter = DateFormatter()
+                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
                                 timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                                 
                                 // Getting the date time as of now, so that it can be
                                 // compared against the lesson start and end times
-                                let timeNow = timeFormatter.stringFromDate(NSDate())
+                                let timeNow = timeFormatter.string(from: NSDate() as Date)
                                 logger.debug("Date time now is: \(timeNow)")
                                 
                                 // Looping around the items in the lessons array, to find
@@ -488,8 +488,8 @@ class HAPi {
                                         // Formatting the time from the string to be a valid
                                         // NSDate, composed of todays date and the time returned
                                         // from the JSON response
-                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
-                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
+                                        let lessonStartTime = timeFormatter.date(from: today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
+                                        let lessonEndTime = timeFormatter.date(from: today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
                                         logger.debug("Lesson being checked starts at \(lessonStartTime) and ends at \(lessonEndTime)")
                                         
                                         // Seeing if the current time is between the lesson
@@ -498,8 +498,8 @@ class HAPi {
                                         //       the stackoverflow answers, so this may not be
                                         //       entirely efficient
                                         // See: http://stackoverflow.com/a/29653553
-                                        let currentTime = timeFormatter.dateFromString(timeNow)!
-                                        if lessonStartTime.compare(currentTime) == .OrderedAscending && lessonEndTime.compare(currentTime) == .OrderedDescending {
+                                        let currentTime = timeFormatter.date(from: timeNow)!
+                                        if lessonStartTime.compare(currentTime) == .orderedAscending && lessonEndTime.compare(currentTime) == .orderedDescending {
                                             // The user is currently using the device in a timetabled
                                             // lesson, so we can auto log them out
                                             logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
@@ -509,7 +509,7 @@ class HAPi {
                                             // out by, so that it can be checked in the AppDelegate
                                             // autoLogOutTimer
                                             logger.debug("Setting auto-log out time to be: \(lessonEndTime.timeIntervalSince1970)")
-                                            settings!.setDouble(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
+                                            settings!.set(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
                                         } else {
                                             logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
                                         }
@@ -524,7 +524,7 @@ class HAPi {
                         } else {
                             // No timetable was found for the user, so disable
                             // automatically logging out the logged in user
-                            logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
+                            logger.warning("No timetable found for \(settings!.string(forKey: settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
                             callback(enableAutoLogout)
                         }
                         
@@ -567,7 +567,7 @@ class HAPi {
             
             // Connecting to the API to get the drive listing
             logger.debug("Attempting to get drives available")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Drives", encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                     case .Success(let JSON):
@@ -577,7 +577,7 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Letting the callback know we have successfully logged in
                         callback(result: true, response: JSON)
@@ -627,7 +627,7 @@ class HAPi {
             
             // Connecting to the API to get the folder listing
             logger.debug("Attempting to get folder listing")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/" + formattedPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success(let JSON):
@@ -637,7 +637,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
                     callback(result: true, response: JSON)
@@ -875,7 +875,7 @@ class HAPi {
             var fileName = ""
             let pathArray = String(formattedPath).components(separatedBy: "/")
             fileName = pathArray.last!
-            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = fileName.removingPercentEncoding!
             fileName = formatInvalidName(fileName)
             logger.debug("Name of file item being deleted: \(fileName)")
             
@@ -1029,7 +1029,7 @@ class HAPi {
             
             // Connecting to the API to create the new folder
             logger.debug("Attempting to create the new folder")
-            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, method: .post, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .Success:
@@ -1039,14 +1039,14 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
-                    callback(result: true)
+                    callback(true)
                     
                 case .Failure(let error):
                     logger.warning("Request failed with error: \(error)")
-                    callback(result: false)
+                    callback(false)
                     }
             }
         } else {
@@ -1107,7 +1107,7 @@ class HAPi {
             
             // Connecting to the API to log in the user with the credentials
             logger.debug("Attempting to check if the file item already exists")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
@@ -1118,7 +1118,7 @@ class HAPi {
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
