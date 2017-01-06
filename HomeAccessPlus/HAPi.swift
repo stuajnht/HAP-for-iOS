@@ -166,7 +166,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
@@ -187,23 +187,31 @@ class HAPi {
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                    case .success(let JSON):
-                        logger.verbose("Response JSON for login attempt: \(JSON)")
+                    case .success(let value):
+                        logger.verbose("Response JSON for login attempt: \(value)")
+                        
+                        // This line was put in when updating to Swift 3.
+                        // I think it should have been in from the beginning,
+                        // but as this was a very early function that I wrote
+                        // I don't think I followed the instructions properly.
+                        // It is based on the example by SwiftyJSON
+                        // See: https://github.com/SwiftyJSON/SwiftyJSON#work-with-alamofire
+                        let json = JSON(value)
                         
                         // Seeing if there is a valid logon attempt, from the returned JSON
-                        let validLogon = JSON["isValid"]!!.stringValue
+                        let validLogon = json["isValid"].stringValue
                         logger.info("Logon username and password valid: \(validLogon)")
                         if (validLogon == "1") {
                             // We have successfully logged in, so save some settings
                             // the NSUserDefaults settings variable
-                            let siteName = JSON["SiteName"]
+                            let siteName = json["SiteName"]
                             logger.debug("Site name from JSON: \(siteName)")
-                            settings!.setObject(siteName, forKey: settingsSiteName)
-                            settings!.setObject(JSON["FirstName"], forKey: settingsFirstName)
-                            settings!.setObject(JSON["Username"], forKey: settingsUsername)
-                            settings!.setObject(JSON["Token1"], forKey: settingsToken1)
-                            settings!.setObject(JSON["Token2"], forKey: settingsToken2)
-                            settings!.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
+                            settings!.set(siteName, forKey: settingsSiteName)
+                            settings!.set(json["FirstName"], forKey: settingsFirstName)
+                            settings!.set(json["Username"], forKey: settingsUsername)
+                            settings!.set(json["Token1"], forKey: settingsToken1)
+                            settings!.set(json["Token2"], forKey: settingsToken2)
+                            settings!.set(json["Token2Name"], forKey: settingsToken2Name)
                             
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
@@ -1129,8 +1137,10 @@ class HAPi {
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                case .success(let JSON):
-                    logger.verbose("Response JSON for file item existing: \(JSON)")
+                case .success(let value):
+                    logger.verbose("Response JSON for file item existing: \(value)")
+                    
+                    let json = JSON(value)
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
@@ -1141,9 +1151,9 @@ class HAPi {
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
                     // See: http://stackoverflow.com/a/24128720
-                    let validFileItemName = JSON["Name"] as? String
+                    let validFileItemName = json["Name"].stringValue
                     logger.debug("API 'Name' response for checking if file exists: \(validFileItemName)")
-                    if (validFileItemName == nil) {
+                    if (validFileItemName == "") {
                         // Letting the callback know that there isn't
                         // a file item in the current location, so any
                         // functions called after this can continue
