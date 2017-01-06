@@ -24,7 +24,7 @@ import Locksmith
 import XCGLogger
 
 // Declaring a global constant to the default XCGLogger instance
-let logger = XCGLogger.defaultInstance()
+let logger = XCGLogger.default
 
 // Declaring a global constant to the HAP+ main app colour
 let hapMainColour = "#005DAB"
@@ -78,7 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // Configuring the logger options
-        logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
+        logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
         
         // Seeing if this code is being compiled for the main app
         // or the app extensions. This hacky way is needed as app
@@ -226,22 +226,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Attempting to log the user in with the provided details
             // saved in the NSSettings
             let hapServer = settings!.string(forKey: settingsHAPServer)
-            let dictionary = Locksmith.loadDataForUserAccount(username)
+            let dictionary = Locksmith.loadDataForUserAccount(userAccount: username)
             let password = (dictionary?[settingsPassword])!
             
             // Calling the HAPi to attempt to log the user in, to generate
             // new user logon tokens on the HAP+ server
-            api.loginUser(hapServer!, username: username, password: String(password), callback: { (result: Bool) -> Void in
+            api.loginUser(hapServer!, username: username, password: String(describing: password), callback: { (result: Bool) -> Void in
                 // Seeing if the attempt to log the user in has been
                 // successful, or if there was a problem of some sort
                 // (most likely no connection, as the user will have
                 // already logged in, or the password has now expired)
                 if (result == true) {
                     logger.debug("Background fetch completed successfully")
-                    completionHandler(.NewData)
+                    completionHandler(.newData)
                 } else {
                     logger.warning("Background fetch failed to update user tokens")
-                    completionHandler(.Failed)
+                    completionHandler(.failed)
                 }
             })
         } else {
@@ -294,12 +294,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // Attempting to log the user in with the provided details
                 // saved in the NSSettings
                 let hapServer = settings!.string(forKey: settingsHAPServer)
-                let dictionary = Locksmith.loadDataForUserAccount(username)
+                let dictionary = Locksmith.loadDataForUserAccount(userAccount: username)
                 let password = (dictionary?[settingsPassword])!
                 
                 // Calling the HAPi to attempt to log the user in, to generate
                 // new user logon tokens on the HAP+ server
-                api.loginUser(hapServer!, username: username, password: String(password), callback: { (result: Bool) -> Void in
+                api.loginUser(hapServer!, username: username, password: String(describing: password), callback: { (result: Bool) -> Void in
                     // Seeing if the attempt to log the user in has been
                     // successful, or if there was a problem of some sort
                     // (most likely no connection, as the user will have
@@ -546,7 +546,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if (TimeInterval(settings!.double(forKey: settingsAutoLogOutTime)) <= timeNow) {
                 // It is past the end of the lesson, so call the logOutUser()
                 // function
-                logger.info("Logging the user out of the device, as it is at or past the end of the lesson: \(TimeInterval(settings!.doubleForKey(settingsAutoLogOutTime)))")
+                logger.info("Logging the user out of the device, as it is at or past the end of the lesson: \(TimeInterval(settings!.double(forKey: settingsAutoLogOutTime)))")
                 
                 // Calling the log out function
                 api.logOutUser()

@@ -104,7 +104,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // TODO: present a view controller appropriate for picker mode here
         
         // Configuring the logger options
-        logger.setup(.Debug, showThreadName: true, showLogLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil, fileLogLevel: .Debug)
+        logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
         
         if let siteName = settings!.string(forKey: settingsSiteName) {
             logger.debug("HAP+ document provider opened for site: \(siteName)")
@@ -141,7 +141,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         if let selectedTableRow = tblFileBrowser.indexPathForSelectedRow {
             tblFileBrowser.deselectRow(at: selectedTableRow, animated: true)
         }
-        logger.debug("Current path: \(currentPath)")
+        logger.debug("Current path: \(self.currentPath)")
         
         // Loading the file browser once the view has loaded,
         // as the 'prepareForPresentationInMode' is only called
@@ -284,7 +284,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                         // Creating a drive letter to show under the name of the
                         // drive, as this will be familiar to how drives are
                         // presented with letters on Windows
-                        let driveLetter = path!.stringByReplacingOccurrencesOfString("\\", withString: ":")
+                        let driveLetter = path!.replacingOccurrences(of: "\\", with: ":")
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
@@ -319,7 +319,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // Enabling the "save" button as the user is browsing
             // the folder, so they should be able to upload
             btnExportMoveFile.isEnabled = true
-            logger.debug("Loading the contents of the folder: \(currentPath)")
+            logger.debug("Loading the contents of the folder: \(self.currentPath)")
             hudShow("Loading folder")
             // Show the files and folders in the path the
             // user has browsed to
@@ -572,13 +572,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            logger.debug("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation)) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = URL(fileURLWithPath: fileLocation)
         } else {
-            logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            logger.debug("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation)) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
@@ -669,7 +669,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 
                 // Calling the showFileExists alert from the
                 // upload popover callback
-                fileExistsCallback(fileExists: true)
+                fileExistsCallback(true)
             }
         })
     }
@@ -702,7 +702,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Removing any encoded characters from the file name, so
         // the file can be deleted successfully, and saving back
         // into the array in the last position
-        let newFileName = fileName.stringByRemovingPercentEncoding!
+        let newFileName = fileName.removingPercentEncoding!
         pathArray.remove(at: pathArray.index(of: fileName)!)
         pathArray.append(newFileName)
         
@@ -758,8 +758,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             // If there is something that is likely to break,
             // this is probably the most likely place to check
             // See: http://stackoverflow.com/a/32696605
-            let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-            DispatchQueue.main.asyncAfter(deadline: time) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")
                 
@@ -774,7 +773,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // Preventing the alert being shown on each
                 // time the view controller is shown
                 self.showFileExistsAlert = false
-            }
+            })
         }
     }
     
@@ -807,10 +806,10 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // of the file to generate the file name
         var currentFileName = ""
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
+            logger.debug("Modifying the file name of: \(settings!.string(forKey: settingsUploadFileLocation)!)")
             currentFileName = settings!.string(forKey: settingsUploadFileLocation)!
         } else {
-            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
+            logger.debug("Modifying the file name of: \(settings!.string(forKey: settingsUploadPhotosLocation)!)")
             currentFileName = settings!.string(forKey: settingsUploadPhotosLocation)!
         }
         
@@ -824,7 +823,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
             var fileName = pathArray.last!
             
             // Removing any encoded characters from the file name
-            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = fileName.removingPercentEncoding!
             
             // Formatting the name of the file to make sure that it is
             // valid for storing on Windows file systems
@@ -952,7 +951,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 logger.info("The file item has been deleted from: \(deleteItemAtLocation)")
                 
                 // Letting the callback know that the file has been deleted
-                fileDeletedCallback(fileDeleted: true)
+                fileDeletedCallback(true)
             }
         })
     }
@@ -1098,7 +1097,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Removing any encoded characters from the file name, so
         // HAP+ saves the file with the correct file name
         // fileName = "file-2.ext"
-        fileName = fileName.stringByRemovingPercentEncoding!
+        fileName = fileName.removingPercentEncoding!
         logger.verbose("fileName: \(fileName)")
         
         // Formatting the name of the file to make sure that it is

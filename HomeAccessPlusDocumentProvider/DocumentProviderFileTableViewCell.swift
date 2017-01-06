@@ -162,7 +162,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         }
         
         // Displaying the icon
-        imgFileIcon.setFAIconWithName(icon, textColor: UIColor.init(colorLiteralRed: 0, green: 0.36470588240000001, blue: 0.6705882353, alpha: 1))
+        imgFileIcon.setFAIconWithName(icon: icon, textColor: UIColor.init(colorLiteralRed: 0, green: 0.36470588240000001, blue: 0.6705882353, alpha: 1))
     }
     
 }

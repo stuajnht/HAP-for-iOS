@@ -375,7 +375,7 @@ class HAPi {
             ]
             
             // Connecting to the API to attempt to load the users timetable
-            logger.debug("Attempting to get the timetable for: \(settings!.stringForKey(settingsUsername)!)")
+            logger.debug("Attempting to get the timetable for: \(settings!.string(forKey: settingsUsername)!)")
             Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.stringForKey(settingsUsername)!, headers: httpHeaders, encoding: .JSON)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
@@ -782,7 +782,7 @@ class HAPi {
                 
                 // Removing any encoded characters from the file name, so
                 // HAP+ saves the file with the correct file name
-                fileName = fileName.stringByRemovingPercentEncoding!
+                fileName = fileName.removingPercentEncoding!
                 
                 // Formatting the name of the file to make sure that it is
                 // valid for storing on Windows file systems
@@ -1251,7 +1251,7 @@ class HAPi {
         // Note: This needs to be done before the username setting
         //       is cleared
         do {
-            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            try Locksmith.deleteDataForUserAccount(userAccount: settings!.string(forKey: settingsUsername)!)
             logger.debug("Successfully deleted password")
         } catch {
             logger.error("Failed to delete the password")

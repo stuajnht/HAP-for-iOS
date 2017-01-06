@@ -49,6 +49,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-HomeAccessPlusDocumentProvider.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-HomeAccessPlusDocumentProviderFileProvider.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-HomeAccessPlusTests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -83,6 +93,16 @@
 			<true/>
 		</dict>
 		<key>442705EDDDC9C2CFF4BB5B6B1DE14798</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>53A3883A43BB18F5899F608BE8B42618</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>67BFE86576F1A3C4E46A0556A5ABB8A5</key>
 		<dict>
 			<key>primary</key>
 			<true/>
