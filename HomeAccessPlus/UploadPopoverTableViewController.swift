@@ -208,14 +208,14 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     override func numberOfSections(in tableView: UITableView) -> Int {
         // Returning the number of sections that are in the table
         // - seealso: tableView
-        logger.verbose("Number of sections in upload popover: \(tableSections.count)")
+        logger.verbose("Number of sections in upload popover: \(self.tableSections.count)")
         return tableSections.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Returning the number of rows in the current table section
         // - seealso: tableView
-        logger.verbose("Number of rows in table section \(section): \(Int(tableSections[section][1])!)")
+        logger.verbose("Number of rows in table section \(section): \(Int(self.tableSections[section][1])!)")
         return Int(tableSections[section][1])!
     }
     
@@ -288,7 +288,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 11
+    /// - version: 12
     /// - date: 2016-05-12
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
@@ -313,25 +313,25 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 // Seeing if the basic or multi photo uploader shoud
                 // be used to select the file (chosen by the user in
                 // the main settings app)
-                if (settings!.boolForKey(settingsBasicPhotoUploaderEnabled)) {
+                if (settings!.bool(forKey: settingsBasicPhotoUploaderEnabled)) {
                     logger.debug("Using basic photo uploader")
                     
                     // Calling the image picker
                     self.imagePicker.allowsEditing = false
-                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.sourceType = .photoLibrary
                     self.imagePicker.mediaTypes = [kUTTypeImage as String]
                     
-                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                    self.present(self.imagePicker, animated: true, completion: nil)
                 } else {
                     logger.debug("Using multi photo uploader")
                     
                     // Calling the multi image picker
-                    self.showMultiPicker(.AllPhotos, selectedRowIndexPath: indexPath)
+                    self.showMultiPicker(.allPhotos, selectedRowIndexPath: indexPath)
                 }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
-                    tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                    tableView.deselectRow(at: indexPath, animated: true)
             })
         }
         
@@ -348,25 +348,25 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 // Seeing if the basic or multi video uploader shoud
                 // be used to select the file (chosen by the user in
                 // the main settings app)
-                if (settings!.boolForKey(settingsBasicVideoUploaderEnabled)) {
+                if (settings!.bool(forKey: settingsBasicVideoUploaderEnabled)) {
                     logger.debug("Using basic video uploader")
                     
                     // Calling the image picker
                     self.imagePicker.allowsEditing = false
-                    self.imagePicker.sourceType = .PhotoLibrary
+                    self.imagePicker.sourceType = .photoLibrary
                     self.imagePicker.mediaTypes = [kUTTypeMovie as String]
                     
-                    self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                    self.present(self.imagePicker, animated: true, completion: nil)
                 } else {
                     logger.debug("Using multi video uploader")
                     
                     // Calling the multi video picker
-                    self.showMultiPicker(.AllVideos, selectedRowIndexPath: indexPath)
+                    self.showMultiPicker(.allVideos, selectedRowIndexPath: indexPath)
                 }
                 
                 }, cancelled: { (results) -> Void in
                     logger.warning("Permissions to access the photos library were denied")
-                    tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                    tableView.deselectRow(at: indexPath, animated: true)
             })
         }
         
@@ -491,8 +491,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             //         It is fine for you to be part of the "Domain Admins"
             //         group when logged in yourself to this app under "Single"
             //         mode, as you can log out without any problems
-            logger.debug("Device is currently in \"\(settings!.stringForKey(settingsDeviceType)!)\" mode")
-            logger.debug("Groups current user (\"\(settings!.stringForKey(settingsUsername)!)\") is part of: \(settings!.stringForKey(settingsUserRoles)!)")
+            logger.debug("Device is currently in \"\(settings!.string(forKey: settingsDeviceType)!)\" mode")
+            logger.debug("Groups current user (\"\(settings!.string(forKey: settingsUsername)!)\") is part of: \(settings!.string(forKey: settingsUserRoles)!)")
             if (settings!.string(forKey: settingsDeviceType) == "single") {
                 // Seeing if the user is included in the "Domain Admins"
                 // or "hap-ios-admins" groups
@@ -583,7 +583,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-07
     ///
     /// - returns: The file name of the file on the device
@@ -594,7 +594,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         var fileName = pathArray.last!
         
         // Removing any encoded characters from the file name
-        fileName = fileName.stringByRemovingPercentEncoding!
+        fileName = fileName.removingPercentEncoding!
         
         return fileName
     }
@@ -773,7 +773,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-05-14
     ///
     /// - parameter mediaType: The type of media that is to be shown in the multi picker
@@ -795,7 +795,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         // Hiding the 'camera' option from the multi picker,
         // as we don't want users taking items now
-        multiPickerController.sourceType = .Photo
+        multiPickerController.sourceType = .photo
         
         // Selecting the source file type for the multi picker,
         // based on the tapped table cell in the popover
@@ -821,7 +821,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 // Seeing if we are uploading images or videos from
                 // the multi picker, and generating a local file
                 // to be used to upload the file from
-                if (mediaType == DKImagePickerControllerAssetType.AllPhotos) {
+                if (mediaType == DKImagePickerControllerAssetType.allPhotos) {
                     // An image is to be uploaded
                     asset.fetchOriginalImageWithCompleteBlock { (image, info) -> Void in
                         logger.verbose("Asset file image: \(image!)")
@@ -885,7 +885,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-05-14
     ///
     /// - parameter newImage: A reference to the image from the asset library
@@ -903,8 +903,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         var imagePath = getDocumentsDirectory()
         if (multiPickerUsed) {
             logger.debug("Using the file name from the multi picker")
-            let fileName = String(fileLocation).components(separatedBy: "/").last!.stringByRemovingPercentEncoding!
-            imagePath = imagePath.appendingPathComponent(fileName)
+            let fileName = String(describing: fileLocation).components(separatedBy: "/").last!.removingPercentEncoding!
+            imagePath = imagePath.appendingPathComponent(fileName) as NSString
         } else {
             logger.debug("Generating a file name for the image")
             imagePath = imagePath.appendingPathComponent(createFileName(fileLocation, imageFile: true)) as NSString
@@ -970,7 +970,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-02-05
     ///
     /// - seealso: createLocalVideo
@@ -995,7 +995,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // function in the HAPi, as it encodes the string of
         // file%20name%20here.ext to file%2520name%2520%2520here.ext
         // which causes the HAP+ API to respond with an error
-        fileName = fileName.stringByRemovingPercentEncoding!
+        fileName = fileName.removingPercentEncoding!
         
         // Checking to see if the file that has been selected contains
         // an extension, i.e. fileName.ext and not just fileName, as

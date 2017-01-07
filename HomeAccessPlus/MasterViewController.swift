@@ -135,7 +135,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // and video files to be added from the device gallery, or for
         // any other functions included in the popover (new folder, log out)
         let menuButtonImage = UIImage(icon: FAType.FABars, size: CGSize(width: 30, height: 30))
-        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .Plain, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
+        let menuButton = UIBarButtonItem(image: menuButtonImage, style: .plain, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
         self.navigationItem.rightBarButtonItem = menuButton
         
         // Setting up the ability to refresh the table view when the
@@ -165,7 +165,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
 
     override func viewWillAppear(_ animated: Bool) {
         self.clearsSelectionOnViewWillAppear = true
-        logger.debug("Current path: \(currentPath)")
+        logger.debug("Current path: \(self.currentPath)")
         super.viewWillAppear(animated)
     }
 
@@ -191,7 +191,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-19
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
@@ -241,7 +241,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // Creating a drive letter to show under the name of the
                         // drive, as this will be familiar to how drives are
                         // presented with letters on Windows
-                        let driveLetter = path!.stringByReplacingOccurrencesOfString("\\", withString: ":")
+                        let driveLetter = path!.replacingOccurrences(of: "\\", with: ":")
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
@@ -272,7 +272,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 }
             })
         } else {
-            logger.debug("Loading the contents of the folder: \(currentPath)")
+            logger.debug("Loading the contents of the folder: \(self.currentPath)")
             hudShow("Loading folder")
             // Show the files and folders in the path the
             // user has browsed to
@@ -384,7 +384,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 9
+    /// - version: 10
     /// - date: 2016-05-16
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
@@ -403,13 +403,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Attempting to upload the local file: \(settings!.stringForKey(settingsUploadFileLocation)) to the remote location: \(currentPath)")
+            logger.debug("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation)) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = URL(fileURLWithPath: fileLocation)
         } else {
-            logger.debug("Attempting to upload the photos file: \(settings!.stringForKey(settingsUploadPhotosLocation)) to the remote location: \(currentPath)")
+            logger.debug("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation)) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
@@ -536,7 +536,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 
                 // Calling the showFileExists alert from the
                 // upload popover callback
-                fileExistsCallback(fileExists: true)
+                fileExistsCallback(true)
             }
         })
     }
@@ -558,7 +558,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-05-16
     ///
     /// - seealso: uploadFile
@@ -594,10 +594,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // processed. I don't know why this is, and probably at some
         // point I will realise why, but until then, calling this
         // code seems to do what is needed, albeit partially hacky
-        let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-        DispatchQueue.main.asyncAfter(deadline: time) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
             self.uploadMultipleFilesCheck()
-        }
+        })
     }
     
     /// Checks to see if there are currently any files to be uploaded
@@ -610,7 +609,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-05-16
     ///
     /// - seealso: uploadMultipleFiles
@@ -660,11 +659,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // point I will realise why, but until then, calling this
         // code seems to do what is needed, albeit partially hacky
         if (self.multipleFilesCurrentFileNumber < self.multipleFilesTotalFiles) {
-            let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-            DispatchQueue.main.asyncAfter(deadline: time) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                 logger.verbose("Files are still to be uploaded. Running multiple upload files timer check again")
                 self.uploadMultipleFilesCheck()
-            }
+            })
         } else {
             logger.debug("Stopping the multiple files upload timer check as all selected files have been uploaded")
             
@@ -684,7 +682,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-01-29
     ///
     /// - parameter folderName: The name of the folder to be created
@@ -710,12 +708,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // alert to the user. See explanation further down
                         // in this function (where result==false) for more
                         // information on why this is needed
-                        let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-                        DispatchQueue.main.asyncAfter(deadline: time) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                             let uploadFailController = UIAlertController(title: "Unable to create folder", message: "The folder was not successfully created. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
                             uploadFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                             self.present(uploadFailController, animated: true, completion: nil)
-                        }
+                        })
                     }
                     
                     // The folder has been created successfuly so we can present and
@@ -746,15 +743,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // this is probably the most likely place to check
                 // Seealso: showFileExistsMessage
                 // See: http://stackoverflow.com/a/32696605
-                let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-                DispatchQueue.main.asyncAfter(deadline: time) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                     self.hudHide()
                     logger.info("The \"\(folderName)\" folder already exists in \"\(self.currentPath)\"")
                     
                     let folderExistsController = UIAlertController(title: "Folder already exists", message: "The folder already exists in the current folder", preferredStyle: UIAlertControllerStyle.alert)
                     folderExistsController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                     self.present(folderExistsController, animated: true, completion: nil)
-                }
+                })
             }
         })
     }
@@ -1038,7 +1034,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-01-28
     ///
     /// - parameter indexPath: The index in the table and file items array
@@ -1088,7 +1084,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 self.tableView.deleteRows(at: [indexPath], with: .fade)
                 
                 // Letting the callback know that the file has been deleted
-                fileDeletedCallback(fileDeleted: true)
+                fileDeletedCallback(true)
             }
         })
     }
@@ -1106,10 +1102,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-13
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
-        logger.debug("Master view being shown: \(collapseDetailViewController)")
+        logger.debug("Master view being shown: \(self.collapseDetailViewController)")
         return collapseDetailViewController
     }
     
@@ -1141,7 +1137,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Removing any encoded characters from the file name, so
         // the file can be deleted successfully, and saving back
         // into the array in the last position
-        let newFileName = fileName.stringByRemovingPercentEncoding!
+        let newFileName = fileName.removingPercentEncoding!
         pathArray.remove(at: pathArray.index(of: fileName)!)
         pathArray.append(newFileName)
         
@@ -1194,7 +1190,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-05-23
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
@@ -1216,8 +1212,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // If there is something that is likely to break,
             // this is probably the most likely place to check
             // See: http://stackoverflow.com/a/32696605
-            let time = DispatchTime(DispatchTime.now()) + Double(1 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-            DispatchQueue.main.asyncAfter(deadline: time) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                 self.hudHide()
                 logger.debug("Overwriting file alert is to be shown")
                 
@@ -1245,7 +1240,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // Preventing the alert being shown on each
                 // time the view controller is shown
                 self.showFileExistsAlert = false
-            }
+            })
         }
     }
     
@@ -1262,7 +1257,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-04-01
     ///
     /// - parameter overwriteFile: Has the user chosen to overwrite the
@@ -1278,10 +1273,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // of the file to generate the file name
         var currentFileName = ""
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadFileLocation)!)")
+            logger.debug("Modifying the file name of: \(settings!.string(forKey: settingsUploadFileLocation)!)")
             currentFileName = settings!.string(forKey: settingsUploadFileLocation)!
         } else {
-            logger.debug("Modifying the file name of: \(settings!.stringForKey(settingsUploadPhotosLocation)!)")
+            logger.debug("Modifying the file name of: \(settings!.string(forKey: settingsUploadPhotosLocation)!)")
             currentFileName = settings!.string(forKey: settingsUploadPhotosLocation)!
         }
         
@@ -1295,7 +1290,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             var fileName = pathArray.last!
             
             // Removing any encoded characters from the file name
-            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = fileName.removingPercentEncoding!
             
             // Formatting the name of the file to make sure that it is
             // valid for storing on Windows file systems
@@ -1436,7 +1431,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-27
     ///
     /// - parameter currentFileName: The current name of the file
@@ -1506,7 +1501,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Removing any encoded characters from the file name, so
         // HAP+ saves the file with the correct file name
         // fileName = "file-2.ext"
-        fileName = fileName.stringByRemovingPercentEncoding!
+        fileName = fileName.removingPercentEncoding!
         logger.verbose("fileName: \(fileName)")
         
         // Formatting the name of the file to make sure that it is

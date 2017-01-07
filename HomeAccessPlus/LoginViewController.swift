@@ -137,7 +137,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // Filling in the username and password controls, so
                 // that the loginUser function can access them
                 tblUsername.text = username
-                let dictionary = Locksmith.loadDataForUserAccount(username)
+                let dictionary = Locksmith.loadDataForUserAccount(userAccount: username)
                 tbxPassword.text = (dictionary?[settingsPassword])! as? String
                 
                 // Attempt to log the user in to the HAP+ server and app
@@ -199,7 +199,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-06
     @IBAction func formatHAPURL(_ sender: AnyObject) {
         // Making sure that https:// is at the beginning of the sting.
@@ -209,7 +209,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         let https = "https://"
         
         hapServerAddress = tblHAPServer.text!
-        logger.debug("Original HAP+ URL: \(hapServerAddress)")
+        logger.debug("Original HAP+ URL: \(self.hapServerAddress)")
         
         // Seeing if server has http at the start
         if (hapServerAddress.hasPrefix(http)) {
@@ -231,7 +231,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             hapServerAddress = hapServerAddress.substring(to: hapServerAddress.characters.index(before: hapServerAddress.endIndex))
         }
         
-        logger.debug("Formatted HAP+ URL: \(hapServerAddress)")
+        logger.debug("Formatted HAP+ URL: \(self.hapServerAddress)")
     }
     
     @IBAction func attemptLogin(_ sender: AnyObject) {

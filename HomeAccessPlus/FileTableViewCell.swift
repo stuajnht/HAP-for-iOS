@@ -73,7 +73,7 @@ class FileTableViewCell: UITableViewCell {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-01
     ///
     /// - parameter fileType: The type of the file of the table cell
@@ -160,7 +160,7 @@ class FileTableViewCell: UITableViewCell {
         }
         
         // Displaying the icon
-        imgFileIcon.setFAIconWithName(icon, textColor: UIColor(hexString: hapMainColour))
+        imgFileIcon.setFAIconWithName(icon: icon, textColor: UIColor(hexString: hapMainColour))
     }
 
 }

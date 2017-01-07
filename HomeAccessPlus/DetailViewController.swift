@@ -118,7 +118,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // the folder the user has requested, as this class gets
         // called again on each folder browse
         if (fileDownloadPath != "") {
-            logger.debug("Downloading file from the following location: \(fileDownloadPath)")
+            logger.debug("Downloading file from the following location: \(self.fileDownloadPath)")
             detailDescriptionLabel.isHidden = true
             
             // Displaying the file properties controls. This is located
@@ -196,7 +196,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-16
     func downloadFile() ->Void {
         hudShow()
@@ -225,7 +225,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             if ((result == true) && (downloading == false)) {
                 self.hudHide()
                 logger.debug("Opening file from: \(downloadLocation)")
-                self.fileDeviceLocation = String(downloadLocation)
+                self.fileDeviceLocation = String(describing: downloadLocation)
                 
                 // Preventing the user being asked if the file
                 // should be downloaded again, if they click the
@@ -275,7 +275,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // (See: https://msdn.microsoft.com/en-us/library/aa365247#naming_conventions )
         // and then decode the encoded string
         fileLocation = fileLocation.replacingOccurrences(of: "|", with: "%")
-        fileLocation = fileLocation.stringByRemovingPercentEncoding!
+        fileLocation = fileLocation.removingPercentEncoding!
         
         // Adding a ":" character after the drive letter, as it is not included
         // in the HAP+ API JSON data, and the user will possibly expect it to
@@ -356,7 +356,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-04
     ///
     /// - returns: A formatted path to the local copy of the downloaded file
@@ -367,7 +367,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // Decoding any URL encoded characters, as the saved file
         // doesn't contain them, so it won't be found by QuickLook
         // See: http://stackoverflow.com/a/28310899
-        formattedPath = formattedPath.stringByRemovingPercentEncoding!
+        formattedPath = formattedPath.removingPercentEncoding!
         logger.verbose("Formatted file location for preview: \(formattedPath)")
         return formattedPath
     }
