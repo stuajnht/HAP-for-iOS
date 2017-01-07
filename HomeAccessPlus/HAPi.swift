@@ -698,7 +698,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
@@ -730,29 +730,29 @@ class HAPi {
             // Setting the download directory to be the caches folder on the
             // device
             // See: https://github.com/Alamofire/Alamofire/issues/907
-            let destination = Alamofire.Request.suggestedDownloadDestination(
-                directory: .CachesDirectory,
-                domain: .UserDomainMask
+            let destination = DownloadRequest.suggestedDownloadDestination(
+                for: .cachesDirectory,
+                in: .userDomainMask
             )
             
             // Downloading the file
-            Alamofire.download(.GET, settings!.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
-                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
-                    logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
-                    callback(result: false, downloading: true, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: NSURL(fileURLWithPath: ""))
+            Alamofire.download(settings!.string(forKey: settingsHAPServer)! + "/" + formattedPath, method: .get, parameters: [:], encoding: JSONEncoding.default, headers: httpHeaders, to: destination)
+                .downloadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
+                    //logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.verbose("Downloaded \(progress.fractionCompleted)%")
+                    callback(false, true, Int64(progress.fractionCompleted * 100), 100, NSURL(fileURLWithPath: "") as URL)
                 }
-                .response { request, response, _, error in
+                .responseData { response in
                     logger.verbose("Server response: \(response)")
-                    logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    logger.debug("File saved to the following location: \(response.destinationURL!))")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
-                    callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
+                    callback(true, false, 0, 0, response.destinationURL!)
             }
             
         } else {
