@@ -4,7 +4,7 @@ Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple devi
 
 ## Requirements
 To be able to use this app, you will need to have the following:
-* iOS 9 device
+* A device running iOS 9.0+
 * [Home Access Plus+](https://hap.codeplex.com) set up and running for your institution (bug your network managers to get this set up&hellip; it's free)
 
 ## Frequently Asked Questions
@@ -24,7 +24,7 @@ Thanks for your interest in contributing to this project. You can contribute or 
 ### Pull Requests
 If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
 
-The current development environment is with Xcode 7.3 and Swift 2.2. Please make sure you are using these versions before  submitting any pull requests
+The current development environment is with Xcode 8.2 and Swift 3.0.2. Please make sure you are using these versions before submitting any pull requests
 
 ### Contributors
 The following users have contributed code or suggestions to this project:
@@ -56,18 +56,16 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 ## To-Do List
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
-### 0.8.0
+### 0.9.0
 * A settings menu of some sort (in the main settings app)
-  * ~~Enable simple image uploader~~
   * Change log level, save to files, save to console
     * Include / exclude timer checks, as this may fill up the logs with unnecessary info due to the run frequency
     * Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)
-  * ~~Links to show the licenses for projects this app uses~~
-* ~~Image picker multiple select / multiple upload~~
-* Remove "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
-### 0.9.0
+### 1.0.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder
-* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover
+* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
+* Support for document provider open and move options for apps that do not support import and export
+* (Optional branding) Set a logo and theme colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
