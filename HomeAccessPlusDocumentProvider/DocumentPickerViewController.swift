@@ -217,7 +217,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDs(for: self.navigationController!.view, animated: true)
+        hud.hide(animated: true)
     }
     
     /// Gets the list of files, folders or drives to display

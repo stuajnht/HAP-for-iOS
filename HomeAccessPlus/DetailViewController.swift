@@ -317,7 +317,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        hud.hide(animated: true)
     }
     
     // MARK: QuickLook

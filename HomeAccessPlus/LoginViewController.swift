@@ -562,7 +562,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDs(for: self.view, animated: true)
+        hud.hide(animated: true)
     }
     
     // MARK: Keyboard

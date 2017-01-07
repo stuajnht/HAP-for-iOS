@@ -811,7 +811,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDs(for: self.navigationController!.view, animated: true)
+        hud.hide(animated: true)
     }
 
     // MARK: - Segues
