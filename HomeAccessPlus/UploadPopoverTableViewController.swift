@@ -34,12 +34,12 @@ import UIKit
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 3
+/// - version: 4
 /// - date: 2016-05-14
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
     // controller
-    func uploadFile(_ fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:(_ fileExists: Bool) -> Void)
+    func uploadFile(_ fileFromPhotoLibrary: Bool, customFileName: String, fileExistsCallback:@escaping (_ fileExists: Bool) -> Void)
     
     // This calls the newFolder function in the master view
     // controller
