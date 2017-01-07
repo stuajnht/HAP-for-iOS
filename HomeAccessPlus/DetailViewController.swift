@@ -424,7 +424,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-16
     ///
     /// - seealso: largeFileSize
@@ -438,8 +438,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.alert)
             confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                 self.downloadFile() }))
-            confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
-                return false }))
+            confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
             self.present(confirmDownloadLargeFile, animated: true, completion: nil)
             
             // The alert view is shown, and then the code continues, as
