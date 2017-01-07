@@ -543,8 +543,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // See: http://stackoverflow.com/a/32285621
     func hudShow(_ detailLabel: String) {
         hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud.labelText = "Please wait..."
-        hud.detailsLabelText = detailLabel
+        hud.label.text = "Please wait..."
+        hud.detailsLabel.text = detailLabel
     }
     
     /// Updating the detail label that is shown in the HUD
@@ -558,7 +558,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - parameter labelText: The text that should be shown for the HUD label
     func hudUpdateLabel(_ labelText: String) {
-        hud.detailsLabelText = labelText
+        hud.detailsLabel.text = labelText
     }
     
     func hudHide() {

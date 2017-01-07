@@ -162,14 +162,14 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // See: http://stackoverflow.com/a/26901328
     func hudShow(_ detailLabel: String) {
         hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
-        hud.labelText = "Please wait..."
-        hud.detailsLabelText = detailLabel
+        hud.label.text = "Please wait..."
+        hud.detailsLabel.text = detailLabel
     }
     
     // This is shown when the user selects a file to download
     func hudDownloadShow() {
         hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud.detailsLabelText = "Downloading..."
+        hud.detailsLabel.text = "Downloading..."
         // See: http://stackoverflow.com/a/26882235
         hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }
@@ -185,7 +185,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - parameter labelText: The text that should be shown for the HUD label
     func hudUpdateLabel(_ labelText: String) {
-        hud.detailsLabelText = labelText
+        hud.detailsLabel.text = labelText
     }
     
     // The following functions look after showing the HUD during the download
@@ -193,7 +193,7 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     // See: http://stackoverflow.com/a/26901328
     func hudUploadingShow() {
         hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
-        hud.detailsLabelText = "Uploading..."
+        hud.detailsLabel.text = "Uploading..."
         // See: http://stackoverflow.com/a/26882235
         hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }

@@ -293,7 +293,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // See: http://stackoverflow.com/a/26901328
     func hudShow() {
         hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud.detailsLabelText = "Downloading..."
+        hud.detailsLabel.text = "Downloading..."
         // See: http://stackoverflow.com/a/26882235
         hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }

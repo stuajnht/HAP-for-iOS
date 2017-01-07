@@ -764,8 +764,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // See: http://stackoverflow.com/a/26901328
     func hudShow(_ detailLabel: String) {
         hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
-        hud.labelText = "Please wait..."
-        hud.detailsLabelText = detailLabel
+        hud.label.text = "Please wait..."
+        hud.detailsLabel.text = detailLabel
     }
     
     /// Updating the detail label that is shown in the HUD
@@ -779,7 +779,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - parameter labelText: The text that should be shown for the HUD label
     func hudUpdateLabel(_ labelText: String) {
-        hud.detailsLabelText = labelText
+        hud.detailsLabel.text = labelText
     }
     
     // The following functions look after showing the HUD during the download
@@ -787,7 +787,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     // See: http://stackoverflow.com/a/26901328
     func hudUploadingShow() {
         hud = MBProgressHUD.showAdded(to: self.navigationController!.view, animated: true)
-        hud.detailsLabelText = "Uploading..."
+        hud.detailsLabel.text = "Uploading..."
         // See: http://stackoverflow.com/a/26882235
         hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }
