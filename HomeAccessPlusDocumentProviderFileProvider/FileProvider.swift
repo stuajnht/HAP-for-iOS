@@ -48,7 +48,7 @@ class FileProvider: NSFileProviderExtension {
         })
     }
 
-    override func providePlaceholder(at url: URL, completionHandler: ((_ error: NSError?) -> Void)?) {
+    func providePlaceholder(at url: URL, completionHandler: ((_ error: NSError?) -> Void)?) {
         // Should call writePlaceholderAtURL(_:withMetadata:error:) with the placeholder URL, then call the completion handler with the error if applicable.
         let fileName = url.lastPathComponent
     
@@ -66,7 +66,7 @@ class FileProvider: NSFileProviderExtension {
         completionHandler?(nil)
     }
 
-    override func startProvidingItem(at url: URL, completionHandler: ((_ error: NSError?) -> Void)?) {
+    func startProvidingItem(at url: URL, completionHandler: ((_ error: NSError?) -> Void)?) {
         let fileManager = FileManager()
         let path = url.path
         if fileManager.fileExists(atPath: path) { //1
@@ -76,13 +76,13 @@ class FileProvider: NSFileProviderExtension {
         }
         
         
-        api.downloadFile(url.lastPathComponent!, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: URL) -> Void in
+        api.downloadFile(url.lastPathComponent, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: URL) -> Void in
                 
                 // There was a problem with downloading the file, so let the
                 // user know about it
                 if ((result == false) && (downloading == false)) {
                     logger.error("There was a problem downloading the file")
-                    completionHandler?(error: nil)
+                    completionHandler?(nil)
                 }
                 
                 // The file has downloaded successfuly so we can present the
@@ -101,7 +101,7 @@ class FileProvider: NSFileProviderExtension {
                         }
                         catch let errorWrite as NSError {
                             logger.error("Copy failed with error: \(errorWrite.localizedDescription)")
-                            completionHandler?(error: errorWrite)
+                            completionHandler?(errorWrite)
                         }
                     
                     
@@ -115,7 +115,7 @@ class FileProvider: NSFileProviderExtension {
         // Called at some point after the file has changed; the provider may then trigger an upload
 
         // TODO: mark file at <url> as needing an update in the model; kick off update process
-        NSLog("Item changed at URL %@", url)
+        logger.debug("Item changed at URL \(url)")
     }
 
     override func stopProvidingItem(at url: URL) {
