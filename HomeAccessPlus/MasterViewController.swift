@@ -1566,7 +1566,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     
     func presentationController(_ controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
         let navigationController = UINavigationController(rootViewController: controller.presentedViewController)
-        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(MasterViewController.dismiss))
+        let btnCancelUploadPopover = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(MasterViewController.dismissUploadPopover))
         navigationController.topViewController!.navigationItem.rightBarButtonItem = btnCancelUploadPopover
         // Setting the navigation bar colour
         navigationController.topViewController!.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
@@ -1575,7 +1575,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         return navigationController
     }
     
-    func dismiss() {
+    func dismissUploadPopover() {
+        // This function has been renamed to dismissUploadPopover
+        // from dismiss, as Swift 3 has renamed dismissViewControllerAnimated
+        // to dismiss
+        // See: http://stackoverflow.com/a/40753901
         self.dismiss(animated: true, completion: nil)
     }
     
