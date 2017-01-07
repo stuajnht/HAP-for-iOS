@@ -770,7 +770,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
@@ -846,22 +846,22 @@ class HAPi {
             logger.debug("Upload location formatted path: \(uploadLocation)")
             
             // Uploading the file
-            Alamofire.upload(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
-                .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
-                    logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
-                    logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
-                    callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
+            Alamofire.upload(deviceFileLocation, to: settings!.string(forKey: settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, method: .post, headers: httpHeaders)
+                .uploadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
+                    //logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
+                    logger.verbose("Uploaded \(progress.fractionCompleted)%")
+                    callback(false, true, Int64(progress.fractionCompleted * 100), 100)
                 }
-                .response { request, response, _, error in
+                .responseData {response in
                     logger.verbose("Server response: \(response)")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
-                    callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
+                    callback(true, false, 0, 0)
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
