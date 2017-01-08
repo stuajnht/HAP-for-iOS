@@ -191,7 +191,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2015-12-19
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
@@ -234,8 +234,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                             // See: http://stackoverflow.com/a/25340084
                             space = String(format:"%.2f", subJson["Space"].double!) + "% used"
                         }
-                        logger.debug("Drive name: \(name)")
-                        logger.debug("Drive path: \(path)")
+                        logger.debug("Drive name: \(name!)")
+                        logger.debug("Drive path: \(path!)")
                         logger.debug("Drive usage: \(space)")
                         
                         // Creating a drive letter to show under the name of the
