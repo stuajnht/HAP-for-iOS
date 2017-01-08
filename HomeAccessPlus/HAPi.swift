@@ -166,7 +166,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
@@ -201,17 +201,17 @@ class HAPi {
                         // Seeing if there is a valid logon attempt, from the returned JSON
                         let validLogon = json["isValid"].stringValue
                         logger.info("Logon username and password valid: \(validLogon)")
-                        if (validLogon == "1") {
+                        if (validLogon == "true") {
                             // We have successfully logged in, so save some settings
                             // the NSUserDefaults settings variable
-                            let siteName = json["SiteName"]
+                            let siteName = json["SiteName"].stringValue
                             logger.debug("Site name from JSON: \(siteName)")
                             settings!.set(siteName, forKey: settingsSiteName)
-                            settings!.set(json["FirstName"], forKey: settingsFirstName)
-                            settings!.set(json["Username"], forKey: settingsUsername)
-                            settings!.set(json["Token1"], forKey: settingsToken1)
-                            settings!.set(json["Token2"], forKey: settingsToken2)
-                            settings!.set(json["Token2Name"], forKey: settingsToken2Name)
+                            settings!.set(json["FirstName"].stringValue, forKey: settingsFirstName)
+                            settings!.set(json["Username"].stringValue, forKey: settingsUsername)
+                            settings!.set(json["Token1"].stringValue, forKey: settingsToken1)
+                            settings!.set(json["Token2"].stringValue, forKey: settingsToken2)
+                            settings!.set(json["Token2Name"].stringValue, forKey: settingsToken2Name)
                             
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
@@ -698,7 +698,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
-    /// - version: 2
+    /// - version: 3
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
@@ -736,11 +736,11 @@ class HAPi {
             )
             
             // Downloading the file
-            Alamofire.download(settings!.string(forKey: settingsHAPServer)! + "/" + formattedPath, method: .get, parameters: [:], encoding: JSONEncoding.default, headers: httpHeaders, to: destination)
+            Alamofire.download(settings!.string(forKey: settingsHAPServer)! + "/" + formattedPath, method: .get, parameters: [:], headers: httpHeaders, to: destination)
                 .downloadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
                     //logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(progress.fractionCompleted)%")
-                    callback(false, true, Int64(progress.fractionCompleted * 100), 100, NSURL(fileURLWithPath: "") as URL)
+                    callback(false, true, Int64(progress.fractionCompleted * 100), 100, NSURL(fileURLWithPath: "/") as URL)
                 }
                 .responseData { response in
                     logger.verbose("Server response: \(response)")
@@ -757,7 +757,7 @@ class HAPi {
             
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(false, false, 0, 0, URL(fileURLWithPath: ""))
+            callback(false, false, 0, 0, URL(fileURLWithPath: "/"))
         }
     }
     
