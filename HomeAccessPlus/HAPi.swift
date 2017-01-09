@@ -876,7 +876,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 6
+    /// - version: 7
     /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
@@ -926,64 +926,21 @@ class HAPi {
             logger.debug("Attempting to delete the selected file item")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Delete", method: .post, parameters: [:], encoding: formattedJSONPath, headers: httpHeaders)
                 // Parsing the response
-                .response {response in
+                .responseString {response in
                     logger.verbose("Request: \(request)")
                     logger.verbose("Response: \(response)")
                     logger.verbose("Data: \(response.data)")
-                    logger.verbose("Error: \(response.error)")
                     
                     // The response body that the HAP+ server responds
                     // with is ["Deleted <file item name>"] so we need
                     // to check to see if this is returned. If it is,
                     // then let the user know the file was deleted
                     // otherwise let them know there was a problem
-                    let deletionResponse = response.data!
-                    logger.verbose("Raw response from server from deleting file item: \(deletionResponse)")
-                    
-                    // For some reason, the response body data is also
-                    // hex encoded, which means it needs to be decoded
-                    // first before any checks can be done to see if the
-                    // file item has been successfully deleted
-                    
-                    // Removing any characters from the string that shouldn't
-                    // be there, namely '<', '>' and ' ', as these cause
-                    // problems parsing the string result
-                    var deletionString = String(describing: deletionResponse)
-                    deletionString = deletionString.replacingOccurrences(of: "<", with: "")
-                    deletionString = deletionString.replacingOccurrences(of: ">", with: "")
-                    deletionString = deletionString.replacingOccurrences(of: " ", with: "")
-                    
-                    // Converting the hex string into Unicode values, to check
-                    // that the file item from the server has been successfully
-                    // deleted
-                    // See: http://stackoverflow.com/a/30795372
-                    var deletionStringCharacters = [Character]()
-                    
-                    for characterPosition in deletionString.characters {
-                        deletionStringCharacters.append(characterPosition)
-                    }
-                    
-                    // This version of Swift is different from the
-                    // hex to ascii example used above, so we need
-                    // to call a different function
-                    // See: http://stackoverflow.com/a/24372631
-                    let characterMap = stride(from: 0, to: deletionStringCharacters.count, by: 2).map{
-                        strtoul(String(deletionStringCharacters[$0 ..< $0+2]), nil, 16)
-                    }
-                    
-                    var decodedString = ""
-                    var characterMapPosition = 0
-                    
-                    while characterMapPosition < characterMap.count {
-                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))!))
-                        characterMapPosition += 1 //characterMapPosition.successor()
-                    }
-                    
-                    let formattedDeletionResponse = decodedString
-                    logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
+                    let deletionResponse = response.result.value!
+                    logger.debug("Response from server from deleting file item: \(deletionResponse)")
                     
                     // Seeing if the file was deleted successfully or not
-                    if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
+                    if (deletionResponse == "[\"Deleted \(fileName)\"]") {
                         logger.debug("\(fileName) was successfully deleted from the server")
                         
                         // Logging the last successful contact to the HAP+
