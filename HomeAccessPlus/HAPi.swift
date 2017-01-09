@@ -698,7 +698,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
@@ -740,7 +740,7 @@ class HAPi {
                 .downloadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
                     //logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
                     logger.verbose("Downloaded \(progress.fractionCompleted)%")
-                    callback(false, true, Int64(progress.fractionCompleted * 100), 100, NSURL(fileURLWithPath: "/") as URL)
+                    callback(false, true, Int64(progress.fractionCompleted * 10000), 10000, NSURL(fileURLWithPath: "/") as URL)
                 }
                 .responseData { response in
                     logger.verbose("Server response: \(response)")
@@ -770,7 +770,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
@@ -850,7 +850,7 @@ class HAPi {
                 .uploadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
                     //logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
                     logger.verbose("Uploaded \(progress.fractionCompleted)%")
-                    callback(false, true, Int64(progress.fractionCompleted * 100), 100)
+                    callback(false, true, Int64(progress.fractionCompleted * 10000), 10000)
                 }
                 .responseData {response in
                     logger.verbose("Server response: \(response)")

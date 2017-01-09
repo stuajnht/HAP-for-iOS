@@ -201,9 +201,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     /// Updating the progress bar that is shown in the HUD, so the user
     /// knows how far along the download is
     ///
+    /// Since updating to Swift 3, the callback from uploading files
+    /// seems to be completed on a separate thread, so the progress
+    /// would never be shown as updated
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-06
     /// - seealso: hudShow
     /// - seealso: hudHide
@@ -213,7 +217,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     func hudUpdatePercentage(_ currentUploadedBytes: Int64, totalBytes: Int64) {
         let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
         logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
-        hud.progress = currentPercentage
+        DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+            self.hud.progress = currentPercentage
+        })
     }
     
     func hudHide() {

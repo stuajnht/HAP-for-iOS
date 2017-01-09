@@ -384,7 +384,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 10
+    /// - version: 11
     /// - date: 2016-05-16
     ///
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
@@ -416,6 +416,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             fileDeviceLocation = URL(string: fileLocation)!
         }
         
+        // As the hideAllHUDsForView has been depricated, we need to hide
+        // the hud if the upload has been completed, otherwise the HUDs
+        // 'stack' and only the last one modified will be hidden, before
+        // showing any again. This provides a 'seamless' experience between
+        // one upload finished and the next one being shown
+        hudHide()
         hudUploadingShow()
         
         // Showing the file number currently being uploaded
@@ -795,9 +801,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// Updating the progress bar that is shown in the HUD, so the user
     /// knows how far along the download is
     ///
+    /// Since updating to Swift 3, the callback from uploading files
+    /// seems to be completed on a separate thread, so the progress
+    /// would never be shown as updated
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-06
     /// - seealso: hudShow
     /// - seealso: hudHide
@@ -807,7 +817,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     func hudUpdatePercentage(_ currentUploadedBytes: Int64, totalBytes: Int64) {
         let currentPercentage = Float(currentUploadedBytes) / Float(totalBytes)
         logger.verbose("Current uploaded percentage: \(currentPercentage * 100)%")
-        hud.progress = currentPercentage
+        DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+            self.hud.progress = currentPercentage
+        })
     }
     
     func hudHide() {
