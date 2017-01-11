@@ -1,6 +1,14 @@
 # Home Access Plus+ iOS app change log
 
+## 0.9.0
+
+### Notes
+* Starting from build 790, this project uses Xcode 8.2 and Swift 3.0.2. A large amount of code refactoring has taken place since [#f6ecd4] to conform to the latest syntax
+
 ## 0.8.0
+
+### Notes
+* This version never left 'alpha' stage, and has since been changed to 0.9.0, due to other commitments causing this project to have an unexpected hiatus (apart from the occasional code fix). The decision to bump up the version number is due to a large number of code changes needed for Swift 3
 
 ### New Stuff
 * Multiple photos or videos can be selected and uploaded at once to the HAP+ server

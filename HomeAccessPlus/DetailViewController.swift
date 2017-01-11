@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015-2017  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,6 +23,30 @@ import UIKit
 import ChameleonFramework
 import MBProgressHUD
 import QuickLook
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l <= r
+  default:
+    return !(rhs < lhs)
+  }
+}
+
 
 class DetailViewController: UIViewController, QLPreviewControllerDataSource {
 
@@ -81,21 +105,21 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // Adding navigation back button to detail view, to show the master view, as it is
         // removed from the AppDelegate.swift file
         // See: http://nshipster.com/uisplitviewcontroller/
-        navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem()
+        navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
         navigationItem.leftItemsSupplementBackButton = true
         
         // Setting the navigation bar colour
         self.navigationController!.navigationBar.barTintColor = UIColor(hexString: hapMainColour)
-        self.navigationController!.navigationBar.tintColor = UIColor.flatWhiteColor()
-        self.navigationController!.navigationBar.translucent = false
+        self.navigationController!.navigationBar.tintColor = UIColor.flatWhite()
+        self.navigationController!.navigationBar.isTranslucent = false
         
         // Downloading the file that the user has selected
         // The 'if' is needed to prevent any attempts to download
         // the folder the user has requested, as this class gets
         // called again on each folder browse
         if (fileDownloadPath != "") {
-            logger.debug("Downloading file from the following location: \(fileDownloadPath)")
-            detailDescriptionLabel.hidden = true
+            logger.debug("Downloading file from the following location: \(self.fileDownloadPath)")
+            detailDescriptionLabel.isHidden = true
             
             // Displaying the file properties controls. This is located
             // here so there is something shown once a file has been
@@ -123,7 +147,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     /// - todo: Find out a way to delete files from the device when
     ///         they're finished with, to save space on the device
     ///         See: https://github.com/stuajnht/HAP-for-iOS/issues/15
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         // Preventing attempting to delete any files if
         // none have been downloaded yet (such as browsing through
         // the file structure but not selecting a file)
@@ -138,7 +162,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // Displaying the QuickLook preview of the file when
     // the preview button is pressed, if the user pressed
     // the back button when it was displayed previously
-    @IBAction func displayPreview(sender: AnyObject) {
+    @IBAction func displayPreview(_ sender: AnyObject) {
         // Seeing if the file has already been downloaded. If it
         // has, then we can just present the QuickLook controller,
         // otherwise we'll need to ask the user if the file can be
@@ -172,7 +196,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-16
     func downloadFile() ->Void {
         hudShow()
@@ -180,14 +204,14 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // Deleting any cached files from the device
         deleteCacheFiles()
         
-        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void in
+        api.downloadFile(fileDownloadPath, callback: { (result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: URL) -> Void in
             
             // There was a problem with downloading the file, so let the
             // user know about it
             if ((result == false) && (downloading == false)) {
-                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.Alert)
-                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(loginUserFailController, animated: true, completion: nil)
+                let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
+                loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                self.present(loginUserFailController, animated: true, completion: nil)
             }
             
             // Seeing if the progress bar should update with the amount
@@ -201,7 +225,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             if ((result == true) && (downloading == false)) {
                 self.hudHide()
                 logger.debug("Opening file from: \(downloadLocation)")
-                self.fileDeviceLocation = String(downloadLocation)
+                self.fileDeviceLocation = String(describing: downloadLocation)
                 
                 // Preventing the user being asked if the file
                 // should be downloaded again, if they click the
@@ -229,7 +253,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // are seperated with 4 spaces "    " so we can use this to split them
         // The file modification date comes first, followed by the file size
         // See: http://stackoverflow.com/a/25818228
-        let fileDetail = fileDetails.componentsSeparatedByString("    ")
+        let fileDetail = fileDetails.components(separatedBy: "    ")
         lblFileSize.text = fileDetail[1]
         lblFileModified.text = fileDetail[0]
         
@@ -239,8 +263,8 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // is shown to the user. Also, the path has forward slashes, so we should
         // replace those with backslashes, to be consistent with how Windows
         // presents file paths
-        fileLocation = fileDownloadPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
-        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("/", withString: "\\")
+        fileLocation = fileDownloadPath.replacingOccurrences(of: "../Download/", with: "")
+        fileLocation = fileLocation.replacingOccurrences(of: "/", with: "\\")
         
         // If the file name or folder path contain characters that need to be
         // escaped if put into a URL, then they need to be decoded before being
@@ -250,8 +274,8 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // percent, as a pipe is not a valid character in Windows file names
         // (See: https://msdn.microsoft.com/en-us/library/aa365247#naming_conventions )
         // and then decode the encoded string
-        fileLocation = fileLocation.stringByReplacingOccurrencesOfString("|", withString: "%")
-        fileLocation = fileLocation.stringByRemovingPercentEncoding!
+        fileLocation = fileLocation.replacingOccurrences(of: "|", with: "%")
+        fileLocation = fileLocation.removingPercentEncoding!
         
         // Adding a ":" character after the drive letter, as it is not included
         // in the HAP+ API JSON data, and the user will possibly expect it to
@@ -260,7 +284,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         fileLocation = String(fileLocation.characters.prefix(1)) + ":" + String(fileLocation.characters.suffix(fileLocation.characters.count - 1))
         lblFileLocation.text = fileLocation
         
-        stkFileProperties.hidden = false
+        stkFileProperties.isHidden = false
     }
     
     // MARK: MBProgressHUD
@@ -268,32 +292,38 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     // progress so that the user knows that something is happening.
     // See: http://stackoverflow.com/a/26901328
     func hudShow() {
-        hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
-        hud.detailsLabelText = "Downloading..."
+        hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud.detailsLabel.text = "Downloading..."
         // See: http://stackoverflow.com/a/26882235
-        hud.mode = MBProgressHUDMode.DeterminateHorizontalBar
+        hud.mode = MBProgressHUDMode.determinateHorizontalBar
     }
     
     /// Updating the progress bar that is shown in the HUD, so the user
     /// knows how far along the download is
     ///
+    /// Since updating to Swift 3, the callback from uploading files
+    /// seems to be completed on a separate thread, so the progress
+    /// would never be shown as updated
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-21
     /// - seealso: hudShow
     /// - seealso: hudHide
     ///
     /// - parameter currentDownloadedBytes: The amount in bytes that has been downloaded
     /// - parameter totalBytes: The total amount of bytes that is to be downloaded
-    func hudUpdatePercentage(currentDownloadedBytes: Int64, totalBytes: Int64) {
+    func hudUpdatePercentage(_ currentDownloadedBytes: Int64, totalBytes: Int64) {
         let currentPercentage = Float(currentDownloadedBytes) / Float(totalBytes)
         logger.verbose("Current downloaded percentage: \(currentPercentage * 100)%")
-        hud.progress = currentPercentage
+        DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+            self.hud.progress = currentPercentage
+        })
     }
     
     func hudHide() {
-        MBProgressHUD.hideAllHUDsForView(self.view, animated: true)
+        hud.hide(animated: true)
     }
     
     // MARK: QuickLook
@@ -316,15 +346,15 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         let previewQL = QLPreviewController()
         previewQL.dataSource = self
         previewQL.currentPreviewItemIndex = 0
-        self.showViewController(previewQL, sender: nil)
+        self.show(previewQL, sender: nil)
     }
     
-    func numberOfPreviewItemsInPreviewController(controller: QLPreviewController) -> Int {
+    func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
         return 1
     }
     
-    func previewController(controller: QLPreviewController, previewItemAtIndex index: Int) -> QLPreviewItem {
-        return NSURL.fileURLWithPath(formatLocalFilePath())
+    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        return URL(fileURLWithPath: formatLocalFilePath()) as QLPreviewItem
     }
     
     /// Formats the path to the downloaded file from the path
@@ -332,18 +362,18 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-04
     ///
     /// - returns: A formatted path to the local copy of the downloaded file
     func formatLocalFilePath() -> String {
         // Returning the full path to the downloaded file
         // after removing the 'file://' from the beginning
-        var formattedPath = fileDeviceLocation.stringByReplacingOccurrencesOfString("file://", withString: "")
+        var formattedPath = fileDeviceLocation.replacingOccurrences(of: "file://", with: "")
         // Decoding any URL encoded characters, as the saved file
         // doesn't contain them, so it won't be found by QuickLook
         // See: http://stackoverflow.com/a/28310899
-        formattedPath = formattedPath.stringByRemovingPercentEncoding!
+        formattedPath = formattedPath.removingPercentEncoding!
         logger.verbose("Formatted file location for preview: \(formattedPath)")
         return formattedPath
     }
@@ -365,14 +395,14 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         do {
             // Getting a list of documents in the caches folder
             // See: http://stackoverflow.com/a/24055475
-            var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+            var cachesDirectories: [AnyObject] = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true) as [AnyObject]
             logger.verbose("Caches directories: \(cachesDirectories)")
             
             // See: http://stackoverflow.com/a/33055193
             let cachesDirectory: String = (cachesDirectories[0] as? String)!
             logger.verbose("Cache directory: \(cachesDirectory)")
             
-            let listOfFiles = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(cachesDirectory)
+            let listOfFiles = try FileManager.default.contentsOfDirectory(atPath: cachesDirectory)
             logger.verbose("List of files in directory: \(listOfFiles)")
             
             // Returning the path to the caches directory
@@ -400,7 +430,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-16
     ///
     /// - seealso: largeFileSize
@@ -411,12 +441,11 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // maximum set for the device
         if (largeFileSize()) {
             // Requesting from the user if the file can be downloaded
-            let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.Alert)
-            confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
+            let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.alert)
+            confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                 self.downloadFile() }))
-            confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: {(alertAction) -> Void in
-                return false }))
-            self.presentViewController(confirmDownloadLargeFile, animated: true, completion: nil)
+            confirmDownloadLargeFile.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+            self.present(confirmDownloadLargeFile, animated: true, completion: nil)
             
             // The alert view is shown, and then the code continues, as
             // the choice of the user is only run once a callback from
@@ -463,13 +492,13 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // are seperated with 4 spaces "    " so we can use this to split them
         // The file modification date comes first, followed by the file size
         // See: http://stackoverflow.com/a/25818228
-        let fileDetail = fileDetails.componentsSeparatedByString("    ")
+        let fileDetail = fileDetails.components(separatedBy: "    ")
         let fileSizeFullString = fileDetail[1]
         logger.debug("File size of selected file is: \(fileSizeFullString)")
         
         // Splitting the fileSizeFullString into the numberical value and
         // capacity units in bytes
-        let fileSizeSplitString = fileSizeFullString.componentsSeparatedByString(" ")
+        let fileSizeSplitString = fileSizeFullString.components(separatedBy: " ")
         let fileSize = Float(fileSizeSplitString[0])
         let fileBytePrefix = fileSizeSplitString[1]
         
@@ -478,20 +507,20 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         var maximumFileSize : Float = 0
         let status = Reach().connectionStatus()
         switch status {
-            case .Unknown, .Offline:
+            case .unknown, .offline:
                 logger.warning("No available connection to the Internet")
                 return false
-            case .Online(.WWAN):
+            case .online(.wwan):
                 logger.debug("Connection to the Intenet via WWAN, maximum file download size is: \(maximumWWANFileSize) MB")
                 maximumFileSize = maximumWWANFileSize
-            case .Online(.WiFi):
+            case .online(.wiFi):
                 logger.debug("Connection to the Internet via WiFi, maximum file download size is: \(maximumWiFiFileSize) MB")
                 maximumFileSize = maximumWiFiFileSize
         }
         
         // Comparing the size of the current file with the maximum values
         // that are assigned
-        switch fileBytePrefix.uppercaseString {
+        switch fileBytePrefix.uppercased() {
             case "GB", "TB", "PB", "EB", "ZB", "YB":
                 // This is a really large file, so always request
                 logger.debug("File being downloaded is larger than the maximum allowed")
@@ -544,7 +573,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // files that the user has downloaded to the caches folder
         // directory on the device
         // See: http://stackoverflow.com/a/32744011
-        if let enumerator = NSFileManager.defaultManager().enumeratorAtPath(cacheDirectoryPath) {
+        if let enumerator = FileManager.default.enumerator(atPath: cacheDirectoryPath) {
             while let fileName = enumerator.nextObject() as? String {
                 let localFilePath = cacheDirectoryPath + "/" + fileName
                 logger.debug("Attempting to delete the file: \(localFilePath)")
@@ -556,7 +585,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     if ((localFilePath == formatLocalFilePath()) || (fileName == "Snapshots")) {
                         logger.debug("Skipping deleting file: \(localFilePath)")
                     } else {
-                        try NSFileManager.defaultManager().removeItemAtPath("\(localFilePath)")
+                        try FileManager.default.removeItem(atPath: "\(localFilePath)")
                         logger.debug("Successfully deleted file: \(localFilePath)")
                     }
                 }
@@ -575,30 +604,30 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     // MARK: App Restoration
-    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+    override func encodeRestorableState(with coder: NSCoder) {
         // Saving the variables used in this class so that they
         // can be restored at when the app is opened again
-        coder.encodeObject(fileDownloadPath, forKey: "fileDownloadPath")
-        coder.encodeObject(fileName, forKey: "fileName")
-        coder.encodeObject(fileType, forKey: "fileType")
-        coder.encodeObject(fileDetails, forKey: "fileDetails")
-        coder.encodeObject(fileExtension, forKey: "fileExtension")
-        coder.encodeObject(fileDeviceLocation, forKey: "fileDeviceLocation")
+        coder.encode(fileDownloadPath, forKey: "fileDownloadPath")
+        coder.encode(fileName, forKey: "fileName")
+        coder.encode(fileType, forKey: "fileType")
+        coder.encode(fileDetails, forKey: "fileDetails")
+        coder.encode(fileExtension, forKey: "fileExtension")
+        coder.encode(fileDeviceLocation, forKey: "fileDeviceLocation")
         
-        super.encodeRestorableStateWithCoder(coder)
+        super.encodeRestorableState(with: coder)
     }
     
-    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+    override func decodeRestorableState(with coder: NSCoder) {
         // Restoring the variables used in this class
         // See: http://troutdev.blogspot.co.uk/2014/12/uistaterestoring-in-swift.html
-        fileDownloadPath = coder.decodeObjectForKey("fileDownloadPath") as! String
-        fileName = coder.decodeObjectForKey("fileName") as! String
-        fileType = coder.decodeObjectForKey("fileType") as! String
-        fileDetails = coder.decodeObjectForKey("fileDetails") as! String
-        fileExtension = coder.decodeObjectForKey("fileExtension") as! String
-        fileDeviceLocation = coder.decodeObjectForKey("fileDeviceLocation") as! String
+        fileDownloadPath = coder.decodeObject(forKey: "fileDownloadPath") as! String
+        fileName = coder.decodeObject(forKey: "fileName") as! String
+        fileType = coder.decodeObject(forKey: "fileType") as! String
+        fileDetails = coder.decodeObject(forKey: "fileDetails") as! String
+        fileExtension = coder.decodeObject(forKey: "fileExtension") as! String
+        fileDeviceLocation = coder.decodeObject(forKey: "fileDeviceLocation") as! String
         
-        super.decodeRestorableStateWithCoder(coder)
+        super.decodeRestorableState(with: coder)
     }
     
     override func applicationFinishedRestoringState() {
@@ -607,7 +636,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         if (fileDownloadPath != "") {
             // Hiding the description label on the view, so that
             // it doesn't obscure the file details
-            detailDescriptionLabel.hidden = true
+            detailDescriptionLabel.isHidden = true
             
             // Calling the showFileDetails() function after app
             // restoration, so that the details of the last

@@ -11,7 +11,7 @@ I like &#9733;. Do not forget to &#9733; this super convenient library.
 ##Added ```UISegmentedControl``` & ```UITabbarItem``` & ```UISlider``` support!
 
 
-###Updated to Font Awesome 4.4 - Added 66 new icons!
+###Updated to Font Awesome 4.6.3 - Added 30 new icons!
 
 
 Font Awesome swift library for iOS. No image icons any more. Using Font Awesome Swift library is very easy to use. Look at the demo app which shows all icons and their names or just visit [FontAwesome](http://fortawesome.github.io/Font-Awesome/icons/).
@@ -23,8 +23,8 @@ Font Awesome swift library for iOS. No image icons any more. Using Font Awesome 
 
 ## Requirements
 
-- iOS 8.0+ 
-- Xcode 7
+- iOS 8.0+
+- Xcode 8
 
 ## Installation
 
@@ -45,7 +45,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'Font-Awesome-Swift', '~> 1.4.5'
+pod 'Font-Awesome-Swift', '~> 1.5.3'
 ```
 
 Then, run the following command:
@@ -57,6 +57,8 @@ Do not forget to import to your swift files where you want to use this library:
 ```swift
 import Font_Awesome_Swift
 ```
+
+Check branches `swift-2.2` and `swift-2.3`
 
 ### Manually
 
@@ -75,7 +77,7 @@ Super easy way how to add an icon.
 ### UIImage
 ```Swift
     imageView.setFAIconWithName(FAType.FATwitter, textColor: UIColor.blueColor(), backgroundColor: UIColor.grayColor())
-    
+
     imageView.setFAIconWithName(FAType.FATwitter, textColor: UIColor.blueColor())
 ```
 
@@ -84,47 +86,46 @@ Super easy way how to add an icon.
 ### UILabel
 ```Swift
     labelName.FAIcon = FAType.FAGithub
-    
+
     labelName.setFAIcon(FAType.FAGithub, iconSize: 35)
-    
+
     labelName.setFAText(prefixText: "follow me on ", icon: FAType.FATwitter, postfixText: ". Thanks!", size: 25)
-    
-    // bigger icon: 
+
+    // bigger icon:
     labelName.setFAText(prefixText: "follow me on  ", icon: FAType.FATwitter, postfixText: ". Thanks!", size: 25, iconSize: 30)
-    
-    
-    labelName.textColor = UIColor.blueColor()
-        
+
+    labelName.setFAColor(UIColor.redColor())
+
 ```
 
 ### UIButton
 ```Swift
     buttonName.setFAIcon(FAType.FAGithub, forState: .Normal)
-    
+
     // set an icon size
     buttonName.setFAIcon(FAType.FAGithub, iconSize: 35, forState: .Normal)
-  
+
     buttonName.setFAText(prefixText: "follow me on ", icon: FAType.FATwitter, postfixText: ". Thanks!", size: 25, forState: .Normal)
-    
-    // bigger icon 
+
+    // bigger icon
     buttonName.setFAText(prefixText: "follow me on ", icon: FAType.FATwitter, postfixText: ". Thanks!", size: 25, forState: .Normal, iconSize: 30)
-    
-    
+
+
     // change a color:
-    buttonName.titleLabel?.textColor = UIColor.blueColor()
+    buttonName.setFATitleColor(UIColor.redColor(), forState: .Normal))
 ```
 
 ### UIBarButtonItem
 ```Swift
     // Standard font size
     barName.FAIcon = FAType.FAGithub
-  
+
     // Custom font size
     barName.setFAIcon(FAType.FAGithub, iconSize: 35)
-    
+
     barName.setFAText(prefixText: "follow me on ", icon: FAType.FATwitter, postfixText: ". Thanks!", size: 25)
-    
-    
+
+
     barName.tintColor = UIColor.redColor()
 
 ```
@@ -150,12 +151,16 @@ Super easy way how to add an icon.
   slider.setFAMaximumValueImage(.FABellO, customSize:  CGSizeMake(35, 35))
 ```
 
-
+### UIViewController
+```Swift
+  // change navigation title
+  FATitle = FAType.FATwitter
+```
 
 
 ## Author
 
-Patrik Vaberer, patrik.vaberer@gmail.com
+Patrik Vaberer, patrik@toptal.com
 
 - [LinkedIn](https://sk.linkedin.com/in/vaberer)
 - [@vaberer](https://twitter.com/vaberer)
@@ -164,4 +169,3 @@ Patrik Vaberer, patrik.vaberer@gmail.com
 ### Licence
 
 Font Awesome Swift is available under the MIT license. See the LICENSE file for more info.
-

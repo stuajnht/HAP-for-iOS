@@ -1,0 +1,6 @@
+framework module Pods_HomeAccessPlusDocumentProviderFileProvider {
+  umbrella header "Pods-HomeAccessPlusDocumentProviderFileProvider-umbrella.h"
+
+  export *
+  module * { export * }
+}

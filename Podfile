@@ -3,16 +3,30 @@ platform :ios, '9.0'
 # Uncomment this line if you're using Swift
 use_frameworks!
 
-target 'HomeAccessPlus' do
+# Setting up Cocoapods shared between the main project
+# target and and extensions
+def shared_pods
   pod 'Alamofire'
-  pod 'ChameleonFramework'
-  pod 'DKImagePickerController'
   pod 'Font-Awesome-Swift'
   pod 'Locksmith'
   pod 'MBProgressHUD'
-  pod 'PermissionScope'
   pod 'SwiftyJSON'
   pod 'XCGLogger'
+end
+
+target 'HomeAccessPlus' do
+  shared_pods
+  pod 'ChameleonFramework'
+  pod 'DKImagePickerController'
+  pod 'PermissionScope'
+end
+
+target 'HomeAccessPlusDocumentProvider' do
+  shared_pods
+end
+
+target 'HomeAccessPlusDocumentProviderFileProvider' do
+  shared_pods
 end
 
 target 'HomeAccessPlusTests' do

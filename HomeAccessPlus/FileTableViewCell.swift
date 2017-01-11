@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015-2017  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,11 +35,11 @@ class FileTableViewCell: UITableViewCell {
         
         // Setting the colours of the file type and details
         // labels, so that they're not too distracting
-        lblFileType.textColor = UIColor.flatGrayColor()
-        lblFileDetails.textColor = UIColor.flatGrayColor()
+        lblFileType.textColor = UIColor.flatGray()
+        lblFileDetails.textColor = UIColor.flatGray()
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
@@ -73,12 +73,12 @@ class FileTableViewCell: UITableViewCell {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-01
     ///
     /// - parameter fileType: The type of the file of the table cell
     /// - parameter fileExtension: The extension of the file in the table cell
-    func fileIcon(fileType: String, fileExtension: String) {
+    func fileIcon(_ fileType: String, fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
         
@@ -101,7 +101,7 @@ class FileTableViewCell: UITableViewCell {
         }
         
         // Seeing what icon should be displayed
-        switch fileExtension.lowercaseString {
+        switch fileExtension.lowercased() {
             // Network drive
             case "drive":
                 icon = FAType.FAHddO
@@ -160,7 +160,7 @@ class FileTableViewCell: UITableViewCell {
         }
         
         // Displaying the icon
-        imgFileIcon.setFAIconWithName(icon, textColor: UIColor(hexString: hapMainColour))
+        imgFileIcon.setFAIconWithName(icon: icon, textColor: UIColor(hexString: hapMainColour))
     }
 
 }
