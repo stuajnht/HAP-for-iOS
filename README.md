@@ -32,6 +32,9 @@ The following users have contributed code or suggestions to this project:
   * [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19)
 * [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
 
+## Privacy Purpose Permissions
+Apps built for iOS 10+ must declare the purpose for access to any user private data types (sources: [1](http://useyourloaf.com/blog/privacy-settings-in-ios-10/), [2](https://developer.apple.com/videos/play/wwdc2016-709/?time=1470), [3](https://developer.apple.com/videos/play/wwdc2016-709/?time=1780)). Since this project uses the [PermissionScope Cocoapod](#cocoapods) a number of additional unused permissions are requested ([GitHub Issue](https://github.com/nickoneill/PermissionScope/issues/194)). Please see the [Frequently Asked Questions](FAQ.md#why-are-so-many-privacy-purpose-permissions-needed) for more information.
+
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
 
@@ -63,9 +66,10 @@ The following features are planned for the Home Access Plus+ iOS app, along with
     * Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
+* Option on the upload popover to use the camera to take a photo or video and upload it straight away
 
 ### 1.0.0
-* Swipe table item right to select it or choose cut / copy functions, and paste into new folder
+* Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items
 * Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
 * Support for document provider open and move options for apps that do not support import and export
 * (Optional branding) Set a logo and theme colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
