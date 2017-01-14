@@ -56,6 +56,7 @@ let settingsVersionBuildNumber = "versionBuildNumber"
 let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
 let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
 let settingsFileLoggingEnabled = "fileLoggingEnabled"
+let settingsFileLoggingLevel = "fileLoggingLevel"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -662,7 +663,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let fileLogger = FileDestination(writeToFile: logFile, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
             
             // Optionally set some configuration options
-            fileLogger.outputLevel = .debug
+            switch settings!.string(forKey: settingsFileLoggingLevel) {
+                case "severe"?:
+                    fileLogger.outputLevel = .severe
+                case "error"?:
+                    fileLogger.outputLevel = .error
+                case "warning"?:
+                    fileLogger.outputLevel = .warning
+                case "info"?:
+                    fileLogger.outputLevel = .info
+                case "debug"?:
+                    fileLogger.outputLevel = .debug
+                case "verbose"?:
+                    fileLogger.outputLevel = .verbose
+                default:
+                    fileLogger.outputLevel = .warning
+            }
             fileLogger.showLogIdentifier = false
             fileLogger.showFunctionName = true
             fileLogger.showThreadName = true
