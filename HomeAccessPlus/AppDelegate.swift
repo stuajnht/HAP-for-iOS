@@ -23,8 +23,8 @@ import UIKit
 import Locksmith
 import XCGLogger
 
-// Declaring a global constant to the default XCGLogger instance
-let logger = XCGLogger.default
+// Declaring a global constant to the XCGLogger instance
+let logger = XCGLogger(identifier: "advancedLogger", includeDefaultDestinations: false)
 
 // Declaring a global constant to the HAP+ main app colour
 let hapMainColour = "#005DAB"
@@ -55,6 +55,7 @@ let settingsAutoLogOutTime = "autoLogOutTime"
 let settingsVersionBuildNumber = "versionBuildNumber"
 let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
 let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
+let settingsFileLoggingEnabled = "fileLoggingEnabled"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -78,7 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // Configuring the logger options
-        logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
+        loggerSetup()
         
         // Seeing if this code is being compiled for the main app
         // or the app extensions. This hacky way is needed as app
@@ -607,6 +608,80 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
             stopAutoLogOutCheckTimer()
         }
+    }
+    
+    // MARK: XCGLogger Setup Options
+    
+    /// Setting up advanced logging functions of XCGLogger, such
+    /// as to a file or different levels for debug or release
+    ///
+    /// By default, during building of this app, the logger will
+    /// be in debug mode and log to the console only. When it is
+    /// in production, this level will be set to warning, as there
+    /// isn't normally a need for end users to have it lower during
+    /// day-to-day running of the app
+    ///
+    /// There is also be the ability to log to a file, so should
+    /// this app run into problems when it is out in the open, the
+    /// logs can be submitted and processed to see what caused the
+    /// problem. The level recorded in the log can be adjusted via
+    /// a slider in the main settings app
+    ///
+    /// This function has been put here instead of in the
+    /// application(:didFinishLaunchingWithOptions) so that the
+    /// code is easier to read by keeping that function clear
+    ///
+    /// See: https://github.com/DaveWoodCom/XCGLogger#advanced-usage-recommended
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 1
+    /// - date: 2016-01-14
+    func loggerSetup() {
+        //logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
+        
+        // Create a destination for the system console log (via NSLog)
+        let consoleLogger = AppleSystemLogDestination(identifier: "advancedLogger.consoleLogger")
+        
+        // Optionally set some configuration options
+        consoleLogger.outputLevel = .debug
+        consoleLogger.showLogIdentifier = false
+        consoleLogger.showFunctionName = true
+        consoleLogger.showThreadName = true
+        consoleLogger.showLevel = true
+        consoleLogger.showFileName = true
+        consoleLogger.showLineNumber = true
+        consoleLogger.showDate = true
+        
+        // Add the destination to the logger
+        logger.add(destination: consoleLogger)
+        
+        // Create a file log destination, if enabled in the main settings app
+        if (settings!.bool(forKey: settingsFileLoggingEnabled)) {
+            let logFile = String(describing: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)) + "/hap-ios-app.log"
+            let fileLogger = FileDestination(writeToFile: logFile, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
+            
+            // Optionally set some configuration options
+            fileLogger.outputLevel = .debug
+            fileLogger.showLogIdentifier = false
+            fileLogger.showFunctionName = true
+            fileLogger.showThreadName = true
+            fileLogger.showLevel = true
+            fileLogger.showFileName = true
+            fileLogger.showLineNumber = true
+            fileLogger.showDate = true
+            
+            // Process this destination in the background
+            fileLogger.logQueue = XCGLogger.logQueue
+            
+            // Add the destination to the logger
+            logger.add(destination: fileLogger)
+        }
+        
+        // Add basic app info, version info etc, to the start of the logs
+        logger.logAppDetails()
+        
+        logger.debug("Logging to file enabled: \(settings!.bool(forKey: settingsFileLoggingEnabled))")
     }
 
 }

@@ -40,6 +40,24 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
+			<string>Logging</string>
+			<key>FooterText</key>
+			<string>Enable logging to a file for debug purposes, along with the log level (default is Warning)</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Logging to a File</string>
+			<key>Key</key>
+			<string>fileLoggingEnabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
 			<string>About</string>
 			<key>FooterText</key>
 			<string>Copyright (C) 2015-2017 Jonathan Hart
