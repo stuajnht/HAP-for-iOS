@@ -14,11 +14,17 @@ def shared_pods
   pod 'XCGLogger'
 end
 
-target 'HomeAccessPlus' do
-  shared_pods
+# Setting up Cocoapods that are used in the main app and
+# for testing it
+def app_pods
   pod 'ChameleonFramework'
   pod 'DKImagePickerController'
   pod 'PermissionScope'
+end
+
+target 'HomeAccessPlus' do
+  shared_pods
+  app_pods
 end
 
 target 'HomeAccessPlusDocumentProvider' do
@@ -30,7 +36,13 @@ target 'HomeAccessPlusDocumentProviderFileProvider' do
 end
 
 target 'HomeAccessPlusTests' do
+  shared_pods
+  app_pods
+end
 
+target 'HomeAccessPlusUITests' do
+  shared_pods
+  app_pods
 end
 
 post_install do | installer |

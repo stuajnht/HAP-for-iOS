@@ -12,7 +12,7 @@ PODS:
   - Locksmith (3.0.0)
   - MBProgressHUD (1.0.0)
   - PermissionScope (1.1.1)
-  - SwiftyJSON (3.1.3)
+  - SwiftyJSON (3.1.4)
   - XCGLogger (4.0.0):
     - XCGLogger/Core (= 4.0.0)
   - XCGLogger/Core (4.0.0)
@@ -36,9 +36,9 @@ SPEC CHECKSUMS:
   Locksmith: 310b4cc5031af5728bf4db5d4de547a5100c6a3b
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
   PermissionScope: a30c16e015779ba27c97c124e7539e27b5829de2
-  SwiftyJSON: 38a8ea2006779c0fc4c310cb2ee8195327740faf
+  SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
   XCGLogger: 38063ea89b4c8b23232d18efd2e12eb0005f3ea4
 
-PODFILE CHECKSUM: 6b59378bb9578f49954fb73a68c388f41717956a
+PODFILE CHECKSUM: 541fab98a6b0be9c01f8b8d5bf6498decb6180d8
 
 COCOAPODS: 1.1.1
