@@ -20,6 +20,7 @@ def app_pods
   pod 'ChameleonFramework'
   pod 'DKImagePickerController'
   pod 'PermissionScope'
+  pod 'Zip'
 end
 
 target 'HomeAccessPlus' do

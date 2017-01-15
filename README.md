@@ -51,6 +51,7 @@ This project uses Cocoapods. Their project source code pages and licenses can be
 * [PermissionScope](https://github.com/nickoneill/PermissionScope)
 * [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
+* [Zip](https://github.com/marmelroy/Zip)
 
 ### Other Projects
 The following projects and source code are included in HAP+ for iOS. Their licenses project pages can be found below:

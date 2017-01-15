@@ -74,6 +74,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     @IBOutlet weak var lblNewFolder: UILabel!
     @IBOutlet weak var celNewFolder: UITableViewCell!
     @IBOutlet weak var lblLogOut: UILabel!
+    @IBOutlet weak var celSaveLogFiles: UITableViewCell!
+    @IBOutlet weak var lblSaveLogFiles: UILabel!
     
     // Creating an instance of an image picker controller
     // See: http://www.codingexplorer.com/choosing-images-with-uiimagepickercontroller-in-swift/
@@ -118,7 +120,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"], ["LogOut", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"], ["LogOut", "1"], ["Debug", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -161,6 +163,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celUploadFile.isUserInteractionEnabled = false
             lblNewFolder.isEnabled = false
             celNewFolder.isUserInteractionEnabled = false
+            lblSaveLogFiles.isEnabled = false
+            celSaveLogFiles.isUserInteractionEnabled = false
         }
         
         // Changing the colour of the log out button to be a red
@@ -206,10 +210,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // Returning the number of sections that are in the table
+        // Returning the number of sections that are in the table,
+        // unless file logging isn't enabled, when we return 1 less
+        // to hide the section (as it's at the end of the table)
         // - seealso: tableView
-        logger.verbose("Number of sections in upload popover: \(self.tableSections.count)")
-        return tableSections.count
+        var sectionsInTable = self.tableSections.count
+        
+        if (!settings!.bool(forKey: settingsFileLoggingEnabled)) {
+            logger.debug("File logging is not enabled, so returning one less table section")
+            sectionsInTable -= 1
+        }
+        
+        logger.verbose("Number of sections in upload popover: \(sectionsInTable)")
+        return sectionsInTable
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -236,7 +249,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-04-09
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         var footerMessage = ""
@@ -249,6 +262,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         case 2:
             footerMessage = "Log out from this device so another user can access their files"
             footerMessage += ". Currently logged in as " + settings!.string(forKey: settingsFirstName)! + " (" + settings!.string(forKey: settingsUsername)! + ")"
+        case 3:
+            footerMessage = "Save log files from this device as a zip file to the current folder"
         default:
             footerMessage = ""
         }
@@ -285,10 +300,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    1    |  0  | New folder           |
     ///         |---------|-----|----------------------|
     ///         |    2    |  0  | Log Out              |
+    ///         |---------|-----|----------------------|
+    ///         |    3    |  0  | Save log files       |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 12
+    /// - version: 13
     /// - date: 2016-05-12
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
@@ -570,6 +587,20 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 // Logging out the user from the device
                 logOutUser(true, username: "")
             }
+        }
+        
+        // The user has selected to upload the log files from the device
+        if ((section == 3) && (row == 0)) {
+            logger.debug("Cell function: Uploading log files from device")
+            
+            // Dismissing the popover as it's done what is needed
+            // See: http://stackoverflow.com/a/32521647
+            self.dismiss(animated: true, completion: nil)
+            
+            // Calling the upload file delegate to upload the file
+            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(false)
+            })
         }
     }
     
