@@ -659,11 +659,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Create a file log destination, if enabled in the main settings app
         if (settings!.bool(forKey: settingsFileLoggingEnabled)) {
+            let logFileDirectory = String(describing: NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)) + "/logs/"
+            
+            // The logs directory needs to be created first as
+            // unsure if XCGLogger creates it automatically
+            do {
+                try FileManager.default.createDirectory(atPath: logFileDirectory, withIntermediateDirectories: false, attributes: nil)
+            } catch let error as NSError {
+                print(error.localizedDescription)
+            }
+            
+            // Creating a date for the log, based on when this
+            // app was first run
             let logFileDate = DateFormatter()
             logFileDate.dateFormat = "yyyy-MM-dd"
             let logFileDateString = logFileDate.string(from: Date())
             
-            let logFile = String(describing: NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)) + "/logs/" + logFileDateString + "--hap-ios-app.log"
+            let logFile = logFileDirectory + logFileDateString + "--hap-ios-app.log"
             
             let fileLogger = FileDestination(writeToFile: logFile, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
             

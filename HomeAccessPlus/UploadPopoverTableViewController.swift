@@ -23,6 +23,7 @@ import DKImagePickerController
 import MobileCoreServices
 import PermissionScope
 import UIKit
+import Zip
 
 /// Delegate callback to master view controller to upload the
 /// file passed to this app, or to log out the user
@@ -593,14 +594,26 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         if ((section == 3) && (row == 0)) {
             logger.debug("Cell function: Uploading log files from device")
             
-            // Dismissing the popover as it's done what is needed
-            // See: http://stackoverflow.com/a/32521647
-            self.dismiss(animated: true, completion: nil)
-            
-            // Calling the upload file delegate to upload the file
-            delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
-                self.delegate?.showFileExistsMessage(false)
-            })
+            // Attempting to create a zip file of the logs on the device
+            // and upload them to the current folder
+            if (zipLogFiles()) {
+                // Dismissing the popover as it's done what is needed
+                // See: http://stackoverflow.com/a/32521647
+                self.dismiss(animated: true, completion: nil)
+                
+                // Calling the upload file delegate to upload the file
+                delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                    self.delegate?.showFileExistsMessage(false)
+                })
+            } else {
+                logger.debug("There was a problem creating the zipped log files")
+                
+                let zipFailController = UIAlertController(title: "Unable to zip log files", message: "The log files were not able to be zipped for upload", preferredStyle: UIAlertControllerStyle.alert)
+                zipFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { Void in
+                    self.tableView.deselectRow(at: indexPath, animated: true)
+                }))
+                self.present(zipFailController, animated: true, completion: nil)
+            }
         }
     }
     
@@ -1341,6 +1354,58 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         self.dismiss(animated: true, completion: nil)
         
         return true
+    }
+    
+    // MARK: Log Files
+    
+    /// Saves all log files on the device into a zip file to
+    /// be uploaded to the current folder
+    ///
+    /// If file logging is enabled from the main iOS Settings
+    /// app, then log files are generated on the device in the
+    /// applicationSupportDirectory under a "logs" folder. When
+    /// the user wants to upload these files to aid in debugging
+    /// they will select the reveleant option from the upload
+    /// popover to call this function. It will zip all log files
+    /// together so that they can be uploaded
+    ///
+    /// See: http://stackoverflow.com/a/27722526
+    /// See: https://github.com/marmelroy/Zip
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 1
+    /// - date: 2017-01-15
+    ///
+    /// - returns: Were the logs able to be zipped
+    func zipLogFiles() -> Bool {
+        logger.debug("Creating zip file of all device logs")
+        
+        let logFileDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
+        
+        logger.debug("Using logs located in: \(logFileDirectory)")
+        
+        do {
+            // Get the directory contents urls (including subfolders urls)
+            let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
+            logger.debug("Contents of logs directory: \(directoryContents)")
+            
+            let zipFile = try Zip.quickZipFiles([logFileDirectory], fileName: "hap-ios-app-logs")
+            logger.debug("Logs zip file located: \(zipFile)")
+            
+            // It is assumed that the user doesn't want to upload a log file
+            // and then a file from another app. Therefore, we can set the
+            // location of the log file to use the settings value that is
+            // used when a file arrives to this app externally
+            settings!.set(zipFile, forKey: settingsUploadFileLocation)
+            
+            return true
+        } catch let error as NSError {
+            logger.error("There was a problem creating the zipped logs file: \(error.localizedDescription)")
+            logger.error("If we've ended up here then there's not an option to get the log files from the device")
+            logger.error("Hopefully on another run of this app they are able to be collected")
+            return false
+        }
     }
 
 }
