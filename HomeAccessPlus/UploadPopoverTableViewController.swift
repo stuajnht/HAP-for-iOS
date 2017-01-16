@@ -602,7 +602,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 self.dismiss(animated: true, completion: nil)
                 
                 // Calling the upload file delegate to upload the file
-                delegate?.uploadFile(false, customFileName: "", fileExistsCallback: { Void in
+                delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
                     self.delegate?.showFileExistsMessage(false)
                 })
             } else {
@@ -1390,14 +1390,16 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
             logger.debug("Contents of logs directory: \(directoryContents)")
             
-            let zipFile = try Zip.quickZipFiles([logFileDirectory], fileName: "hap-ios-app-logs")
-            logger.debug("Logs zip file located: \(zipFile)")
+            //let zipFile = try Zip.quickZipFiles([logFileDirectory], fileName: "hap-ios-app-logs")
+            let zipFile = logFileDirectory.appendingPathComponent("hap-ios-app-logs.zip")
+            try Zip.zipFiles(paths: [logFileDirectory], zipFilePath: zipFile, password: nil, progress: nil)
+            logger.debug("Logs zip file created and located at: \(zipFile)")
             
-            // It is assumed that the user doesn't want to upload a log file
-            // and then a file from another app. Therefore, we can set the
-            // location of the log file to use the settings value that is
-            // used when a file arrives to this app externally
-            settings!.set(zipFile, forKey: settingsUploadFileLocation)
+            // Due to the way the URL location of the file on the device is
+            // processed in the HAPi upload function, we cannot just save the
+            // zip file path to the settingsUploadFileLocation value, so it is
+            // saved in the location normally used for uploading media files
+            settings!.set(String(describing: zipFile), forKey: settingsUploadPhotosLocation)
             
             return true
         } catch let error as NSError {
