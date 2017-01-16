@@ -603,7 +603,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 
                 // Calling the upload file delegate to upload the file
                 delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
-                    self.delegate?.showFileExistsMessage(false)
+                    self.delegate?.showFileExistsMessage(true)
                 })
             } else {
                 logger.debug("There was a problem creating the zipped log files")
@@ -1390,8 +1390,23 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
             logger.debug("Contents of logs directory: \(directoryContents)")
             
-            //let zipFile = try Zip.quickZipFiles([logFileDirectory], fileName: "hap-ios-app-logs")
             let zipFile = logFileDirectory.appendingPathComponent("hap-ios-app-logs.zip")
+            
+            // Attempting to delete any previous zip files so that the one
+            // being uploaded can be created fresh
+            logger.debug("Attempting to delete any previous zip files")
+            do {
+                try FileManager.default.removeItem(at: zipFile)
+                    logger.debug("Successfully deleted previous zip file")
+            }
+            catch let errorMessage as NSError {
+                logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+            }
+            catch {
+                logger.error("There was an unknown problem when deleting the file.")
+            }
+            
+            // Creating the zip file of all log files
             try Zip.zipFiles(paths: [logFileDirectory], zipFilePath: zipFile, password: nil, progress: nil)
             logger.debug("Logs zip file created and located at: \(zipFile)")
             
