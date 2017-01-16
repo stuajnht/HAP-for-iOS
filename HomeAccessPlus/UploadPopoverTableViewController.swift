@@ -1416,6 +1416,22 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // saved in the location normally used for uploading media files
             settings!.set(String(describing: zipFile), forKey: settingsUploadPhotosLocation)
             
+            // Attempting to delete log files, to save space on the device and prevent
+            // them appearing in future zip files
+            let logFiles = directoryContents.filter{ $0.pathExtension == "log" }
+            for (_, logFile) in logFiles.enumerated() {
+                do {
+                    try FileManager.default.removeItem(at: logFile)
+                    logger.debug("Successfully deleted log file: \(logFile)")
+                }
+                catch let errorMessage as NSError {
+                    logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+                }
+                catch {
+                    logger.error("There was an unknown problem when deleting the file.")
+                }
+            }
+            
             return true
         } catch let error as NSError {
             logger.error("There was a problem creating the zipped logs file: \(error.localizedDescription)")
