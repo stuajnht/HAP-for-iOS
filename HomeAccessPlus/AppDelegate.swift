@@ -699,8 +699,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     fileLogger.outputLevel = .info
                 case "debug"?:
                     fileLogger.outputLevel = .debug
-                case "verbose"?:
-                    fileLogger.outputLevel = .verbose
                 default:
                     fileLogger.outputLevel = .warning
             }
