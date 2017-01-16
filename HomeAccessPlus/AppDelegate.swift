@@ -659,12 +659,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Create a file log destination, if enabled in the main settings app
         if (settings!.bool(forKey: settingsFileLoggingEnabled)) {
-            let logFileDirectory = String(describing: NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)) + "/logs/"
+            let fileManager: FileManager = FileManager.default
+            
+            let logFileDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
             
             // The logs directory needs to be created first as
-            // unsure if XCGLogger creates it automatically
+            // XCGLogger will fail to create the file otherwise
+            // See: https://github.com/DaveWoodCom/XCGLogger/issues/31
+            // See: http://stackoverflow.com/a/24696209
             do {
-                try FileManager.default.createDirectory(atPath: logFileDirectory, withIntermediateDirectories: false, attributes: nil)
+                var isDir : ObjCBool = true
+                let folderExists: Bool = fileManager.fileExists(atPath: logFileDirectory.path, isDirectory:&isDir)
+                if (!folderExists) {
+                    try fileManager.createDirectory(atPath: logFileDirectory.path.removingPercentEncoding!, withIntermediateDirectories: true, attributes: nil)
+                }
             } catch let error as NSError {
                 print(error.localizedDescription)
             }
@@ -675,9 +683,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             logFileDate.dateFormat = "yyyy-MM-dd"
             let logFileDateString = logFileDate.string(from: Date())
             
-            let logFile = logFileDirectory + logFileDateString + "--hap-ios-app.log"
+            let logFile = String(describing: logFileDirectory) + logFileDateString + "--hap-ios-app.log"
             
-            let fileLogger = FileDestination(writeToFile: logFile, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
+            let fileLogger = FileDestination(writeToFile: NSURL(string: logFile)!, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
             
             // Optionally set some configuration options
             switch settings!.string(forKey: settingsFileLoggingLevel) {
