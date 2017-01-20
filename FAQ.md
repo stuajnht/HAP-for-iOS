@@ -11,6 +11,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
 * [I am being asked to type an "_authenticated username_" to log out of the device](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
 * [Why are so many Privacy Purpose Permissions needed?](#why-are-so-many-privacy-purpose-permissions-needed)
+* [Something is not Working as Expected (Using Log Files)](#something-is-not-working-as-expected-using-log-files)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
 You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled and is using a correctly configured SSL certificate (isn't self signed, expired, or containing a mismatched domain name) using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
@@ -106,3 +107,17 @@ Due to the inclusion of the [PermissionScope](https://github.com/nickoneill/Perm
 * Privacy - Photo Library Usage (`NSPhotoLibraryUsageDescription`): This allows for the ability to browse the photo and video library on your device to access the files in them to upload it to the HAP+ server. While it is possible to send the media file from the photos app to this app, this allows for a convenient way to access those items
 
 Any other Privacy Purpose Permissions that are shown *are not used*, but are needed to be included for the app to be submitted to the App Store
+
+## Something is not Working as Expected (Using Log Files)
+It is possible to generate log files from the app to see what is going on to cause a problem. To enable debug logging, perform the following steps:
+1. Open the main iOS Settings app and scroll down to the "Home Access Plus+" section.
+2. Toggle the "Enable Logging to a File" option
+3. If needed, select a logging level to capture the right amount of information
+   * Severe - Only logged if the app has a serious problem, assuming it can be caught
+   * Error - Captures most problems that occur during the use of the app
+   * Warning (Default) - An error may occur related to this, but the app should work as expected
+   * Infomation - High-level descriptions about what the app is currently doing
+   * Debug - Detailed and developer orentated messages
+4. Run the HAP+ app as you have been doing to recreate the problem
+5. Browse to a folder that you can upload to, and from the upload menu, press the "Save Log Files" option (this will be a new item to the popover)
+6. All log files from the device will be uploaded to the current folder as a zip file and can be opened to see what is causing the problem
