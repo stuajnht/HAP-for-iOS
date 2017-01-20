@@ -5,6 +5,9 @@
 ### Notes
 * Starting from build 790, this project uses Xcode 8.2 and Swift 3.0.2. A large amount of code refactoring has taken place since [#f6ecd4] to conform to the latest syntax
 
+### New Stuff
+* Log files [can be created](FAQ.md#something-is-not-working-as-expected-using-log-files) for use in debugging the app on remote devices and uploaded
+
 ## 0.8.0
 
 ### Notes
