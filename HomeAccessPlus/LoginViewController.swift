@@ -667,7 +667,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.9.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2017-01-21
     func emailLogFiles() {
         // Seeing how many times the app name label has been pressed
@@ -692,7 +692,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
                 mailComposer.setSubject("Home Access Plus+ -- App Log Files")
                 
                 // Generating the attachment information
-                let fileName = String(describing: settings!.string(forKey: settingsUploadPhotosLocation)).components(separatedBy: "/").last!
+                // The string replacement is needed as the file name
+                // generated seems to appeand an additional ") to it
+                let fileName = String(describing: settings!.string(forKey: settingsUploadPhotosLocation)).components(separatedBy: "/").last!.replacingOccurrences(of: "\")", with: "")
                 let fileData = NSData(contentsOf: URL(string: settings!.string(forKey: settingsUploadPhotosLocation)!)!)
                 mailComposer.addAttachmentData(fileData as! Data, mimeType: "application/zip", fileName: fileName)
                 
