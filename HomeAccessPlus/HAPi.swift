@@ -81,7 +81,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-05
     ///
     /// - returns: Is there an available Internet connection
@@ -90,13 +90,13 @@ class HAPi {
         let status = Reach().connectionStatus()
         switch status {
         case .unknown, .offline:
-            logger.warning("No available connection to the Internet")
+            logger.error("No available connection to the Internet")
             return false
         case .online(.wwan):
-            logger.info("Connection to the Intenet via WWAN")
+            logger.debug("Connection to the Intenet via WWAN")
             return true
         case .online(.wiFi):
-            logger.info("Connection to the Internet via WiFi")
+            logger.debug("Connection to the Internet via WiFi")
             return true
         }
     }
@@ -145,7 +145,7 @@ class HAPi {
                 // message: Error Domain=NSURLErrorDomain Code=-1200 "An SSL error
                 // has occurred and a secure connection to the server cannot be made.")
                 case .failure(let error):
-                    logger.verbose("Connection to API failed with error: \(error)")
+                    logger.error("Connection to API failed with error: \(error)")
                     callback(false)
                 }
             }
@@ -166,7 +166,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
@@ -182,7 +182,7 @@ class HAPi {
             ]
             
             // Connecting to the API to log in the user with the credentials
-            logger.debug("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
+            logger.info("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
             Alamofire.request(hapServer + "/api/ad/?", method: .post, parameters: ["username": username, "password": password], encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
@@ -275,7 +275,7 @@ class HAPi {
                         }
                     
                     case .failure(let error):
-                        logger.warning("Request failed with error: \(error)")
+                        logger.error("Request failed with error: \(error)")
                         callback(false)
                     }
                 }
@@ -314,7 +314,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-12
     /// - seealso: loginUser
     func setRoles(_ callback:@escaping (Bool) -> Void) -> Void {
@@ -340,7 +340,7 @@ class HAPi {
                 // We were not able to contact the HAP+ server, so we cannot
                 // put the user into any groups
             case .failure(let error):
-                logger.verbose("Connection to API failed with error: \(error)")
+                logger.error("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
                 settings!.set("[\"\"]", forKey: settingsUserRoles)
@@ -387,7 +387,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-04-16
     func getTimetable(_ callback:@escaping (Bool) -> Void) -> Void {
         // Seeing if auto-logout should be enabled. This is set to
@@ -406,7 +406,7 @@ class HAPi {
             ]
             
             // Connecting to the API to attempt to load the users timetable
-            logger.debug("Attempting to get the timetable for: \(settings!.string(forKey: settingsUsername)!)")
+            logger.info("Attempting to get the timetable for: \(settings!.string(forKey: settingsUsername)!)")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.string(forKey: settingsUsername)!, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
@@ -482,7 +482,7 @@ class HAPi {
                                 let formatShortDate = DateFormatter()
                                 formatShortDate.dateFormat = "yyyy-MM-dd"
                                 let today = formatShortDate.string(from: NSDate() as Date)
-                                logger.debug("Todays date is: \(today)")
+                                logger.verbose("Todays date is: \(today)")
                                 
                                 // Getting a time the current lesson ends, if applicable
                                 // Note: HAP+ returns the days as Monday - 1, Tuesday - 2, etc...
@@ -560,7 +560,7 @@ class HAPi {
                         }
                         
                     case .failure(let error):
-                        logger.warning("Request failed with error: \(error)")
+                        logger.error("Request failed with error: \(error)")
                         callback(enableAutoLogout)
                     }
             }
@@ -581,7 +581,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-14
     func getDrives(_ callback:@escaping (_ result: Bool, _ response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
@@ -597,7 +597,7 @@ class HAPi {
             ]
             
             // Connecting to the API to get the drive listing
-            logger.debug("Attempting to get drives available")
+            logger.info("Attempting to get drives available")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Drives", encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
@@ -614,7 +614,7 @@ class HAPi {
                         callback(true, JSON as AnyObject)
                     
                     case .failure(let error):
-                        logger.warning("Request failed with error: \(error)")
+                        logger.error("Request failed with error: \(error)")
                         callback(false, "" as AnyObject)
                     }
             }
@@ -631,7 +631,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-15
     ///
     /// - parameter folderPath: The path of the folder the user has browsed to
@@ -674,7 +674,7 @@ class HAPi {
                     callback(true, JSON as AnyObject)
                     
                 case .failure(let error):
-                    logger.warning("Request failed with error: \(error)")
+                    logger.error("Request failed with error: \(error)")
                     callback(false, "" as AnyObject)
                     }
             }
@@ -770,7 +770,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
@@ -824,7 +824,7 @@ class HAPi {
                 fileName = customFileName
             }
             
-            logger.debug("Name of file being uploaded: \(fileName)")
+            logger.info("Name of file being uploaded: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
             // server knows which user has sent this request, and creating a
@@ -876,7 +876,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 7
+    /// - version: 8
     /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
@@ -923,7 +923,7 @@ class HAPi {
             // and the string passed to this URL is the name of the file
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
-            logger.debug("Attempting to delete the selected file item")
+            logger.info("Attempting to delete the selected file item")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Delete", method: .post, parameters: [:], encoding: formattedJSONPath, headers: httpHeaders)
                 // Parsing the response
                 .responseString {response in
@@ -941,7 +941,7 @@ class HAPi {
                     
                     // Seeing if the file was deleted successfully or not
                     if (deletionResponse == "[\"Deleted \(fileName)\"]") {
-                        logger.debug("\(fileName) was successfully deleted from the server")
+                        logger.info("\(fileName) was successfully deleted from the server")
                         
                         // Logging the last successful contact to the HAP+
                         // API, to reset the session cookies. This is saved
@@ -970,7 +970,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-23
     ///
     /// - parameter currentFolder: Path to the folder that is currently
@@ -1011,7 +1011,7 @@ class HAPi {
             ]
             
             // Connecting to the API to create the new folder
-            logger.debug("Attempting to create the new folder")
+            logger.info("Attempting to create the new folder")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, method: .post, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
@@ -1028,7 +1028,7 @@ class HAPi {
                     callback(true)
                     
                 case .failure(let error):
-                    logger.warning("Request failed with error: \(error)")
+                    logger.error("Request failed with error: \(error)")
                     callback(false)
                     }
             }
@@ -1057,7 +1057,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-25
     ///
     /// - parameter itemPath: Path to the file item that is currently
@@ -1089,7 +1089,7 @@ class HAPi {
             ]
             
             // Connecting to the API to log in the user with the credentials
-            logger.debug("Attempting to check if the file item already exists")
+            logger.info("Attempting to check if the file item already exists")
             Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
@@ -1129,7 +1129,7 @@ class HAPi {
                     // is a file item existing in the current folder
                     // so assume that there is to prevent any accidental
                     // overwriting of files
-                    logger.warning("Request failed with error: \(error)")
+                    logger.error("Request failed with error: \(error)")
                     callback(true)
                     }
             }

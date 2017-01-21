@@ -306,7 +306,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 13
+    /// - version: 14
     /// - date: 2016-05-12
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
@@ -509,7 +509,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             //         It is fine for you to be part of the "Domain Admins"
             //         group when logged in yourself to this app under "Single"
             //         mode, as you can log out without any problems
-            logger.debug("Device is currently in \"\(settings!.string(forKey: settingsDeviceType)!)\" mode")
+            logger.info("Device is currently in \"\(settings!.string(forKey: settingsDeviceType)!)\" mode")
             logger.debug("Groups current user (\"\(settings!.string(forKey: settingsUsername)!)\") is part of: \(settings!.string(forKey: settingsUserRoles)!)")
             if (settings!.string(forKey: settingsDeviceType) == "single") {
                 // Seeing if the user is included in the "Domain Admins"
@@ -522,7 +522,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     // We need to check that the device is allowed to
                     // be logged out by alerting the user and getting
                     // a user with domain admin permissions to log in
-                    logger.debug("Confirming user has permission to log out of the device")
+                    logger.info("Confirming user has permission to log out of the device")
                     
                     // Displaying an alert view with textboxes for the
                     // user to type in the username of a user who is
@@ -575,7 +575,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     // A "Domain Admin" or "hap-ios-admin" user
                     // is logged in, so the user can be logged
                     // out of the device without being questioned
-                    logger.debug("Logging user out of device, as they are a member of \"Domain Admins\" or \"hap-ios-admins\"")
+                    logger.info("Logging user out of device, as they are a member of \"Domain Admins\" or \"hap-ios-admins\"")
                     
                     // Logging out the user from the device
                     logOutUser(true, username: "")
@@ -583,7 +583,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             } else {
                 // The device is set up in either "Personal" or "Shared"
                 // mode, so it can be logged out straight away
-                logger.debug("Logging user out of device, as it is in \"Personal\" or \"Shared\" mode")
+                logger.info("Logging user out of device, as it is in \"Personal\" or \"Shared\" mode")
                 
                 // Logging out the user from the device
                 logOutUser(true, username: "")
@@ -606,7 +606,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     self.delegate?.showFileExistsMessage(true)
                 })
             } else {
-                logger.debug("There was a problem creating the zipped log files")
+                logger.error("There was a problem creating the zipped log files")
                 
                 let zipFailController = UIAlertController(title: "Unable to zip log files", message: "The log files were not able to be zipped for upload", preferredStyle: UIAlertControllerStyle.alert)
                 zipFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { Void in
@@ -736,7 +736,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-02-05
     ///
     /// - seealso: createLocalFile
@@ -754,7 +754,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // the file or let the user know they are unable to send the
         // file to the HAP+ server
         if (filePath == "") {
-            logger.debug("The file is not able to be uploaded to the HAP+ server")
+            logger.error("The file is not able to be uploaded to the HAP+ server")
             
             // Showing a message to the user that the file was not able
             // to be uploaded
@@ -817,7 +817,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-05-14
     ///
     /// - parameter mediaType: The type of media that is to be shown in the multi picker
@@ -914,7 +914,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Setting up the 'cancel' option for the multi picker, so
         // that the selected popover table row can be deselected
         multiPickerController.didCancel = { Void in
-            logger.info("User cancelled the multi picker")
+            logger.debug("User cancelled the multi picker")
             self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
         }
         
@@ -1212,7 +1212,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-03-01
     ///
     /// - parameter performLogOut: If the user can be logged out,
@@ -1239,7 +1239,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 self.delegate?.logOutUser()
             })
         } else {
-            logger.debug("Checking the username passed is for an authenticated user to log out of the device")
+            logger.info("Checking the username passed is for an authenticated user to log out of the device")
             
             // Saving the username and groups of the currently logged
             // in user, as calling the api.setRoles function overwrites
@@ -1374,12 +1374,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.9.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2017-01-15
     ///
     /// - returns: Were the logs able to be zipped
     func zipLogFiles() -> Bool {
-        logger.debug("Creating zip file of all device logs")
+        logger.info("Creating zip file of all device logs")
         
         let logFileDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
         
@@ -1388,7 +1388,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         do {
             // Get the directory contents urls (including subfolders urls)
             let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
-            logger.debug("Contents of logs directory: \(directoryContents)")
+            logger.verbose("Contents of logs directory: \(directoryContents)")
             
             let zipFile = logFileDirectory.appendingPathComponent("hap-ios-app-logs.zip")
             
@@ -1403,7 +1403,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 logger.error("There was a problem deleting the file. Error: \(errorMessage)")
             }
             catch {
-                logger.error("There was an unknown problem when deleting the file.")
+                logger.error("There was an unknown problem when deleting the previous zip file")
             }
             
             // Creating the zip file of all log files
@@ -1428,7 +1428,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     logger.error("There was a problem deleting the file. Error: \(errorMessage)")
                 }
                 catch {
-                    logger.error("There was an unknown problem when deleting the file.")
+                    logger.error("There was an unknown problem when deleting the log file")
                 }
             }
             

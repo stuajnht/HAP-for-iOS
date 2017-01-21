@@ -78,7 +78,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Filling in any settings that are saved
         if let siteName = settings!.string(forKey: settingsSiteName)
         {
-            logger.debug("The HAP+ server is for the site: \(siteName)")
+            logger.info("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
         }
         
@@ -246,6 +246,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             let textboxesValidAlertController = UIAlertController(title: "Incorrect Information", message: "Please check that you have entered all correct information, then try again", preferredStyle: UIAlertControllerStyle.alert)
             textboxesValidAlertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
             self.present(textboxesValidAlertController, animated: true, completion: nil)
+            logger.error("Login textboxes missing some information")
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
@@ -265,6 +266,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.alert)
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiCheckConnectionController, animated: true, completion: nil)
+                logger.error("Unable to connect to the Internet to access the HAP+ server")
             }
         }
     }
@@ -287,13 +289,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-03-18
     ///
     /// - parameter hapServer: The URL to the HAP+ server
     /// - parameter attempt: How many times this function has been called
     func checkAPI(_ hapServer: String, attempt: Int) -> Void {
-        logger.debug("Attempting to contact the HAP+ server at the URL: \(hapServer)")
+        logger.info("Attempting to contact the HAP+ server at the URL: \(hapServer)")
         
         api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
             logger.info("HAP+ API contactable at \(hapServer): \(result)")
@@ -311,6 +313,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiFailController, animated: true, completion: nil)
+                logger.error("Invalid HAP+ address or server used. Check it is a valid address and the server is configured correctly")
             }
             if (result) {
                 // Successful HAP+ API check, so we now have a fully valid
@@ -334,7 +337,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
@@ -351,7 +354,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == true) {
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
-                logger.debug("Successfully logged in user to HAP+")
+                logger.info("Successfully logged in user to HAP+")
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
@@ -382,7 +385,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.performSegue(withIdentifier: "login.btnLoginSegue", sender: self)
             } else {
                 // Inform the user they didn't have a valid username or password
-                logger.warning("The username or password was not valid")
+                logger.error("The username or password was not valid")
                 let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(loginUserFailController, animated: true, completion: nil)

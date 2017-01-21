@@ -136,14 +136,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //       so that if a user should be logged out, there's no point
         //       in renewing the session tokens for them, and also to
         //       speed up their log out from the device
-        logger.debug("Seeing if the user should be logged out of the app")
+        logger.info("Seeing if the user should be logged out of the app")
         autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
-        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        logger.debug("Preparing to check last API access and renew session tokens if needed")
         renewUserSessionTokens()
         
         return true
@@ -175,14 +175,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //       so that if a user should be logged out, there's no point
         //       in renewing the session tokens for them, and also to
         //       speed up their log out from the device
-        logger.debug("Seeing if the user should be logged out of the app")
+        logger.info("Seeing if the user should be logged out of the app")
         autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
-        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        logger.debug("Preparing to check last API access and renew session tokens if needed")
         renewUserSessionTokens()
     }
 
@@ -220,7 +220,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: Background fetch
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        logger.debug("Beginning background fetch to update HAP+ user tokens")
+        logger.info("Beginning background fetch to update HAP+ user tokens")
         
         // Preventing any background fetches taking place if there
         // is no user logged in to the app
@@ -239,7 +239,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // (most likely no connection, as the user will have
                 // already logged in, or the password has now expired)
                 if (result == true) {
-                    logger.debug("Background fetch completed successfully")
+                    logger.info("Background fetch completed successfully")
                     completionHandler(.newData)
                 } else {
                     logger.warning("Background fetch failed to update user tokens")
@@ -257,7 +257,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-20
     func renewUserSessionTokens() {
         // Preventing any API last access checks taking place if there
@@ -322,7 +322,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 startAPITestCheckTimer()
             }
         } else {
-            logger.verbose("Last API access check ignored as no user is currently logged in to the app")
+            logger.debug("Last API access check ignored as no user is currently logged in to the app")
         }
     }
     
@@ -453,7 +453,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-20
     ///
     /// - seealso: renewUserSessionTokens
@@ -463,9 +463,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.debug("Running API test check")
         if (api.checkConnection()) {
             // Seeing when the last successful API access took place
-            logger.debug("Checking time since last API access")
+            logger.verbose("Checking time since last API access")
             let timeDifference = Date().timeIntervalSince1970 - TimeInterval(settings!.double(forKey: settingsLastAPIAccessTime))
-            logger.debug("Time since last API access is: \(timeDifference)")
+            logger.verbose("Time since last API access is: \(timeDifference)")
             
             // Seeing if the time since last API access is over 18 minutes
             // 1080 seconds, and if so, attempt to log the user in again
@@ -524,7 +524,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-04-16
     ///
     /// - seealso: startAutoLogOutCheckTimer
@@ -541,7 +541,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // be shown to them
             let timeNow = Date().timeIntervalSince1970
             logger.verbose("The current time on the device is (UNIX Epoch): \(timeNow)")
-            logger.debug("Checking if the user should be logged out of the device")
+            logger.info("Checking if the user should be logged out of the device")
             
             // Seeing if the current time is at or after the time the
             // user should be auto-logged out from the device by
@@ -636,7 +636,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.9.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-14
     func loggerSetup() {
         //logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
@@ -719,8 +719,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Add basic app info, version info etc, to the start of the logs
         logger.logAppDetails()
-        
-        logger.debug("Logging to file enabled: \(settings!.bool(forKey: settingsFileLoggingEnabled))")
     }
 
 }
