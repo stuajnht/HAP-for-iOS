@@ -51,6 +51,7 @@ This project uses Cocoapods. Their project source code pages and licenses can be
 * [PermissionScope](https://github.com/nickoneill/PermissionScope)
 * [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
+* [Zip](https://github.com/marmelroy/Zip)
 
 ### Other Projects
 The following projects and source code are included in HAP+ for iOS. Their licenses project pages can be found below:
@@ -60,10 +61,10 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
 ### 0.9.0
-* A settings menu of some sort (in the main settings app)
-  * Change log level, save to files, save to console
-    * Include / exclude timer checks, as this may fill up the logs with unnecessary info due to the run frequency
-    * Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)
+* ~~A settings menu of some sort (in the main settings app)~~
+  * ~~Change log level, save to files, save to console~~
+    * ~~Include / exclude timer checks, as this may fill up the logs with unnecessary info due to the run frequency~~
+    * ~~Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)~~
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 * Option on the upload popover to use the camera to take a photo or video and upload it straight away

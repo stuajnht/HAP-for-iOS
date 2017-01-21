@@ -118,7 +118,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // the folder the user has requested, as this class gets
         // called again on each folder browse
         if (fileDownloadPath != "") {
-            logger.debug("Downloading file from the following location: \(self.fileDownloadPath)")
+            logger.info("Downloading file from the following location: \(self.fileDownloadPath)")
             detailDescriptionLabel.isHidden = true
             
             // Displaying the file properties controls. This is located
@@ -130,7 +130,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
             // specified, and preventing the file from being downloaded
             // if so
             let allowFileDownload = downloadLargeFile()
-            logger.debug("File selected allowed to be downloaded: \(allowFileDownload)")
+            logger.info("File selected allowed to be downloaded: \(allowFileDownload)")
             
             if (allowFileDownload) {
                 // The file is allowed to be downloaded, so do so
@@ -196,7 +196,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-16
     func downloadFile() ->Void {
         hudShow()
@@ -212,6 +212,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                 let loginUserFailController = UIAlertController(title: "Unable to download file", message: "The file was not successfully downloaded. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(loginUserFailController, animated: true, completion: nil)
+                logger.error("The file could not be downloaded")
             }
             
             // Seeing if the progress bar should update with the amount
@@ -430,7 +431,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-16
     ///
     /// - seealso: largeFileSize
@@ -441,6 +442,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         // maximum set for the device
         if (largeFileSize()) {
             // Requesting from the user if the file can be downloaded
+            logger.debug("Requesting user permission to download large file")
             let confirmDownloadLargeFile = UIAlertController(title: "Download Large File", message: "This may take time or use up some of your device data allowances", preferredStyle: UIAlertControllerStyle.alert)
             confirmDownloadLargeFile.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {(alertAction) -> Void in
                 self.downloadFile() }))
@@ -474,7 +476,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-16
     ///
     /// - seealso: downloadLargeFile
@@ -523,14 +525,14 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         switch fileBytePrefix.uppercased() {
             case "GB", "TB", "PB", "EB", "ZB", "YB":
                 // This is a really large file, so always request
-                logger.debug("File being downloaded is larger than the maximum allowed")
+                logger.warning("File being downloaded is larger than the maximum allowed")
                 return true
             case "MB":
                 // We need to see if the file is now above or below
                 // our set maximum limits
                 if (maximumFileSize <= fileSize) {
                     // The file is larger than what our maximum is
-                    logger.debug("File being downloaded is larger than the maximum allowed")
+                    logger.warning("File being downloaded is larger than the maximum allowed")
                     return true
                 } else {
                     logger.debug("File being downloaded is smaller than the maximum allowed")
@@ -562,7 +564,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.8.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-06-29
     func deleteCacheFiles() {
         // Getting a list of the files currently in the caches
@@ -576,7 +578,7 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
         if let enumerator = FileManager.default.enumerator(atPath: cacheDirectoryPath) {
             while let fileName = enumerator.nextObject() as? String {
                 let localFilePath = cacheDirectoryPath + "/" + fileName
-                logger.debug("Attempting to delete the file: \(localFilePath)")
+                logger.debug("Attempting to delete the local file: \(localFilePath)")
                 do {
                     // Checking to see if the file currently being
                     // deleted is the one the user is looking at
@@ -590,10 +592,10 @@ class DetailViewController: UIViewController, QLPreviewControllerDataSource {
                     }
                 }
                 catch let errorMessage as NSError {
-                    logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+                    logger.error("There was a problem deleting the local file. Error: \(errorMessage)")
                 }
                 catch {
-                    logger.error("There was an unknown problem when deleting the file.")
+                    logger.error("There was an unknown problem when deleting the local file.")
                 }
             }
         }

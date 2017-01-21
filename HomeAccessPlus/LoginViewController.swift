@@ -20,12 +20,14 @@
 //
 
 import UIKit
+import MessageUI
 import ChameleonFramework
 import Locksmith
 import MBProgressHUD
 import XCGLogger
+import Zip
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
@@ -53,6 +55,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // Used for moving the scrollbox when the keyboard is shown
     var activeField: UITextField?
     
+    // Used to see how many times the app name label has been
+    // tapped, to see if the log files should be emailed
+    var appNameTapCount = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -75,10 +81,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tblUsername.returnKeyType = .next
         tbxPassword.returnKeyType = .go
         
+        // Allowing the app name label to be pressed, so that
+        // logs on the device can be uploaded
+        // See: http://stackoverflow.com/a/39992213
+        let appNameTap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.emailLogFiles))
+        lblAppName.isUserInteractionEnabled = true
+        lblAppName.addGestureRecognizer(appNameTap)
+        
         // Filling in any settings that are saved
         if let siteName = settings!.string(forKey: settingsSiteName)
         {
-            logger.debug("The HAP+ server is for the site: \(siteName)")
+            logger.info("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
         }
         
@@ -98,6 +111,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // can be visible, if it has been hidden when trying
         // to log the user in if the app has been closed
         sclLoginTextboxes.isHidden = false
+        
+        // Resetting the counter to prevent any accidental uploads
+        appNameTapCount = 0
         
         // Showing the HAP+ server textbox when UI Testing
         // is taking place, so that the test doesn't fail
@@ -246,6 +262,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             let textboxesValidAlertController = UIAlertController(title: "Incorrect Information", message: "Please check that you have entered all correct information, then try again", preferredStyle: UIAlertControllerStyle.alert)
             textboxesValidAlertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
             self.present(textboxesValidAlertController, animated: true, completion: nil)
+            logger.error("Login textboxes missing some information")
         } else {
             // Checking if there is an available Internet connection,
             // and if so, attempt to log the user into the HAP+ server
@@ -265,6 +282,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let apiCheckConnectionController = UIAlertController(title: "Unable to access the Internet", message: "Please check that you have a signal, then try again", preferredStyle: UIAlertControllerStyle.alert)
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiCheckConnectionController, animated: true, completion: nil)
+                logger.error("Unable to connect to the Internet to access the HAP+ server")
             }
         }
     }
@@ -287,13 +305,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-03-18
     ///
     /// - parameter hapServer: The URL to the HAP+ server
     /// - parameter attempt: How many times this function has been called
     func checkAPI(_ hapServer: String, attempt: Int) -> Void {
-        logger.debug("Attempting to contact the HAP+ server at the URL: \(hapServer)")
+        logger.info("Attempting to contact the HAP+ server at the URL: \(hapServer)")
         
         api.checkAPI(hapServer, callback: { (result: Bool) -> Void in
             logger.info("HAP+ API contactable at \(hapServer): \(result)")
@@ -311,6 +329,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiFailController, animated: true, completion: nil)
+                logger.error("Invalid HAP+ address or server used. Check it is a valid address and the server is configured correctly")
             }
             if (result) {
                 // Successful HAP+ API check, so we now have a fully valid
@@ -334,7 +353,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
@@ -351,7 +370,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             if (result == true) {
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
-                logger.debug("Successfully logged in user to HAP+")
+                logger.info("Successfully logged in user to HAP+")
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
@@ -382,7 +401,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 self.performSegue(withIdentifier: "login.btnLoginSegue", sender: self)
             } else {
                 // Inform the user they didn't have a valid username or password
-                logger.warning("The username or password was not valid")
+                logger.error("The username or password was not valid")
                 let loginUserFailController = UIAlertController(title: "Invalid Username or Password", message: "The username and password combination is not valid. Please check and try again", preferredStyle: UIAlertControllerStyle.alert)
                 loginUserFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(loginUserFailController, animated: true, completion: nil)
@@ -635,5 +654,143 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    // MARK: Log Files
+    
+    /// Emails log files from the app if the user cannot log in
+    ///
+    /// Should the user have problems with the app and need to view
+    /// the log files, but cannot log in, then pressing on the
+    /// app name label 10 times will zip the log files up and create
+    /// an email message with them attached
+    ///
+    /// See: https://gist.github.com/kellyegan/49e3e11fe68b5e6b5360
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 2
+    /// - date: 2017-01-21
+    func emailLogFiles() {
+        // Seeing how many times the app name label has been pressed
+        // Note: The count is not reset after the email has been
+        //       attempted to prevent users repeatedly pressing the
+        //       label. If the app is closed or sent to the background
+        //       then this is how the counter will be reset. The +1 in
+        //       the 'if' statement is due to counting beginning at 0
+        appNameTapCount += 1
+        if ((appNameTapCount + 1) == 10) {
+            logger.info("App name has been pressed 10 times, so attempting to email log files")
+            
+            // Check to see the device can send email and creating a
+            // zip file of all the logs
+            if((MFMailComposeViewController.canSendMail()) && (zipLogFiles())) {
+                logger.debug("Email can be sent from this device")
+                
+                let mailComposer = MFMailComposeViewController()
+                mailComposer.mailComposeDelegate = self
+                
+                // Set the subject and attach the zip files
+                mailComposer.setSubject("Home Access Plus+ -- App Log Files")
+                
+                // Generating the attachment information
+                // The string replacement is needed as the file name
+                // generated seems to appeand an additional ") to it
+                let fileName = String(describing: settings!.string(forKey: settingsUploadPhotosLocation)).components(separatedBy: "/").last!.replacingOccurrences(of: "\")", with: "")
+                let fileData = NSData(contentsOf: URL(string: settings!.string(forKey: settingsUploadPhotosLocation)!)!)
+                mailComposer.addAttachmentData(fileData as! Data, mimeType: "application/zip", fileName: fileName)
+                
+                self.present(mailComposer, animated: true, completion: nil)
+            } else {
+                logger.error("There was a problem emailing the log files from the device")
+            }
+        }
+    }
+    
+    /// Saves all log files on the device into a zip file to
+    /// be uploaded to the current folder
+    ///
+    /// If file logging is enabled from the main iOS Settings
+    /// app, then log files are generated on the device in the
+    /// applicationSupportDirectory under a "logs" folder. When
+    /// the user wants to upload these files to aid in debugging
+    /// they will select the reveleant option from the upload
+    /// popover to call this function. It will zip all log files
+    /// together so that they can be uploaded
+    ///
+    /// See: http://stackoverflow.com/a/27722526
+    /// See: https://github.com/marmelroy/Zip
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 2
+    /// - date: 2017-01-15
+    ///
+    /// - returns: Were the logs able to be zipped
+    func zipLogFiles() -> Bool {
+        logger.info("Creating zip file of all device logs")
+        
+        let logFileDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
+        
+        logger.debug("Using logs located in: \(logFileDirectory)")
+        
+        do {
+            // Get the directory contents urls (including subfolders urls)
+            let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
+            logger.verbose("Contents of logs directory: \(directoryContents)")
+            
+            let zipFile = logFileDirectory.appendingPathComponent("hap-ios-app-logs.zip")
+            
+            // Attempting to delete any previous zip files so that the one
+            // being uploaded can be created fresh
+            logger.debug("Attempting to delete any previous zip files")
+            do {
+                try FileManager.default.removeItem(at: zipFile)
+                logger.debug("Successfully deleted previous zip file")
+            }
+            catch let errorMessage as NSError {
+                logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+            }
+            catch {
+                logger.error("There was an unknown problem when deleting the previous zip file")
+            }
+            
+            // Creating the zip file of all log files
+            try Zip.zipFiles(paths: [logFileDirectory], zipFilePath: zipFile, password: nil, progress: nil)
+            logger.debug("Logs zip file created and located at: \(zipFile)")
+            
+            // Due to the way the URL location of the file on the device is
+            // processed in the HAPi upload function, we cannot just save the
+            // zip file path to the settingsUploadFileLocation value, so it is
+            // saved in the location normally used for uploading media files
+            settings!.set(String(describing: zipFile), forKey: settingsUploadPhotosLocation)
+            
+            // Attempting to delete log files, to save space on the device and prevent
+            // them appearing in future zip files
+            let logFiles = directoryContents.filter{ $0.pathExtension == "log" }
+            for (_, logFile) in logFiles.enumerated() {
+                do {
+                    try FileManager.default.removeItem(at: logFile)
+                    logger.debug("Successfully deleted log file: \(logFile)")
+                }
+                catch let errorMessage as NSError {
+                    logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+                }
+                catch {
+                    logger.error("There was an unknown problem when deleting the log file")
+                }
+            }
+            
+            return true
+        } catch let error as NSError {
+            logger.error("There was a problem creating the zipped logs file: \(error.localizedDescription)")
+            logger.error("If we've ended up here then there's not an option to get the log files from the device")
+            logger.error("Hopefully on another run of this app they are able to be collected")
+            return false
+        }
+    }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        self.dismiss(animated: true, completion: nil)
+    }
 
 }

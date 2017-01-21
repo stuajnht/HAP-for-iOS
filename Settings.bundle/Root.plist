@@ -40,6 +40,50 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
+			<string>Logging</string>
+			<key>FooterText</key>
+			<string>Enable logging to a file for debugging purposes, along with the file log level</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Logging to a File</string>
+			<key>Key</key>
+			<string>fileLoggingEnabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>File Logging Level</string>
+			<key>Key</key>
+			<string>fileLoggingLevel</string>
+			<key>DefaultValue</key>
+			<string>warning</string>
+			<key>Titles</key>
+			<array>
+				<string>Severe</string>
+				<string>Error</string>
+				<string>Warning (Default)</string>
+				<string>Information</string>
+				<string>Debug</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>severe</string>
+				<string>error</string>
+				<string>warning</string>
+				<string>info</string>
+				<string>debug</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
 			<string>About</string>
 			<key>FooterText</key>
 			<string>Copyright (C) 2015-2017 Jonathan Hart

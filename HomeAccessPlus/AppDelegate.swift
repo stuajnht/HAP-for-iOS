@@ -23,8 +23,8 @@ import UIKit
 import Locksmith
 import XCGLogger
 
-// Declaring a global constant to the default XCGLogger instance
-let logger = XCGLogger.default
+// Declaring a global constant to the XCGLogger instance
+let logger = XCGLogger(identifier: "advancedLogger", includeDefaultDestinations: false)
 
 // Declaring a global constant to the HAP+ main app colour
 let hapMainColour = "#005DAB"
@@ -55,6 +55,8 @@ let settingsAutoLogOutTime = "autoLogOutTime"
 let settingsVersionBuildNumber = "versionBuildNumber"
 let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
 let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
+let settingsFileLoggingEnabled = "fileLoggingEnabled"
+let settingsFileLoggingLevel = "fileLoggingLevel"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -78,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // Configuring the logger options
-        logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
+        loggerSetup()
         
         // Seeing if this code is being compiled for the main app
         // or the app extensions. This hacky way is needed as app
@@ -134,14 +136,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //       so that if a user should be logged out, there's no point
         //       in renewing the session tokens for them, and also to
         //       speed up their log out from the device
-        logger.debug("Seeing if the user should be logged out of the app")
+        logger.info("Seeing if the user should be logged out of the app")
         autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
-        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        logger.debug("Preparing to check last API access and renew session tokens if needed")
         renewUserSessionTokens()
         
         return true
@@ -173,14 +175,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //       so that if a user should be logged out, there's no point
         //       in renewing the session tokens for them, and also to
         //       speed up their log out from the device
-        logger.debug("Seeing if the user should be logged out of the app")
+        logger.info("Seeing if the user should be logged out of the app")
         autoLogOutCheck()
         logger.debug("Starting auto-log out timer")
         startAutoLogOutCheckTimer()
         
         // Seeing if the user session tokens need to be renewed
         // since the app has been brought to the foreground
-        logger.verbose("Preparing to check last API access and renew session tokens if needed")
+        logger.debug("Preparing to check last API access and renew session tokens if needed")
         renewUserSessionTokens()
     }
 
@@ -218,7 +220,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: Background fetch
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        logger.debug("Beginning background fetch to update HAP+ user tokens")
+        logger.info("Beginning background fetch to update HAP+ user tokens")
         
         // Preventing any background fetches taking place if there
         // is no user logged in to the app
@@ -237,7 +239,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // (most likely no connection, as the user will have
                 // already logged in, or the password has now expired)
                 if (result == true) {
-                    logger.debug("Background fetch completed successfully")
+                    logger.info("Background fetch completed successfully")
                     completionHandler(.newData)
                 } else {
                     logger.warning("Background fetch failed to update user tokens")
@@ -255,7 +257,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-20
     func renewUserSessionTokens() {
         // Preventing any API last access checks taking place if there
@@ -320,7 +322,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 startAPITestCheckTimer()
             }
         } else {
-            logger.verbose("Last API access check ignored as no user is currently logged in to the app")
+            logger.debug("Last API access check ignored as no user is currently logged in to the app")
         }
     }
     
@@ -451,7 +453,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-20
     ///
     /// - seealso: renewUserSessionTokens
@@ -461,9 +463,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.debug("Running API test check")
         if (api.checkConnection()) {
             // Seeing when the last successful API access took place
-            logger.debug("Checking time since last API access")
+            logger.verbose("Checking time since last API access")
             let timeDifference = Date().timeIntervalSince1970 - TimeInterval(settings!.double(forKey: settingsLastAPIAccessTime))
-            logger.debug("Time since last API access is: \(timeDifference)")
+            logger.verbose("Time since last API access is: \(timeDifference)")
             
             // Seeing if the time since last API access is over 18 minutes
             // 1080 seconds, and if so, attempt to log the user in again
@@ -522,7 +524,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-04-16
     ///
     /// - seealso: startAutoLogOutCheckTimer
@@ -539,7 +541,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // be shown to them
             let timeNow = Date().timeIntervalSince1970
             logger.verbose("The current time on the device is (UNIX Epoch): \(timeNow)")
-            logger.debug("Checking if the user should be logged out of the device")
+            logger.info("Checking if the user should be logged out of the device")
             
             // Seeing if the current time is at or after the time the
             // user should be auto-logged out from the device by
@@ -607,6 +609,116 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             logger.info("Auto log out is not enabled, so disabling the auto log out check timer")
             stopAutoLogOutCheckTimer()
         }
+    }
+    
+    // MARK: XCGLogger Setup Options
+    
+    /// Setting up advanced logging functions of XCGLogger, such
+    /// as to a file or different levels for debug or release
+    ///
+    /// By default, during building of this app, the logger will
+    /// be in debug mode and log to the console only. When it is
+    /// in production, this level will be set to warning, as there
+    /// isn't normally a need for end users to have it lower during
+    /// day-to-day running of the app
+    ///
+    /// There is also be the ability to log to a file, so should
+    /// this app run into problems when it is out in the open, the
+    /// logs can be submitted and processed to see what caused the
+    /// problem. The level recorded in the log can be adjusted via
+    /// a slider in the main settings app
+    ///
+    /// This function has been put here instead of in the
+    /// application(:didFinishLaunchingWithOptions) so that the
+    /// code is easier to read by keeping that function clear
+    ///
+    /// See: https://github.com/DaveWoodCom/XCGLogger#advanced-usage-recommended
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 2
+    /// - date: 2016-01-14
+    func loggerSetup() {
+        //logger.setup(level: .debug, showThreadName: true, showLevel: true, showFileNames: true, showLineNumbers: true, showDate: true, writeToFile: nil)
+        
+        // Create a destination for the system console log (via NSLog)
+        let consoleLogger = AppleSystemLogDestination(identifier: "advancedLogger.consoleLogger")
+        
+        // Optionally set some configuration options
+        consoleLogger.outputLevel = .debug
+        consoleLogger.showLogIdentifier = false
+        consoleLogger.showFunctionName = true
+        consoleLogger.showThreadName = true
+        consoleLogger.showLevel = true
+        consoleLogger.showFileName = true
+        consoleLogger.showLineNumber = true
+        consoleLogger.showDate = true
+        
+        // Add the destination to the logger
+        logger.add(destination: consoleLogger)
+        
+        // Create a file log destination, if enabled in the main settings app
+        if (settings!.bool(forKey: settingsFileLoggingEnabled)) {
+            let fileManager: FileManager = FileManager.default
+            
+            let logFileDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
+            
+            // The logs directory needs to be created first as
+            // XCGLogger will fail to create the file otherwise
+            // See: https://github.com/DaveWoodCom/XCGLogger/issues/31
+            // See: http://stackoverflow.com/a/24696209
+            do {
+                var isDir : ObjCBool = true
+                let folderExists: Bool = fileManager.fileExists(atPath: logFileDirectory.path, isDirectory:&isDir)
+                if (!folderExists) {
+                    try fileManager.createDirectory(atPath: logFileDirectory.path.removingPercentEncoding!, withIntermediateDirectories: true, attributes: nil)
+                }
+            } catch let error as NSError {
+                print(error.localizedDescription)
+            }
+            
+            // Creating a date for the log, based on when this
+            // app was first run
+            let logFileDate = DateFormatter()
+            logFileDate.dateFormat = "yyyy-MM-dd"
+            let logFileDateString = logFileDate.string(from: Date())
+            
+            let logFile = String(describing: logFileDirectory) + logFileDateString + "--hap-ios-app.log"
+            
+            let fileLogger = FileDestination(writeToFile: NSURL(string: logFile)!, identifier: "advancedLogger.fileLogger", shouldAppend: true, appendMarker: "******* Home Access Plus+ App Relaunched *******")
+            
+            // Optionally set some configuration options
+            switch settings!.string(forKey: settingsFileLoggingLevel) {
+                case "severe"?:
+                    fileLogger.outputLevel = .severe
+                case "error"?:
+                    fileLogger.outputLevel = .error
+                case "warning"?:
+                    fileLogger.outputLevel = .warning
+                case "info"?:
+                    fileLogger.outputLevel = .info
+                case "debug"?:
+                    fileLogger.outputLevel = .debug
+                default:
+                    fileLogger.outputLevel = .warning
+            }
+            fileLogger.showLogIdentifier = false
+            fileLogger.showFunctionName = true
+            fileLogger.showThreadName = true
+            fileLogger.showLevel = true
+            fileLogger.showFileName = true
+            fileLogger.showLineNumber = true
+            fileLogger.showDate = true
+            
+            // Process this destination in the background
+            fileLogger.logQueue = XCGLogger.logQueue
+            
+            // Add the destination to the logger
+            logger.add(destination: fileLogger)
+        }
+        
+        // Add basic app info, version info etc, to the start of the logs
+        logger.logAppDetails()
     }
 
 }

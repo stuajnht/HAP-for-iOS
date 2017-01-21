@@ -16,6 +16,7 @@ PODS:
   - XCGLogger (4.0.0):
     - XCGLogger/Core (= 4.0.0)
   - XCGLogger/Core (4.0.0)
+  - Zip (0.6.0)
 
 DEPENDENCIES:
   - Alamofire
@@ -27,6 +28,7 @@ DEPENDENCIES:
   - PermissionScope
   - SwiftyJSON
   - XCGLogger
+  - Zip
 
 SPEC CHECKSUMS:
   Alamofire: aa2e09d871c9160ac53c90e83c68064a94e3dfbe
@@ -38,7 +40,8 @@ SPEC CHECKSUMS:
   PermissionScope: a30c16e015779ba27c97c124e7539e27b5829de2
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
   XCGLogger: 38063ea89b4c8b23232d18efd2e12eb0005f3ea4
+  Zip: 805fc2fa9d2f05bbb7762d982d7a42ccdcc51f42
 
-PODFILE CHECKSUM: 541fab98a6b0be9c01f8b8d5bf6498decb6180d8
+PODFILE CHECKSUM: 70b053b330569201a098e0de3d709119d23ac78f
 
 COCOAPODS: 1.1.1
