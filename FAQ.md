@@ -110,7 +110,7 @@ Any other Privacy Purpose Permissions that are shown *are not used*, but are nee
 
 ## Something is not Working as Expected (Using Log Files)
 It is possible to generate log files from the app to see what is going on to cause a problem. To enable debug logging, perform the following steps:
-1. Open the main iOS Settings app and scroll down to the "Home Access Plus+" section.
+1. Open the main iOS Settings app and scroll down to the "Home Access Plus+" section
 2. Toggle the "Enable Logging to a File" option
 3. If needed, select a logging level to capture the right amount of information
    * Severe - Only logged if the app has a serious problem, assuming it can be caught
@@ -120,4 +120,6 @@ It is possible to generate log files from the app to see what is going on to cau
    * Debug - Detailed and developer orentated messages
 4. Run the HAP+ app as you have been doing to recreate the problem
 5. Browse to a folder that you can upload to, and from the upload menu, press the "Save Log Files" option (this will be a new item to the popover)
-6. All log files from the device will be uploaded to the current folder as a zip file and can be opened to see what is causing the problem
+6. All log files from the device will be uploaded to the current folder as a zip file, and it can be opened on another computer to see what is causing the problem
+
+> :information_source: If you are unable to log in, complete steps 1 - 4 above, then tap the name of the app on the login screen 10 times. An email will be created with the log files attached (assuming an email account is set up on the device). This limit is set to prevent any accidental triggering
