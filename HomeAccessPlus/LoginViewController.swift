@@ -82,13 +82,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
         tbxPassword.returnKeyType = .go
         
         // Allowing the app name label to be pressed, so that
-        // logs on the device can be uploaded, and resetting
-        // the counter to prevent any accidental uploads
+        // logs on the device can be uploaded
         // See: http://stackoverflow.com/a/39992213
         let appNameTap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.emailLogFiles))
         lblAppName.isUserInteractionEnabled = true
         lblAppName.addGestureRecognizer(appNameTap)
-        appNameTapCount = 0
         
         // Filling in any settings that are saved
         if let siteName = settings!.string(forKey: settingsSiteName)
@@ -113,6 +111,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
         // can be visible, if it has been hidden when trying
         // to log the user in if the app has been closed
         sclLoginTextboxes.isHidden = false
+        
+        // Resetting the counter to prevent any accidental uploads
+        appNameTapCount = 0
         
         // Showing the HAP+ server textbox when UI Testing
         // is taking place, so that the test doesn't fail
