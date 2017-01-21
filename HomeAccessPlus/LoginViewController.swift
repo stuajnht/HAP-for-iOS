@@ -20,12 +20,14 @@
 //
 
 import UIKit
+import MessageUI
 import ChameleonFramework
 import Locksmith
 import MBProgressHUD
 import XCGLogger
+import Zip
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
@@ -53,6 +55,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // Used for moving the scrollbox when the keyboard is shown
     var activeField: UITextField?
     
+    // Used to see how many times the app name label has been
+    // tapped, to see if the log files should be emailed
+    var appNameTapCount = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -74,6 +80,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         tblHAPServer.returnKeyType = .next
         tblUsername.returnKeyType = .next
         tbxPassword.returnKeyType = .go
+        
+        // Allowing the app name label to be pressed, so that
+        // logs on the device can be uploaded, and resetting
+        // the counter to prevent any accidental uploads
+        // See: http://stackoverflow.com/a/39992213
+        let appNameTap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.emailLogFiles))
+        lblAppName.isUserInteractionEnabled = true
+        lblAppName.addGestureRecognizer(appNameTap)
+        appNameTapCount = 0
         
         // Filling in any settings that are saved
         if let siteName = settings!.string(forKey: settingsSiteName)
@@ -638,5 +653,141 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    // MARK: Log Files
+    
+    /// Emails log files from the app if the user cannot log in
+    ///
+    /// Should the user have problems with the app and need to view
+    /// the log files, but cannot log in, then pressing on the
+    /// app name label 10 times will zip the log files up and create
+    /// an email message with them attached
+    ///
+    /// See: https://gist.github.com/kellyegan/49e3e11fe68b5e6b5360
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 1
+    /// - date: 2017-01-21
+    func emailLogFiles() {
+        // Seeing how many times the app name label has been pressed
+        // Note: The count is not reset after the email has been
+        //       attempted to prevent users repeatedly pressing the
+        //       label. If the app is closed or sent to the background
+        //       then this is how the counter will be reset. The +1 in
+        //       the 'if' statement is due to counting beginning at 0
+        appNameTapCount += 1
+        if ((appNameTapCount + 1) == 10) {
+            logger.info("App name has been pressed 10 times, so attempting to email log files")
+            
+            // Check to see the device can send email and creating a
+            // zip file of all the logs
+            if((MFMailComposeViewController.canSendMail()) && (zipLogFiles())) {
+                logger.debug("Email can be sent from this device")
+                
+                let mailComposer = MFMailComposeViewController()
+                mailComposer.mailComposeDelegate = self
+                
+                // Set the subject and attach the zip files
+                mailComposer.setSubject("Home Access Plus+ -- App Log Files")
+                
+                // Generating the attachment information
+                let fileName = String(describing: settings!.string(forKey: settingsUploadPhotosLocation)).components(separatedBy: "/").last!
+                let fileData = NSData(contentsOf: URL(string: settings!.string(forKey: settingsUploadPhotosLocation)!)!)
+                mailComposer.addAttachmentData(fileData as! Data, mimeType: "application/zip", fileName: fileName)
+                
+                self.present(mailComposer, animated: true, completion: nil)
+            } else {
+                logger.error("There was a problem emailing the log files from the device")
+            }
+        }
+    }
+    
+    /// Saves all log files on the device into a zip file to
+    /// be uploaded to the current folder
+    ///
+    /// If file logging is enabled from the main iOS Settings
+    /// app, then log files are generated on the device in the
+    /// applicationSupportDirectory under a "logs" folder. When
+    /// the user wants to upload these files to aid in debugging
+    /// they will select the reveleant option from the upload
+    /// popover to call this function. It will zip all log files
+    /// together so that they can be uploaded
+    ///
+    /// See: http://stackoverflow.com/a/27722526
+    /// See: https://github.com/marmelroy/Zip
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 2
+    /// - date: 2017-01-15
+    ///
+    /// - returns: Were the logs able to be zipped
+    func zipLogFiles() -> Bool {
+        logger.info("Creating zip file of all device logs")
+        
+        let logFileDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("logs", isDirectory: true)
+        
+        logger.debug("Using logs located in: \(logFileDirectory)")
+        
+        do {
+            // Get the directory contents urls (including subfolders urls)
+            let directoryContents = try FileManager.default.contentsOfDirectory(at: logFileDirectory, includingPropertiesForKeys: nil, options: [])
+            logger.verbose("Contents of logs directory: \(directoryContents)")
+            
+            let zipFile = logFileDirectory.appendingPathComponent("hap-ios-app-logs.zip")
+            
+            // Attempting to delete any previous zip files so that the one
+            // being uploaded can be created fresh
+            logger.debug("Attempting to delete any previous zip files")
+            do {
+                try FileManager.default.removeItem(at: zipFile)
+                logger.debug("Successfully deleted previous zip file")
+            }
+            catch let errorMessage as NSError {
+                logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+            }
+            catch {
+                logger.error("There was an unknown problem when deleting the previous zip file")
+            }
+            
+            // Creating the zip file of all log files
+            try Zip.zipFiles(paths: [logFileDirectory], zipFilePath: zipFile, password: nil, progress: nil)
+            logger.debug("Logs zip file created and located at: \(zipFile)")
+            
+            // Due to the way the URL location of the file on the device is
+            // processed in the HAPi upload function, we cannot just save the
+            // zip file path to the settingsUploadFileLocation value, so it is
+            // saved in the location normally used for uploading media files
+            settings!.set(String(describing: zipFile), forKey: settingsUploadPhotosLocation)
+            
+            // Attempting to delete log files, to save space on the device and prevent
+            // them appearing in future zip files
+            let logFiles = directoryContents.filter{ $0.pathExtension == "log" }
+            for (_, logFile) in logFiles.enumerated() {
+                do {
+                    try FileManager.default.removeItem(at: logFile)
+                    logger.debug("Successfully deleted log file: \(logFile)")
+                }
+                catch let errorMessage as NSError {
+                    logger.error("There was a problem deleting the file. Error: \(errorMessage)")
+                }
+                catch {
+                    logger.error("There was an unknown problem when deleting the log file")
+                }
+            }
+            
+            return true
+        } catch let error as NSError {
+            logger.error("There was a problem creating the zipped logs file: \(error.localizedDescription)")
+            logger.error("If we've ended up here then there's not an option to get the log files from the device")
+            logger.error("Hopefully on another run of this app they are able to be collected")
+            return false
+        }
+    }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        self.dismiss(animated: true, completion: nil)
+    }
 
 }
