@@ -48,6 +48,7 @@
 		FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE2500F1C0F946E00DD7E20 /* HAPi.swift */; };
 		FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF451A21C12FF500067DFF9 /* Reach.swift */; };
 		FCF639451C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */; };
+		FCF760AE1E39593C004034F0 /* UploadPopoverCustomCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF760AD1E39593C004034F0 /* UploadPopoverCustomCamera.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +154,7 @@
 		FCE2500F1C0F946E00DD7E20 /* HAPi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HAPi.swift; sourceTree = "<group>"; };
 		FCF451A21C12FF500067DFF9 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
 		FCF639441C67F80E005A80A5 /* DocumentProviderFileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentProviderFileTableViewCell.swift; sourceTree = "<group>"; };
+		FCF760AD1E39593C004034F0 /* UploadPopoverCustomCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadPopoverCustomCamera.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -331,6 +333,7 @@
 				FCB1D9ED1C09F54C00DEC02E /* DetailViewController.swift */,
 				FCB1D9EF1C09F54C00DEC02E /* Main.storyboard */,
 				FC3C6E2B1C3DC46A00B48383 /* UploadPopoverTableViewController.swift */,
+				FCF760AD1E39593C004034F0 /* UploadPopoverCustomCamera.swift */,
 				FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */,
 				FC364A751C0BACB30085DC7E /* LoginViewController.swift */,
 				FCF451A21C12FF500067DFF9 /* Reach.swift */,
@@ -847,6 +850,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC3C6E2C1C3DC46A00B48383 /* UploadPopoverTableViewController.swift in Sources */,
+				FCF760AE1E39593C004034F0 /* UploadPopoverCustomCamera.swift in Sources */,
 				FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */,
 				FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */,
 				FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */,

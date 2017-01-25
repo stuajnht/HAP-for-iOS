@@ -513,7 +513,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     
                     // Showing the camera controller to allow the user
                     // to take a photo or video
-                    let cameraController = DKCamera()
+                    let cameraController = UploadPopoverCustomCamera()
                     cameraController.didCancel = { () in
                         logger.debug("Cancelled taking a photo")
                         
@@ -527,6 +527,14 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                         tableView.deselectRow(at: indexPath, animated: true)
                         
                         logger.debug("Image information: \(image)")
+                    }
+                    cameraController.didFinishCapturingVideo = {(videoURL: URL) in
+                        logger.debug("A video has been taken with the camera")
+                        
+                        self.dismiss(animated: true, completion: nil)
+                        tableView.deselectRow(at: indexPath, animated: true)
+                        
+                        logger.debug("Video information: \(videoURL)")
                     }
                     self.present(cameraController, animated: true, completion: nil)
                 } else {
