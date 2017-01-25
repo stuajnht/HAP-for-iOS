@@ -517,30 +517,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     
                     // Showing the camera controller to allow the user
                     // to take a photo or video
-                    let cameraController = UploadPopoverCustomCamera()
-                    cameraController.didCancel = { () in
-                        logger.debug("Cancelled taking a photo")
-                        
-                        self.dismiss(animated: true, completion: nil)
-                        tableView.deselectRow(at: indexPath, animated: true)
-                    }
-                    cameraController.didFinishCapturingImage = {(image: UIImage) in
-                        logger.debug("A photo has been taken with the camera")
-                        
-                        self.dismiss(animated: true, completion: nil)
-                        tableView.deselectRow(at: indexPath, animated: true)
-                        
-                        logger.debug("Image information: \(image)")
-                    }
-                    cameraController.didFinishCapturingVideo = {(videoURL: URL) in
-                        logger.debug("A video has been taken with the camera")
-                        
-                        self.dismiss(animated: true, completion: nil)
-                        tableView.deselectRow(at: indexPath, animated: true)
-                        
-                        logger.debug("Video information: \(videoURL)")
-                    }
-                    self.present(cameraController, animated: true, completion: nil)
+                    self.showCamera(selectedRowIndexPath: indexPath)
                 } else {
                     logger.warning("Permission to access the camera or microphone was denied")
                     tableView.deselectRow(at: indexPath, animated: true)
@@ -876,7 +853,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         self.tableView.deselectRow(at: self.currentlySelectedRow!, animated: true)
     }
     
-    // MARK: Multi Picker
+    // MARK: Multi Picker & Camera
     
     /// Shows the multi picker to the user
     ///
@@ -995,6 +972,72 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // Showing the multi picker to the user, so that they can
         // select any photos or videos they want to upload
         self.present(multiPickerController, animated: true, completion: nil)
+    }
+    
+    /// Shows the camera to the user
+    ///
+    /// While the user can use the camera app outside of this app,
+    /// should they want to quickly take a photo or video and have it
+    /// uploaded automatically to the folder they have browsed to,
+    /// this ability can be chosen from a upload popover menu item
+    ///
+    /// This uses the UploadPopoverCustomCamera class, as this then
+    /// allows the ability to take either a photo or a video, and
+    /// uses the interface of the built-in camera app. While it is
+    /// possible to call the DKImagePickerController with a sourceType
+    /// of .camera, during testing this did not provide the ability
+    /// to record video or orentate properly should the device be rotated
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-beta
+    /// - version: 1
+    /// - date: 2016-01-25
+    ///
+    /// - seealso: UploadPopoverCustomCamera
+    /// - seealso: https://github.com/zhangao0086/DKImagePickerController/tree/develop/DKImagePickerControllerDemo/CustomCameraUIDelegate
+    ///
+    /// - parameter selectedRowIndexPath: The currently selected upload popover table row
+    ///                                   so it can be deselected if the user cancels the
+    ///                                   camera
+    func showCamera(selectedRowIndexPath: IndexPath) {
+        // Creating an instance of the custom camera class, so
+        // that photos and videos can be taken
+        let cameraController = UploadPopoverCustomCamera()
+        
+        // An image has been taken with the camera, so process
+        // the image for it to be uploaded
+        cameraController.didFinishCapturingImage = {(image: UIImage) in
+            logger.debug("A photo has been taken with the camera")
+            
+            self.dismiss(animated: true, completion: nil)
+            self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+            
+            logger.debug("Image information: \(image)")
+        }
+        
+        // A videos has been taken with the camera, so process
+        // the video for it to be uploaded
+        cameraController.didFinishCapturingVideo = {(videoURL: URL) in
+            logger.debug("A video has been taken with the camera")
+            
+            self.dismiss(animated: true, completion: nil)
+            self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+            
+            logger.debug("Video information: \(videoURL)")
+        }
+        
+        // If the user cancels the camera, then remove the view
+        // controller for it and deselect the tapped row on the
+        // upload popover
+        cameraController.didCancel = { () in
+            logger.debug("Taking a photo or video with the camera has been cancelled")
+            
+            self.dismiss(animated: true, completion: nil)
+            self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+        }
+        
+        // Showing the camera to the user so that it can be used
+        self.present(cameraController, animated: true, completion: nil)
     }
     
     /// Creates a local copy of the selected image in the documents
