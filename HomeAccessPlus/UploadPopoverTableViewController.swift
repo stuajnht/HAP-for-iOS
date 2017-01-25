@@ -1007,23 +1007,29 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // An image has been taken with the camera, so process
         // the image for it to be uploaded
         cameraController.didFinishCapturingImage = {(image: UIImage) in
-            logger.debug("A photo has been taken with the camera")
+            logger.info("A photo has been taken with the camera")
+            logger.debug("Image information: \(image)")
             
             self.dismiss(animated: true, completion: nil)
             self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
-            
-            logger.debug("Image information: \(image)")
         }
         
         // A videos has been taken with the camera, so process
         // the video for it to be uploaded
         cameraController.didFinishCapturingVideo = {(videoURL: URL) in
-            logger.debug("A video has been taken with the camera")
+            logger.info("A video has been taken with the camera")
+            logger.debug("Video information: \(videoURL)")
+            
+            // Setting the location of the video file in the settings
+            settings!.set(String(describing: videoURL), forKey: settingsUploadPhotosLocation)
             
             self.dismiss(animated: true, completion: nil)
             self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
             
-            logger.debug("Video information: \(videoURL)")
+            // Uploading the file to the HAP+ server
+            self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(true)
+            })
         }
         
         // If the user cancels the camera, then remove the view
