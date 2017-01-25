@@ -510,6 +510,25 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                 // Seeing if access to the camera has been granted
                 if PermissionScope().statusCamera() == .authorized {
                     logger.debug("Permissions granted to access the camera")
+                    
+                    // Showing the camera controller to allow the user
+                    // to take a photo or video
+                    let cameraController = DKCamera()
+                    cameraController.didCancel = { () in
+                        logger.debug("Cancelled taking a photo")
+                        
+                        self.dismiss(animated: true, completion: nil)
+                        tableView.deselectRow(at: indexPath, animated: true)
+                    }
+                    cameraController.didFinishCapturingImage = {(image: UIImage) in
+                        logger.debug("A photo has been taken with the camera")
+                        
+                        self.dismiss(animated: true, completion: nil)
+                        tableView.deselectRow(at: indexPath, animated: true)
+                        
+                        logger.debug("Image information: \(image)")
+                    }
+                    self.present(cameraController, animated: true, completion: nil)
                 } else {
                     logger.warning("Permission to access the camera was denied")
                     tableView.deselectRow(at: indexPath, animated: true)
