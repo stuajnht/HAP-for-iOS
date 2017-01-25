@@ -74,6 +74,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     @IBOutlet weak var celUploadFile: UITableViewCell!
     @IBOutlet weak var lblNewFolder: UILabel!
     @IBOutlet weak var celNewFolder: UITableViewCell!
+    @IBOutlet weak var lblTakePhoto: UILabel!
+    @IBOutlet weak var celTakePhoto: UITableViewCell!
     @IBOutlet weak var lblLogOut: UILabel!
     @IBOutlet weak var celSaveLogFiles: UITableViewCell!
     @IBOutlet weak var lblSaveLogFiles: UILabel!
@@ -121,7 +123,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "4"], ["Create", "1"], ["LogOut", "1"], ["Debug", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Create", "2"], ["LogOut", "1"], ["Debug", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -164,6 +166,8 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celUploadFile.isUserInteractionEnabled = false
             lblNewFolder.isEnabled = false
             celNewFolder.isUserInteractionEnabled = false
+            lblTakePhoto.isEnabled = false
+            celTakePhoto.isUserInteractionEnabled = false
             lblSaveLogFiles.isEnabled = false
             celSaveLogFiles.isUserInteractionEnabled = false
         }
@@ -250,7 +254,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-04-09
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         var footerMessage = ""
@@ -259,7 +263,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         case 0:
             footerMessage = "Upload a photo, video or file from another app on your device to the current folder"
         case 1:
-            footerMessage = "Create a new folder inside the current folder you are viewing"
+            footerMessage = "Create a new folder, photo or video inside the current folder you are viewing"
         case 2:
             footerMessage = "Log out from this device so another user can access their files"
             footerMessage += ". Currently logged in as " + settings!.string(forKey: settingsFirstName)! + " (" + settings!.string(forKey: settingsUsername)! + ")"
@@ -299,6 +303,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
     ///         |    1    |  0  | New folder           |
+    ///         |    1    |  1  | Take a photo or video|
     ///         |---------|-----|----------------------|
     ///         |    2    |  0  | Log Out              |
     ///         |---------|-----|----------------------|
@@ -306,7 +311,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 14
+    /// - version: 15
     /// - date: 2016-05-12
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
@@ -476,6 +481,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             newFolderAlert?.addAction(action)
             self.present(newFolderAlert!, animated: true, completion: nil)
+        }
+        
+        // The user wants to take a photo or video
+        if ((section == 1) && (row == 1)) {
+            logger.debug("Cell function: Take a photo or video")
         }
         
         // The user wants to log out of the app
