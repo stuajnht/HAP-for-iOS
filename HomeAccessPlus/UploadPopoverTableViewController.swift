@@ -1023,8 +1023,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // Setting the location of the video file in the settings
             settings!.set(String(describing: videoURL), forKey: settingsUploadPhotosLocation)
             
+            // Dismissing the camera
             self.dismiss(animated: true, completion: nil)
-            self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismiss(animated: true, completion: nil)
             
             // Uploading the file to the HAP+ server
             self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
