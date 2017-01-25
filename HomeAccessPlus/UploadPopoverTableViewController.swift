@@ -89,8 +89,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     
     // Creating an instance of the PermissionScope, so
     // that we can ask the user for access to the photos
-    // library
-    let pscope = PermissionScope()
+    // library, and a separate instance to ask for access
+    // to the camera and microphone
+    let pscopePhotos = PermissionScope()
+    let pscopeCamera = PermissionScope()
     
     // Holding a reference to see if the popover is being
     // shown on the file browser "My Drives" view, so that
@@ -187,9 +189,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         imagePicker.modalPresentationStyle = .currentContext
         
         // Setting up the permissions needed to access the
-        // photos library and the camera on the device
-        pscope.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
-        pscope.addPermission(CameraPermission(), message: "Enable this to take\r\nphotos and videos in-app")
+        // photos library, camera and the microphone on the device
+        pscopePhotos.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
+        pscopeCamera.addPermission(CameraPermission(), message: "Enable this to take\r\nphotos and videos in-app")
+        pscopeCamera.addPermission(MicrophonePermission(), message: "Enable this to use the\r\nmicrophone when recording videos")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -330,7 +333,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             // Showing the permissions request to access
             // the photos library
-            pscope.show({ finished, results in
+            pscopePhotos.show({ finished, results in
                 logger.debug("Got permission results: \(results)")
                 
                 // Seeing if access to the photos library has been granted
@@ -372,7 +375,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             // Showing the permissions request to access
             // the photos library
-            pscope.show({ finished, results in
+            pscopePhotos.show({ finished, results in
                 logger.debug("Got permission results: \(results)")
                 
                 // Seeing if access to the photos library has been granted
@@ -503,13 +506,14 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             logger.debug("Cell function: Take a photo or video")
             
             // Showing the permissions request to access
-            // the camera
-            pscope.show({ finished, results in
+            // the camera and microphone
+            pscopeCamera.show({ finished, results in
                 logger.debug("Got permission results: \(results)")
                 
-                // Seeing if access to the camera has been granted
-                if PermissionScope().statusCamera() == .authorized {
-                    logger.debug("Permissions granted to access the camera")
+                // Seeing if access to the camera and microphone
+                // has been granted
+                if ((PermissionScope().statusCamera() == .authorized) && (PermissionScope().statusMicrophone() == .authorized)) {
+                    logger.debug("Permissions granted to access the camera and microphone")
                     
                     // Showing the camera controller to allow the user
                     // to take a photo or video
@@ -538,12 +542,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
                     }
                     self.present(cameraController, animated: true, completion: nil)
                 } else {
-                    logger.warning("Permission to access the camera was denied")
+                    logger.warning("Permission to access the camera or microphone was denied")
                     tableView.deselectRow(at: indexPath, animated: true)
                 }
                 
             }, cancelled: { (results) -> Void in
-                logger.warning("Permission to access the camera was denied")
+                logger.warning("Permission to access the camera or microphone was denied")
                 tableView.deselectRow(at: indexPath, animated: true)
             })
         }
