@@ -74,3 +74,6 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
 * Support for document provider open and move options for apps that do not support import and export
 * (Optional branding) Set a logo and theme colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
+
+### 1.1.0
+* "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
