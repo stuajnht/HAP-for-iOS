@@ -187,8 +187,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         imagePicker.modalPresentationStyle = .currentContext
         
         // Setting up the permissions needed to access the
-        // photos library
+        // photos library and the camera on the device
         pscope.addPermission(PhotosPermission(), message: "Enable this to upload\r\nyour photos and videos")
+        pscope.addPermission(CameraPermission(), message: "Enable this to take\r\nphotos and videos in-app")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -331,25 +332,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // the photos library
             pscope.show({ finished, results in
                 logger.debug("Got permission results: \(results)")
-                logger.debug("Permissions granted to access the photos library")
                 
-                // Seeing if the basic or multi photo uploader shoud
-                // be used to select the file (chosen by the user in
-                // the main settings app)
-                if (settings!.bool(forKey: settingsBasicPhotoUploaderEnabled)) {
-                    logger.debug("Using basic photo uploader")
+                // Seeing if access to the photos library has been granted
+                if PermissionScope().statusPhotos() == .authorized {
+                    logger.debug("Permissions granted to access the photos library")
                     
-                    // Calling the image picker
-                    self.imagePicker.allowsEditing = false
-                    self.imagePicker.sourceType = .photoLibrary
-                    self.imagePicker.mediaTypes = [kUTTypeImage as String]
-                    
-                    self.present(self.imagePicker, animated: true, completion: nil)
+                    // Seeing if the basic or multi photo uploader shoud
+                    // be used to select the file (chosen by the user in
+                    // the main settings app)
+                    if (settings!.bool(forKey: settingsBasicPhotoUploaderEnabled)) {
+                        logger.debug("Using basic photo uploader")
+                        
+                        // Calling the image picker
+                        self.imagePicker.allowsEditing = false
+                        self.imagePicker.sourceType = .photoLibrary
+                        self.imagePicker.mediaTypes = [kUTTypeImage as String]
+                        
+                        self.present(self.imagePicker, animated: true, completion: nil)
+                    } else {
+                        logger.debug("Using multi photo uploader")
+                        
+                        // Calling the multi image picker
+                        self.showMultiPicker(.allPhotos, selectedRowIndexPath: indexPath)
+                    }
                 } else {
-                    logger.debug("Using multi photo uploader")
-                    
-                    // Calling the multi image picker
-                    self.showMultiPicker(.allPhotos, selectedRowIndexPath: indexPath)
+                    logger.warning("Permissions to access the photos library were denied")
+                    tableView.deselectRow(at: indexPath, animated: true)
                 }
                 
                 }, cancelled: { (results) -> Void in
@@ -366,25 +374,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             // the photos library
             pscope.show({ finished, results in
                 logger.debug("Got permission results: \(results)")
-                logger.debug("Permissions granted to access the photos library")
                 
-                // Seeing if the basic or multi video uploader shoud
-                // be used to select the file (chosen by the user in
-                // the main settings app)
-                if (settings!.bool(forKey: settingsBasicVideoUploaderEnabled)) {
-                    logger.debug("Using basic video uploader")
+                // Seeing if access to the photos library has been granted
+                if PermissionScope().statusPhotos() == .authorized {
+                    logger.debug("Permissions granted to access the photos library")
                     
-                    // Calling the image picker
-                    self.imagePicker.allowsEditing = false
-                    self.imagePicker.sourceType = .photoLibrary
-                    self.imagePicker.mediaTypes = [kUTTypeMovie as String]
-                    
-                    self.present(self.imagePicker, animated: true, completion: nil)
+                    // Seeing if the basic or multi video uploader shoud
+                    // be used to select the file (chosen by the user in
+                    // the main settings app)
+                    if (settings!.bool(forKey: settingsBasicVideoUploaderEnabled)) {
+                        logger.debug("Using basic video uploader")
+                        
+                        // Calling the image picker
+                        self.imagePicker.allowsEditing = false
+                        self.imagePicker.sourceType = .photoLibrary
+                        self.imagePicker.mediaTypes = [kUTTypeMovie as String]
+                        
+                        self.present(self.imagePicker, animated: true, completion: nil)
+                    } else {
+                        logger.debug("Using multi video uploader")
+                        
+                        // Calling the multi video picker
+                        self.showMultiPicker(.allVideos, selectedRowIndexPath: indexPath)
+                    }
                 } else {
-                    logger.debug("Using multi video uploader")
-                    
-                    // Calling the multi video picker
-                    self.showMultiPicker(.allVideos, selectedRowIndexPath: indexPath)
+                    logger.warning("Permissions to access the photos library were denied")
+                    tableView.deselectRow(at: indexPath, animated: true)
                 }
                 
                 }, cancelled: { (results) -> Void in
@@ -486,6 +501,24 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user wants to take a photo or video
         if ((section == 1) && (row == 1)) {
             logger.debug("Cell function: Take a photo or video")
+            
+            // Showing the permissions request to access
+            // the camera
+            pscope.show({ finished, results in
+                logger.debug("Got permission results: \(results)")
+                
+                // Seeing if access to the camera has been granted
+                if PermissionScope().statusCamera() == .authorized {
+                    logger.debug("Permissions granted to access the camera")
+                } else {
+                    logger.warning("Permission to access the camera was denied")
+                    tableView.deselectRow(at: indexPath, animated: true)
+                }
+                
+            }, cancelled: { (results) -> Void in
+                logger.warning("Permission to access the camera was denied")
+                tableView.deselectRow(at: indexPath, animated: true)
+            })
         }
         
         // The user wants to log out of the app
