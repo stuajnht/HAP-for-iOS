@@ -1010,8 +1010,29 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             logger.info("A photo has been taken with the camera")
             logger.debug("Image information: \(image)")
             
+            // Creating a local copy of the image to be able
+            // to upload it
+            // Note: These few lines borrow heavily from the
+            //       createLocalImage function
+            var imagePath = self.getDocumentsDirectory()
+            imagePath = imagePath.appendingPathComponent("capturedphoto.jpg") as NSString
+            if let jpegData = UIImageJPEGRepresentation(image, 80) {
+                try? jpegData.write(to: URL(fileURLWithPath: imagePath as String), options: [.atomic])
+            }
+            
+            // Setting the location of the image file in the settings
+            settings!.set(String(imagePath), forKey: settingsUploadPhotosLocation)
+            
+            // Dismissing the camera
             self.dismiss(animated: true, completion: nil)
-            self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismiss(animated: true, completion: nil)
+            
+            // Uploading the file to the HAP+ server
+            self.delegate?.uploadFile(true, customFileName: "", fileExistsCallback: { Void in
+                self.delegate?.showFileExistsMessage(true)
+            })
         }
         
         // A videos has been taken with the camera, so process
