@@ -103,7 +103,7 @@ This occurs when the Home Access Plus+ app on your device has been set up in ["S
 
 ## Why are so many Privacy Purpose Permissions needed?
 Due to the inclusion of the [PermissionScope](https://github.com/nickoneill/PermissionScope) Cocoapod to simplify requests for permissions, there is an [issue](https://github.com/nickoneill/PermissionScope/issues/194) with how many permissions are requested compared to how many are ever used. The permissions this app uses are listed below:
-* Privacy - Camera Usage Description (`NSCameraUsageDescription`): Reserved for possible future use, so images or videos can be taken directly in the app and uploaded to the current folder, without needing to open the camera app first
+* Privacy - Camera Usage Description (`NSCameraUsageDescription`): This allows for images or videos to be taken directly in the app and uploaded to the current folder, without needing to open the camera app first
 * Privacy - Photo Library Usage (`NSPhotoLibraryUsageDescription`): This allows for the ability to browse the photo and video library on your device to access the files in them to upload it to the HAP+ server. While it is possible to send the media file from the photos app to this app, this allows for a convenient way to access those items
 
 Any other Privacy Purpose Permissions that are shown *are not used*, but are needed to be included for the app to be submitted to the App Store
