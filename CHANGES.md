@@ -7,6 +7,7 @@
 
 ### New Stuff
 * Log files [can be created](FAQ.md#something-is-not-working-as-expected-using-log-files) for use in debugging the app on remote devices and uploaded
+* Photos and videos can be taken and uploaded directly from the app to the current folder, without needing to open another camera app first
 
 ## 0.8.0
 

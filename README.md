@@ -67,7 +67,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
     * ~~Add developer option to upload popover if logging to file is enabled, so that the file can be saved somewhere (zip all logs, upload to current directory, delete logs from device). Also a way to send logs from login screen (long press school name?)~~
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
-* Option on the upload popover to use the camera to take a photo or video and upload it straight away
+* ~~Option on the upload popover to use the camera to take a photo or video and upload it straight away~~
 
 ### 1.0.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items
