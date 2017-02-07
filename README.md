@@ -68,7 +68,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 * Update additional supported file icons
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 * ~~Option on the upload popover to use the camera to take a photo or video and upload it straight away~~
-* "Pull to refresh" on the file browser to refresh the items in the folder
+* ~~"Pull to refresh" on the file browser to refresh the items in the folder~~
 
 ### 1.0.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items

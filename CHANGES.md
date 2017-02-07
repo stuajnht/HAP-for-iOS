@@ -8,6 +8,7 @@
 ### New Stuff
 * Log files [can be created](FAQ.md#something-is-not-working-as-expected-using-log-files) for use in debugging the app on remote devices and uploaded
 * Photos and videos can be taken and uploaded directly from the app to the current folder, without needing to open another camera app first
+* "Pull to refresh" has been enabled for the current browsed-to drive or folder, allowing the listing to be refreshed without having to go up a directory and selecting it again
 
 ## 0.8.0
 
