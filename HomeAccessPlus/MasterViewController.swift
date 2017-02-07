@@ -142,7 +142,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // user is at the top and pulls down, or if there was a problem
         // loading the folder and they want to try again
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
-        //self.refreshControl?.addTarget(self, action: "loadFileBrowser:", forControlEvents: UIControlEvents.ValueChanged)
+        self.refreshControl?.addTarget(self, action: #selector(MasterViewController.loadFileBrowser), for: UIControlEvents.valueChanged)
         
         // Seeing if the loadFileBrowser() function should be called
         // This should only be called when the user is actively
@@ -191,17 +191,12 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2015-12-19
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
         // HUD will replace the loading spinner
-        //refreshControl.endRefreshing()
-        
-        // Clearing out all items in the fileItems array, otherwise
-        // then the table is refreshed all items are added again
-        // so the table will always double in length
-        self.fileItems.removeAll()
+        refreshControl?.endRefreshing()
         
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
@@ -218,6 +213,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // no connection to the Internet)
                 if (result) {
                     logger.info("Successfully collected drive JSON data")
+                    
+                    // Clearing out all items in the fileItems array, otherwise
+                    // then the table is refreshed all items are added again
+                    // so the table will always double in length.
+                    // This has to go here, after the api call, otherwise the
+                    // items are removed from the array and table view while it
+                    // is still animating up from the pull down / refresh spinner
+                    // and causes a "fatal error: Array index out of range"
+                    // See: http://stackoverflow.com/q/34358239
+                    self.fileItems.removeAll()
+                    
                     let json = JSON(response)
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
@@ -285,6 +291,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // no connection to the Internet)
                 if (result) {
                     logger.info("Successfully collected folder JSON data")
+                    
+                    // Clearing out all items in the fileItems array, otherwise
+                    // then the table is refreshed all items are added again
+                    // so the table will always double in length.
+                    // This has to go here, after the api call, otherwise the
+                    // items are removed from the array and table view while it
+                    // is still animating up from the pull down / refresh spinner
+                    // and causes a "fatal error: Array index out of range"
+                    // See: http://stackoverflow.com/q/34358239
+                    self.fileItems.removeAll()
+                    
                     let json = JSON(response)
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
