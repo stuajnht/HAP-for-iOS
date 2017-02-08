@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>ApplicationGroupContainerIdentifier</key>
+	<string>group.uk.co.stuajnht.ios.HomeAccessPlus</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Upload</string>
+			<key>FooterText</key>
+			<string>Select and upload photos or videos from this device one item at a time</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Basic Photo Uploader</string>
+			<key>Key</key>
+			<string>basicPhotoUploaderEnabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Basic Video Uploader</string>
+			<key>Key</key>
+			<string>basicVideoUploaderEnabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Logging</string>
+			<key>FooterText</key>
+			<string>Enable logging to a file for debugging purposes, along with the file log level</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Logging to a File</string>
+			<key>Key</key>
+			<string>fileLoggingEnabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>File Logging Level</string>
+			<key>Key</key>
+			<string>fileLoggingLevel</string>
+			<key>DefaultValue</key>
+			<string>warning</string>
+			<key>Titles</key>
+			<array>
+				<string>Severe</string>
+				<string>Error</string>
+				<string>Warning (Default)</string>
+				<string>Information</string>
+				<string>Debug</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>severe</string>
+				<string>error</string>
+				<string>warning</string>
+				<string>info</string>
+				<string>debug</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>About</string>
+			<key>FooterText</key>
+			<string>Copyright (C) 2015-2017 Jonathan Hart
+&quot;Home Access Plus+&quot; name, logo and server side code Copyright (C) Nick Brown</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTitleValueSpecifier</string>
+			<key>Title</key>
+			<string>Version</string>
+			<key>Key</key>
+			<string>versionBuildNumber</string>
+			<key>DefaultValue</key>
+			<string>- (-)</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+			<key>Title</key>
+			<string>Acknowledgements - CocoaPods</string>
+			<key>File</key>
+			<string>AcknowledgementsCocoaPods</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+			<key>Title</key>
+			<string>Acknowledgements - Other Projects</string>
+			<key>File</key>
+			<string>AcknowledgementsOtherProjects</string>
+		</dict>
+	</array>
+</dict>
+</plist>

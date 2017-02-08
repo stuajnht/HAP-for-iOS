@@ -1,5 +1,39 @@
 # Home Access Plus+ iOS app change log
 
+## 0.9.0
+
+### Notes
+* Starting from build 790, this project uses Xcode 8.2 and Swift 3.0.2. A large amount of code refactoring has taken place since [#f6ecd4] to conform to the latest syntax
+
+### New Stuff
+* Log files [can be created](FAQ.md#something-is-not-working-as-expected-using-log-files) for use in debugging the app on remote devices and uploaded
+* Photos and videos can be taken and uploaded directly from the app to the current folder, without needing to open another camera app first
+* "Pull to refresh" has been enabled for the current browsed-to drive or folder, allowing the listing to be refreshed without having to go up a directory and selecting it again
+
+### Changes
+* Added additional supported file icons in the file browser, for file types that are understood by the QuickLook preview
+
+## 0.8.0
+
+### Notes
+* This version never left 'alpha' stage, and has since been changed to 0.9.0, due to other commitments causing this project to have an unexpected hiatus (apart from the occasional code fix). The decision to bump up the version number is due to a large number of code changes needed for Swift 3
+
+### New Stuff
+* Multiple photos or videos can be selected and uploaded at once to the HAP+ server
+* The licenses for the [various projects](README.md#license-terms) this app uses are shown in the main iOS Settings app
+
+### Changes
+* The old functionality to upload one photo or video at a time to the HAP+ server can be enabled in the main iOS settings app
+* Displayed the name of the file being uploaded on the "file exists" alert, so that it is known which file the message is referring to
+* Changed how the "File Browser" table view controller works:
+  * If the device is in portrait mode, the view is now shown after login
+  * The view can be hidden in both portrait and landscape orentations, giving more available screen space to preview files
+
+### Bug Fixes
+* Fixed bug where the app would crash if the user logged out when the device is in portrait mode (The master view controller would stay visible, causing subsequent actions to try and access settings that are nil)
+* Fixed bug where the upload popover would show an incorrect lanuch location if the device is rotated when the popover is visible
+* Fixed bug where if the currently selected file is downloaded immediately again, but the file data has been changed on a remote device, the correct version of the file is shown
+
 ## 0.7.0
 
 ### Notes

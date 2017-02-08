@@ -4,7 +4,7 @@ Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple devi
 
 ## Requirements
 To be able to use this app, you will need to have the following:
-* iOS 9 device
+* A device running iOS 9.0+
 * [Home Access Plus+](https://hap.codeplex.com) set up and running for your institution (bug your network managers to get this set up&hellip; it's free)
 
 ## Frequently Asked Questions
@@ -24,13 +24,16 @@ Thanks for your interest in contributing to this project. You can contribute or 
 ### Pull Requests
 If you would like to create a pull request, please make sure that you are on the [develop branch](https://github.com/stuajnht/HAP-for-iOS/tree/develop) before opening one. Once you have cloned or forked this repo, open the `HomeAccessPlus.xcworkspace` file in Xcode to begin development. This project uses [git-flow](https://github.com/nvie/gitflow) as its branching model.
 
-The current development environment is with Xcode 7.3 and Swift 2.2. Please make sure you are using these versions before  submitting any pull requests
+The current development environment is with Xcode 8.2 and Swift 3.0.2. Please make sure you are using these versions before submitting any pull requests
 
 ### Contributors
 The following users have contributed code or suggestions to this project:
 * [@TestValleySchool](https://github.com/TestValleySchool):
   * [#19](https://github.com/stuajnht/HAP-for-iOS/pull/19)
 * [kidpressingbuttons](http://www.edugeek.net/members/kidpressingbuttons.html)
+
+## Privacy Purpose Permissions
+Apps built for iOS 10+ must declare the purpose for access to any user private data types (sources: [1](http://useyourloaf.com/blog/privacy-settings-in-ios-10/), [2](https://developer.apple.com/videos/play/wwdc2016-709/?time=1470), [3](https://developer.apple.com/videos/play/wwdc2016-709/?time=1780)). Since this project uses the [PermissionScope Cocoapod](#cocoapods) a number of additional unused permissions are requested ([GitHub Issue](https://github.com/nickoneill/PermissionScope/issues/194)). Please see the [Frequently Asked Questions](FAQ.md#why-are-so-many-privacy-purpose-permissions-needed) for more information.
 
 ## License Terms
 Home Access Plus+ for iOS is publised under the GNU GPL v3 License, see the [LICENSE](LICENSE.md) file for more information.
@@ -41,12 +44,14 @@ The name "Home Access Plus+" and all server side code are copyright Nick Brown (
 This project uses Cocoapods. Their project source code pages and licenses can be found below:
 * [Alamofire](https://github.com/Alamofire/Alamofire/)
 * [ChameleonFramework](https://github.com/ViccAlexander/Chameleon)
+* [DKImagePickerController](https://github.com/zhangao0086/DKImagePickerController)
 * [Font Awesome Swift](https://github.com/Vaberer/Font-Awesome-Swift)
 * [Locksmith](https://github.com/matthewpalmer/Locksmith)
 * [MBProgressHUD](https://github.com/jdg/MBProgressHUD)
 * [PermissionScope](https://github.com/nickoneill/PermissionScope)
 * [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 * [XCGLogger](https://github.com/DaveWoodCom/XCGLogger)
+* [Zip](https://github.com/marmelroy/Zip)
 
 ### Other Projects
 The following projects and source code are included in HAP+ for iOS. Their licenses project pages can be found below:
@@ -55,17 +60,12 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 ## To-Do List
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
-### 0.7.0
-* ~~Auto re-login for devices that are in 'personal' or 'single' mode~~
-* ~~Logout button for apps in any mode, to allow other users to log in (devices in 'single mode' need a domain admin to provide credentials first)~~
-* ~~Use the timetable plugin for HAP+ to get the times of lessons, and log the user out if the device is in 'shared' mode and the lesson has finished~~
-* ~~Use the document picker control to access files from some apps which don't allow the file to be copied to the app~~
-
-### 0.8.0
-* A settings menu of some sort (either in-app or the main settings app)
-* Update additional supported file icons
+### 1.0.0
+* Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items
+* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
+* Support for document provider open and move options for apps that do not support import and export
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
-### 0.9.0
-* Swipe table item right to select it or choose cut / copy functions, and paste into new folder
-* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover
+### 1.1.0
+* "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
+* (Optional branding) Set a logo and theme colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere

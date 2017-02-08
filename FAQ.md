@@ -10,6 +10,8 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
 * [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
 * [I am being asked to type an "_authenticated username_" to log out of the device](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
+* [Why are so many Privacy Purpose Permissions needed?](#why-are-so-many-privacy-purpose-permissions-needed)
+* [Something is not Working as Expected (Using Log Files)](#something-is-not-working-as-expected-using-log-files)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
 You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled and is using a correctly configured SSL certificate (isn't self signed, expired, or containing a mismatched domain name) using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
@@ -34,20 +36,48 @@ While HAP+ server contains [support for a large number of common file types](htt
 
 > :warning: This involves modifying a core file in HAP+ that may get over-written when HAP+ is updated. If you find that support for certain file types has stopped working after an update, complete the steps below again. You do this at your own risk&hellip; create a copy of the file before modifying, just to be safe.
 
-> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file may be found [here](http://www.freeformatter.com/mime-types-list.html) or [here](http://www.sitepoint.com/web-foundations/mime-types-complete-list/), otherwise it should be `application/octetstream`
+> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file can be found on the [IANA Media Types webpage](http://www.iana.org/assignments/media-types/media-types.xhtml), otherwise it should be `application/octetstream`. Additional information on MIME types may be found on [www.freeformatter.com](http://www.freeformatter.com/mime-types-list.html) or [www.sitepoint.com](http://www.sitepoint.com/web-foundations/mime-types-complete-list/). Failing any of those websites, a search of the [file format list on Wikipedia](https://en.wikipedia.org/wiki/List_of_file_formats) for the extension may bring up the relevant information.
 
 1. On your HAP+ webserver, browse to and open the following file `~\images\icons\knownicons.xml` (where `~` is the root directory of your HAP+ install, usually `C:\inetpub\wwwroot\hap\images\icons\knownicons.xml`)
 2. Above the final line that ends with `</Icons>` add the following lines:
 ``` xml
-<!-- Including additional support for files created with the HAP+ iOS app -->
+<!-- Including additional support for file types, such as those created with the HAP+ iOS app -->
+<Icon icon="zip.png" extension="7z" type="7z Compressed Archive" contenttype="application/x-7z-compressed" />
+<Icon icon="mp3.png" extension="aac" type="Advanced Audio Coding" contenttype="audio/aac" />
+<Icon icon="bmp.png" extension="ai" type="Adobe Illustrator Image" contenttype="application/postscript" />
+<Icon icon="exe.png" extension="bin" type="MacBinary Archive" contenttype="application/macbinary" />
+<Icon icon="zip.png" extension="bz2" type="bzip2 Compressed Archive" contenttype="application/x-bzip2" />
+<Icon icon="cs.png" extension="c" type="C Source File" contenttype="text/plain" />
 <Icon icon="docx.png" extension="epub" type="Electronic Publication" contenttype="application/epub+zip" />
+<Icon icon="zip.png" extension="gz" type="Gzip Compressed Archive" contenttype="application/gzip" />
+<Icon icon="cs.png" extension="h" type="C Header Source File" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="icns" type="Apple Icon Image" contenttype="application/octetstream" />
+<Icon icon="txt.png" extension="json" type="JavaScript Object Notation File" contenttype="application/json" />
 <Icon icon="pptx.png" extension="keynote" type="Apple iWorks Keynote" contenttype="application/octetstream" />
-<Icon icon="xlsx.png" extension="numbers" type="Apple iWorks Numbers" contenttype="application/octetstream" />
+<Icon icon="txt.png" extension="log" type="Log File" contenttype="text/plain" />
 <Icon icon="vid.png" extension="mov" type="QuickTime Movie" contenttype="video/quicktime" />
+<Icon icon="xlsx.png" extension="numbers" type="Apple iWorks Numbers" contenttype="application/octetstream" />
+<Icon icon="docx.png" extension="odt" type="Open Document Text" contenttype="application/vnd.oasis.opendocument.text" />
+<Icon icon="pptx.png" extension="odp" type="Open Document Presentation" contenttype="application/vnd.oasis.opendocument.presentation" />
+<Icon icon="xlsx.png" extension="ods" type="Open Document Spreadsheet" contenttype="application/vnd.oasis.opendocument.spreadsheet" />
 <Icon icon="docx.png" extension="pages" type="Apple iWorks Pages" contenttype="application/octetstream" />
+<Icon icon="cs.png" extension="php" type="PHP Hypertext Preprocessor File" contenttype="text/plain" />
+<Icon icon="cs.png" extension="pl" type="Perl Script" contenttype="text/plain" />
+<Icon icon="cs.png" extension="ps1" type="PowerShell Script" contenttype="text/plain" />
+<Icon icon="cs.png" extension="py" type="Python Script" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="psd" type="Adobe Photoshop Document" contenttype="image/vnd.adobe.photoshop" />
+<Icon icon="cs.png" extension="sh" type="Bourne Shell Script" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="svg" type="Scalable Vector Graphic" contenttype="image/svg+xml" />
+<Icon icon="zip.png" extension="tar" type="Tape Archive" contenttype="application/x-tar" />
+<Icon icon="cs.png" extension="vb" type="Visual Basic File" contenttype="text/plain" />
+<Icon icon="cs.png" extension="vbs" type="Visual Basic Script" contenttype="text/plain" />
+<Icon icon="txt.png" extension="yml" type="YAML Ain't Markup Language File" contenttype="text/plain" />
+<Icon icon="txt.png" extension="yaml" type="YAML Ain't Markup Language File" contenttype="text/plain" />
 ```
 3. Save the file
 4. Open IIS manager and restart the IIS server service (or if you have other websites running, navigate to and restart just the HAP+ website)
+
+> :information_source: If a new file extension is added to `knownicons.xml`, then the icon for it will probably not exist in the `~\images\icons\` folder. You can use [Nirsoft IconsExtract](http://www.nirsoft.net/utils/iconsext.html) to extract the file icon from the main program executable, convert it to a *.png file with [ImageMagick](http://www.imagemagick.org/script/index.php) (`convert <file>.ico <file>.png`) and copy it to the `~\images\icons\` folder.
 
 ## When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder
 By default, your institutions Home Access Plus+ server is set to only accept a limited number of file types. The app that you are using probably saves in a format that is not common, so HAP+ doesn't allow the file to be added. You will need to speak to your institutions network manager to allow support for additional file types. Point them here for the instructions on how to do this:
@@ -96,3 +126,26 @@ This occurs when the Home Access Plus+ app on your device has been set up in ["S
 > :information_source: These steps will need to be undertaken each time a user wants to log off if a device is in "Single" mode. If this is not intended, uninstall and reinstall the app to be able to choose a [different mode](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single) on first login again.
 
 > :information_source: Users on the domain who are in the `Domain Admins` group are automatically logged out when the device is in "Single" mode. It is assumed that this group contains IT staff only, so when the device is initially being set up, you can log in and put it in "Single" mode, then log out quickly ready to hand it to a user.
+
+## Why are so many Privacy Purpose Permissions needed?
+Due to the inclusion of the [PermissionScope](https://github.com/nickoneill/PermissionScope) Cocoapod to simplify requests for permissions, there is an [issue](https://github.com/nickoneill/PermissionScope/issues/194) with how many permissions are requested compared to how many are ever used. The permissions this app uses are listed below:
+* Privacy - Camera Usage Description (`NSCameraUsageDescription`): This allows for images or videos to be taken directly in the app and uploaded to the current folder, without needing to open the camera app first
+* Privacy - Photo Library Usage (`NSPhotoLibraryUsageDescription`): This allows for the ability to browse the photo and video library on your device to access the files in them to upload it to the HAP+ server. While it is possible to send the media file from the photos app to this app, this allows for a convenient way to access those items
+
+Any other Privacy Purpose Permissions that are shown *are not used*, but are needed to be included for the app to be submitted to the App Store
+
+## Something is not Working as Expected (Using Log Files)
+It is possible to generate log files from the app to see what is going on to cause a problem. To enable debug logging, perform the following steps:
+1. Open the main iOS Settings app and scroll down to the "Home Access Plus+" section
+2. Toggle the "Enable Logging to a File" option
+3. If needed, select a logging level to capture the right amount of information
+   * Severe - Only logged if the app has a serious problem, assuming it can be caught
+   * Error - Captures most problems that occur during the use of the app
+   * Warning (Default) - An error may occur related to this, but the app should work as expected
+   * Infomation - High-level descriptions about what the app is currently doing
+   * Debug - Detailed and developer orentated messages
+4. Run the HAP+ app as you have been doing to recreate the problem
+5. Browse to a folder that you can upload to, and from the upload menu, press the "Save Log Files" option (this will be a new item to the popover)
+6. All log files from the device will be uploaded to the current folder as a zip file, and it can be opened on another computer to see what is causing the problem
+
+> :information_source: If you are unable to log in, complete steps 1 - 4 above, then tap the name of the app on the login screen 10 times. An email will be created with the log files attached (assuming an email account is set up on the device). This limit is set to prevent any accidental triggering

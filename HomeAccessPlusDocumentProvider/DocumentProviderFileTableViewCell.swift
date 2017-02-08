@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015-2017  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         // Initialization code
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state
@@ -80,7 +80,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
     ///
     /// - parameter fileType: The type of the file of the table cell
     /// - parameter fileExtension: The extension of the file in the table cell
-    func fileIcon(fileType: String, fileExtension: String) {
+    func fileIcon(_ fileType: String, fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
         
@@ -103,7 +103,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         }
         
         // Seeing what icon should be displayed
-        switch fileExtension.lowercaseString {
+        switch fileExtension.lowercased() {
             // Network drive
         case "drive":
             icon = FAType.FAHddO
@@ -162,7 +162,7 @@ class DocumentProviderFileTableViewCell: UITableViewCell {
         }
         
         // Displaying the icon
-        imgFileIcon.setFAIconWithName(icon, textColor: UIColor.init(colorLiteralRed: 0, green: 0.36470588240000001, blue: 0.6705882353, alpha: 1))
+        imgFileIcon.setFAIconWithName(icon: icon, textColor: UIColor.init(colorLiteralRed: 0, green: 0.36470588240000001, blue: 0.6705882353, alpha: 1))
     }
     
 }

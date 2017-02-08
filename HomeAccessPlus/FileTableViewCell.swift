@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015-2017  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,11 +35,11 @@ class FileTableViewCell: UITableViewCell {
         
         // Setting the colours of the file type and details
         // labels, so that they're not too distracting
-        lblFileType.textColor = UIColor.flatGrayColor()
-        lblFileDetails.textColor = UIColor.flatGrayColor()
+        lblFileType.textColor = UIColor.flatGray()
+        lblFileDetails.textColor = UIColor.flatGray()
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
@@ -73,12 +73,12 @@ class FileTableViewCell: UITableViewCell {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 4
+    /// - version: 6
     /// - date: 2016-04-01
     ///
     /// - parameter fileType: The type of the file of the table cell
     /// - parameter fileExtension: The extension of the file in the table cell
-    func fileIcon(fileType: String, fileExtension: String) {
+    func fileIcon(_ fileType: String, fileExtension: String) {
         var icon : FAType
         logger.verbose("Setting icon for the file type: \(fileType)")
         
@@ -101,7 +101,7 @@ class FileTableViewCell: UITableViewCell {
         }
         
         // Seeing what icon should be displayed
-        switch fileExtension.lowercaseString {
+        switch fileExtension.lowercased() {
             // Network drive
             case "drive":
                 icon = FAType.FAHddO
@@ -115,39 +115,39 @@ class FileTableViewCell: UITableViewCell {
                 icon = FAType.FAFilePdfO
             
             // Archive documents
-            case ".zip", ".7z":
+            case ".7z", ".bz2", ".gz", ".tar", ".zip":
                 icon = FAType.FAFileArchiveO
             
             // Audio documents
-            case ".mp3", ".wav":
+            case ".aac", ".mp3", ".wav":
                 icon = FAType.FAFileAudioO
             
             // Code documents
-            case ".xml", ".html", ".css":
+            case ".c", ".cs", ".css", ".go", ".h", ".html", ".js", ".php", ".pl", ".ps1", ".py", ".sh", ".vb", ".vbs", ".xml":
                 icon = FAType.FAFileCodeO
             
             // Image documents
-            case ".jpg", ".png", ".gif", ".bmp", ".ico", ".svg":
+            case ".ai", ".bmp", ".gif", ".icns", ".ico", ".jpeg", ".jpg", ".png", ".psd", ".svg":
                 icon = FAType.FAFileImageO
             
-            // Microsoft Excel documents
-            case ".xls", ".xlsx", ".xlsm", ".csv":
+            // Microsoft Excel (and similar) documents
+            case ".csv", ".ods", ".xls", ".xlsx", ".xlsm":
                 icon = FAType.FAFileExcelO
             
-            // Microsoft PowerPoint documents
-            case ".ppt", ".pptx", ".pptm":
+            // Microsoft PowerPoint (and similar) documents
+            case ".odp", ".ppt", ".pptx", ".pptm":
                 icon = FAType.FAFilePowerpointO
             
-            // Microsoft Word documents
-            case ".doc", ".docx", ".dotm":
+            // Microsoft Word (and similar) documents
+            case ".doc", ".docm", ".docx", ".dotm", ".odt":
                 icon = FAType.FAFileWordO
             
             // Text documents
-            case ".txt", ".rtf", ".log":
+            case ".epub", ".json", ".log", ".rtf", ".txt", ".yml", ".yaml":
                 icon = FAType.FAFileTextO
             
             // Video documents
-            case ".avi", ".mp4", ".mov":
+            case ".avi", ".mov", ".mp4", ".mpeg", ".mpg":
                 icon = FAType.FAFileVideoO
             
             // Unknown file with no extension - issue #13
@@ -160,7 +160,7 @@ class FileTableViewCell: UITableViewCell {
         }
         
         // Displaying the icon
-        imgFileIcon.setFAIconWithName(icon, textColor: UIColor(hexString: hapMainColour))
+        imgFileIcon.setFAIconWithName(icon: icon, textColor: UIColor(hexString: hapMainColour))
     }
 
 }

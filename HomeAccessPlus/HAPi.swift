@@ -1,5 +1,5 @@
 // Home Access Plus+ for iOS - A native app to access a HAP+ server
-// Copyright (C) 2015, 2016  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+// Copyright (C) 2015-2017  Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,29 @@ import Alamofire
 import Locksmith
 import SwiftyJSON
 import XCGLogger
+
+
+// Extension for Alamofire encoding string text as body
+extension String: ParameterEncoding {
+    
+    /// Extension to allow Alamofire to post the path of the file that
+    /// should be deleted into the request body, as it is just a plain
+    /// string rather than the usual JSON file
+    /// See: http://stackoverflow.com/a/28552198
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-alpha
+    /// - version: 1
+    /// - date: 2017-01-06
+    ///
+    /// - seealso: deleteFile
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+        var request = try urlRequest.asURLRequest()
+        request.httpBody = data(using: .utf8, allowLossyConversion: false)
+        return request
+    }
+ 
+}
 
 /// HAPi class to format, get and return data from the HAP+ API
 ///
@@ -58,7 +81,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-05
     ///
     /// - returns: Is there an available Internet connection
@@ -66,14 +89,14 @@ class HAPi {
         logger.debug("Checking connection to the Internet")
         let status = Reach().connectionStatus()
         switch status {
-        case .Unknown, .Offline:
-            logger.warning("No available connection to the Internet")
+        case .unknown, .offline:
+            logger.error("No available connection to the Internet")
             return false
-        case .Online(.WWAN):
-            logger.info("Connection to the Intenet via WWAN")
+        case .online(.wwan):
+            logger.debug("Connection to the Intenet via WWAN")
             return true
-        case .Online(.WiFi):
-            logger.info("Connection to the Internet via WiFi")
+        case .online(.wiFi):
+            logger.debug("Connection to the Internet via WiFi")
             return true
         }
     }
@@ -97,16 +120,16 @@ class HAPi {
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - returns: Can the HAP+ server API be contacted
-    func checkAPI(hapServer: String, callback:(Bool) -> Void) -> Void {
+    func checkAPI(_ hapServer: String, callback:@escaping (Bool) -> Void) -> Void {
         // Use Alamofire to try to connect to the passed HAP+ server
         // and check the API connection is working
-        Alamofire.request(.GET, hapServer + "/api/test")
+        Alamofire.request(hapServer + "/api/test")
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set - issue #11
                 // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
-                case.Success(_):
+                case.success(_):
                     logger.verbose("Successful contact of server: \(response.result.isSuccess)")
                     logger.verbose("Response string from server API : \(response.result.value)")
                     // Seeing if the response is 'OK'
@@ -121,8 +144,8 @@ class HAPi {
                 // iOS 9 requires (the error logged below would have the following
                 // message: Error Domain=NSURLErrorDomain Code=-1200 "An SSL error
                 // has occurred and a secure connection to the server cannot be made.")
-                case .Failure(let error):
-                    logger.verbose("Connection to API failed with error: \(error)")
+                case .failure(let error):
+                    logger.error("Connection to API failed with error: \(error)")
                     callback(false)
                 }
             }
@@ -143,13 +166,13 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 3
+    /// - version: 6
     /// - date: 2016-04-16
     ///
     /// - parameter hapServer: The full URL to the main HAP+ root
     /// - parameter username: The username of the user we are trying to log in
     /// - parameter password: The password entered for the username provided
-    func loginUser(hapServer: String, username: String, password: String, callback:(Bool) -> Void) -> Void {
+    func loginUser(_ hapServer: String, username: String, password: String, callback:@escaping (Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -159,33 +182,41 @@ class HAPi {
             ]
             
             // Connecting to the API to log in the user with the credentials
-            logger.debug("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
-            Alamofire.request(.POST, hapServer + "/api/ad/?", parameters: ["username": username, "password": password], headers: httpHeaders, encoding: .JSON)
+            logger.info("Attempting to connect to \(hapServer)/api/ad/? with the username: \(username)")
+            Alamofire.request(hapServer + "/api/ad/?", method: .post, parameters: ["username": username, "password": password], encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                    case .Success(let JSON):
-                        logger.verbose("Response JSON for login attempt: \(JSON)")
+                    case .success(let value):
+                        logger.verbose("Response JSON for login attempt: \(value)")
+                        
+                        // This line was put in when updating to Swift 3.
+                        // I think it should have been in from the beginning,
+                        // but as this was a very early function that I wrote
+                        // I don't think I followed the instructions properly.
+                        // It is based on the example by SwiftyJSON
+                        // See: https://github.com/SwiftyJSON/SwiftyJSON#work-with-alamofire
+                        let json = JSON(value)
                         
                         // Seeing if there is a valid logon attempt, from the returned JSON
-                        let validLogon = JSON["isValid"]!!.stringValue
+                        let validLogon = json["isValid"].stringValue
                         logger.info("Logon username and password valid: \(validLogon)")
-                        if (validLogon == "1") {
+                        if (validLogon == "true") {
                             // We have successfully logged in, so save some settings
                             // the NSUserDefaults settings variable
-                            let siteName = JSON["SiteName"]
+                            let siteName = json["SiteName"].stringValue
                             logger.debug("Site name from JSON: \(siteName)")
-                            settings!.setObject(siteName, forKey: settingsSiteName)
-                            settings!.setObject(JSON["FirstName"], forKey: settingsFirstName)
-                            settings!.setObject(JSON["Username"], forKey: settingsUsername)
-                            settings!.setObject(JSON["Token1"], forKey: settingsToken1)
-                            settings!.setObject(JSON["Token2"], forKey: settingsToken2)
-                            settings!.setObject(JSON["Token2Name"], forKey: settingsToken2Name)
+                            settings!.set(siteName, forKey: settingsSiteName)
+                            settings!.set(json["FirstName"].stringValue, forKey: settingsFirstName)
+                            settings!.set(json["Username"].stringValue, forKey: settingsUsername)
+                            settings!.set(json["Token1"].stringValue, forKey: settingsToken1)
+                            settings!.set(json["Token2"].stringValue, forKey: settingsToken2)
+                            settings!.set(json["Token2Name"].stringValue, forKey: settingsToken2Name)
                             
                             // Saving the password for future logon attempts
                             // and for when the logon tokens expire
                             do {
-                                try Locksmith.updateData([settingsPassword: password], forUserAccount: settings!.stringForKey(settingsUsername)!)
+                                try Locksmith.updateData(data: [settingsPassword: password], forUserAccount: settings!.string(forKey: settingsUsername)!)
                                 logger.debug("Securely saved user password")
                             } catch {
                                 logger.error("Failed to securely save password")
@@ -195,30 +226,30 @@ class HAPi {
                             // API, to reset the session cookies. This is saved
                             // as a time since Unix epoch
                             logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                            settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                            settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                             
                             // Setting the groups the user is part of
                             self.setRoles({ (result: Bool) -> Void in
                                 if (result) {
-                                    logger.info("Successfully set the roles for \(settings!.stringForKey(settingsUsername)!)")
-                                    logger.debug("Roles for \(settings!.stringForKey(settingsUsername)!): \(settings!.stringForKey(settingsUserRoles)!)")
+                                    logger.info("Successfully set the roles for \(settings!.string(forKey: settingsUsername)!)")
+                                    logger.debug("Roles for \(settings!.string(forKey: settingsUsername)!): \(settings!.string(forKey: settingsUserRoles)!)")
                                 } else {
-                                    logger.warning("Failed to set the roles for \(settings!.stringForKey(settingsUsername)!)")
+                                    logger.warning("Failed to set the roles for \(settings!.string(forKey: settingsUsername)!)")
                                 }
                             })
                             
                             // Attempting to get the timetable for the current user,
                             // only if the device type is not set up or in "shared" mode
-                            if ((settings!.stringForKey(settingsDeviceType) == "shared") || (settings!.stringForKey(settingsDeviceType) == nil)) {
+                            if ((settings!.string(forKey: settingsDeviceType) == "shared") || (settings!.string(forKey: settingsDeviceType) == nil)) {
                                 logger.debug("Device is new or in shared mode, so attempting to retreive a timetable for the current user")
                                 
                                 self.getTimetable({ (result: Bool) -> Void in
                                     if (result) {
-                                        logger.info("Successfully collected a timetable for \(settings!.stringForKey(settingsUsername)!)")
+                                        logger.info("Successfully collected a timetable for \(settings!.string(forKey: settingsUsername)!)")
                                         
                                         // Enabling auto-logout for the current logged in user
                                         logger.info("Enabling auto-logout for the current user")
-                                        settings!.setBool(true, forKey: settingsAutoLogOutEnabled)
+                                        settings!.set(true, forKey: settingsAutoLogOutEnabled)
                                         
                                         // Seeing if this code is being compiled for the main app
                                         // or the app extensions. This hacky way is needed as app
@@ -231,7 +262,7 @@ class HAPi {
                                             delegate!.startAutoLogOutCheckTimer()
                                         #endif
                                     } else {
-                                        logger.warning("Did not get a timetable for \(settings!.stringForKey(settingsUsername)!), or it is currently outside a timetabled lesson")
+                                        logger.warning("Did not get a timetable for \(settings!.string(forKey: settingsUsername)!), or it is currently outside a timetabled lesson")
                                         logger.info("Not enabling auto-logout for the current user")
                                     }
                                 })
@@ -243,8 +274,8 @@ class HAPi {
                             callback(false)
                         }
                     
-                    case .Failure(let error):
-                        logger.warning("Request failed with error: \(error)")
+                    case .failure(let error):
+                        logger.error("Request failed with error: \(error)")
                         callback(false)
                     }
                 }
@@ -283,36 +314,36 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-12
     /// - seealso: loginUser
-    func setRoles(callback:(Bool) -> Void) -> Void {
-        Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/ad/roles/" + settings!.stringForKey(settingsUsername)!)
+    func setRoles(_ callback:@escaping (Bool) -> Void) -> Void {
+        Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/ad/roles/" + settings!.string(forKey: settingsUsername)!)
             .responseString { response in switch response.result {
                 // Seeing if there is a successful contact from the HAP+
                 // server, so as to not try and get a value from a variable
                 // that is never set
-            case.Success(_):
+            case.success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings!.stringForKey(settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value)")
                 // Saving the groups the user is part of
-                settings!.setObject(response.result.value, forKey: settingsUserRoles)
+                settings!.set(response.result.value, forKey: settingsUserRoles)
                 
                 // Logging the last successful contact to the HAP+
                 // API, to reset the session cookies. This is saved
                 // as a time since Unix epoch
                 logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                 
                 callback(true)
                 
                 // We were not able to contact the HAP+ server, so we cannot
                 // put the user into any groups
-            case .Failure(let error):
-                logger.verbose("Connection to API failed with error: \(error)")
+            case .failure(let error):
+                logger.error("Connection to API failed with error: \(error)")
                 // Creating an empty escaped string -- [""] -- so that the setting
                 /// value exists and is over-written from a previous logged on user
-                settings!.setObject("[\"\"]", forKey: settingsUserRoles)
+                settings!.set("[\"\"]", forKey: settingsUserRoles)
                 callback(false)
                 }
         }
@@ -356,9 +387,9 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-04-16
-    func getTimetable(callback:(Bool) -> Void) -> Void {
+    func getTimetable(_ callback:@escaping (Bool) -> Void) -> Void {
         // Seeing if auto-logout should be enabled. This is set to
         // false by default as we don't want users being logged out
         // of the device if they are not in a lesson, and only set
@@ -375,8 +406,8 @@ class HAPi {
             ]
             
             // Connecting to the API to attempt to load the users timetable
-            logger.debug("Attempting to get the timetable for: \(settings!.stringForKey(settingsUsername)!)")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.stringForKey(settingsUsername)!, headers: httpHeaders, encoding: .JSON)
+            logger.info("Attempting to get the timetable for: \(settings!.string(forKey: settingsUsername)!)")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/timetable/LoadUser/" + settings!.string(forKey: settingsUsername)!, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseString { response in
@@ -385,7 +416,7 @@ class HAPi {
                     logger.verbose("Timetable API data: \(response.result.value!)")
                     
                     switch response.result {
-                    case .Success:
+                    case .success:
                         // Formatting the JSON response as a string, to
                         // see if there is any content returned
                         let jsonString = JSON(response.result.value!)
@@ -395,20 +426,20 @@ class HAPi {
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Seeing if the timetable returned has anything in it
                         // This can be checked by having at least one timetabled
                         // day and lesson, otherwise the returned API JSON is []
                         if jsonString.rawString() != "[]" {
-                            logger.info("Valid timetable found for \(settings!.stringForKey(settingsUsername)!)")
+                            logger.info("Valid timetable found for \(settings!.string(forKey: settingsUsername)!)")
                             logger.info("Enabling automatic log out of user at the end of the current lesson, if applicable")
                             
                             // Converting the JSON string returned from the server
                             // into a JSON object, otherwise it's not possible to
                             // access any data
                             // See: https://www.hackingwithswift.com/example-code/libraries/how-to-parse-json-using-swiftyjson
-                            if let data = response.result.value!.dataUsingEncoding(NSUTF8StringEncoding) {
+                            if let data = response.result.value!.data(using: String.Encoding.utf8) {
                                 let json = JSON(data: data)
                                 logger.verbose("Response JSON for timetable (JSON): \(json)")
                                 
@@ -425,7 +456,7 @@ class HAPi {
                                 // Looping through the days presented, to save the timetable
                                 for (_,subJson) in json {
                                     let dayNumber = subJson["Day"].stringValue
-                                    logger.debug("Getting lessons for \(settings!.stringForKey(settingsUsername)!) on day: \(dayNumber)")
+                                    logger.debug("Getting lessons for \(settings!.string(forKey: settingsUsername)!) on day: \(dayNumber)")
                                     
                                     // Retreiving details for the days lessons
                                     for lesson in subJson["Lessons"].arrayValue {
@@ -437,7 +468,7 @@ class HAPi {
                                         // Adding the current lesson to the array
                                         var lesson: [String] = []
                                         lesson = [dayNumber, period, startTime, endTime]
-                                        lessons.append(lesson)
+                                        lessons.append(lesson as NSArray)
                                     }
                                 }
                                 
@@ -448,18 +479,18 @@ class HAPi {
                                 // variable will put the date as 2001-01-01 if todays date is
                                 // not included
                                 // See: http://stackoverflow.com/a/28347285
-                                let formatShortDate = NSDateFormatter()
+                                let formatShortDate = DateFormatter()
                                 formatShortDate.dateFormat = "yyyy-MM-dd"
-                                let today = formatShortDate.stringFromDate(NSDate())
-                                logger.debug("Todays date is: \(today)")
+                                let today = formatShortDate.string(from: NSDate() as Date)
+                                logger.verbose("Todays date is: \(today)")
                                 
                                 // Getting a time the current lesson ends, if applicable
                                 // Note: HAP+ returns the days as Monday - 1, Tuesday - 2, etc...
                                 //       the following code does Sun - 1, Mon - 2, etc...
                                 //       so 1 is taken from the result
                                 // See: http://stackoverflow.com/a/35006174
-                                let cal: NSCalendar = NSCalendar.currentCalendar()
-                                let comp: NSDateComponents = cal.components(.Weekday, fromDate: NSDate())
+                                let cal: NSCalendar = NSCalendar.current as NSCalendar
+                                let comp: NSDateComponents = cal.components(.weekday, from: NSDate() as Date) as NSDateComponents
                                 let dayNumberToday = comp.weekday - 1
                                 logger.debug("Today is day number: \(dayNumberToday)")
                                 
@@ -467,13 +498,13 @@ class HAPi {
                                 // from the JSON request, along with the current date time, are
                                 // formatted in a standard way so that they can be compared
                                 // See: http://stackoverflow.com/a/28627873
-                                let timeFormatter = NSDateFormatter()
-                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+                                let timeFormatter = DateFormatter()
+                                timeFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
                                 timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                                 
                                 // Getting the date time as of now, so that it can be
                                 // compared against the lesson start and end times
-                                let timeNow = timeFormatter.stringFromDate(NSDate())
+                                let timeNow = timeFormatter.string(from: NSDate() as Date)
                                 logger.debug("Date time now is: \(timeNow)")
                                 
                                 // Looping around the items in the lessons array, to find
@@ -488,8 +519,8 @@ class HAPi {
                                         // Formatting the time from the string to be a valid
                                         // NSDate, composed of todays date and the time returned
                                         // from the JSON response
-                                        let lessonStartTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
-                                        let lessonEndTime = timeFormatter.dateFromString(today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
+                                        let lessonStartTime = timeFormatter.date(from: today + " " + (lessons[arrayPosition][2] as! String) + ":00")!
+                                        let lessonEndTime = timeFormatter.date(from: today + " " + (lessons[arrayPosition][3] as! String) + ":00")!
                                         logger.debug("Lesson being checked starts at \(lessonStartTime) and ends at \(lessonEndTime)")
                                         
                                         // Seeing if the current time is between the lesson
@@ -498,8 +529,8 @@ class HAPi {
                                         //       the stackoverflow answers, so this may not be
                                         //       entirely efficient
                                         // See: http://stackoverflow.com/a/29653553
-                                        let currentTime = timeFormatter.dateFromString(timeNow)!
-                                        if lessonStartTime.compare(currentTime) == .OrderedAscending && lessonEndTime.compare(currentTime) == .OrderedDescending {
+                                        let currentTime = timeFormatter.date(from: timeNow)!
+                                        if lessonStartTime.compare(currentTime) == .orderedAscending && lessonEndTime.compare(currentTime) == .orderedDescending {
                                             // The user is currently using the device in a timetabled
                                             // lesson, so we can auto log them out
                                             logger.info("Currently in lesson: \(lessons[arrayPosition][1])")
@@ -509,7 +540,7 @@ class HAPi {
                                             // out by, so that it can be checked in the AppDelegate
                                             // autoLogOutTimer
                                             logger.debug("Setting auto-log out time to be: \(lessonEndTime.timeIntervalSince1970)")
-                                            settings!.setDouble(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
+                                            settings!.set(lessonEndTime.timeIntervalSince1970, forKey: settingsAutoLogOutTime)
                                         } else {
                                             logger.debug("Currently outside of lesson: \(lessons[arrayPosition][1])")
                                         }
@@ -524,12 +555,12 @@ class HAPi {
                         } else {
                             // No timetable was found for the user, so disable
                             // automatically logging out the logged in user
-                            logger.warning("No timetable found for \(settings!.stringForKey(settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
+                            logger.warning("No timetable found for \(settings!.string(forKey: settingsUsername)!). This is expected if the user does not have a timetable and the device is in \"shared\" mode")
                             callback(enableAutoLogout)
                         }
                         
-                    case .Failure(let error):
-                        logger.warning("Request failed with error: \(error)")
+                    case .failure(let error):
+                        logger.error("Request failed with error: \(error)")
                         callback(enableAutoLogout)
                     }
             }
@@ -550,9 +581,9 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-14
-    func getDrives(callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+    func getDrives(_ callback:@escaping (_ result: Bool, _ response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -562,34 +593,34 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to get the drive listing
-            logger.debug("Attempting to get drives available")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Drives", headers: httpHeaders, encoding: .JSON)
+            logger.info("Attempting to get drives available")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Drives", encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                    case .Success(let JSON):
+                    case .success(let JSON):
                         logger.verbose("Response JSON for drive listing: \(JSON)")
                         
                         // Logging the last successful contact to the HAP+
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
                         // Letting the callback know we have successfully logged in
-                        callback(result: true, response: JSON)
+                        callback(true, JSON as AnyObject)
                     
-                    case .Failure(let error):
-                        logger.warning("Request failed with error: \(error)")
-                        callback(result: false, response: "")
+                    case .failure(let error):
+                        logger.error("Request failed with error: \(error)")
+                        callback(false, "" as AnyObject)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "")
+            callback(false, "" as AnyObject)
         }
     }
     
@@ -600,11 +631,11 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-15
     ///
     /// - parameter folderPath: The path of the folder the user has browsed to
-    func getFolder(folderPath: String, callback:(result: Bool, response: AnyObject) -> Void) -> Void {
+    func getFolder(_ folderPath: String, callback:@escaping (_ result: Bool, _ response: AnyObject) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -614,42 +645,42 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Replacing the escaped slashes with a forward slash
             logger.debug("Folder being browsed raw path: \(folderPath)")
-            var formattedPath = folderPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var formattedPath = folderPath.replacingOccurrences(of: "\\\\", with: "/")
+            formattedPath = formattedPath.replacingOccurrences(of: "\\", with: "/")
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            formattedPath = formattedPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("Folder being browsed formatted path: \(formattedPath)")
             
             // Connecting to the API to get the folder listing
             logger.debug("Attempting to get folder listing")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/" + formattedPath, headers: httpHeaders, encoding: .JSON)
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/" + formattedPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                case .Success(let JSON):
+                case .success(let JSON):
                     logger.verbose("Response JSON for folder listing: \(JSON)")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
-                    callback(result: true, response: JSON)
+                    callback(true, JSON as AnyObject)
                     
-                case .Failure(let error):
-                    logger.warning("Request failed with error: \(error)")
-                    callback(result: false, response: "")
+                case .failure(let error):
+                    logger.error("Request failed with error: \(error)")
+                    callback(false, "" as AnyObject)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, response: "")
+            callback(false, "" as AnyObject)
         }
     }
     
@@ -667,11 +698,11 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.4.0-alpha
-    /// - version: 1
+    /// - version: 4
     /// - date: 2015-12-19
     ///
     /// - parameter fileLocation: The path to the file the user has selected
-    func downloadFile(fileLocation: String, callback:(result: Bool, downloading: Bool, downloadedBytes: Int64, totalBytes: Int64, downloadLocation: NSURL) -> Void) -> Void {
+    func downloadFile(_ fileLocation: String, callback:@escaping (_ result: Bool, _ downloading: Bool, _ downloadedBytes: Int64, _ totalBytes: Int64, _ downloadLocation: URL) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+
@@ -681,7 +712,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Replacing the '../' navigation browsing up that the HAP+
@@ -691,42 +722,42 @@ class HAPi {
             // HAP+ server as <hapServer>/api/myfiles/../Download/H/file.txt
             // but needs to be <hapServer>/api/Download/H/file.txt
             logger.debug("File being downloaded raw path: \(fileLocation)")
-            var formattedPath = fileLocation.stringByReplacingOccurrencesOfString("../", withString: "")
+            var formattedPath = fileLocation.replacingOccurrences(of: "../", with: "")
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            formattedPath = formattedPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            formattedPath = formattedPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("File being downloaded formatted path: \(formattedPath)")
             
             // Setting the download directory to be the caches folder on the
             // device
             // See: https://github.com/Alamofire/Alamofire/issues/907
-            let destination = Alamofire.Request.suggestedDownloadDestination(
-                directory: .CachesDirectory,
-                domain: .UserDomainMask
+            let destination = DownloadRequest.suggestedDownloadDestination(
+                for: .cachesDirectory,
+                in: .userDomainMask
             )
             
             // Downloading the file
-            Alamofire.download(.GET, settings!.stringForKey(settingsHAPServer)! + "/" + formattedPath, headers: httpHeaders, destination: destination)
-                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
-                    logger.verbose("Downloaded \(totalBytesRead) bytes out of \(totalBytesExpectedToRead)")
-                    callback(result: false, downloading: true, downloadedBytes: totalBytesRead, totalBytes: totalBytesExpectedToRead, downloadLocation: NSURL(fileURLWithPath: ""))
+            Alamofire.download(settings!.string(forKey: settingsHAPServer)! + "/" + formattedPath, method: .get, parameters: [:], headers: httpHeaders, to: destination)
+                .downloadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
+                    //logger.verbose("Total size of file being downloaded: \(totalBytesExpectedToRead)")
+                    logger.verbose("Downloaded \(progress.fractionCompleted)%")
+                    callback(false, true, Int64(progress.fractionCompleted * 10000), 10000, NSURL(fileURLWithPath: "/") as URL)
                 }
-                .response { request, response, _, error in
+                .responseData { response in
                     logger.verbose("Server response: \(response)")
-                    logger.debug("File saved to the following location: \(destination(NSURL(string: "")!, response!))")
+                    logger.debug("File saved to the following location: \(response.destinationURL!))")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
-                    callback(result: true, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: destination(NSURL(string: "")!, response!))
+                    callback(true, false, 0, 0, response.destinationURL!)
             }
             
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, downloading: false, downloadedBytes: 0, totalBytes: 0, downloadLocation: NSURL(fileURLWithPath: ""))
+            callback(false, false, 0, 0, URL(fileURLWithPath: "/"))
         }
     }
     
@@ -739,7 +770,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-alpha
-    /// - version: 3
+    /// - version: 6
     /// - date: 2016-01-27
     ///
     /// - parameter deviceFileLocation: The path to the file on the device (normally
@@ -753,7 +784,7 @@ class HAPi {
     ///                             and the user has chosen to create a new file and
     ///                             not overwrite it, then this is the custom file name
     ///                             that should be used
-    func uploadFile(deviceFileLocation: NSURL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:(result: Bool, uploading: Bool, uploadedBytes: Int64, totalBytes: Int64) -> Void) -> Void {
+    func uploadFile(_ deviceFileLocation: URL, serverFileLocation: String, fileFromPhotoLibrary: Bool, customFileName: String, callback:@escaping (_ result: Bool, _ uploading: Bool, _ uploadedBytes: Int64, _ totalBytes: Int64) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Getting the name of the file that is being uploaded from the
@@ -772,7 +803,7 @@ class HAPi {
                 // on the device in a physical location with an extension. We
                 // can just split the path and get the file name from the last
                 // array value
-                let pathArray = String(deviceFileLocation).componentsSeparatedByString("/")
+                let pathArray = String(describing: deviceFileLocation).components(separatedBy: "/")
                 
                 // Forcing an unwrap of the value, otherwise the file name
                 // is Optional("<nale>") which causes the HAP+ server to
@@ -782,7 +813,7 @@ class HAPi {
                 
                 // Removing any encoded characters from the file name, so
                 // HAP+ saves the file with the correct file name
-                fileName = fileName.stringByRemovingPercentEncoding!
+                fileName = fileName.removingPercentEncoding!
                 
                 // Formatting the name of the file to make sure that it is
                 // valid for storing on Windows file systems
@@ -793,7 +824,7 @@ class HAPi {
                 fileName = customFileName
             }
             
-            logger.debug("Name of file being uploaded: \(fileName)")
+            logger.info("Name of file being uploaded: \(fileName)")
             
             // Setting the tokens that are collected from the login, so the HAP+
             // server knows which user has sent this request, and creating a
@@ -803,38 +834,38 @@ class HAPi {
             // See: https://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Win.MyFiles/Browser.xaml.cs )
             let httpHeaders = [
                 "X_FILENAME": fileName,
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Formatting the path that we are going to be using to upload
             // to, so that it is a valid URL, and also swapping the backslashes '\'
             // from the string passed with slashes '/'
             logger.debug("Upload location raw path: \(serverFileLocation)")
-            var uploadLocation = serverFileLocation.stringByReplacingOccurrencesOfString("\\", withString: "/")
-            uploadLocation = uploadLocation.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            var uploadLocation = serverFileLocation.replacingOccurrences(of: "\\", with: "/")
+            uploadLocation = uploadLocation.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             logger.debug("Upload location formatted path: \(uploadLocation)")
             
             // Uploading the file
-            Alamofire.upload(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, headers: httpHeaders, file: deviceFileLocation)
-                .progress { bytesWritten, totalBytesWritten, totalBytesExpectedToWrite in
-                    logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
-                    logger.verbose("Uploaded \(totalBytesWritten) bytes out of \(totalBytesExpectedToWrite)")
-                    callback(result: false, uploading: true, uploadedBytes: totalBytesWritten, totalBytes: totalBytesExpectedToWrite)
+            Alamofire.upload(deviceFileLocation, to: settings!.string(forKey: settingsHAPServer)! + "/api/myfiles-upload/" + uploadLocation, method: .post, headers: httpHeaders)
+                .uploadProgress(queue: DispatchQueue.global(qos: .utility)) { progress in
+                    //logger.verbose("Total size of file being uploaded: \(totalBytesExpectedToWrite)")
+                    logger.verbose("Uploaded \(progress.fractionCompleted)%")
+                    callback(false, true, Int64(progress.fractionCompleted * 10000), 10000)
                 }
-                .response { request, response, _, error in
+                .responseData {response in
                     logger.verbose("Server response: \(response)")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
-                    callback(result: true, uploading: false, uploadedBytes: 0, totalBytes: 0)
+                    callback(true, false, 0, 0)
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false, uploading: false, uploadedBytes: 0, totalBytes: 0)
+            callback(false, false, 0, 0)
         }
     }
     
@@ -845,23 +876,23 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 5
+    /// - version: 8
     /// - date: 2016-04-01
     ///
     /// - parameter deleteItemAtPath: The path to the file on the HAP+ server
     ///                               that the user has requested to be deleted
-    func deleteFile(deleteItemAtPath: String, callback:(result: Bool) -> Void) -> Void {
+    func deleteFile(_ deleteItemAtPath: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Replacing the '../Download' navigation path that the HAP+
             // API adds to the file path, so that it can be used to locate
             // the file item directly to be able to delete it
             logger.debug("Item being deleted raw path: \(deleteItemAtPath)")
-            var formattedPath = deleteItemAtPath.stringByReplacingOccurrencesOfString("../Download/", withString: "")
+            var formattedPath = deleteItemAtPath.replacingOccurrences(of: "../Download/", with: "")
             
             // Converting any backslashes from a folder path into forward
             // slashes, so that the HAP+ server is able to delete folders
-            formattedPath = formattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            formattedPath = formattedPath.replacingOccurrences(of: "\\", with: "/")
             
             // The HTTP request body need to have the file name enclosed in
             // square brackets and quotes, e.g. ["<filePath>"]
@@ -873,9 +904,9 @@ class HAPi {
             // server if the file item has been deleted properly
             // - seealso: uploadFile
             var fileName = ""
-            let pathArray = String(formattedPath).componentsSeparatedByString("/")
+            let pathArray = String(formattedPath).components(separatedBy: "/")
             fileName = pathArray.last!
-            fileName = fileName.stringByRemovingPercentEncoding!
+            fileName = fileName.removingPercentEncoding!
             fileName = formatInvalidName(fileName)
             logger.debug("Name of file item being deleted: \(fileName)")
             
@@ -883,7 +914,7 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)! + "; token=" + settings!.stringForKey(settingsToken1)!
+                "Cookie": settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)! + "; token=" + settings!.string(forKey: settingsToken1)!
             ]
             
             // Connecting to the API to delete the file item
@@ -892,84 +923,36 @@ class HAPi {
             // and the string passed to this URL is the name of the file
             // item to delete e.g. H/file.txt
             // See: http://stackoverflow.com/a/28552198
-            logger.debug("Attempting to delete the selected file item")
-            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/Delete", parameters: [:], headers: httpHeaders, encoding: .Custom({
-                    (convertible, params) in
-                    let mutableRequest = convertible.URLRequest.copy() as! NSMutableURLRequest
-                    mutableRequest.HTTPBody = formattedJSONPath.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-                    return (mutableRequest, nil)
-                }))
+            logger.info("Attempting to delete the selected file item")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/Delete", method: .post, parameters: [:], encoding: formattedJSONPath, headers: httpHeaders)
                 // Parsing the response
-                .response { request, response, data, error in
+                .responseString {response in
                     logger.verbose("Request: \(request)")
                     logger.verbose("Response: \(response)")
-                    logger.verbose("Data: \(data)")
-                    logger.verbose("Error: \(error)")
+                    logger.verbose("Data: \(response.data)")
                     
                     // The response body that the HAP+ server responds
                     // with is ["Deleted <file item name>"] so we need
                     // to check to see if this is returned. If it is,
                     // then let the user know the file was deleted
                     // otherwise let them know there was a problem
-                    let deletionResponse = data!
-                    logger.verbose("Raw response from server from deleting file item: \(deletionResponse)")
-                    
-                    // For some reason, the response body data is also
-                    // hex encoded, which means it needs to be decoded
-                    // first before any checks can be done to see if the
-                    // file item has been successfully deleted
-                    
-                    // Removing any characters from the string that shouldn't
-                    // be there, namely '<', '>' and ' ', as these cause
-                    // problems parsing the string result
-                    var deletionString = String(deletionResponse)
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString("<", withString: "")
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString(">", withString: "")
-                    deletionString = deletionString.stringByReplacingOccurrencesOfString(" ", withString: "")
-                    
-                    // Converting the hex string into Unicode values, to check
-                    // that the file item from the server has been successfully
-                    // deleted
-                    // See: http://stackoverflow.com/a/30795372
-                    var deletionStringCharacters = [Character]()
-                    
-                    for characterPosition in deletionString.characters {
-                        deletionStringCharacters.append(characterPosition)
-                    }
-                    
-                    // This version of Swift is different from the
-                    // hex to ascii example used above, so we need
-                    // to call a different function
-                    // See: http://stackoverflow.com/a/24372631
-                    let characterMap =  0.stride(to: deletionStringCharacters.count, by: 2).map{
-                        strtoul(String(deletionStringCharacters[$0 ..< $0+2]), nil, 16)
-                    }
-                    
-                    var decodedString = ""
-                    var characterMapPosition = 0
-                    
-                    while characterMapPosition < characterMap.count {
-                        decodedString.append(Character(UnicodeScalar(Int(characterMap[characterMapPosition]))))
-                        characterMapPosition = characterMapPosition.successor()
-                    }
-                    
-                    let formattedDeletionResponse = decodedString
-                    logger.debug("Formatted response from server from deleting file item: \(formattedDeletionResponse)")
+                    let deletionResponse = response.result.value!
+                    logger.debug("Response from server from deleting file item: \(deletionResponse)")
                     
                     // Seeing if the file was deleted successfully or not
-                    if (formattedDeletionResponse == "[\"Deleted \(fileName)\"]") {
-                        logger.debug("\(fileName) was successfully deleted from the server")
+                    if (deletionResponse == "[\"Deleted \(fileName)\"]") {
+                        logger.info("\(fileName) was successfully deleted from the server")
                         
                         // Logging the last successful contact to the HAP+
                         // API, to reset the session cookies. This is saved
                         // as a time since Unix epoch
                         logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                        settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                        settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                         
-                        callback(result: true)
+                        callback(true)
                     } else {
                         logger.error("There was a problem deleting the file from the server")
-                        callback(result: false)
+                        callback(false)
                     }
                 }
         }
@@ -987,14 +970,14 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-23
     ///
     /// - parameter currentFolder: Path to the folder that is currently
     ///                            being shown to the user
     /// - parameter newFolderName: The name of the new folder that is to
     ///                            be created
-    func newFolder(currentFolder: String, newFolderName: String, callback:(result: Bool) -> Void) -> Void {
+    func newFolder(_ currentFolder: String, newFolderName: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             logger.debug("New folder to be created in location: \(currentFolder)")
@@ -1005,15 +988,15 @@ class HAPi {
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
-            var folderFormattedPath = currentFolder.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            folderFormattedPath = folderFormattedPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var folderFormattedPath = currentFolder.replacingOccurrences(of: "\\\\", with: "/")
+            folderFormattedPath = folderFormattedPath.replacingOccurrences(of: "\\", with: "/")
             
             // Combining the path of the current folder with the name
             // of the new folder
             var fullNewFolderPath = folderFormattedPath + "/" + formattedNewFolderName
             
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            fullNewFolderPath = fullNewFolderPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            fullNewFolderPath = fullNewFolderPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
             logger.debug("New folder being created in formatted location path: \(fullNewFolderPath)")
             
@@ -1024,34 +1007,34 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to create the new folder
-            logger.debug("Attempting to create the new folder")
-            Alamofire.request(.POST, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, headers: httpHeaders, encoding: .JSON)
+            logger.info("Attempting to create the new folder")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/new/" + fullNewFolderPath, method: .post, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
-                case .Success:
+                case .success:
                     logger.debug("Response from creating new folder: \(response.data)")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
-                    callback(result: true)
+                    callback(true)
                     
-                case .Failure(let error):
-                    logger.warning("Request failed with error: \(error)")
-                    callback(result: false)
+                case .failure(let error):
+                    logger.error("Request failed with error: \(error)")
+                    callback(false)
                     }
             }
         } else {
             logger.warning("The connection to the Internet has been lost")
-            callback(result: false)
+            callback(false)
         }
     }
     
@@ -1074,24 +1057,24 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-25
     ///
     /// - parameter itemPath: Path to the file item that is currently
     ///                       being checked to see if it exists in the
     ///                       current folder already
-    func itemExists(itemPath: String, callback:(result: Bool) -> Void) -> Void {
+    func itemExists(_ itemPath: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             logger.debug("Checking to see if a file item exists at: \(itemPath)")
             
             // Replacing the escaped slashes with a forward slash
             // from the current folder path
-            var fileItemPath = itemPath.stringByReplacingOccurrencesOfString("\\\\", withString: "/")
-            fileItemPath = fileItemPath.stringByReplacingOccurrencesOfString("\\", withString: "/")
+            var fileItemPath = itemPath.replacingOccurrences(of: "\\\\", with: "/")
+            fileItemPath = fileItemPath.replacingOccurrences(of: "\\", with: "/")
             
             // Escaping any non-allowed URL characters - see: http://stackoverflow.com/a/24552028
-            fileItemPath = fileItemPath.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+            fileItemPath = fileItemPath.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
             logger.debug("Checking to see if a file item exists at formatted path: \(fileItemPath)")
             
@@ -1102,50 +1085,52 @@ class HAPi {
             // server knows which user has sent this request
             let httpHeaders = [
                 "Content-Type": "application/json",
-                "Cookie": "token=" + settings!.stringForKey(settingsToken1)! + "; " + settings!.stringForKey(settingsToken2Name)! + "=" + settings!.stringForKey(settingsToken2)!
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
             ]
             
             // Connecting to the API to log in the user with the credentials
-            logger.debug("Attempting to check if the file item already exists")
-            Alamofire.request(.GET, settings!.stringForKey(settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, headers: httpHeaders, encoding: .JSON)
+            logger.info("Attempting to check if the file item already exists")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/exists/" + fileItemPath, encoding: JSONEncoding.default, headers: httpHeaders)
                 // Parsing the JSON response
                 // See: http://stackoverflow.com/a/33022923
                 .responseJSON { response in switch response.result {
-                case .Success(let JSON):
-                    logger.verbose("Response JSON for file item existing: \(JSON)")
+                case .success(let value):
+                    logger.verbose("Response JSON for file item existing: \(value)")
+                    
+                    let json = JSON(value)
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
                     // as a time since Unix epoch
                     logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
-                    settings!.setDouble(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Seeing if there is a valid name from the returned JSON
                     // The JSON returns "null" if the file item doesn't exist
                     // See: http://stackoverflow.com/a/24128720
-                    let validFileItemName = JSON["Name"] as? String
+                    let validFileItemName = json["Name"].stringValue
                     logger.debug("API 'Name' response for checking if file exists: \(validFileItemName)")
-                    if (validFileItemName == nil) {
+                    if (validFileItemName == "") {
                         // Letting the callback know that there isn't
                         // a file item in the current location, so any
                         // functions called after this can continue
                         logger.debug("File item doesn't currently exist in the current folder")
-                        callback(result: false)
+                        callback(false)
                     } else {
                         // A file item exists in the current folder with
                         // the same name as what is attempting to be
                         // uploaded or created, so any functions called
                         // after this need to be confirmed by the user
-                        callback(result: true)
+                        callback(true)
                     }
                     
-                case .Failure(let error):
+                case .failure(let error):
                     // There was a problem checking to see if there
                     // is a file item existing in the current folder
                     // so assume that there is to prevent any accidental
                     // overwriting of files
-                    logger.warning("Request failed with error: \(error)")
-                    callback(result: true)
+                    logger.error("Request failed with error: \(error)")
+                    callback(true)
                     }
             }
         } else {
@@ -1154,7 +1139,7 @@ class HAPi {
             // so assume that there is to prevent any accidental
             // overwriting of files
             logger.warning("The connection to the Internet has been lost")
-            callback(result: true)
+            callback(true)
         }
     }
     
@@ -1184,7 +1169,7 @@ class HAPi {
     ///                       that is going to be given to the HAP+
     ///                       server to create the resource
     /// - returns: The item name with reserved characters modified
-    func formatInvalidName(fullName: String) -> String {
+    func formatInvalidName(_ fullName: String) -> String {
         // Making sure that the file name doesn't contain any reserved
         // names, which Windows forbids, meaning the file will be
         // inaccessable. See: https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
@@ -1201,18 +1186,18 @@ class HAPi {
         // found are replaced with an underscore "_"
         var formattedFullName = fullName
         for reservedCharacter in reservedCharacters {
-            formattedFullName = formattedFullName.stringByReplacingOccurrencesOfString(reservedCharacter, withString: "_")
+            formattedFullName = formattedFullName.replacingOccurrences(of: reservedCharacter, with: "_")
         }
         
         // Invalid file names are in the format <reservedNames>.<ext>
         // but <anything><reservedNames><anything>.<ext> are allowed
         // so we only really need to check if fileName[0] is invalid
-        var fileName = formattedFullName.componentsSeparatedByString(".")
+        var fileName = formattedFullName.components(separatedBy: ".")
         
         // Looping around each item in the reserved names array to see
         // if fileName[0] matches any of the items
         for reservedName in reservedNames {
-            if (reservedName.lowercaseString == fileName[0].lowercaseString) {
+            if (reservedName.lowercased() == fileName[0].lowercased()) {
                 // An invalid file name has been found, so modify it to
                 // contain an underscore at the end
                 logger.warning("Reserved file name found: \(fullName)")
@@ -1222,7 +1207,7 @@ class HAPi {
         
         // Joining the file name array back up to pass it back to the
         // calling function
-        return fileName.joinWithSeparator(".")
+        return fileName.joined(separator: ".")
     }
     
     // MARK: Log out user
@@ -1251,19 +1236,19 @@ class HAPi {
         // Note: This needs to be done before the username setting
         //       is cleared
         do {
-            try Locksmith.deleteDataForUserAccount(settings!.stringForKey(settingsUsername)!)
+            try Locksmith.deleteDataForUserAccount(userAccount: settings!.string(forKey: settingsUsername)!)
             logger.debug("Successfully deleted password")
         } catch {
             logger.error("Failed to delete the password")
         }
         
         // Clearing any settings that were created on logon
-        settings!.removeObjectForKey(settingsFirstName)
-        settings!.removeObjectForKey(settingsUsername)
-        settings!.removeObjectForKey(settingsToken1)
-        settings!.removeObjectForKey(settingsToken2)
-        settings!.removeObjectForKey(settingsToken2Name)
-        settings!.removeObjectForKey(settingsUserRoles)
+        settings!.removeObject(forKey: settingsFirstName)
+        settings!.removeObject(forKey: settingsUsername)
+        settings!.removeObject(forKey: settingsToken1)
+        settings!.removeObject(forKey: settingsToken2)
+        settings!.removeObject(forKey: settingsToken2Name)
+        settings!.removeObject(forKey: settingsUserRoles)
         
         // Disabling auto-logout so that the next user to log in
         // to the device isn't accidentally logged out if they
@@ -1272,6 +1257,6 @@ class HAPi {
         // as it's to do with tidying up of the device from the
         // recently logged in user
         logger.debug("Disabling auto-logout as the user has been logged out")
-        settings!.setBool(false, forKey: settingsAutoLogOutEnabled)
+        settings!.set(false, forKey: settingsAutoLogOutEnabled)
     }
 }
