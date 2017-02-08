@@ -36,17 +36,43 @@ While HAP+ server contains [support for a large number of common file types](htt
 
 > :warning: This involves modifying a core file in HAP+ that may get over-written when HAP+ is updated. If you find that support for certain file types has stopped working after an update, complete the steps below again. You do this at your own risk&hellip; create a copy of the file before modifying, just to be safe.
 
-> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file can be found on the [IANA Media Types webpage](http://www.iana.org/assignments/media-types/media-types.xhtml), otherwise it should be `application/octetstream`. Additional information on MIME types may be found on [www.freeformatter.com](http://www.freeformatter.com/mime-types-list.html) or [www.sitepoint.com](http://www.sitepoint.com/web-foundations/mime-types-complete-list/)
+> :information_source: This list should be updated with more known app file extensions. Information about the contenttype for the file can be found on the [IANA Media Types webpage](http://www.iana.org/assignments/media-types/media-types.xhtml), otherwise it should be `application/octetstream`. Additional information on MIME types may be found on [www.freeformatter.com](http://www.freeformatter.com/mime-types-list.html) or [www.sitepoint.com](http://www.sitepoint.com/web-foundations/mime-types-complete-list/). Failing any of those websites, a search of the [file format list on Wikipedia](https://en.wikipedia.org/wiki/List_of_file_formats) for the extension may bring up the relevant information.
 
 1. On your HAP+ webserver, browse to and open the following file `~\images\icons\knownicons.xml` (where `~` is the root directory of your HAP+ install, usually `C:\inetpub\wwwroot\hap\images\icons\knownicons.xml`)
 2. Above the final line that ends with `</Icons>` add the following lines:
 ``` xml
-<!-- Including additional support for files created with the HAP+ iOS app -->
+<!-- Including additional support for file types, such as those created with the HAP+ iOS app -->
+<Icon icon="zip.png" extension="7z" type="7z Compressed Archive" contenttype="application/x-7z-compressed" />
+<Icon icon="mp3.png" extension="aac" type="Advanced Audio Coding" contenttype="audio/aac" />
+<Icon icon="bmp.png" extension="ai" type="Adobe Illustrator Image" contenttype="application/postscript" />
+<Icon icon="exe.png" extension="bin" type="MacBinary Archive" contenttype="application/macbinary" />
+<Icon icon="zip.png" extension="bz2" type="bzip2 Compressed Archive" contenttype="application/x-bzip2" />
+<Icon icon="cs.png" extension="c" type="C Source File" contenttype="text/plain" />
 <Icon icon="docx.png" extension="epub" type="Electronic Publication" contenttype="application/epub+zip" />
+<Icon icon="zip.png" extension="gz" type="Gzip Compressed Archive" contenttype="application/gzip" />
+<Icon icon="cs.png" extension="h" type="C Header Source File" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="icns" type="Apple Icon Image" contenttype="application/octetstream" />
+<Icon icon="txt.png" extension="json" type="JavaScript Object Notation File" contenttype="application/json" />
 <Icon icon="pptx.png" extension="keynote" type="Apple iWorks Keynote" contenttype="application/octetstream" />
-<Icon icon="xlsx.png" extension="numbers" type="Apple iWorks Numbers" contenttype="application/octetstream" />
-<Icon icon="docx.png" extension="pages" type="Apple iWorks Pages" contenttype="application/octetstream" />
+<Icon icon="txt.png" extension="log" type="Log File" contenttype="text/plain" />
 <Icon icon="vid.png" extension="mov" type="QuickTime Movie" contenttype="video/quicktime" />
+<Icon icon="xlsx.png" extension="numbers" type="Apple iWorks Numbers" contenttype="application/octetstream" />
+<Icon icon="docx.png" extension="odt" type="Open Document Text" contenttype="application/vnd.oasis.opendocument.text" />
+<Icon icon="pptx.png" extension="odp" type="Open Document Presentation" contenttype="application/vnd.oasis.opendocument.presentation" />
+<Icon icon="xlsx.png" extension="ods" type="Open Document Spreadsheet" contenttype="application/vnd.oasis.opendocument.spreadsheet" />
+<Icon icon="docx.png" extension="pages" type="Apple iWorks Pages" contenttype="application/octetstream" />
+<Icon icon="cs.png" extension="php" type="PHP Hypertext Preprocessor File" contenttype="text/plain" />
+<Icon icon="cs.png" extension="pl" type="Perl Script" contenttype="text/plain" />
+<Icon icon="cs.png" extension="ps1" type="PowerShell Script" contenttype="text/plain" />
+<Icon icon="cs.png" extension="py" type="Python Script" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="psd" type="Adobe Photoshop Document" contenttype="image/vnd.adobe.photoshop" />
+<Icon icon="cs.png" extension="sh" type="Bourne Shell Script" contenttype="text/plain" />
+<Icon icon="bmp.png" extension="svg" type="Scalable Vector Graphic" contenttype="image/svg+xml" />
+<Icon icon="zip.png" extension="tar" type="Tape Archive" contenttype="application/x-tar" />
+<Icon icon="cs.png" extension="vb" type="Visual Basic File" contenttype="text/plain" />
+<Icon icon="cs.png" extension="vbs" type="Visual Basic Script" contenttype="text/plain" />
+<Icon icon="txt.png" extension="yml" type="YAML Ain't Markup Language File" contenttype="text/plain" />
+<Icon icon="txt.png" extension="yaml" type="YAML Ain't Markup Language File" contenttype="text/plain" />
 ```
 3. Save the file
 4. Open IIS manager and restart the IIS server service (or if you have other websites running, navigate to and restart just the HAP+ website)
