@@ -10,6 +10,9 @@
 * Photos and videos can be taken and uploaded directly from the app to the current folder, without needing to open another camera app first
 * "Pull to refresh" has been enabled for the current browsed-to drive or folder, allowing the listing to be refreshed without having to go up a directory and selecting it again
 
+### Changes
+* Added additional supported file icons in the file browser, for file types that are understood by the QuickLook preview
+
 ## 0.8.0
 
 ### Notes
