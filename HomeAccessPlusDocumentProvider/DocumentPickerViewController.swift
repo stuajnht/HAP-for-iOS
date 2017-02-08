@@ -237,17 +237,12 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-02-25
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
         // HUD will replace the loading spinner
-        //refreshControl.endRefreshing()
-        
-        // Clearing out all items in the fileItems array, otherwise
-        // then the table is refreshed all items are added again
-        // so the table will always double in length
-        self.fileItems.removeAll()
+        refreshControl.endRefreshing()
         
         // Seeing if we are showing the user their available drives
         // or if the user is browsing the folder hierarchy
@@ -267,6 +262,17 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // no connection to the Internet)
                 if (result) {
                     logger.info("Successfully collected drive JSON data")
+                    
+                    // Clearing out all items in the fileItems array, otherwise
+                    // then the table is refreshed all items are added again
+                    // so the table will always double in length.
+                    // This has to go here, after the api call, otherwise the
+                    // items are removed from the array and table view while it
+                    // is still animating up from the pull down / refresh spinner
+                    // and causes a "fatal error: Array index out of range"
+                    // See: http://stackoverflow.com/q/34358239
+                    self.fileItems.removeAll()
+                    
                     let json = JSON(response)
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
@@ -338,6 +344,17 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                 // no connection to the Internet)
                 if (result) {
                     logger.info("Successfully collected folder JSON data")
+                    
+                    // Clearing out all items in the fileItems array, otherwise
+                    // then the table is refreshed all items are added again
+                    // so the table will always double in length.
+                    // This has to go here, after the api call, otherwise the
+                    // items are removed from the array and table view while it
+                    // is still animating up from the pull down / refresh spinner
+                    // and causes a "fatal error: Array index out of range"
+                    // See: http://stackoverflow.com/q/34358239
+                    self.fileItems.removeAll()
+                    
                     let json = JSON(response)
                     for (_,subJson) in json {
                         let name = subJson["Name"].string
@@ -1176,6 +1193,31 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         } else {
             downloadFile(itemPath)
         }
+    }
+    
+    /// Creating a refresh control for the document picker
+    ///
+    /// As the document picker does not contain a UITableViewController
+    /// a refresh control needs to be created to allow for the
+    /// "pull-to-refresh" functionality to work
+    /// See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 0.9.0-beta
+    /// - version: 1
+    /// - date: 2017-02-08
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(DocumentPickerViewController.loadFileBrowser), for: UIControlEvents.valueChanged)
+        
+        return refreshControl
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        
+        self.tblFileBrowser.addSubview(self.refreshControl)
     }
 
 }
