@@ -221,7 +221,11 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // the user by transitioning back to the login view controller
         if settings!.string(forKey: settingsUsername) == nil {
             logger.error("Previous user logged off, but app restoration makes it look like they are still logged on. Force showing the login view controller")
-            self.logOutUser(true, username: "")
+            let logoutFailController = UIAlertController(title: "Logging Off", message: "The previous user has logged out. Please log in again", preferredStyle: UIAlertControllerStyle.alert)
+            logoutFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { Void in
+                self.logOutUser(true, username: "")
+            }))
+            self.present(logoutFailController, animated: true, completion: nil)
         }
     }
 
