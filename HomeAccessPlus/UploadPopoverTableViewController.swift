@@ -209,6 +209,20 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             imagePicker.navigationBar.isTranslucent = false
             imagePicker.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.flatWhite()]
         }
+        
+        // If the user has logged out, but app restoration makes it
+        // seem as though they are still logged in, trying to open the
+        // upload popover will cause the app to crash as the settings
+        // firstname and username will be nil. While the settings
+        // values can be optionally unwrapped, other things will not
+        // work as expected, as there will not be some needed settings
+        // in place (e.g. the file browser will constantly ask to try
+        // again). To get around this, the app should force 'log out'
+        // the user by transitioning back to the login view controller
+        if settings!.string(forKey: settingsUsername) == nil {
+            logger.error("Previous user logged off, but app restoration makes it look like they are still logged on. Force showing the login view controller")
+            self.logOutUser(true, username: "")
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -270,7 +284,9 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             footerMessage = "Create a new folder, photo or video inside the current folder you are viewing"
         case 2:
             footerMessage = "Log out from this device so another user can access their files"
-            footerMessage += ". Currently logged in as " + settings!.string(forKey: settingsFirstName)! + " (" + settings!.string(forKey: settingsUsername)! + ")"
+            if let firstName = settings!.string(forKey: settingsFirstName), let username = settings!.string(forKey: settingsUsername) {
+                footerMessage += ". Currently logged in as \(firstName) (\(username))"
+            }
         case 3:
             footerMessage = "Save log files from this device as a zip file to the current folder"
         default:

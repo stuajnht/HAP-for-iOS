@@ -1227,7 +1227,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-04-16
     func logOutUser() {
         logger.info("Logging out user")
@@ -1236,8 +1236,13 @@ class HAPi {
         // Note: This needs to be done before the username setting
         //       is cleared
         do {
-            try Locksmith.deleteDataForUserAccount(userAccount: settings!.string(forKey: settingsUsername)!)
-            logger.debug("Successfully deleted password")
+            // The check for if the username is nil is due to the
+            // possibility of a user logging out, but app restoration
+            // makes it look like they are still logged in
+            if let username = settings!.string(forKey: settingsUsername) {
+                try Locksmith.deleteDataForUserAccount(userAccount: username)
+                logger.debug("Successfully deleted password")
+            }
         } catch {
             logger.error("Failed to delete the password")
         }
