@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 1.0.0
+
+### Bug Fixes
+* Fixed bug where the app would crash if a user tried to open the upload popover when they had logged out of the app previously, while app restoration made it appear as though they were still logged in
+
 ## 0.9.0
 
 ### Notes
