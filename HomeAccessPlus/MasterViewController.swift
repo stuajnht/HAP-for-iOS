@@ -87,6 +87,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   6. User has write permission for the item
     var fileItems: [NSArray] = []
     
+    /// Does the user have write permission granted in the current
+    /// directory being viewed. This is set to false as a failsafe
+    /// to prevent any accidental writing to folders where there
+    /// shouldn't be. This value is used when setting up the
+    /// upload popover, so that it knows if certain table rows
+    /// should be enabled or not
+    /// - note: This variable should be set before the view
+    ///         controller is called in the 'prepareForSegue'
+    var writeGranted : Bool = false
+    
     /// If the multi picker is used in the upload popover, then
     /// this variable is used to see if there is currently a file
     /// being uploaded before attempting to upload the next file
@@ -914,7 +924,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-13
     ///
     /// - seealso: prepareForSegue
@@ -939,6 +949,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     controller.viewLoadedFromBrowsing = true
+                    controller.writeGranted = fileItems[indexPath.row][5] as! Bool
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
@@ -1216,6 +1227,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if (currentPath == "") {
             vc.showingOnEmptyFilePath = true
         }
+        vc.writeGranted = writeGranted
         vc.modalPresentationStyle = UIModalPresentationStyle.popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {

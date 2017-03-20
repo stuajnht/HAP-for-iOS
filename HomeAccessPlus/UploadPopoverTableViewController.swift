@@ -99,6 +99,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // it can be used to disable access to most table cells
     var showingOnEmptyFilePath = false
     
+    // Holding a reference to see if the popover is being
+    // shown in a directory where the user does or doesn't have
+    // write permission, so that it can be used to disabled
+    // access to any "upload" table cells
+    var writeGranted = false
+    
     // Used to hold a string of if the alert being shown to
     // the user is to create a new folder or to prompt for a
     // username of an authenticated user to log them out with
@@ -154,10 +160,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // as the popover has been shown on the "My Drives" view,
         // so most of the options should not be available as they
         // wouldn't work
+        // These table cells are also disabled if the user does not
+        // have write permission granted in the current directory
         // Note: This happens after updating the file name that has
         //       been passed to this app, otherwise it'll enable
         //       one of the cells again, which isn't correct
-        if (showingOnEmptyFilePath) {
+        if (showingOnEmptyFilePath || !writeGranted) {
             lblUploadPhoto.isEnabled = false
             celUploadPhoto.isUserInteractionEnabled = false
             lblUploadVideo.isEnabled = false
