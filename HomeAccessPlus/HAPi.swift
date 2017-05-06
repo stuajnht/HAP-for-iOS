@@ -131,7 +131,7 @@ class HAPi {
                 // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
                 case.success(_):
                     logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                    logger.verbose("Response string from server API : \(response.result.value)")
+                    logger.verbose("Response string from server API : \(String(describing: response.result.value))")
                     // Seeing if the response is 'OK'
                     if (response.result.value! == "OK") {
                         callback(true)
@@ -325,7 +325,7 @@ class HAPi {
                 // that is never set
             case.success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value as String?)")
                 // Saving the groups the user is part of
                 settings!.set(response.result.value, forKey: settingsUserRoles)
                 
@@ -929,7 +929,7 @@ class HAPi {
                 .responseString {response in
                     logger.verbose("Request: \(request)")
                     logger.verbose("Response: \(response)")
-                    logger.verbose("Data: \(response.data)")
+                    logger.verbose("Data: \(String(describing: response.data))")
                     
                     // The response body that the HAP+ server responds
                     // with is ["Deleted <file item name>"] so we need
@@ -1016,7 +1016,7 @@ class HAPi {
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .success:
-                    logger.debug("Response from creating new folder: \(response.data)")
+                    logger.debug("Response from creating new folder: \(String(describing: response.data))")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
