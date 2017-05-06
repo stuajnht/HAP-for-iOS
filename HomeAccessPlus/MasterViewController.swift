@@ -84,7 +84,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
+    ///   6. User has write permission for the item
     var fileItems: [NSArray] = []
+    
+    /// Does the user have write permission granted in the current
+    /// directory being viewed. This is set to false as a failsafe
+    /// to prevent any accidental writing to folders where there
+    /// shouldn't be. This value is used when setting up the
+    /// upload popover, so that it knows if certain table rows
+    /// should be enabled or not
+    /// - note: This variable should be set before the view
+    ///         controller is called in the 'prepareForSegue'
+    var writeGranted : Bool = false
     
     /// If the multi picker is used in the upload popover, then
     /// this variable is used to see if there is currently a file
@@ -191,7 +202,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 5
+    /// - version: 6
     /// - date: 2015-12-19
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
@@ -240,9 +251,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                             // See: http://stackoverflow.com/a/25340084
                             space = String(format:"%.2f", subJson["Space"].double!) + "% used"
                         }
+                        // Seeing if the user has write permission to the drive.
+                        // This is set in the hapconfig.xml file, and through
+                        // guesswork, it seems as though the JSON value returned
+                        // from the API is called "Actions". It is "0" if write
+                        // is allowed, or "1" if it is not (I think)
+                        var writePermission = false
+                        if (subJson["Actions"].int == 0) {
+                            writePermission = true
+                        }
                         logger.debug("Drive name: \(name!)")
                         logger.debug("Drive path: \(path!)")
                         logger.debug("Drive usage: \(space)")
+                        logger.debug("Drive write permission: \(writePermission)")
                         
                         // Creating a drive letter to show under the name of the
                         // drive, as this will be familiar to how drives are
@@ -251,7 +272,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space)
+                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space, writePermission: writePermission)
                     }
                     
                     // Hiding the HUD and adding the drives available to the table
@@ -311,13 +332,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         let size = subJson["Size"].string
                         let path = subJson["Path"].string
                         let details = modified! + "    " + size!
+                        let writePermission = subJson["Permissions"]["Write"].boolValue
                         logger.verbose("Name: \(name)")
                         logger.verbose("Type: \(type)")
                         logger.verbose("Date modified: \(modified)")
+                        logger.verbose("Write permission: \(writePermission)")
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
+                        self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details, writePermission: writePermission)
                     }
                     self.hudHide()
                     self.tableView.reloadData()
@@ -376,7 +399,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-18
     ///
     /// - seealso: fileItems
@@ -386,13 +409,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter type: The type of item this is (Drive, Directory, File Type)
     /// - parameter fileExtension: The extension of the file, or empty if it is a directory
     /// - parameter details: Additional info for the file (size, modified date, etc...)
-    func addFileItem(_ name: String, path: String, type: String, fileExtension: String, details: String) {
+    /// - parameter writePermission: User has write permission for the item
+    func addFileItem(_ name: String, path: String, type: String, fileExtension: String, details: String, writePermission: Bool) {
         // Creating an array to hold the current item that is being processed
         var currentItem: [AnyObject] = []
-        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
+        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)\n --Write permission: \(writePermission)")
         
         // Adding the current item to the array
-        currentItem = [name as AnyObject, path as AnyObject, type as AnyObject, fileExtension as AnyObject, details as AnyObject]
+        currentItem = [name as AnyObject, path as AnyObject, type as AnyObject, fileExtension as AnyObject, details as AnyObject, writePermission as AnyObject]
         self.fileItems.append(currentItem as NSArray)
     }
     
@@ -900,7 +924,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2016-01-13
     ///
     /// - seealso: prepareForSegue
@@ -925,6 +949,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     controller.viewLoadedFromBrowsing = true
+                    controller.writeGranted = fileItems[indexPath.row][5] as! Bool
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
@@ -1202,6 +1227,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if (currentPath == "") {
             vc.showingOnEmptyFilePath = true
         }
+        vc.writeGranted = writeGranted
         vc.modalPresentationStyle = UIModalPresentationStyle.popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {

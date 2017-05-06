@@ -62,7 +62,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 
 ### 1.0.0
 * Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items
-* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
+* ~~Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover~~
 * Support for document provider open and move options for apps that do not support import and export
 * Update icon so that the ‘house’ isn’t as close to the bottom corner
 
