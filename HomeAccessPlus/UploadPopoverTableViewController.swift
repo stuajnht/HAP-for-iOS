@@ -1176,7 +1176,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         
         try? videoData?.write(to: URL(fileURLWithPath: dataPath), options: [.atomic])
         
-        logger.verbose("Video file raw data: \(videoData)")
+        logger.verbose("Video file raw data: \(String(describing: videoData))")
         logger.verbose("After writing video file")
         
         logger.debug("Selected video file written to: \(dataPath)")
@@ -1249,7 +1249,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             
             try? fileData?.write(to: URL(fileURLWithPath: dataPath), options: [.atomic])
             
-            logger.verbose("File raw data: \(fileData)")
+            logger.verbose("File raw data: \(String(describing: fileData))")
             logger.verbose("After writing file")
             
             logger.debug("Selected file written to: \(dataPath)")

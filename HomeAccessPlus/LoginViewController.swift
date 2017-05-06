@@ -697,7 +697,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
                 // generated seems to appeand an additional ") to it
                 let fileName = String(describing: settings!.string(forKey: settingsUploadPhotosLocation)).components(separatedBy: "/").last!.replacingOccurrences(of: "\")", with: "")
                 let fileData = NSData(contentsOf: URL(string: settings!.string(forKey: settingsUploadPhotosLocation)!)!)
-                mailComposer.addAttachmentData(fileData as! Data, mimeType: "application/zip", fileName: fileName)
+                mailComposer.addAttachmentData(fileData as Data!, mimeType: "application/zip", fileName: fileName)
                 
                 self.present(mailComposer, animated: true, completion: nil)
             } else {

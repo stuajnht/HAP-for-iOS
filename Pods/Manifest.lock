@@ -8,14 +8,18 @@ PODS:
     - DKImagePickerController/ImageManager (= 3.5.1)
   - DKImagePickerController/Camera (3.5.1)
   - DKImagePickerController/ImageManager (3.5.1)
-  - Font-Awesome-Swift (1.6.1)
+  - Font-Awesome-Swift (1.6.2)
   - Locksmith (3.0.0)
   - MBProgressHUD (1.0.0)
+  - ObjcExceptionBridging (1.0.1):
+    - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
+  - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
   - PermissionScope (1.1.1)
   - SwiftyJSON (3.1.4)
-  - XCGLogger (4.0.0):
-    - XCGLogger/Core (= 4.0.0)
-  - XCGLogger/Core (4.0.0)
+  - XCGLogger (5.0.1):
+    - XCGLogger/Core (= 5.0.1)
+  - XCGLogger/Core (5.0.1):
+    - ObjcExceptionBridging
   - Zip (0.7.0)
 
 DEPENDENCIES:
@@ -34,12 +38,13 @@ SPEC CHECKSUMS:
   Alamofire: dc44b1600b800eb63da6a19039a0083d62a6a62d
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
   DKImagePickerController: 8db7e76a88a7a66a893ba30e935cc4c9bb7ed335
-  Font-Awesome-Swift: 70ab020f6749d7048bb49807c3e78b702d78afca
+  Font-Awesome-Swift: 4dc96df73b5f32aaccdee50a454c3ec253ee4977
   Locksmith: 310b4cc5031af5728bf4db5d4de547a5100c6a3b
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
+  ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PermissionScope: a30c16e015779ba27c97c124e7539e27b5829de2
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
-  XCGLogger: 38063ea89b4c8b23232d18efd2e12eb0005f3ea4
+  XCGLogger: 0b43697155d41e4a1b15fc776f319c2141646b09
   Zip: e34513299ac38c0686d5b24504da7ce343799ab9
 
 PODFILE CHECKSUM: 70b053b330569201a098e0de3d709119d23ac78f

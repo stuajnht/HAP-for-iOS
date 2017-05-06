@@ -1,10 +1,10 @@
 language: objective-c
-osx_image: xcode8.2
+osx_image: xcode8.3
 xcode_workspace: HomeAccessPlus.xcworkspace
 xcode_scheme: HomeAccessPlus
-xcode_sdk: iphonesimulator10.1
+xcode_sdk: iphonesimulator10.3
 
 script:
 - set -o pipefail
-- xcodebuild -workspace HomeAccessPlus.xcworkspace -scheme HomeAccessPlus -sdk iphonesimulator -destination "OS=10.1,name=iPhone 6" clean build | xcpretty -c || true
-- xcodebuild -workspace HomeAccessPlus.xcworkspace -scheme HomeAccessPlus -sdk iphonesimulator -destination "OS=10.1,name=iPhone 6" test | xcpretty -c
+- xcodebuild -workspace HomeAccessPlus.xcworkspace -scheme HomeAccessPlus -sdk iphonesimulator -destination "OS=10.3,name=iPhone 6" clean build | xcpretty -c || true
+- xcodebuild -workspace HomeAccessPlus.xcworkspace -scheme HomeAccessPlus -sdk iphonesimulator -destination "OS=10.3,name=iPhone 6" test | xcpretty -c

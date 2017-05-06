@@ -376,9 +376,9 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
                         let path = subJson["Path"].string
                         let details = modified! + "    " + size!
                         let writePermission = subJson["Permissions"]["Write"].boolValue
-                        logger.verbose("Name: \(name)")
-                        logger.verbose("Type: \(type)")
-                        logger.verbose("Date modified: \(modified)")
+                        logger.verbose("Name: \(name as String?)")
+                        logger.verbose("Type: \(type as String?)")
+                        logger.verbose("Date modified: \(modified as String?)")
                         logger.verbose("Write permission: \(writePermission)")
                         
                         // Adding the current files and folders in the directory
@@ -609,13 +609,13 @@ class DocumentPickerViewController: UIDocumentPickerExtensionViewController, UIT
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.debug("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation)) to the remote location: \(self.currentPath)")
+            logger.debug("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation) as String?) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = URL(fileURLWithPath: fileLocation)
         } else {
-            logger.debug("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation)) to the remote location: \(self.currentPath)")
+            logger.debug("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation) as String?) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
