@@ -1607,11 +1607,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     func handleLongPress(longPressGesture:UILongPressGestureRecognizer) {
         let press = longPressGesture.location(in: self.tableView)
         let indexPath = self.tableView.indexPathForRow(at: press)
+        
+        // Allowing multiple rows to be selected
+        tableView.allowsMultipleSelection = true
+        
         if indexPath == nil {
             logger.debug("Long press on table view, not row.")
         }
         else if (longPressGesture.state == UIGestureRecognizerState.began) {
             logger.debug("Long press on table row at: \(indexPath!.row)")
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
+            navigationItem.title = "Selected"
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
         }
     }
     
