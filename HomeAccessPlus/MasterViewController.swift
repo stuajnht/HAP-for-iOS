@@ -156,12 +156,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         self.refreshControl?.addTarget(self, action: #selector(MasterViewController.loadFileBrowser), for: UIControlEvents.valueChanged)
         
         // Allowing the table cells to be long pressed, so that multiple
-        // rows can be selected at once to allow cutting and copying
+        // rows can be selected at once to allow cutting and copying, only
+        // if the user has browsed to a folder (i.e. not on the drives listing)
         // See: http://stackoverflow.com/a/42256889
-        let longPressGesture:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
-        longPressGesture.minimumPressDuration = 1.0
-        longPressGesture.delegate = self
-        self.tableView.addGestureRecognizer(longPressGesture)
+        if (currentPath != "") {
+            let longPressGesture:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+            longPressGesture.minimumPressDuration = 1.0
+            longPressGesture.delegate = self
+            self.tableView.addGestureRecognizer(longPressGesture)
+        }
         
         // Seeing if the loadFileBrowser() function should be called
         // This should only be called when the user is actively
