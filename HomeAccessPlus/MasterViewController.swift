@@ -133,6 +133,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// cut or copied
     var cutCopyFilesList: [Int] = []
     
+    /// A reference of the original title of the folder before
+    /// the files have been selected, so that it can be restored
+    /// if the user cancels the cut / copy operation
+    var cutCopyOriginalTitle = ""
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1630,6 +1635,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let press = longPressGesture.location(in: self.tableView)
         let indexPath = self.tableView.indexPathForRow(at: press)
         
+        // Saving the origial folder title, but only before the
+        // first item has been selected. Otherwise it records it
+        // incorrectly as "x Selected"
+        if (!cutCopyModeEnabled) {
+            cutCopyOriginalTitle = navigationItem.title!
+        }
+        
         // Signaling that cut / copy mode is enabled, so a user
         // tapping on a row item won't try to load the item
         cutCopyModeEnabled = true
@@ -1669,7 +1681,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         cutCopyFilesList.removeAll()
         
         // Resetting the name of the file browser
-        navigationItem.title = "Folder Name"
+        navigationItem.title = cutCopyOriginalTitle
         
         // Only one item should be allowed to be selected
         tableView.allowsMultipleSelection = false
