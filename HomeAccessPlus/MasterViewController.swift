@@ -1604,6 +1604,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - since: 1.0.0-beta
     /// - version: 1
     /// - date: 2017-05-08
+    ///
+    /// - seealso: cancelMultipleSelect
     func handleLongPress(longPressGesture:UILongPressGestureRecognizer) {
         let press = longPressGesture.location(in: self.tableView)
         let indexPath = self.tableView.indexPathForRow(at: press)
@@ -1618,8 +1620,43 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             logger.debug("Long press on table row at: \(indexPath!.row)")
             tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
             navigationItem.title = "Selected"
-            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(MasterViewController.showUploadPopover(_:)))
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelMultipleSelect))
         }
+    }
+    
+    /// Cancels the selection of multiple rows that were going to be cut
+    /// or copied
+    ///
+    /// If the user decides to cancel selecting multiple files that they
+    /// were going to cut or copy, this function is called to "reset"
+    /// the file browser view controller to its default (e.g. single
+    /// row select, title to folder name, etc...)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    ///
+    /// - seealso: handleLongPress
+    func cancelMultipleSelect() {
+        // Resetting the name of the file browser
+        navigationItem.title = "Folder Name"
+        
+        // Only one item should be allowed to be selected
+        tableView.allowsMultipleSelection = false
+        
+        // Deselecting all rows that have been selected
+        // See: http://stackoverflow.com/a/27089532
+        // See: http://bjmiller.me/post/137624096422/on-c-style-for-loops-removed-from-swift-3
+        if let indexPaths = tableView.indexPathsForSelectedRows {
+            for row in (0 ..< indexPaths.count) {
+                tableView.deselectRow(at: indexPaths[row], animated: false)
+            }
+        }
+        
+        // Changing the left navigation button back to a navigation one
+        // from the cancel button
+        navigationItem.leftBarButtonItem = navigationItem.backBarButtonItem
     }
     
     // MARK: Log out user
