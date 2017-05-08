@@ -124,6 +124,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// can be updated correctly
     var multipleFilesCurrentFileNumber = 0
     
+    /// If the user has long-pressed an item on the table view, then
+    /// a "different" mode is enabled to allow selecting multiple
+    /// items so they can be cut or copied
+    var cutCopyModeEnabled : Bool = false
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -933,9 +938,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// having to press the back button to see the folder
     /// issue #16
     ///
+    /// The segue will not be performed if the view is in
+    /// cut / copy mode, as the user is intending to select
+    /// multiple items and not navigate or load files
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-13
     ///
     /// - seealso: prepareForSegue
@@ -945,6 +954,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // See: https://github.com/stuajnht/HAP-for-iOS/issues/16
         if identifier == "showDetail" {
             logger.debug("Seeing if detail segue should be performed")
+            
+            // Don't go any further, as the user is intending to
+            // select items, not navigate to or load them
+            if (cutCopyModeEnabled) {
+                logger.debug("Detail view segue is not being performed as cut / copy mode is enabled")
+                return false
+            }
             
             if let indexPath = self.tableView.indexPathForSelectedRow {
                 
@@ -1610,6 +1626,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         let press = longPressGesture.location(in: self.tableView)
         let indexPath = self.tableView.indexPathForRow(at: press)
         
+        // Signaling that cut / copy mode is enabled, so a user
+        // tapping on a row item won't try to load the item
+        cutCopyModeEnabled = true
+        
         // Allowing multiple rows to be selected
         tableView.allowsMultipleSelection = true
         
@@ -1639,6 +1659,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - seealso: handleLongPress
     func cancelMultipleSelect() {
+        cutCopyModeEnabled = false
+        
         // Resetting the name of the file browser
         navigationItem.title = "Folder Name"
         
