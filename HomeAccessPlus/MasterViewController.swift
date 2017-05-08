@@ -26,7 +26,7 @@ import Locksmith
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
+class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -154,6 +154,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // loading the folder and they want to try again
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
         self.refreshControl?.addTarget(self, action: #selector(MasterViewController.loadFileBrowser), for: UIControlEvents.valueChanged)
+        
+        // Allowing the table cells to be long pressed, so that multiple
+        // rows can be selected at once to allow cutting and copying
+        // See: http://stackoverflow.com/a/42256889
+        let longPressGesture:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        longPressGesture.minimumPressDuration = 1.0
+        longPressGesture.delegate = self
+        self.tableView.addGestureRecognizer(longPressGesture)
         
         // Seeing if the loadFileBrowser() function should be called
         // This should only be called when the user is actively
@@ -1570,6 +1578,38 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.debug("Formatted new file name: \(fileName)")
         
         return fileName
+    }
+    
+    // MARK: Cut, Copy and Paste
+    
+    /// Handles adding and removing items that have been long pressed
+    ///
+    /// To allow multiple files to be selected to be cut or copied
+    /// from the current folder, this handler is called when a row
+    /// has been pressed for a bit. The row is then added to an
+    /// array to be used when the cut or copy options are called from
+    /// the upload popover
+    ///
+    /// If one item has been selected from the table row, then the
+    /// amount of time needed to press the table rows is shortened,
+    /// as well as the ability to navigate back in the folder hierarchy
+    /// being disabled until the items are cut / copied or cancelled
+    ///
+    /// See: http://stackoverflow.com/a/42256889
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    func handleLongPress(longPressGesture:UILongPressGestureRecognizer) {
+        let press = longPressGesture.location(in: self.tableView)
+        let indexPath = self.tableView.indexPathForRow(at: press)
+        if indexPath == nil {
+            logger.debug("Long press on table view, not row.")
+        }
+        else if (longPressGesture.state == UIGestureRecognizerState.began) {
+            logger.debug("Long press on table row at: \(indexPath!.row)")
+        }
     }
     
     // MARK: Log out user
