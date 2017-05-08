@@ -129,6 +129,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// items so they can be cut or copied
     var cutCopyModeEnabled : Bool = false
     
+    /// A list of the table row IDs that have been selected to be
+    /// cut or copied
+    var cutCopyFilesList: [Int] = []
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1638,8 +1642,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         else if (longPressGesture.state == UIGestureRecognizerState.began) {
             logger.debug("Long press on table row at: \(indexPath!.row)")
+            cutCopyFilesList.append(indexPath!.row)
+            
             tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
-            navigationItem.title = "Selected"
+            navigationItem.title = "\(cutCopyFilesList.count) Selected"
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelMultipleSelect))
         }
     }
@@ -1660,6 +1666,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - seealso: handleLongPress
     func cancelMultipleSelect() {
         cutCopyModeEnabled = false
+        cutCopyFilesList.removeAll()
         
         // Resetting the name of the file browser
         navigationItem.title = "Folder Name"
