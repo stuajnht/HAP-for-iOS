@@ -1761,6 +1761,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         
         navigationItem.title = "\(cutCopyFilesList.count) Selected"
+        
+        // If there's nothing left selected, then come out of
+        // cut / copy mode. The user can always go back into it
+        // if they didn't mean to deselect the last remaining item
+        if (cutCopyFilesList.count == 0) {
+            logger.debug("There are no selected items left, so exiting cut / copy mode")
+            cancelMultipleSelect()
+        }
     }
     
     // MARK: Log out user
