@@ -72,6 +72,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     @IBOutlet weak var celUploadCloud: UITableViewCell!
     @IBOutlet weak var lblUploadFile: UILabel!
     @IBOutlet weak var celUploadFile: UITableViewCell!
+    @IBOutlet weak var lblCutItems: UILabel!
+    @IBOutlet weak var celCutItems: UITableViewCell!
+    @IBOutlet weak var lblCopyItems: UILabel!
+    @IBOutlet weak var celCopyItems: UITableViewCell!
+    @IBOutlet weak var lblPasteItems: UILabel!
+    @IBOutlet weak var celPasteItems: UITableViewCell!
     @IBOutlet weak var lblNewFolder: UILabel!
     @IBOutlet weak var celNewFolder: UITableViewCell!
     @IBOutlet weak var lblTakePhoto: UILabel!
@@ -131,7 +137,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     /// If there are any additional sections or rows added to
     /// the table, then this array needs to also be updated to
     /// allow them to be shown to the user
-    let tableSections : [[String]] = [["Upload", "4"], ["Create", "2"], ["LogOut", "1"], ["Debug", "1"]]
+    let tableSections : [[String]] = [["Upload", "4"], ["Edit", "3"], ["Create", "2"], ["LogOut", "1"], ["Debug", "1"]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -174,6 +180,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celUploadCloud.isUserInteractionEnabled = false
             lblUploadFile.isEnabled = false
             celUploadFile.isUserInteractionEnabled = false
+            lblCutItems.isEnabled = false
+            celCutItems.isUserInteractionEnabled = false
+            lblCopyItems.isEnabled = false
+            celCopyItems.isUserInteractionEnabled = false
+            lblPasteItems.isEnabled = false
+            celPasteItems.isUserInteractionEnabled = false
             lblNewFolder.isEnabled = false
             celNewFolder.isUserInteractionEnabled = false
             lblTakePhoto.isEnabled = false
@@ -284,7 +296,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 3
+    /// - version: 4
     /// - date: 2016-04-09
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         var footerMessage = ""
@@ -293,13 +305,15 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         case 0:
             footerMessage = "Upload a photo, video or file from another app on your device to the current folder"
         case 1:
-            footerMessage = "Create a new folder, photo or video inside the current folder you are viewing"
+            footerMessage = "Long press an item to select it, choose cut or copy, then paste into a new folder"
         case 2:
+            footerMessage = "Create a new folder, photo or video inside the current folder you are viewing"
+        case 3:
             footerMessage = "Log out from this device so another user can access their files"
             if let firstName = settings!.string(forKey: settingsFirstName), let username = settings!.string(forKey: settingsUsername) {
                 footerMessage += ". Currently logged in as \(firstName) (\(username))"
             }
-        case 3:
+        case 4:
             footerMessage = "Save log files from this device as a zip file to the current folder"
         default:
             footerMessage = ""
@@ -334,16 +348,20 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///         |    0    |  2  | Upload from cloud    |
     ///         |    0    |  3  | Upload file from app |
     ///         |---------|-----|----------------------|
-    ///         |    1    |  0  | New folder           |
-    ///         |    1    |  1  | Take a photo or video|
+    ///         |    1    |  0  | Cut                  |
+    ///         |    1    |  1  | Copy                 |
+    ///         |    1    |  2  | Paste                |
     ///         |---------|-----|----------------------|
-    ///         |    2    |  0  | Log Out              |
+    ///         |    2    |  0  | New folder           |
+    ///         |    2    |  1  | Take a photo or video|
     ///         |---------|-----|----------------------|
-    ///         |    3    |  0  | Save log files       |
+    ///         |    3    |  0  | Log Out              |
+    ///         |---------|-----|----------------------|
+    ///         |    4    |  0  | Save log files       |
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 15
+    /// - version: 16
     /// - date: 2016-05-12
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let section = indexPath.section
@@ -475,8 +493,23 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             })
         }
         
-        // The user has selected to create a new folder
+        // The user wants to cut the selected items
         if ((section == 1) && (row == 0)) {
+            logger.debug("Cell function: Cut items")
+        }
+        
+        // The user wants to copy the selected items
+        if ((section == 1) && (row == 1)) {
+            logger.debug("Cell function: Copy items")
+        }
+        
+        // The user wants to paste the cut / copied items
+        if ((section == 1) && (row == 2)) {
+            logger.debug("Cell function: Paste items")
+        }
+        
+        // The user has selected to create a new folder
+        if ((section == 2) && (row == 0)) {
             logger.debug("Cell function: Create new folder")
             
             // Setting the "mode" of the alert so that the
@@ -530,7 +563,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         }
         
         // The user wants to take a photo or video
-        if ((section == 1) && (row == 1)) {
+        if ((section == 2) && (row == 1)) {
             logger.debug("Cell function: Take a photo or video")
             
             // Showing the permissions request to access
@@ -558,7 +591,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         }
         
         // The user wants to log out of the app
-        if ((section == 2) && (row == 0)) {
+        if ((section == 3) && (row == 0)) {
             logger.debug("Cell function: Log out user")
             
             // Setting the "mode" of the alert so that the
@@ -670,7 +703,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         }
         
         // The user has selected to upload the log files from the device
-        if ((section == 3) && (row == 0)) {
+        if ((section == 4) && (row == 0)) {
             logger.debug("Cell function: Uploading log files from device")
             
             // Attempting to create a zip file of the logs on the device
