@@ -1295,6 +1295,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             vc.showingOnEmptyFilePath = true
         }
         vc.writeGranted = writeGranted
+        vc.cutCopyItems = cutCopyFilesList.count
         vc.modalPresentationStyle = UIModalPresentationStyle.popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {

@@ -111,6 +111,12 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     // access to any "upload" table cells
     var writeGranted = false
     
+    // Holding the number of items selected in the file browser
+    // so that it can be shown on the cut / copy rows. This is
+    // also used to see if there are any items selected to
+    // enable or disable to row items
+    var cutCopyItems = 0
+    
     // Used to hold a string of if the alert being shown to
     // the user is to create a new folder or to prompt for a
     // username of an authenticated user to log them out with
@@ -168,6 +174,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // wouldn't work
         // These table cells are also disabled if the user does not
         // have write permission granted in the current directory
+        // The copy row is not included here, as it's always possible
+        // to copy the selected items as it doesn't involve making
+        // changes to the current directory, but is disabled later
+        // on if it is an empty file path
         // Note: This happens after updating the file name that has
         //       been passed to this app, otherwise it'll enable
         //       one of the cells again, which isn't correct
@@ -182,8 +192,6 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celUploadFile.isUserInteractionEnabled = false
             lblCutItems.isEnabled = false
             celCutItems.isUserInteractionEnabled = false
-            lblCopyItems.isEnabled = false
-            celCopyItems.isUserInteractionEnabled = false
             lblPasteItems.isEnabled = false
             celPasteItems.isUserInteractionEnabled = false
             lblNewFolder.isEnabled = false
@@ -192,6 +200,32 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             celTakePhoto.isUserInteractionEnabled = false
             lblSaveLogFiles.isEnabled = false
             celSaveLogFiles.isUserInteractionEnabled = false
+        }
+        
+        // Preventing the copy rows being shown if the user is
+        // on the "My Drives" view
+        if (showingOnEmptyFilePath) {
+            lblCopyItems.isEnabled = false
+            celCopyItems.isUserInteractionEnabled = false
+        }
+        
+        // Changing the cut / copy row labels text to include the
+        // number of items selected on the file browser, and also
+        // to enable or disable the rows
+        if (cutCopyItems > 0) {
+            var itemsText = "items"
+            if (cutCopyItems == 1) {
+                itemsText = "item"
+            }
+            lblCutItems.text = lblCutItems.text! + " \(cutCopyItems) \(itemsText)"
+            lblCopyItems.text = lblCopyItems.text! + " \(cutCopyItems) \(itemsText)"
+        } else {
+            // No items have been selected, so it's not possible to
+            // cut / copy anything. Disable rows if not done so above
+            lblCutItems.isEnabled = false
+            celCutItems.isUserInteractionEnabled = false
+            lblCopyItems.isEnabled = false
+            celCopyItems.isUserInteractionEnabled = false
         }
         
         // Changing the colour of the log out button to be a red
