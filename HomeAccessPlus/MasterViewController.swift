@@ -968,6 +968,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // select items, not navigate to or load them
             if (cutCopyModeEnabled) {
                 logger.debug("Detail view segue is not being performed as cut / copy mode is enabled")
+                // We can't get the index path from indexPathForSelectedRow
+                // below, as it's the current selected row of the rows shown
+                // on screen, not the actual row number out of the whole
+                // table (read: when the table is scrolled, row 0 will always
+                // be the one at the top, even if it's actually row 10)
+                // See: http://stackoverflow.com/a/32718211
+                if let indexPath = tableView.indexPath(for: sender as! FileTableViewCell) {
+                    cutCopyToggleSelection(indexPath: indexPath)
+                }
+                
                 return false
             }
             
@@ -1654,10 +1664,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
         else if (longPressGesture.state == UIGestureRecognizerState.began) {
             logger.debug("Long press on table row at: \(indexPath!.row)")
-            cutCopyFilesList.append(indexPath!.row)
+            cutCopyToggleSelection(indexPath: indexPath!)
             
-            tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
-            navigationItem.title = "\(cutCopyFilesList.count) Selected"
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelMultipleSelect))
         }
     }
@@ -1698,6 +1706,40 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Changing the left navigation button back to a navigation one
         // from the cancel button
         navigationItem.leftBarButtonItem = navigationItem.backBarButtonItem
+    }
+    
+    /// Adds or removes items selected to be cut or copied
+    ///
+    /// When an item is tapped or held, and the view is in
+    /// cut or copy mode, this function is called to toggle the
+    /// selection to either add or remove the relevant item
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    func cutCopyToggleSelection(indexPath: IndexPath) {
+        logger.debug("Toggling selection for row \(indexPath.row)")
+        
+        // Seeing if the row is currently already selected, and
+        // it should be removed, or if it should be added
+        logger.debug("Cut / copy files list indexes: \(cutCopyFilesList)")
+        if cutCopyFilesList.contains(indexPath.row) {
+            logger.debug("Removing row \(indexPath.row) from selection as it already exists")
+            
+            // See: http://stackoverflow.com/a/29876138
+            if let index = cutCopyFilesList.index(of: indexPath.row) {
+                cutCopyFilesList.remove(at: index)
+            }
+            
+            tableView.deselectRow(at: indexPath, animated: false)
+        } else {
+            logger.debug("Adding row \(indexPath.row) to selection")
+            cutCopyFilesList.append(indexPath.row)
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
+        }
+        
+        navigationItem.title = "\(cutCopyFilesList.count) Selected"
     }
     
     // MARK: Log out user
