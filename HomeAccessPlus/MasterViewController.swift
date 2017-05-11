@@ -1121,6 +1121,27 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         collapseDetailViewController = false
     }
     
+    /// Removing item from the cut / copy list if deselected
+    ///
+    /// If cut / copy mode is enabled, then when the user deselects
+    /// a row by tapping on it, this function will be called, which
+    /// in turn calls the cutCopyToggleSelection function to remove
+    /// the row from the list
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-11
+    ///
+    /// - seealso: cutCopyToggleSelection
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if (cutCopyModeEnabled) {
+            cutCopyToggleSelection(indexPath: indexPath)
+        }
+    }
+    
+    // MARK: Delete Files
+    
     /// Deletes the file item selected by the user, once they have
     /// confirmed that that actually want to
     ///
