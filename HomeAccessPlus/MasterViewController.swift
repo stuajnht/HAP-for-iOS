@@ -1795,11 +1795,35 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter pasteMode: What should be done with the selected
     ///                        items when the paste button is pressed
     func cutCopyPastePrepare(pasteMode: String) {
+        // Array to hold the paths of the items to be cut
+        // or copied
+        var pasteItemsList: [String] = []
+        
         logger.info("Preparing paste mode to \(pasteMode) the selected items")
         
         // Setting the paste mode, so that it is known what the
         // user wants to do with the selected items
         settings?.set(pasteMode, forKey: settingsPasteMode)
+        
+        // Looping through each selected item to collect the path
+        // to it, ready for use when pasting
+        for selectedItem in (0 ..< cutCopyFilesList.count) {
+            // Fetches the current file path from the fileItems array
+            let file = fileItems[selectedItem]
+            var filePath = file[1] as? String
+            
+            // Removing the "../Download/" text from the path,
+            // so it begins with the drive letter, and any
+            // backslash characters to slashes
+            filePath = filePath?.replacingOccurrences(of: "../Download/", with: "")
+            filePath = filePath?.replacingOccurrences(of: "\\", with: "/")
+            
+            logger.debug("Adding selected item to paste items array: Item row: \(selectedItem), File path: \(String(describing: filePath!))")
+            pasteItemsList.append(filePath!)
+        }
+        
+        logger.info("Items selected to be pasted: \(pasteItemsList)")
+        settings?.set(pasteItemsList, forKey: settingsPasteItems)
         
         // Deselecting any items selected, as cut or copy has
         // been pressed
@@ -1834,6 +1858,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // allowing another user to see what the previous
         // user did
         settings?.set(nil, forKey: settingsPasteMode)
+        settings?.set(nil, forKey: settingsPasteItems)
         
         // Stopping the app delegate check timers, so as to
         // avoid updating the last successful contact time
