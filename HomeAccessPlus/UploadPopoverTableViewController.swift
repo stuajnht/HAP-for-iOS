@@ -173,6 +173,28 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
             lblUploadFile.text = "Upload file"
         }
         
+        // If there are any items that have been selected to be cut
+        // or copied, then the paste row can be set to show the
+        // amount of items to paste. Otherwise, disable the row if
+        // there is nothing to paste
+        if (settings?.string(forKey: settingsPasteMode) == nil) {
+            // This may be repeating the disabling of these items
+            // in the lines below and the "if" statement later, but
+            // I can't find out a better way to only show paste if
+            // there's items to cut or copy
+            lblPasteItems.isEnabled = false
+            celPasteItems.isUserInteractionEnabled = false
+        } else {
+            let pasteItemsCount = (settings?.array(forKey: settingsPasteItems)?.count)! as Int
+            if (pasteItemsCount > 0) {
+                var itemsText = "items"
+                if (pasteItemsCount == 1) {
+                    itemsText = "item"
+                }
+                lblPasteItems.text = lblPasteItems.text! + " \(pasteItemsCount) \(itemsText)"
+            }
+        }
+        
         // Disabling most of the table cells from the view controller,
         // as the popover has been shown on the "My Drives" view,
         // so most of the options should not be available as they
