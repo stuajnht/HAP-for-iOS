@@ -1808,8 +1808,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Looping through each selected item to collect the path
         // to it, ready for use when pasting
         for selectedItem in (0 ..< cutCopyFilesList.count) {
-            // Fetches the current file path from the fileItems array
-            let file = fileItems[selectedItem]
+            // Fetches the current file path from the fileItems array,
+            // based on the items selected
+            let file = fileItems[cutCopyFilesList[selectedItem]]
             var filePath = file[1] as? String
             
             // Removing the "../Download/" text from the path,
