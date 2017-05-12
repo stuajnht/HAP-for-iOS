@@ -1740,6 +1740,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - since: 1.0.0-beta
     /// - version: 1
     /// - date: 2017-05-08
+    ///
+    /// - parameter indexPath: The index path of the row selected
     func cutCopyToggleSelection(indexPath: IndexPath) {
         logger.debug("Toggling selection for row \(indexPath.row)")
         
@@ -1772,6 +1774,38 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         }
     }
     
+    /// Prepares the various "paste" settings based on if the
+    /// items selected are going to be cut or copied
+    ///
+    /// Once the items have been selected, this function is called
+    /// from the upload popover to prepare for the paste that is
+    /// going to happen at some point in the future when either
+    /// the cut or copy items are selected
+    ///
+    /// The items that are selected have their paths saved into
+    /// a settings option, so that it can be used when the paste
+    /// option is pressed. Another settings string is also set,
+    /// so that it is known if the items need to be cut or copied
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-12
+    ///
+    /// - parameter pasteMode: What should be done with the selected
+    ///                        items when the paste button is pressed
+    func cutCopyPastePrepare(pasteMode: String) {
+        logger.info("Preparing paste mode to \(pasteMode) the selected items")
+        
+        // Setting the paste mode, so that it is known what the
+        // user wants to do with the selected items
+        settings?.set(pasteMode, forKey: settingsPasteMode)
+        
+        // Deselecting any items selected, as cut or copy has
+        // been pressed
+        cancelMultipleSelect()
+    }
+    
     // MARK: Log out user
     
     /// Logs the user out of the app and shows the root view
@@ -1787,13 +1821,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 7
+    /// - version: 8
     /// - date: 2016-06-16
     ///
     /// - seealso: toggleMasterView
     func logOutUser() {
         // Calling the log out function
         api.logOutUser()
+        
+        // Removing any items that need to still be pasted,
+        // to prevent any cross-user access to files or
+        // allowing another user to see what the previous
+        // user did
+        settings?.set(nil, forKey: settingsPasteMode)
         
         // Stopping the app delegate check timers, so as to
         // avoid updating the last successful contact time

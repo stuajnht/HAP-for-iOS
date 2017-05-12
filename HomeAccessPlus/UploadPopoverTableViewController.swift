@@ -35,7 +35,7 @@ import Zip
 ///
 /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
 /// - since: 0.5.0-beta
-/// - version: 4
+/// - version: 5
 /// - date: 2016-05-14
 protocol uploadFileDelegate {
     // This calls the uploadFile function in the master view
@@ -50,6 +50,11 @@ protocol uploadFileDelegate {
     // if the user needs to confirm what to do with a file
     // that already exists in the current folder
     func showFileExistsMessage(_ fileFromPhotoLibrary: Bool)
+    
+    // This calls the cutCopyPastePrepare function to setup
+    // the various paste settings, ready for when the paste
+    // item is selected at a later time
+    func cutCopyPastePrepare(pasteMode: String)
     
     // This calls the logOutUser function to destroy any login
     // tokens and stored settings, and pop all views back to the
@@ -530,11 +535,19 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user wants to cut the selected items
         if ((section == 1) && (row == 0)) {
             logger.debug("Cell function: Cut items")
+            self.delegate?.cutCopyPastePrepare(pasteMode: "cut")
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismiss(animated: true, completion: nil)
         }
         
         // The user wants to copy the selected items
         if ((section == 1) && (row == 1)) {
             logger.debug("Cell function: Copy items")
+            self.delegate?.cutCopyPastePrepare(pasteMode: "copy")
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismiss(animated: true, completion: nil)
         }
         
         // The user wants to paste the cut / copied items

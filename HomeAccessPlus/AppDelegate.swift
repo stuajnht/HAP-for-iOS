@@ -57,6 +57,8 @@ let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
 let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
 let settingsFileLoggingEnabled = "fileLoggingEnabled"
 let settingsFileLoggingLevel = "fileLoggingLevel"
+let settingsPasteMode = "pasteMode"
+let settingsPasteItems = "pasteItems"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
