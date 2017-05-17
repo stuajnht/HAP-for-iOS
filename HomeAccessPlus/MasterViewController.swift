@@ -1907,13 +1907,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter checkPosition: The location to start in the
     ///                            items array on the next recursion
     func pasteItemsCheck(items: [NSArray], checkPosition: Int) {
-        let fileItems = items[checkPosition] as? [[String]]
-        let filePathNew = String(describing: fileItems?[1])
-        let fileNameNew = filePathNew.components(separatedBy: "/").last!
+        logger.verbose("Items: \(items)")
+        let fileItems = items[checkPosition] as? [String]
+        logger.verbose("File Items: \(String(describing: fileItems))")
+        let filePathNew = fileItems?[1]
+        logger.verbose("File Path New: \(filePathNew!)")
+        let fileNameNew = String(describing: filePathNew?.components(separatedBy: "/").last!)
         logger.debug("Checking to see if \(fileNameNew) has an identical name as another item in the current folder")
         
         // Seeing if any of the items already exist in the folder
-        api.itemExists(filePathNew, callback: { (result: Bool) -> Void in
+        api.itemExists(filePathNew!, callback: { (result: Bool) -> Void in
             // The file doesn't currently exist in the current
             // folder, so the new one can be created here
             if (result == false) {
