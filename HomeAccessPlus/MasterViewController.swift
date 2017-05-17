@@ -1868,9 +1868,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             pasteItemsList.append(currentItem as NSArray)
         }
         logger.verbose("Items to be pasted: \(pasteItemsList)")
+        
+        // Starting off the check to see if items to be pasted need to
+        // have their names modified, or if they can be overwritten
+        hudShow("Checking filenames")
+        pasteItemsCheck(items: pasteItemsList, checkPosition: 0)
 
-        hudShow("Pasting items")
-        api.paste("H/HAP/Cut Copy Paste/IMG_0053.PNG", newPath: "H/HAP/Cut Copy Paste 2/IMG_0053.PNG", overwrite: false, callback: { (result: Bool) -> Void in
+        /*api.paste("H/HAP/Cut Copy Paste/IMG_0053.PNG", newPath: "H/HAP/Cut Copy Paste 2/IMG_0053.PNG", overwrite: false, callback: { (result: Bool) -> Void in
             logger.debug("Paste response: \(result)")
             if (result) {
                 self.hudHide()
@@ -1879,6 +1883,56 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 // Removing any items that were to be pasted
                 settings?.set(nil, forKey: settingsPasteMode)
                 settings?.set(nil, forKey: settingsPasteItems)
+            }
+        })*/
+    }
+    
+    /// Checks to see if an item being pasted needs to be renamed
+    ///
+    /// If the user attempts to paste an item in a location that
+    /// has something with the same name, then the user is given
+    /// the option to overwite, rename or skip pasting the item
+    ///
+    /// This function is called recursively for all of the items
+    /// that are due to be pasted, as this prevents many alerts
+    /// being shown at once, which will cause problems. As the
+    /// calls use callbacks, this shouldn't use too much memory
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-17
+    ///
+    /// - parameter items: The list of items to be pasted
+    /// - parameter checkPosition: The location to start in the
+    ///                            items array on the next recursion
+    func pasteItemsCheck(items: [NSArray], checkPosition: Int) {
+        let fileItems = items[checkPosition] as? [[String]]
+        let filePathNew = String(describing: fileItems?[1])
+        let fileNameNew = filePathNew.components(separatedBy: "/").last!
+        logger.debug("Checking to see if \(fileNameNew) has an identical name as another item in the current folder")
+        
+        // Seeing if any of the items already exist in the folder
+        api.itemExists(filePathNew, callback: { (result: Bool) -> Void in
+            // The file doesn't currently exist in the current
+            // folder, so the new one can be created here
+            if (result == false) {
+                // If we are at the end of the items in the array,
+                // they can start being pasted
+                if (checkPosition == (items.count - 1)) {
+                    // Start pasting the items
+                    logger.info("All items to be pasted have been checked")
+                    self.hudUpdateLabel("Pasting items")
+                } else {
+                    // Move on to the next item in the array to see if
+                    // it exists
+                    logger.debug("The item \(fileNameNew) is unique. Moving on to next item to check")
+                    self.pasteItemsCheck(items: items, checkPosition: checkPosition + 1)
+                }
+            } else {
+                // We need to ask the user what they want to do with
+                // the identically named item
+                logger.warning("An item with \(fileNameNew) already exists")
             }
         })
     }
