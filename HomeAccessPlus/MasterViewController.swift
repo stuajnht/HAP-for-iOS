@@ -1843,6 +1843,32 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - version: 1
     /// - date: 2017-05-17
     func pasteItems() {
+        // Array with the following items, which are used to generate
+        // the JSON request when pasting the item:
+        //   * oldPath -> string
+        //   * newPath -> string
+        //   * overwrite -> bool
+        // e.g. [
+        //       ("H/folder/file1.txt", "H/new-folder/file1.txt", false),
+        //       ("H/folder/file2.txt", "H/new-folder/file2.txt", false)
+        //      ]
+        var pasteItemsList: [NSArray] = []
+        
+        // Looping through each item to paste, to create the path
+        // for the new item to go to
+        let pasteItemsSettingsList = (settings?.array(forKey: settingsPasteItems))!
+        for item in (0 ..< pasteItemsSettingsList.count) {
+            // Adding the current item to the array
+            var currentItem: [String] = []
+            let oldItemLocation = pasteItemsSettingsList[item] as! String
+            var newItemLocation = currentPath + "/" + (pasteItemsSettingsList[item] as AnyObject).components(separatedBy: "/").last!
+            newItemLocation = newItemLocation.replacingOccurrences(of: "\\", with: "/")
+            currentItem = [oldItemLocation, newItemLocation, "false"]
+            logger.debug("Adding current item to paste items array: \(currentItem)")
+            pasteItemsList.append(currentItem as NSArray)
+        }
+        logger.verbose("Items to be pasted: \(pasteItemsList)")
+
         hudShow("Pasting items")
         api.paste("H/HAP/Cut Copy Paste/IMG_0053.PNG", newPath: "H/HAP/Cut Copy Paste 2/IMG_0053.PNG", overwrite: false, callback: { (result: Bool) -> Void in
             logger.debug("Paste response: \(result)")
