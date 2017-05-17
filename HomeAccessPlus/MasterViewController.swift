@@ -1831,6 +1831,32 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         cancelMultipleSelect()
     }
     
+    /// Pasting all items that had been selected to be cut
+    /// or copied
+    ///
+    /// When the paste row has been selected from the upload
+    /// popover, this function is called to start off the pasting
+    /// of the items that had been selected
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-17
+    func pasteItems() {
+        hudShow("Pasting items")
+        api.paste("H/HAP/Cut Copy Paste/IMG_0053.PNG", newPath: "H/HAP/Cut Copy Paste 2/IMG_0053.PNG", overwrite: false, callback: { (result: Bool) -> Void in
+            logger.debug("Paste response: \(result)")
+            if (result) {
+                self.hudHide()
+                self.loadFileBrowser()
+                
+                // Removing any items that were to be pasted
+                settings?.set(nil, forKey: settingsPasteMode)
+                settings?.set(nil, forKey: settingsPasteItems)
+            }
+        })
+    }
+    
     // MARK: Log out user
     
     /// Logs the user out of the app and shows the root view

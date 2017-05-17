@@ -56,6 +56,10 @@ protocol uploadFileDelegate {
     // item is selected at a later time
     func cutCopyPastePrepare(pasteMode: String)
     
+    // This calls the pasteItems function to initiate the
+    // cutting or copying of items
+    func pasteItems()
+    
     // This calls the logOutUser function to destroy any login
     // tokens and stored settings, and pop all views back to the
     // root view controller (login view)
@@ -575,6 +579,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         // The user wants to paste the cut / copied items
         if ((section == 1) && (row == 2)) {
             logger.debug("Cell function: Paste items")
+            self.delegate?.pasteItems()
+            
+            // Dismissing the popover as it's done what is needed
+            self.dismiss(animated: true, completion: nil)
         }
         
         // The user has selected to create a new folder
