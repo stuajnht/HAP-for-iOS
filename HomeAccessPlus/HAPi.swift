@@ -1056,7 +1056,7 @@ class HAPi {
     /// - parameter oldPath: The path to the item to be cut / copied
     /// - parameter newPath: The path to the new location of the item
     /// - parameter overwrite: Should the item be overwritten
-    func paste(_ oldPath: String, newPath: String, overwrite: Bool, callback:@escaping (_ result: Bool) -> Void) -> Void {
+    func paste(_ oldPath: String, newPath: String, overwrite: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
         // Checking that we still have a connection to the Internet
         if (checkConnection()) {
             // Setting the json http content type header, as the HAP+

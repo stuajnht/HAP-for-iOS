@@ -1540,7 +1540,21 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     var itemsChanged = pasteItemsArray as! [[String]]
                     itemsChanged[pasteItemsCheckingPosition][1] = self.currentPath.replacingOccurrences(of: "\\", with: "/") + "/" + newFileName
                     logger.debug("Generated paste item filename: \(itemsChanged[pasteItemsCheckingPosition][1])")
-                    self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: pasteItemsCheckingPosition + 1)
+                    
+                    // Seeing if there is another paste item to check
+                    // the filename of, or if the items can start to
+                    // be pasted
+                    if (itemsChanged.count == pasteItemsCheckingPosition) {
+                        logger.info("All items to be pasted have been checked")
+                        self.hudUpdateLabel("Pasting items")
+                        self.pasteItem(items: itemsChanged as [NSArray])
+                    } else {
+                        logger.debug("Processing next paste item filename")
+                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: pasteItemsCheckingPosition + 1)
+                    }
+                    
+                    // This function can now be exited, as either it's
+                    // been called again, or the items are being pasted
                     return
                 }
                 
@@ -1894,18 +1908,6 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // have their names modified, or if they can be overwritten
         hudShow("Checking filenames")
         pasteItemsCheck(items: pasteItemsList, checkPosition: 0)
-
-        /*api.paste("H/HAP/Cut Copy Paste/IMG_0053.PNG", newPath: "H/HAP/Cut Copy Paste 2/IMG_0053.PNG", overwrite: false, callback: { (result: Bool) -> Void in
-            logger.debug("Paste response: \(result)")
-            if (result) {
-                self.hudHide()
-                self.loadFileBrowser()
-                
-                // Removing any items that were to be pasted
-                settings?.set(nil, forKey: settingsPasteMode)
-                settings?.set(nil, forKey: settingsPasteItems)
-            }
-        })*/
     }
     
     /// Checks to see if an item being pasted needs to be renamed
@@ -1957,6 +1959,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // Start pasting the items
                     logger.info("All items to be pasted have been checked")
                     self.hudUpdateLabel("Pasting items")
+                    self.pasteItem(items: items)
                 } else {
                     // Move on to the next item in the array to see if
                     // it exists
@@ -1991,6 +1994,51 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition)
                     }))
                 self.present(fileExistsController, animated: true, completion: nil)
+            }
+        })
+    }
+    
+    /// Pastes the items selected to the HAP+ server
+    ///
+    /// After all of the paste items checks have been carried
+    /// out, this function should be called to actually perform
+    /// the pasting of the files on the HAP+ server
+    ///
+    /// As the HAP+ move and copy APIs only allow one item to
+    /// be sent at one time, this function is called recusively
+    /// once each item has been pasted, by removing the first
+    /// item in the array until there is nothing left
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-18
+    ///
+    /// - parameter items: The list of items to be pasted
+    func pasteItem(items: [NSArray]) {
+        // If there are no items left in the array, then all
+        // items have been pasted
+        if (items.count == 0) {
+            logger.info("All items have been pasted to the HAP+ server")
+            self.hudHide()
+            self.loadFileBrowser()
+            
+            // Removing any items that were to be pasted
+            settings?.set(nil, forKey: settingsPasteMode)
+            settings?.set(nil, forKey: settingsPasteItems)
+            return
+        }
+        
+        var pasteItemArray = items as! [[String]]
+        let oldItem = pasteItemArray[0][0]
+        let newItem = pasteItemArray[0][1]
+        let overwrite = pasteItemArray[0][2]
+        logger.debug("Pasting item \(oldItem) to location \(newItem), overwriting: \(overwrite)")
+        api.paste(oldItem, newPath: newItem, overwrite: overwrite, callback: { (result: Bool) -> Void in
+            logger.debug("Paste response: \(result)")
+            if (result) {
+                pasteItemArray.remove(at: 0)
+                self.pasteItem(items: pasteItemArray as [NSArray])
             }
         })
     }
