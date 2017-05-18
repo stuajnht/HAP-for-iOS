@@ -1498,9 +1498,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// a matching file name, by repeatedly calling the generateFileName
     /// function on each call of this function
     ///
+    /// This function is also called when the user attempts to
+    /// paste items into the current folder and an item exists
+    /// with the same name. The paste items array is passed, along
+    /// with the position to be modified, so that the item can
+    /// be modified and then calls the pasteItemsCheck function again
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-28
     ///
     /// - seealso: overwriteFile
@@ -1512,7 +1518,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///                       is to be checked to see if it exists
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func checkGeneratedFileName(_ fileName: String, fileFromPhotoLibrary: Bool) {
+    /// - parameter pasteItemsArray: (Optional) The array of items to be pasted into
+    ///                              the current folder
+    /// - parameter PasteItemsCheckingPosition: (Optional) The position in the paste items
+    ///                                         array that needs to be modified
+    func checkGeneratedFileName(_ fileName: String, fileFromPhotoLibrary: Bool, pasteItemsArray: [NSArray] = [], pasteItemsCheckingPosition: Int = 0) {
         // Creating a new file name for the file being uploaded
         let newFileName = generateFileName(fileName)
         
@@ -1523,6 +1533,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // The new file doesn't currently exist in the current
             // folder, so it can be created here
             if (result == false) {
+                // If there are some items in the pasteItemsArray
+                // then it needs to be updated. Otherwise the file
+                // can be uploaded as normal
+                if (pasteItemsArray.count > 0) {
+                    var itemsChanged = pasteItemsArray as! [[String]]
+                    itemsChanged[pasteItemsCheckingPosition][1] = self.currentPath.replacingOccurrences(of: "\\", with: "/") + "/" + newFileName
+                    logger.debug("Generated paste item filename: \(itemsChanged[pasteItemsCheckingPosition][1])")
+                    self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: pasteItemsCheckingPosition + 1)
+                    return
+                }
+                
                 // Stopping the "please wait" HUD from running, so
                 // the upload HUD can be shown instead
                 self.hudHide()
@@ -1547,7 +1568,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // this folder, so try again with an increased number
             if (result == true) {
                 logger.debug("\(newFileName) does exist in \(self.currentPath) so trying again with an updated name")
-                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
+                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary, pasteItemsArray: pasteItemsArray, pasteItemsCheckingPosition: pasteItemsCheckingPosition)
             }
         })
     }
@@ -1960,6 +1981,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // Generating a new filename and updating the
                         // array to use it
                         logger.debug("User has chosen to create a new file, based on the file \(fileNameNew!) at array position \(checkPosition)")
+                        self.checkGeneratedFileName(filePathNew!, fileFromPhotoLibrary: false, pasteItemsArray: itemsChanged as [NSArray], pasteItemsCheckingPosition: checkPosition)
                     }))
                 fileExistsController.addAction(UIAlertAction(title: "Skip file", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
                         // Removing the current item from the array, then
