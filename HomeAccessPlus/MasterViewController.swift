@@ -1544,7 +1544,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     // Seeing if there is another paste item to check
                     // the filename of, or if the items can start to
                     // be pasted
-                    if (itemsChanged.count == pasteItemsCheckingPosition) {
+                    if (itemsChanged.count == (pasteItemsCheckingPosition + 1)) {
                         logger.info("All items to be pasted have been checked")
                         self.hudUpdateLabel("Pasting items")
                         self.pasteItem(items: itemsChanged as [NSArray])
