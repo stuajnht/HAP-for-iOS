@@ -1912,8 +1912,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         logger.verbose("File Items: \(String(describing: fileItems))")
         let filePathNew = fileItems?[1]
         logger.verbose("File Path New: \(filePathNew!)")
-        let fileNameNew = String(describing: filePathNew?.components(separatedBy: "/").last!)
-        logger.debug("Checking to see if \(fileNameNew) has an identical name as another item in the current folder")
+        let fileNameNew = filePathNew?.components(separatedBy: "/").last!
+        logger.debug("Checking to see if \(fileNameNew!) has an identical name as another item in the current folder")
         
         // Seeing if any of the items already exist in the folder
         api.itemExists(filePathNew!, callback: { (result: Bool) -> Void in
@@ -1929,13 +1929,36 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                 } else {
                     // Move on to the next item in the array to see if
                     // it exists
-                    logger.debug("The item \(fileNameNew) is unique. Moving on to next item to check")
+                    logger.debug("The item \(fileNameNew!) is unique. Moving on to next item to check")
                     self.pasteItemsCheck(items: items, checkPosition: checkPosition + 1)
                 }
             } else {
                 // We need to ask the user what they want to do with
                 // the identically named item
-                logger.warning("An item with \(fileNameNew) already exists")
+                logger.warning("An item with \(fileNameNew!) already exists")
+                var itemsChanged = items as! [[String]]
+                
+                let fileExistsController = UIAlertController(title: "File already exists", message: "The file \"\(fileNameNew!)\" already exists in the current folder", preferredStyle: UIAlertControllerStyle.alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace file", style: UIAlertActionStyle.destructive, handler:  {(alertAction) -> Void in
+                        // Setting the array item to have "true", so it
+                        // will be overwritten when sent to HAP+
+                        logger.debug("User has chosen to replace the file \(fileNameNew!) at array position \(checkPosition)")
+                        itemsChanged[checkPosition][2] = "true"
+                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition + 1)
+                    }))
+                fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
+                        // Generating a new filename and updating the
+                        // array to use it
+                        logger.debug("User has chosen to create a new file, based on the file \(fileNameNew!) at array position \(checkPosition)")
+                    }))
+                fileExistsController.addAction(UIAlertAction(title: "Skip file", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
+                        // Removing the current item from the array, then
+                        // call this function again with a same position
+                        logger.debug("User has chosen to skip the file \(fileNameNew!) at array position \(checkPosition)")
+                        itemsChanged.remove(at: checkPosition)
+                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition)
+                    }))
+                self.present(fileExistsController, animated: true, completion: nil)
             }
         })
     }
