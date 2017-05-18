@@ -2144,6 +2144,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         coder.encode(showFileExistsAlert, forKey: "showFileExistsAlert")
         coder.encode(currentPath, forKey: "currentPath")
         coder.encode(self.fileItems, forKey: "fileItems")
+        coder.encode(navigationItem.title, forKey: "navigationTitle")
         
         super.encodeRestorableState(with: coder)
     }
@@ -2157,6 +2158,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         showFileExistsAlert = coder.decodeBool(forKey: "showFileExistsAlert")
         currentPath = coder.decodeObject(forKey: "currentPath") as! String
         self.fileItems = coder.decodeObject(forKey: "fileItems") as! [NSArray]
+        navigationItem.title = coder.decodeObject(forKey: "navigationTitle") as? String
         
         super.decodeRestorableState(with: coder)
     }

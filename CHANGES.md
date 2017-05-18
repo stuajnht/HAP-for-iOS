@@ -8,6 +8,7 @@
 
 ### Bug Fixes
 * Fixed bug where the app would crash if a user tried to open the upload popover when they had logged out of the app previously, while app restoration made it appear as though they were still logged in
+* The title of the current folder is saved when the app is put into the background and closed, so it is shown when the app is resored in the future instead of saying "File Browser"
 
 ## 0.9.0
 
