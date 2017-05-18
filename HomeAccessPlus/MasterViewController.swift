@@ -1982,7 +1982,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         // will be overwritten when sent to HAP+
                         logger.debug("User has chosen to replace the file \(fileNameNew!) at array position \(checkPosition)")
                         itemsChanged[checkPosition][2] = "true"
-                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition + 1)
+                    
+                        // Seeing if the items can start to be pasted,
+                        // or if there is another item to check
+                        if (checkPosition == (items.count - 1)) {
+                            // Start pasting the items
+                            logger.info("All items to be pasted have been checked")
+                            self.hudUpdateLabel("Pasting items")
+                            self.pasteItem(items: itemsChanged as [NSArray])
+                        } else {
+                            self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition + 1)
+                        }
                     }))
                 fileExistsController.addAction(UIAlertAction(title: "Create new file", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
                         // Generating a new filename and updating the
