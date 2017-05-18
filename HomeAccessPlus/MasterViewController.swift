@@ -1937,6 +1937,10 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if (items.count == 0) {
             logger.info("All items to be pasted have been skipped")
             self.hudHide()
+            
+            // Removing any items that were to be pasted
+            settings?.set(nil, forKey: settingsPasteMode)
+            settings?.set(nil, forKey: settingsPasteItems)
             return
         }
         
