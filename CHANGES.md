@@ -4,6 +4,7 @@
 
 ### New Stuff
 * "Upload" and "Create" options in the upload popover are disabled if the user does not have write access granted for the current directory
+* Items can be cut, copied and pasted between folders
 
 ### Bug Fixes
 * Fixed bug where the app would crash if a user tried to open the upload popover when they had logged out of the app previously, while app restoration made it appear as though they were still logged in

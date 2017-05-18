@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="70L-Rq-5X4">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="70L-Rq-5X4">
     <device id="ipad9_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -470,10 +470,65 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Edit" id="1g0-wH-4yZ">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="vjT-mC-C2M" style="IBUITableViewCellStyleDefault" id="mfQ-b7-5gN">
+                                        <rect key="frame" x="0.0" y="287.5" width="768" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mfQ-b7-5gN" id="ize-So-Fd8">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Cut" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="vjT-mC-C2M">
+                                                    <rect key="frame" x="48" y="0.0" width="672" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="Ze0-uZ-Y4p" style="IBUITableViewCellStyleDefault" id="os7-Ul-S8O">
+                                        <rect key="frame" x="0.0" y="331.5" width="768" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="os7-Ul-S8O" id="giY-qn-voc">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Copy" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Ze0-uZ-Y4p">
+                                                    <rect key="frame" x="48" y="0.0" width="672" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="NAj-5F-lei" style="IBUITableViewCellStyleDefault" id="C7H-0c-t86">
+                                        <rect key="frame" x="0.0" y="375.5" width="768" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="C7H-0c-t86" id="xmG-C1-ZR0">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Paste" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="NAj-5F-lei">
+                                                    <rect key="frame" x="48" y="0.0" width="672" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                             <tableViewSection headerTitle="Create" id="24h-CZ-ts7">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="KuY-DK-ogm" style="IBUITableViewCellStyleDefault" id="eAN-hM-ixx">
-                                        <rect key="frame" x="0.0" y="287.5" width="768" height="44"/>
+                                        <rect key="frame" x="0.0" y="475.5" width="768" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eAN-hM-ixx" id="YAi-Uu-o95">
                                             <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
@@ -490,7 +545,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="hGV-ne-lgs" style="IBUITableViewCellStyleDefault" id="SJB-Y5-xHB">
-                                        <rect key="frame" x="0.0" y="331.5" width="768" height="44"/>
+                                        <rect key="frame" x="0.0" y="519.5" width="768" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="SJB-Y5-xHB" id="Tkl-Ur-feU">
                                             <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
@@ -511,7 +566,7 @@
                             <tableViewSection headerTitle="Log Out" id="2Wo-ay-x3K">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="wK8-IT-DI2" style="IBUITableViewCellStyleDefault" id="eqP-sq-gKW">
-                                        <rect key="frame" x="0.0" y="431.5" width="768" height="44"/>
+                                        <rect key="frame" x="0.0" y="619.5" width="768" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eqP-sq-gKW" id="3IT-bB-duF">
                                             <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
@@ -532,7 +587,7 @@
                             <tableViewSection headerTitle="Debug" id="aD3-0p-Xd3">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="Qpm-Uc-1qU" style="IBUITableViewCellStyleDefault" id="Shy-jC-Sv9">
-                                        <rect key="frame" x="0.0" y="531.5" width="768" height="44"/>
+                                        <rect key="frame" x="0.0" y="719.5" width="768" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Shy-jC-Sv9" id="Rev-Gz-BCJ">
                                             <rect key="frame" x="0.0" y="0.0" width="768" height="43.5"/>
@@ -557,15 +612,21 @@
                         </connections>
                     </tableView>
                     <connections>
+                        <outlet property="celCopyItems" destination="os7-Ul-S8O" id="xUc-GX-QBK"/>
+                        <outlet property="celCutItems" destination="mfQ-b7-5gN" id="RS9-ZJ-F0O"/>
                         <outlet property="celNewFolder" destination="eAN-hM-ixx" id="4be-Nx-E2a"/>
+                        <outlet property="celPasteItems" destination="C7H-0c-t86" id="DAb-dQ-3g4"/>
                         <outlet property="celSaveLogFiles" destination="Shy-jC-Sv9" id="2k8-X0-qaW"/>
                         <outlet property="celTakePhoto" destination="SJB-Y5-xHB" id="YVs-Og-LDT"/>
                         <outlet property="celUploadCloud" destination="pwu-FJ-v6w" id="NGj-GS-KU0"/>
                         <outlet property="celUploadFile" destination="oVx-8S-U0U" id="VcE-76-plH"/>
                         <outlet property="celUploadPhoto" destination="bWd-eK-dI7" id="hSS-wz-gfa"/>
                         <outlet property="celUploadVideo" destination="ehV-PU-nso" id="DWu-3H-dCl"/>
+                        <outlet property="lblCopyItems" destination="Ze0-uZ-Y4p" id="Rgu-sU-kQS"/>
+                        <outlet property="lblCutItems" destination="vjT-mC-C2M" id="ZPk-dw-0Ad"/>
                         <outlet property="lblLogOut" destination="wK8-IT-DI2" id="35a-FV-JiY"/>
                         <outlet property="lblNewFolder" destination="KuY-DK-ogm" id="lyy-M6-hfW"/>
+                        <outlet property="lblPasteItems" destination="NAj-5F-lei" id="jUP-tT-Oeo"/>
                         <outlet property="lblSaveLogFiles" destination="Qpm-Uc-1qU" id="WYP-dk-GVN"/>
                         <outlet property="lblTakePhoto" destination="hGV-ne-lgs" id="Yuc-of-jGE"/>
                         <outlet property="lblUploadCloud" destination="ap5-E6-9Fq" id="y0B-uD-HWe"/>
