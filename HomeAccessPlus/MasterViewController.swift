@@ -1907,6 +1907,16 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter checkPosition: The location to start in the
     ///                            items array on the next recursion
     func pasteItemsCheck(items: [NSArray], checkPosition: Int) {
+        // If there are no items left in the array, then the
+        // user has skipped pasting any items that had been
+        // cut or copied. The HUD can be hidden and this function
+        // can return as there's nothing left to do
+        if (items.count == 0) {
+            logger.info("All items to be pasted have been skipped")
+            self.hudHide()
+            return
+        }
+        
         logger.verbose("Items: \(items)")
         let fileItems = items[checkPosition] as? [String]
         logger.verbose("File Items: \(String(describing: fileItems))")
