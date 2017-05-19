@@ -2143,6 +2143,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         coder.encode(collapseDetailViewController, forKey: "collapseDetailViewController")
         coder.encode(showFileExistsAlert, forKey: "showFileExistsAlert")
         coder.encode(currentPath, forKey: "currentPath")
+        coder.encode(writeGranted, forKey: "writeGranted")
         coder.encode(self.fileItems, forKey: "fileItems")
         coder.encode(navigationItem.title, forKey: "navigationTitle")
         
@@ -2157,6 +2158,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         collapseDetailViewController = coder.decodeBool(forKey: "collapseDetailViewController")
         showFileExistsAlert = coder.decodeBool(forKey: "showFileExistsAlert")
         currentPath = coder.decodeObject(forKey: "currentPath") as! String
+        writeGranted = coder.decodeBool(forKey: "writeGranted")
         self.fileItems = coder.decodeObject(forKey: "fileItems") as! [NSArray]
         navigationItem.title = coder.decodeObject(forKey: "navigationTitle") as? String
         
