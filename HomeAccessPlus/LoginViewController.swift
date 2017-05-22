@@ -353,7 +353,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
@@ -371,6 +371,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
                 // We have successfully logged in, so set the variable to true and
                 // perform the login to master view controller segue
                 logger.info("Successfully logged in user to HAP+")
+                
+                // Updating the school name. This is needed to get around
+                // the "Please set up this device" message still being
+                // shown after the very first login and logout
+                if let siteName = settings!.string(forKey: settingsSiteName) {
+                    self.lblMessage.text = siteName
+                }
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
