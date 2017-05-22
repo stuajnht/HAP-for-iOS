@@ -67,7 +67,7 @@ The following features are planned for the Home Access Plus+ iOS app, along with
 ### 1.0.0
 * ~~Long press a table item to select it or choose cut / copy functions, and paste into new folder~~
 * ~~Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover~~
-* Update icon so that the ‘house’ isn’t as close to the bottom corner
+* ~~Update icon so that the ‘house’ isn’t as close to the bottom corner~~
 
 ### 1.1.0
 * "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
