@@ -1,4 +1,6 @@
-<img src="Images/logos/hap-logo.png" width="25%">
+<p align="center">
+    <img src="Images/logos/hap-logo-rounded.png" width="33%">
+</p>
 
 # Home Access Plus+ for iOS
 
