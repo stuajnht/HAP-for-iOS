@@ -4,7 +4,13 @@
 
 # Home Access Plus+ for iOS
 
-Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple device to your institutions [Home Access Plus+](https://hap.codeplex.com) server. You can then browse, upload and download files easily to and from your iOS device to your institution network file drives. A [demo video](https://www.youtube.com/watch?v=cpr7Ar-a5MA) and [screenshots](https://goo.gl/photos/6Ptp4J1woojWuUik9) are available to view of the app in action (version 0.5.0).
+Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple device to your institutions [Home Access Plus+](https://hap.codeplex.com) server. You can then browse, upload and download files easily to and from your iOS device to your institution network file drives. A [demo video](https://www.youtube.com/watch?v=cpr7Ar-a5MA) and [additional screenshots](https://goo.gl/photos/6Ptp4J1woojWuUik9) are available to view of the app in action (version 0.5.0).
+
+<img src="Images/screenshots/screen-01.png" width="20%">
+<img src="Images/screenshots/screen-02.png" width="20%">
+<img src="Images/screenshots/screen-03.png" width="20%">
+<img src="Images/screenshots/screen-04.png" width="20%">
+<img src="Images/screenshots/screen-05.png" width="20%">
 
 ## Requirements
 To be able to use this app, you will need to have the following:
