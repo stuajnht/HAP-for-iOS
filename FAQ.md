@@ -6,6 +6,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [What option should I choose after the initial setup: "Personal", "Shared" or "Single"?](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single)
 * [When browsing files, the app downloads and previews a "_login.aspx_" file](#when-browsing-files-the-app-downloads-and-previews-a-login.aspx-file)
 * [When browsing folders, an "_Unable to load folder_" error message keeps showing](#when-browsing-folders-an-unable-to-load-folder-error-message-keeps-showing)
+* [When trying to use the menu (upload popover) I am told to log in again](#when-trying-to-use-the-menu-upload-popover-i-am-told-to-log-in-again)
 * [Files from &lt;_app name_&gt; are showing their extension and "File" as the document type](#files-from-app-name-are-showing-their-extension-and-file-as-the-document-type)
 * [When uploading a file from &lt;_app name_&gt; the upload progress is shown but the file doesn't appear in the folder](#when-uploading-a-file-from-app-name-the-upload-progress-is-shown-but-the-file-doesnt-appear-in-the-folder)
 * [When using the document picker in &lt;_app name_&gt; an error of *Failed to launch 'Home Access Plus+'* is shown](#when-using-the-document-picker-in-app-name-an-error-of-failed-to-launch-home-access-plus-is-shown)
@@ -30,6 +31,13 @@ This error message may be shown due to loss of connectivity or your logon tokens
 1. Check that you are connected to a network, and press the "_Try Again_" button. This should solve the problem most of the time
 2. Press the home button and then tap on the app icon. After a few seconds, press the "_Try Again_" button. When the app starts, it attempts to log you in if needed
 3. Press the menu button above where the folder listing normally is, and choose the "_Log Out_" option. Then log back in with your username and password
+
+## When trying to use the menu (upload popover) I am told to log in again
+It can sometimes (although very rarely (see below)) be the case where you, or a previous user, had logged out of the app in the past, but when using the app again in the future it appears that you are still logged in. When trying to open the menu (upload popover) on the file browser you will be informed that you need to log back in again. Please log back in to the app again to continue using it as expected.
+
+> :information_source: This can be caused by iOS app restoration saving a previous layout when the app was switched away from, which it tries to restore from when the app is loaded again. If you logged out of the app and it crashed, or the device shut down, then when you open it again it tries to restore this incorrect state
+
+> :information_source: To simulate when debugging the app: build and run the app from Xcode; press the home button; open the app via the icon on the device; stop running the app from Xcode; open the app again; press the menu button
 
 ## Files from &lt;_app name_&gt; are showing their extension and "File" as the document type
 While HAP+ server contains [support for a large number of common file types](http://hap.codeplex.com/SourceControl/latest#CHS%20Extranet/HAP.Web/images/icons/knownicons.xml), apps for iOS may include their own extensions which are not commonly known. If you are uploading files from &lt;_app name_&gt; and they are showing the file name and extension, instead of just the file name, and the description of the file type is "File" then you will need to include these additional file types for HAP+ to be able to understand them. Follow the steps below to complete this:

@@ -1,6 +1,12 @@
+<p align="center">
+    <img src="Images/logos/hap-logo-rounded.png" width="33%">
+</p>
+
 # Home Access Plus+ for iOS
 
-Home Access Plus+ (HAP) for iOS provides a native app to connect your Apple device to your institutions [Home Access Plus+](https://hap.codeplex.com) server. You can then browse, upload and download files easily to and from your iOS device to your institution network file drives. A [demo video](https://www.youtube.com/watch?v=cpr7Ar-a5MA) and [screenshots](https://goo.gl/photos/6Ptp4J1woojWuUik9) are available to view of the app in action (version 0.5.0).
+[Home Access Plus+ (HAP) for iOS provides a native app](https://itunes.apple.com/app/home-access-plus/id1076118300) to connect your Apple device to your institutions [Home Access Plus+](https://hap.codeplex.com) server. You can then browse, upload and download files easily to and from your iOS device to your institution network file drives. A [demo video](https://www.youtube.com/watch?v=cpr7Ar-a5MA) and [additional screenshots](https://goo.gl/photos/6Ptp4J1woojWuUik9) are available to view of the app in action (version 0.5.0).
+
+<img src="Images/screenshots/screen-01.png" width="19%"><img src="Images/screenshots/spacer.gif" width="1%"><img src="Images/screenshots/screen-02.png" width="19%"><img src="Images/screenshots/spacer.gif" width="1%"><img src="Images/screenshots/screen-03.png" width="19%"><img src="Images/screenshots/spacer.gif" width="1%"><img src="Images/screenshots/screen-04.png" width="19%"><img src="Images/screenshots/spacer.gif" width="1%"><img src="Images/screenshots/screen-05.png" width="19%">
 
 ## Requirements
 To be able to use this app, you will need to have the following:
@@ -60,12 +66,8 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 ## To-Do List
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
-### 1.0.0
-* Swipe table item right to select it or choose cut / copy functions, and paste into new folder, or to create a zip file from the items
-* Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover. Achievable by removing "add" buttons if drive or folder has read only permission (if can be collected from HAP API) -- check data returned when listing the files, and prevent it on when navigating segue
-* Support for document provider open and move options for apps that do not support import and export
-* Update icon so that the ‘house’ isn’t as close to the bottom corner
-
 ### 1.1.0
 * "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
-* (Optional branding) Set a logo and theme colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
+* Create a zip file from any selected items items
+* (Optional branding) Set a logo and theme (including app icon) colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
+* Support for document provider open and move options for apps that do not support import and export -- possibly won't happen, as all attempts to get this working so far haven't been successful

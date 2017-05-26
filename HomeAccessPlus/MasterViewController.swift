@@ -26,7 +26,7 @@ import Locksmith
 import MBProgressHUD
 import SwiftyJSON
 
-class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, uploadFileDelegate {
+class MasterViewController: UITableViewController, UISplitViewControllerDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, uploadFileDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
@@ -84,7 +84,18 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///   3. The type of item this is (Drive, Directory, File Type)
     ///   4. The extension of the file, or empty if it is a directory
     ///   5. Additional details for the file (size, modified date, etc...)
+    ///   6. User has write permission for the item
     var fileItems: [NSArray] = []
+    
+    /// Does the user have write permission granted in the current
+    /// directory being viewed. This is set to false as a failsafe
+    /// to prevent any accidental writing to folders where there
+    /// shouldn't be. This value is used when setting up the
+    /// upload popover, so that it knows if certain table rows
+    /// should be enabled or not
+    /// - note: This variable should be set before the view
+    ///         controller is called in the 'prepareForSegue'
+    var writeGranted : Bool = false
     
     /// If the multi picker is used in the upload popover, then
     /// this variable is used to see if there is currently a file
@@ -112,6 +123,20 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// file number that is being uploaded, so that the progress bars
     /// can be updated correctly
     var multipleFilesCurrentFileNumber = 0
+    
+    /// If the user has long-pressed an item on the table view, then
+    /// a "different" mode is enabled to allow selecting multiple
+    /// items so they can be cut or copied
+    var cutCopyModeEnabled : Bool = false
+    
+    /// A list of the table row IDs that have been selected to be
+    /// cut or copied
+    var cutCopyFilesList: [Int] = []
+    
+    /// A reference of the original title of the folder before
+    /// the files have been selected, so that it can be restored
+    /// if the user cancels the cut / copy operation
+    var cutCopyOriginalTitle = ""
     
 
     override func viewDidLoad() {
@@ -143,6 +168,17 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // loading the folder and they want to try again
         // See: https://www.andrewcbancroft.com/2015/03/17/basics-of-pull-to-refresh-for-swift-developers/
         self.refreshControl?.addTarget(self, action: #selector(MasterViewController.loadFileBrowser), for: UIControlEvents.valueChanged)
+        
+        // Allowing the table cells to be long pressed, so that multiple
+        // rows can be selected at once to allow cutting and copying, only
+        // if the user has browsed to a folder (i.e. not on the drives listing)
+        // See: http://stackoverflow.com/a/42256889
+        if (currentPath != "") {
+            let longPressGesture:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+            longPressGesture.minimumPressDuration = 1.0
+            longPressGesture.delegate = self
+            self.tableView.addGestureRecognizer(longPressGesture)
+        }
         
         // Seeing if the loadFileBrowser() function should be called
         // This should only be called when the user is actively
@@ -191,7 +227,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 5
+    /// - version: 6
     /// - date: 2015-12-19
     func loadFileBrowser() {
         // Hiding the built in table refresh control, as the
@@ -240,9 +276,19 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                             // See: http://stackoverflow.com/a/25340084
                             space = String(format:"%.2f", subJson["Space"].double!) + "% used"
                         }
+                        // Seeing if the user has write permission to the drive.
+                        // This is set in the hapconfig.xml file, and through
+                        // guesswork, it seems as though the JSON value returned
+                        // from the API is called "Actions". It is "0" if write
+                        // is allowed, or "1" if it is not (I think)
+                        var writePermission = false
+                        if (subJson["Actions"].int == 0) {
+                            writePermission = true
+                        }
                         logger.debug("Drive name: \(name!)")
                         logger.debug("Drive path: \(path!)")
                         logger.debug("Drive usage: \(space)")
+                        logger.debug("Drive write permission: \(writePermission)")
                         
                         // Creating a drive letter to show under the name of the
                         // drive, as this will be familiar to how drives are
@@ -251,7 +297,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space)
+                        self.addFileItem(name!, path: path!, type: driveLetter + " Drive", fileExtension: "Drive", details: space, writePermission: writePermission)
                     }
                     
                     // Hiding the HUD and adding the drives available to the table
@@ -311,13 +357,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                         let size = subJson["Size"].string
                         let path = subJson["Path"].string
                         let details = modified! + "    " + size!
-                        logger.verbose("Name: \(name)")
-                        logger.verbose("Type: \(type)")
-                        logger.verbose("Date modified: \(modified)")
+                        let writePermission = subJson["Permissions"]["Write"].boolValue
+                        logger.verbose("Name: \(name as String?)")
+                        logger.verbose("Type: \(type as String?)")
+                        logger.verbose("Date modified: \(modified as String?)")
+                        logger.verbose("Write permission: \(writePermission)")
                         
                         // Adding the current files and folders in the directory
                         // to the fileItems array
-                        self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details)
+                        self.addFileItem(name!, path: path!, type: type!, fileExtension: fileExtension!, details: details, writePermission: writePermission)
                     }
                     self.hudHide()
                     self.tableView.reloadData()
@@ -376,7 +424,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.3.0-beta
-    /// - version: 1
+    /// - version: 2
     /// - date: 2015-12-18
     ///
     /// - seealso: fileItems
@@ -386,13 +434,14 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// - parameter type: The type of item this is (Drive, Directory, File Type)
     /// - parameter fileExtension: The extension of the file, or empty if it is a directory
     /// - parameter details: Additional info for the file (size, modified date, etc...)
-    func addFileItem(_ name: String, path: String, type: String, fileExtension: String, details: String) {
+    /// - parameter writePermission: User has write permission for the item
+    func addFileItem(_ name: String, path: String, type: String, fileExtension: String, details: String, writePermission: Bool) {
         // Creating an array to hold the current item that is being processed
         var currentItem: [AnyObject] = []
-        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)")
+        logger.verbose("Adding item to file array, with details:\n --Name: \(name)\n --Path: \(path)\n --Type: \(type)\n --Extension: \(fileExtension)\n --Details: \(details)\n --Write permission: \(writePermission)")
         
         // Adding the current item to the array
-        currentItem = [name as AnyObject, path as AnyObject, type as AnyObject, fileExtension as AnyObject, details as AnyObject]
+        currentItem = [name as AnyObject, path as AnyObject, type as AnyObject, fileExtension as AnyObject, details as AnyObject, writePermission as AnyObject]
         self.fileItems.append(currentItem as NSArray)
     }
     
@@ -420,13 +469,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // Seeing if we are uploading a file from another app
         // or the local photo library
         if (fileFromPhotoLibrary == false) {
-            logger.info("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation)) to the remote location: \(self.currentPath)")
+            logger.info("Attempting to upload the local file: \(settings!.string(forKey: settingsUploadFileLocation) as String?) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadFileLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
             fileDeviceLocation = URL(fileURLWithPath: fileLocation)
         } else {
-            logger.info("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation)) to the remote location: \(self.currentPath)")
+            logger.info("Attempting to upload the photos file: \(settings!.string(forKey: settingsUploadPhotosLocation) as String?) to the remote location: \(self.currentPath)")
             fileLocation = settings!.string(forKey: settingsUploadPhotosLocation)!
             
             // Converting the fileLocation to be a valid NSURL variable
@@ -898,9 +947,13 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// having to press the back button to see the folder
     /// issue #16
     ///
+    /// The segue will not be performed if the view is in
+    /// cut / copy mode, as the user is intending to select
+    /// multiple items and not navigate or load files
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.5.0-beta
-    /// - version: 1
+    /// - version: 3
     /// - date: 2016-01-13
     ///
     /// - seealso: prepareForSegue
@@ -910,6 +963,23 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // See: https://github.com/stuajnht/HAP-for-iOS/issues/16
         if identifier == "showDetail" {
             logger.debug("Seeing if detail segue should be performed")
+            
+            // Don't go any further, as the user is intending to
+            // select items, not navigate to or load them
+            if (cutCopyModeEnabled) {
+                logger.debug("Detail view segue is not being performed as cut / copy mode is enabled")
+                // We can't get the index path from indexPathForSelectedRow
+                // below, as it's the current selected row of the rows shown
+                // on screen, not the actual row number out of the whole
+                // table (read: when the table is scrolled, row 0 will always
+                // be the one at the top, even if it's actually row 10)
+                // See: http://stackoverflow.com/a/32718211
+                if let indexPath = tableView.indexPath(for: sender as! FileTableViewCell) {
+                    cutCopyToggleSelection(indexPath: indexPath)
+                }
+                
+                return false
+            }
             
             if let indexPath = self.tableView.indexPathForSelectedRow {
                 
@@ -925,6 +995,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
                     logger.debug("Set title to: \(folderTitle)")
                     controller.currentPath = fileItems[indexPath.row][1] as! String
                     controller.viewLoadedFromBrowsing = true
+                    controller.writeGranted = fileItems[indexPath.row][5] as! Bool
                     self.navigationController?.pushViewController(controller, animated: true)
                     return false
                 } else {
@@ -1049,6 +1120,27 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         // The user has selected something, so collapse the view
         collapseDetailViewController = false
     }
+    
+    /// Removing item from the cut / copy list if deselected
+    ///
+    /// If cut / copy mode is enabled, then when the user deselects
+    /// a row by tapping on it, this function will be called, which
+    /// in turn calls the cutCopyToggleSelection function to remove
+    /// the row from the list
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-11
+    ///
+    /// - seealso: cutCopyToggleSelection
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if (cutCopyModeEnabled) {
+            cutCopyToggleSelection(indexPath: indexPath)
+        }
+    }
+    
+    // MARK: Delete Files
     
     /// Deletes the file item selected by the user, once they have
     /// confirmed that that actually want to
@@ -1202,6 +1294,8 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         if (currentPath == "") {
             vc.showingOnEmptyFilePath = true
         }
+        vc.writeGranted = writeGranted
+        vc.cutCopyItems = cutCopyFilesList.count
         vc.modalPresentationStyle = UIModalPresentationStyle.popover
         vc.preferredContentSize = CGSize(width: 320, height: 480)
         if let popover: UIPopoverPresentationController = vc.popoverPresentationController! {
@@ -1404,9 +1498,15 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     /// a matching file name, by repeatedly calling the generateFileName
     /// function on each call of this function
     ///
+    /// This function is also called when the user attempts to
+    /// paste items into the current folder and an item exists
+    /// with the same name. The paste items array is passed, along
+    /// with the position to be modified, so that the item can
+    /// be modified and then calls the pasteItemsCheck function again
+    ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.6.0-beta
-    /// - version: 2
+    /// - version: 3
     /// - date: 2016-01-28
     ///
     /// - seealso: overwriteFile
@@ -1418,7 +1518,11 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///                       is to be checked to see if it exists
     /// - parameter fileFromPhotoLibrary: Is the file being uploaded coming from the photo
     ///                                   library on the device, or from another app
-    func checkGeneratedFileName(_ fileName: String, fileFromPhotoLibrary: Bool) {
+    /// - parameter pasteItemsArray: (Optional) The array of items to be pasted into
+    ///                              the current folder
+    /// - parameter PasteItemsCheckingPosition: (Optional) The position in the paste items
+    ///                                         array that needs to be modified
+    func checkGeneratedFileName(_ fileName: String, fileFromPhotoLibrary: Bool, pasteItemsArray: [NSArray] = [], pasteItemsCheckingPosition: Int = 0) {
         // Creating a new file name for the file being uploaded
         let newFileName = generateFileName(fileName)
         
@@ -1429,6 +1533,31 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // The new file doesn't currently exist in the current
             // folder, so it can be created here
             if (result == false) {
+                // If there are some items in the pasteItemsArray
+                // then it needs to be updated. Otherwise the file
+                // can be uploaded as normal
+                if (pasteItemsArray.count > 0) {
+                    var itemsChanged = pasteItemsArray as! [[String]]
+                    itemsChanged[pasteItemsCheckingPosition][1] = self.currentPath.replacingOccurrences(of: "\\", with: "/") + "/" + newFileName
+                    logger.debug("Generated paste item filename: \(itemsChanged[pasteItemsCheckingPosition][1])")
+                    
+                    // Seeing if there is another paste item to check
+                    // the filename of, or if the items can start to
+                    // be pasted
+                    if (itemsChanged.count == (pasteItemsCheckingPosition + 1)) {
+                        logger.info("All items to be pasted have been checked")
+                        self.hudUpdateLabel("Pasting items")
+                        self.pasteItem(items: itemsChanged as [NSArray])
+                    } else {
+                        logger.debug("Processing next paste item filename")
+                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: pasteItemsCheckingPosition + 1)
+                    }
+                    
+                    // This function can now be exited, as either it's
+                    // been called again, or the items are being pasted
+                    return
+                }
+                
                 // Stopping the "please wait" HUD from running, so
                 // the upload HUD can be shown instead
                 self.hudHide()
@@ -1453,7 +1582,7 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
             // this folder, so try again with an increased number
             if (result == true) {
                 logger.debug("\(newFileName) does exist in \(self.currentPath) so trying again with an updated name")
-                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary)
+                self.checkGeneratedFileName(newFileName, fileFromPhotoLibrary: fileFromPhotoLibrary, pasteItemsArray: pasteItemsArray, pasteItemsCheckingPosition: pasteItemsCheckingPosition)
             }
         })
     }
@@ -1546,6 +1675,388 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         return fileName
     }
     
+    // MARK: Cut, Copy and Paste
+    
+    /// Handles adding and removing items that have been long pressed
+    ///
+    /// To allow multiple files to be selected to be cut or copied
+    /// from the current folder, this handler is called when a row
+    /// has been pressed for a bit. The row is then added to an
+    /// array to be used when the cut or copy options are called from
+    /// the upload popover
+    ///
+    /// If one item has been selected from the table row, then the
+    /// amount of time needed to press the table rows is shortened,
+    /// as well as the ability to navigate back in the folder hierarchy
+    /// being disabled until the items are cut / copied or cancelled
+    ///
+    /// See: http://stackoverflow.com/a/42256889
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    ///
+    /// - seealso: cancelMultipleSelect
+    func handleLongPress(longPressGesture:UILongPressGestureRecognizer) {
+        let press = longPressGesture.location(in: self.tableView)
+        let indexPath = self.tableView.indexPathForRow(at: press)
+        
+        // Saving the origial folder title, but only before the
+        // first item has been selected. Otherwise it records it
+        // incorrectly as "x Selected"
+        if (!cutCopyModeEnabled) {
+            cutCopyOriginalTitle = navigationItem.title!
+        }
+        
+        // Signaling that cut / copy mode is enabled, so a user
+        // tapping on a row item won't try to load the item
+        cutCopyModeEnabled = true
+        
+        // Allowing multiple rows to be selected
+        tableView.allowsMultipleSelection = true
+        
+        if indexPath == nil {
+            logger.debug("Long press on table view, not row.")
+        }
+        else if (longPressGesture.state == UIGestureRecognizerState.began) {
+            logger.debug("Long press on table row at: \(indexPath!.row)")
+            cutCopyToggleSelection(indexPath: indexPath!)
+            
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelMultipleSelect))
+        }
+    }
+    
+    /// Cancels the selection of multiple rows that were going to be cut
+    /// or copied
+    ///
+    /// If the user decides to cancel selecting multiple files that they
+    /// were going to cut or copy, this function is called to "reset"
+    /// the file browser view controller to its default (e.g. single
+    /// row select, title to folder name, etc...)
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    ///
+    /// - seealso: handleLongPress
+    func cancelMultipleSelect() {
+        cutCopyModeEnabled = false
+        cutCopyFilesList.removeAll()
+        
+        // Resetting the name of the file browser
+        navigationItem.title = cutCopyOriginalTitle
+        
+        // Only one item should be allowed to be selected
+        tableView.allowsMultipleSelection = false
+        
+        // Deselecting all rows that have been selected
+        // See: http://stackoverflow.com/a/27089532
+        // See: http://bjmiller.me/post/137624096422/on-c-style-for-loops-removed-from-swift-3
+        if let indexPaths = tableView.indexPathsForSelectedRows {
+            for row in (0 ..< indexPaths.count) {
+                tableView.deselectRow(at: indexPaths[row], animated: false)
+            }
+        }
+        
+        // Changing the left navigation button back to a navigation one
+        // from the cancel button
+        navigationItem.leftBarButtonItem = navigationItem.backBarButtonItem
+    }
+    
+    /// Adds or removes items selected to be cut or copied
+    ///
+    /// When an item is tapped or held, and the view is in
+    /// cut or copy mode, this function is called to toggle the
+    /// selection to either add or remove the relevant item
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-08
+    ///
+    /// - parameter indexPath: The index path of the row selected
+    func cutCopyToggleSelection(indexPath: IndexPath) {
+        logger.debug("Toggling selection for row \(indexPath.row)")
+        
+        // Seeing if the row is currently already selected, and
+        // it should be removed, or if it should be added
+        logger.debug("Cut / copy files list indexes: \(cutCopyFilesList)")
+        if cutCopyFilesList.contains(indexPath.row) {
+            logger.debug("Removing row \(indexPath.row) from selection as it already exists")
+            
+            // See: http://stackoverflow.com/a/29876138
+            if let index = cutCopyFilesList.index(of: indexPath.row) {
+                cutCopyFilesList.remove(at: index)
+            }
+            
+            tableView.deselectRow(at: indexPath, animated: false)
+        } else {
+            logger.debug("Adding row \(indexPath.row) to selection")
+            cutCopyFilesList.append(indexPath.row)
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableViewScrollPosition.none)
+        }
+        
+        navigationItem.title = "\(cutCopyFilesList.count) Selected"
+        
+        // If there's nothing left selected, then come out of
+        // cut / copy mode. The user can always go back into it
+        // if they didn't mean to deselect the last remaining item
+        if (cutCopyFilesList.count == 0) {
+            logger.debug("There are no selected items left, so exiting cut / copy mode")
+            cancelMultipleSelect()
+        }
+    }
+    
+    /// Prepares the various "paste" settings based on if the
+    /// items selected are going to be cut or copied
+    ///
+    /// Once the items have been selected, this function is called
+    /// from the upload popover to prepare for the paste that is
+    /// going to happen at some point in the future when either
+    /// the cut or copy items are selected
+    ///
+    /// The items that are selected have their paths saved into
+    /// a settings option, so that it can be used when the paste
+    /// option is pressed. Another settings string is also set,
+    /// so that it is known if the items need to be cut or copied
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-12
+    ///
+    /// - parameter pasteMode: What should be done with the selected
+    ///                        items when the paste button is pressed
+    func cutCopyPastePrepare(pasteMode: String) {
+        // Array to hold the paths of the items to be cut
+        // or copied
+        var pasteItemsList: [String] = []
+        
+        logger.info("Preparing paste mode to \(pasteMode) the selected items")
+        
+        // Setting the paste mode, so that it is known what the
+        // user wants to do with the selected items
+        settings?.set(pasteMode, forKey: settingsPasteMode)
+        
+        // Looping through each selected item to collect the path
+        // to it, ready for use when pasting
+        for selectedItem in (0 ..< cutCopyFilesList.count) {
+            // Fetches the current file path from the fileItems array,
+            // based on the items selected
+            let file = fileItems[cutCopyFilesList[selectedItem]]
+            var filePath = file[1] as? String
+            
+            // Removing the "../Download/" text from the path,
+            // so it begins with the drive letter, and any
+            // backslash characters to slashes
+            filePath = filePath?.replacingOccurrences(of: "../Download/", with: "")
+            filePath = filePath?.replacingOccurrences(of: "\\", with: "/")
+            
+            logger.debug("Adding selected item to paste items array: Item row: \(selectedItem), File path: \(String(describing: filePath!))")
+            pasteItemsList.append(filePath!)
+        }
+        
+        logger.info("Items selected to be pasted: \(pasteItemsList)")
+        settings?.set(pasteItemsList, forKey: settingsPasteItems)
+        
+        // Deselecting any items selected, as cut or copy has
+        // been pressed
+        cancelMultipleSelect()
+    }
+    
+    /// Pasting all items that had been selected to be cut
+    /// or copied
+    ///
+    /// When the paste row has been selected from the upload
+    /// popover, this function is called to start off the pasting
+    /// of the items that had been selected
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-17
+    func pasteItems() {
+        // Array with the following items, which are used to generate
+        // the JSON request when pasting the item:
+        //   * oldPath -> string
+        //   * newPath -> string
+        //   * overwrite -> bool
+        // e.g. [
+        //       ("H/folder/file1.txt", "H/new-folder/file1.txt", false),
+        //       ("H/folder/file2.txt", "H/new-folder/file2.txt", false)
+        //      ]
+        var pasteItemsList: [NSArray] = []
+        
+        // Looping through each item to paste, to create the path
+        // for the new item to go to
+        let pasteItemsSettingsList = (settings?.array(forKey: settingsPasteItems))!
+        for item in (0 ..< pasteItemsSettingsList.count) {
+            // Adding the current item to the array
+            var currentItem: [String] = []
+            let oldItemLocation = pasteItemsSettingsList[item] as! String
+            var newItemLocation = currentPath + "/" + (pasteItemsSettingsList[item] as AnyObject).components(separatedBy: "/").last!
+            newItemLocation = newItemLocation.replacingOccurrences(of: "\\", with: "/")
+            currentItem = [oldItemLocation, newItemLocation, "false"]
+            logger.debug("Adding current item to paste items array: \(currentItem)")
+            pasteItemsList.append(currentItem as NSArray)
+        }
+        logger.verbose("Items to be pasted: \(pasteItemsList)")
+        
+        // Starting off the check to see if items to be pasted need to
+        // have their names modified, or if they can be overwritten
+        hudShow("Checking filenames")
+        pasteItemsCheck(items: pasteItemsList, checkPosition: 0)
+    }
+    
+    /// Checks to see if an item being pasted needs to be renamed
+    ///
+    /// If the user attempts to paste an item in a location that
+    /// has something with the same name, then the user is given
+    /// the option to overwite, rename or skip pasting the item
+    ///
+    /// This function is called recursively for all of the items
+    /// that are due to be pasted, as this prevents many alerts
+    /// being shown at once, which will cause problems. As the
+    /// calls use callbacks, this shouldn't use too much memory
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-17
+    ///
+    /// - parameter items: The list of items to be pasted
+    /// - parameter checkPosition: The location to start in the
+    ///                            items array on the next recursion
+    func pasteItemsCheck(items: [NSArray], checkPosition: Int) {
+        // If there are no items left in the array, then the
+        // user has skipped pasting any items that had been
+        // cut or copied. The HUD can be hidden and this function
+        // can return as there's nothing left to do
+        if (items.count == 0) {
+            logger.info("All items to be pasted have been skipped")
+            self.hudHide()
+            
+            // Removing any items that were to be pasted
+            settings?.set(nil, forKey: settingsPasteMode)
+            settings?.set(nil, forKey: settingsPasteItems)
+            return
+        }
+        
+        logger.verbose("Items: \(items)")
+        let fileItems = items[checkPosition] as? [String]
+        logger.verbose("File Items: \(String(describing: fileItems))")
+        let filePathNew = fileItems?[1]
+        logger.verbose("File Path New: \(filePathNew!)")
+        let fileNameNew = filePathNew?.components(separatedBy: "/").last!
+        logger.debug("Checking to see if \(fileNameNew!) has an identical name as another item in the current folder")
+        
+        // Seeing if any of the items already exist in the folder
+        api.itemExists(filePathNew!, callback: { (result: Bool) -> Void in
+            // The file doesn't currently exist in the current
+            // folder, so the new one can be created here
+            if (result == false) {
+                // If we are at the end of the items in the array,
+                // they can start being pasted
+                if (checkPosition == (items.count - 1)) {
+                    // Start pasting the items
+                    logger.info("All items to be pasted have been checked")
+                    self.hudUpdateLabel("Pasting items")
+                    self.pasteItem(items: items)
+                } else {
+                    // Move on to the next item in the array to see if
+                    // it exists
+                    logger.debug("The item \(fileNameNew!) is unique. Moving on to next item to check")
+                    self.pasteItemsCheck(items: items, checkPosition: checkPosition + 1)
+                }
+            } else {
+                // We need to ask the user what they want to do with
+                // the identically named item
+                logger.warning("An item with \(fileNameNew!) already exists")
+                var itemsChanged = items as! [[String]]
+                
+                let fileExistsController = UIAlertController(title: "Item already exists", message: "The item \"\(fileNameNew!)\" already exists in the current folder", preferredStyle: UIAlertControllerStyle.alert)
+                fileExistsController.addAction(UIAlertAction(title: "Replace item", style: UIAlertActionStyle.destructive, handler:  {(alertAction) -> Void in
+                        // Setting the array item to have "true", so it
+                        // will be overwritten when sent to HAP+
+                        logger.debug("User has chosen to replace the item \(fileNameNew!) at array position \(checkPosition)")
+                        itemsChanged[checkPosition][2] = "true"
+                    
+                        // Seeing if the items can start to be pasted,
+                        // or if there is another item to check
+                        if (checkPosition == (items.count - 1)) {
+                            // Start pasting the items
+                            logger.info("All items to be pasted have been checked")
+                            self.hudUpdateLabel("Pasting items")
+                            self.pasteItem(items: itemsChanged as [NSArray])
+                        } else {
+                            self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition + 1)
+                        }
+                    }))
+                fileExistsController.addAction(UIAlertAction(title: "Create new item", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
+                        // Generating a new filename and updating the
+                        // array to use it
+                        logger.debug("User has chosen to create a new file, based on the file \(fileNameNew!) at array position \(checkPosition)")
+                        self.checkGeneratedFileName(filePathNew!, fileFromPhotoLibrary: false, pasteItemsArray: itemsChanged as [NSArray], pasteItemsCheckingPosition: checkPosition)
+                    }))
+                fileExistsController.addAction(UIAlertAction(title: "Skip item", style: UIAlertActionStyle.default, handler:  {(alertAction) -> Void in
+                        // Removing the current item from the array, then
+                        // call this function again with a same position
+                        logger.debug("User has chosen to skip the file \(fileNameNew!) at array position \(checkPosition)")
+                        itemsChanged.remove(at: checkPosition)
+                        self.pasteItemsCheck(items: itemsChanged as [NSArray], checkPosition: checkPosition)
+                    }))
+                self.present(fileExistsController, animated: true, completion: nil)
+            }
+        })
+    }
+    
+    /// Pastes the items selected to the HAP+ server
+    ///
+    /// After all of the paste items checks have been carried
+    /// out, this function should be called to actually perform
+    /// the pasting of the files on the HAP+ server
+    ///
+    /// As the HAP+ move and copy APIs only allow one item to
+    /// be sent at one time, this function is called recusively
+    /// once each item has been pasted, by removing the first
+    /// item in the array until there is nothing left
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-18
+    ///
+    /// - parameter items: The list of items to be pasted
+    func pasteItem(items: [NSArray]) {
+        // If there are no items left in the array, then all
+        // items have been pasted
+        if (items.count == 0) {
+            logger.info("All items have been pasted to the HAP+ server")
+            self.hudHide()
+            self.loadFileBrowser()
+            
+            // Removing any items that were to be pasted
+            settings?.set(nil, forKey: settingsPasteMode)
+            settings?.set(nil, forKey: settingsPasteItems)
+            return
+        }
+        
+        var pasteItemArray = items as! [[String]]
+        let oldItem = pasteItemArray[0][0]
+        let newItem = pasteItemArray[0][1]
+        let overwrite = pasteItemArray[0][2]
+        logger.debug("Pasting item \(oldItem) to location \(newItem), overwriting: \(overwrite)")
+        api.paste(oldItem, newPath: newItem, overwrite: overwrite, callback: { (result: Bool) -> Void in
+            logger.debug("Paste response: \(result)")
+            if (result) {
+                pasteItemArray.remove(at: 0)
+                self.pasteItem(items: pasteItemArray as [NSArray])
+            }
+        })
+    }
+    
     // MARK: Log out user
     
     /// Logs the user out of the app and shows the root view
@@ -1561,13 +2072,20 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 7
+    /// - version: 8
     /// - date: 2016-06-16
     ///
     /// - seealso: toggleMasterView
     func logOutUser() {
         // Calling the log out function
         api.logOutUser()
+        
+        // Removing any items that need to still be pasted,
+        // to prevent any cross-user access to files or
+        // allowing another user to see what the previous
+        // user did
+        settings?.set(nil, forKey: settingsPasteMode)
+        settings?.set(nil, forKey: settingsPasteItems)
         
         // Stopping the app delegate check timers, so as to
         // avoid updating the last successful contact time
@@ -1625,7 +2143,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         coder.encode(collapseDetailViewController, forKey: "collapseDetailViewController")
         coder.encode(showFileExistsAlert, forKey: "showFileExistsAlert")
         coder.encode(currentPath, forKey: "currentPath")
+        coder.encode(writeGranted, forKey: "writeGranted")
         coder.encode(self.fileItems, forKey: "fileItems")
+        coder.encode(navigationItem.title, forKey: "navigationTitle")
         
         super.encodeRestorableState(with: coder)
     }
@@ -1638,7 +2158,9 @@ class MasterViewController: UITableViewController, UISplitViewControllerDelegate
         collapseDetailViewController = coder.decodeBool(forKey: "collapseDetailViewController")
         showFileExistsAlert = coder.decodeBool(forKey: "showFileExistsAlert")
         currentPath = coder.decodeObject(forKey: "currentPath") as! String
+        writeGranted = coder.decodeBool(forKey: "writeGranted")
         self.fileItems = coder.decodeObject(forKey: "fileItems") as! [NSArray]
+        navigationItem.title = coder.decodeObject(forKey: "navigationTitle") as? String
         
         super.decodeRestorableState(with: coder)
     }

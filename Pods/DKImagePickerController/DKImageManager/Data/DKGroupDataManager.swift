@@ -27,6 +27,8 @@ public class DKGroupDataManager: DKBaseManager, PHPhotoLibraryChangeObserver {
 	public var assetGroupTypes: [PHAssetCollectionSubtype]?
 	public var assetFetchOptions: PHFetchOptions?
 	public var showsEmptyAlbums: Bool = true
+
+    public var assetFilter: ((_ asset: PHAsset) -> Bool)?
 	
 	deinit {
 		PHPhotoLibrary.shared().unregisterChangeObserver(self)
@@ -39,35 +41,50 @@ public class DKGroupDataManager: DKBaseManager, PHPhotoLibraryChangeObserver {
 		
 		PHPhotoLibrary.shared().unregisterChangeObserver(self)
 	}
-	
-	public func fetchGroups(_ completeBlock: (_ groups: [String]?, _ error: NSError?) -> Void) {
+
+	public func fetchGroups(_ completeBlock: @escaping (_ groups: [String]?, _ error: NSError?) -> Void) {
 		if let assetGroupTypes = self.assetGroupTypes {
-			if self.groups != nil {
-				completeBlock(self.groupIds, nil)
-				return
+			DispatchQueue.global(qos: .userInteractive).async {
+				[weak self] in
+				guard let strongSelf = self else {
+					return
+				}
+
+				guard strongSelf.groups == nil else {
+					DispatchQueue.main.async {
+						completeBlock(strongSelf.groupIds, nil)
+					}
+					return
+				}
+
+				var groups: [String : DKAssetGroup] = [:]
+				var groupIds: [String] = []
+
+				for (_, groupType) in assetGroupTypes.enumerated() {
+					let fetchResult = PHAssetCollection.fetchAssetCollections(with: strongSelf.collectionTypeForSubtype(groupType),
+							subtype: groupType,
+							options: nil)
+					fetchResult.enumerateObjects({ (collection, index, stop) in
+						let assetGroup = DKAssetGroup()
+						assetGroup.groupId = collection.localIdentifier
+						strongSelf.updateGroup(assetGroup, collection: collection)
+						if strongSelf.showsEmptyAlbums || assetGroup.totalCount > 0 {
+							groups[assetGroup.groupId] = assetGroup
+							groupIds.append(assetGroup.groupId)
+						}
+						strongSelf.updatePartial(groups: groups, groupIds: groupIds, completeBlock: completeBlock)
+					})
+				}
+				PHPhotoLibrary.shared().register(strongSelf)
+				strongSelf.updatePartial(groups: groups, groupIds: groupIds, completeBlock: completeBlock)
 			}
-			
-			var groups: [String : DKAssetGroup] = [:]
-			var groupIds: [String] = []
-			
-			for (_, groupType) in assetGroupTypes.enumerated() {
-                let fetchResult = PHAssetCollection.fetchAssetCollections(with: self.collectionTypeForSubtype(groupType),
-				                                                                  subtype: groupType,
-				                                                                  options: nil)
-                fetchResult.enumerateObjects({ (collection, index, stop) in
-                    let assetGroup = DKAssetGroup()
-                    assetGroup.groupId = collection.localIdentifier
-                    self.updateGroup(assetGroup, collection: collection)
-                    if self.showsEmptyAlbums || assetGroup.totalCount > 0 {
-                        groups[assetGroup.groupId] = assetGroup
-                        groupIds.append(assetGroup.groupId)
-                    }
-                })
-			}
-			self.groups = groups
-			self.groupIds = groupIds
-			
-			PHPhotoLibrary.shared().register(self)
+		}
+	}
+
+	private func updatePartial(groups: [String : DKAssetGroup], groupIds: [String], completeBlock: @escaping (_ groups: [String]?, _ error: NSError?) -> Void) {
+		self.groups = groups
+		self.groupIds = groupIds
+		DispatchQueue.main.async {
 			completeBlock(groupIds, nil)
 		}
 	}
@@ -83,12 +100,12 @@ public class DKGroupDataManager: DKBaseManager, PHPhotoLibraryChangeObserver {
 			return
 		}
 		
-		let latestAsset = DKAsset(originalAsset:group.fetchResult.firstObject!)
+		let latestAsset = DKAsset(originalAsset:group.fetchResult.lastObject!)
 		latestAsset.fetchImageWithSize(size, options: options, completeBlock: completeBlock)
 	}
 	
-	public func fetchAssetWithGroup(_ group: DKAssetGroup, index: Int) -> DKAsset {
-        let originalAsset = group.fetchResult[index]
+	public func fetchAsset(_ group: DKAssetGroup, index: Int) -> DKAsset {
+        let originalAsset = self.fetchOriginalAsset(group, index: index)
         var asset = self.assets[originalAsset.localIdentifier]
         if asset == nil {
             asset = DKAsset(originalAsset:originalAsset)
@@ -96,6 +113,10 @@ public class DKGroupDataManager: DKBaseManager, PHPhotoLibraryChangeObserver {
         }
 		return asset!
 	}
+    
+    public func fetchOriginalAsset(_ group: DKAssetGroup, index: Int) -> PHAsset {
+        return group.fetchResult[group.totalCount - index - 1]
+    }
 	
 	// MARK: - Private methods
 	
@@ -110,10 +131,23 @@ public class DKGroupDataManager: DKBaseManager, PHPhotoLibraryChangeObserver {
 	}
 	
 	private func updateGroup(_ group: DKAssetGroup, fetchResult: PHFetchResult<PHAsset>) {
-		group.fetchResult = fetchResult
+        group.fetchResult = filterResults(fetchResult)
 		group.totalCount = group.fetchResult.count
 	}
 	
+    private func filterResults(_ fetchResult: PHFetchResult<PHAsset>) -> PHFetchResult<PHAsset> {
+        guard let filter = assetFilter else { return fetchResult }
+        
+        var filtered = [PHAsset]()
+        for i in 0..<fetchResult.count {
+            if filter(fetchResult[i]) {
+                filtered.append(fetchResult[i])
+            }
+        }
+
+        let collection = PHAssetCollection.transientAssetCollection(with: filtered, title: nil)
+        return PHAsset.fetchAssets(in: collection, options: nil)
+    }
 	// MARK: - PHPhotoLibraryChangeObserver methods
 	
 	public func photoLibraryDidChange(_ changeInstance: PHChange) {

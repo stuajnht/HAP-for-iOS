@@ -57,6 +57,8 @@ let settingsBasicPhotoUploaderEnabled = "basicPhotoUploaderEnabled"
 let settingsBasicVideoUploaderEnabled = "basicVideoUploaderEnabled"
 let settingsFileLoggingEnabled = "fileLoggingEnabled"
 let settingsFileLoggingLevel = "fileLoggingLevel"
+let settingsPasteMode = "pasteMode"
+let settingsPasteItems = "pasteItems"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -198,7 +200,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when an extrnal app sends a file to this app so that it can be uploaded to the HAP+ server
         // See: https://dzone.com/articles/ios-file-association-preview
         // See: http://www.infragistics.com/community/blogs/stevez/archive/2013/03/15/ios-tips-and-tricks-associate-a-file-type-with-your-app-part-3.aspx
-        logger.debug("App invoked with OpenURL by: \(sourceApplication)")
+        logger.debug("App invoked with OpenURL by: \(sourceApplication as String?)")
         logger.debug("File passed from external app located at: \(url)")
         
         // Saving the location of the file on the device so that it

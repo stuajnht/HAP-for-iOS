@@ -131,7 +131,7 @@ class HAPi {
                 // See: https://github.com/stuajnht/HAP-for-iOS/issues/11
                 case.success(_):
                     logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                    logger.verbose("Response string from server API : \(response.result.value)")
+                    logger.verbose("Response string from server API : \(String(describing: response.result.value))")
                     // Seeing if the response is 'OK'
                     if (response.result.value! == "OK") {
                         callback(true)
@@ -325,7 +325,7 @@ class HAPi {
                 // that is never set
             case.success(_):
                 logger.verbose("Successful contact of server: \(response.result.isSuccess)")
-                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value)")
+                logger.verbose("\(settings!.string(forKey: settingsUsername)!) is a member of the following groups: \(response.result.value as String?)")
                 // Saving the groups the user is part of
                 settings!.set(response.result.value, forKey: settingsUserRoles)
                 
@@ -929,7 +929,7 @@ class HAPi {
                 .responseString {response in
                     logger.verbose("Request: \(request)")
                     logger.verbose("Response: \(response)")
-                    logger.verbose("Data: \(response.data)")
+                    logger.verbose("Data: \(String(describing: response.data))")
                     
                     // The response body that the HAP+ server responds
                     // with is ["Deleted <file item name>"] so we need
@@ -1016,7 +1016,7 @@ class HAPi {
                 // Parsing the JSON response
                 .responseJSON { response in switch response.result {
                 case .success:
-                    logger.debug("Response from creating new folder: \(response.data)")
+                    logger.debug("Response from creating new folder: \(String(describing: response.data))")
                     
                     // Logging the last successful contact to the HAP+
                     // API, to reset the session cookies. This is saved
@@ -1025,6 +1025,80 @@ class HAPi {
                     settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
                     
                     // Letting the callback know we have successfully logged in
+                    callback(true)
+                    
+                case .failure(let error):
+                    logger.error("Request failed with error: \(error)")
+                    callback(false)
+                    }
+            }
+        } else {
+            logger.warning("The connection to the Internet has been lost")
+            callback(false)
+        }
+    }
+    
+    /// Pastes the selected item into the current folder
+    ///
+    /// Once the user has selected to cut or copy some items, when
+    /// the paste option is selected this function is called to
+    /// perform the relevant request
+    ///
+    /// The JSON sent to the HAP+ server is the same for both
+    /// requests, just that the API path is different. Therefore,
+    /// this function does identical things, just uses a different URL
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.0.0-beta
+    /// - version: 1
+    /// - date: 2017-05-17
+    ///
+    /// - parameter oldPath: The path to the item to be cut / copied
+    /// - parameter newPath: The path to the new location of the item
+    /// - parameter overwrite: Should the item be overwritten
+    func paste(_ oldPath: String, newPath: String, overwrite: String, callback:@escaping (_ result: Bool) -> Void) -> Void {
+        // Checking that we still have a connection to the Internet
+        if (checkConnection()) {
+            // Setting the json http content type header, as the HAP+
+            // API expects incomming messages in "xml" or "json"
+            // As the user is logged in, we also need to send the
+            // tokens that are collected from the login, so the HAP+
+            // server knows which user has sent this request
+            let httpHeaders = [
+                "Content-Type": "application/json",
+                "Cookie": "token=" + settings!.string(forKey: settingsToken1)! + "; " + settings!.string(forKey: settingsToken2Name)! + "=" + settings!.string(forKey: settingsToken2)!
+            ]
+            
+            // Seeing what API call to make move (cut) or copy
+            var APICallMode = ""
+            switch settings?.string(forKey: settingsPasteMode) {
+            case "cut"?:
+                APICallMode = "move"
+            case "copy"?:
+                APICallMode = "copy"
+            default:
+                // If somehow we have arrived here, return from
+                // the function, as cut or copy has not been set
+                callback(false)
+                return
+            }
+            
+            // Connecting to the API to cut or copy the item
+            logger.info("Attempting to \(APICallMode) the item from \(oldPath) to \(newPath)")
+            Alamofire.request(settings!.string(forKey: settingsHAPServer)! + "/api/myfiles/" + APICallMode, method: .post, parameters: ["OldPath": oldPath, "NewPath": newPath, "Overwrite": overwrite], encoding: JSONEncoding.default, headers: httpHeaders)
+                // Parsing the JSON response
+                .responseJSON { response in switch response.result {
+                case .success(let JSON):
+                    logger.verbose("Response JSON for item \(APICallMode): \(JSON)")
+                    
+                    // Logging the last successful contact to the HAP+
+                    // API, to reset the session cookies. This is saved
+                    // as a time since Unix epoch
+                    logger.verbose("Updating last successful API access time to: \(NSDate().timeIntervalSince1970)")
+                    settings!.set(NSDate().timeIntervalSince1970, forKey: settingsLastAPIAccessTime)
+                    
+                    // Letting the callback know we have successfully pasted
+                    // the item
                     callback(true)
                     
                 case .failure(let error):
@@ -1227,7 +1301,7 @@ class HAPi {
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-alpha
-    /// - version: 5
+    /// - version: 6
     /// - date: 2016-04-16
     func logOutUser() {
         logger.info("Logging out user")
@@ -1236,8 +1310,13 @@ class HAPi {
         // Note: This needs to be done before the username setting
         //       is cleared
         do {
-            try Locksmith.deleteDataForUserAccount(userAccount: settings!.string(forKey: settingsUsername)!)
-            logger.debug("Successfully deleted password")
+            // The check for if the username is nil is due to the
+            // possibility of a user logging out, but app restoration
+            // makes it look like they are still logged in
+            if let username = settings!.string(forKey: settingsUsername) {
+                try Locksmith.deleteDataForUserAccount(userAccount: username)
+                logger.debug("Successfully deleted password")
+            }
         } catch {
             logger.error("Failed to delete the password")
         }
