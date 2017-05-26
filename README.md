@@ -66,11 +66,6 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 ## To-Do List
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
-### 1.0.0
-* ~~Long press a table item to select it or choose cut / copy functions, and paste into new folder~~
-* ~~Disable writing files and folders if the user does not have the permission to, by disabling items in the upload popover~~
-* ~~Update icon so that the ‘house’ isn’t as close to the bottom corner~~
-
 ### 1.1.0
 * "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
 * Create a zip file from any selected items items
