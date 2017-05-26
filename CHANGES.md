@@ -6,9 +6,13 @@
 * "Upload" and "Create" options in the upload popover are disabled if the user does not have write access granted for the current directory
 * Items can be cut, copied and pasted between folders
 
+### Changes
+* The [app icon](Images/logos/hap-logo.svg) has been updated
+
 ### Bug Fixes
 * Fixed bug where the app would crash if a user tried to open the upload popover when they had logged out of the app previously, while app restoration made it appear as though they were still logged in
 * The title of the current folder is saved when the app is put into the background and closed, so it is shown when the app is resored in the future instead of saying "File Browser"
+* When setting the app up for the first time, the school name is now shown correctly on the login screen
 
 ## 0.9.0
 

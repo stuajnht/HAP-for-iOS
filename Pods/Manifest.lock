@@ -3,11 +3,11 @@ PODS:
   - ChameleonFramework (2.1.0):
     - ChameleonFramework/Default (= 2.1.0)
   - ChameleonFramework/Default (2.1.0)
-  - DKImagePickerController (3.5.1):
-    - DKImagePickerController/Camera (= 3.5.1)
-    - DKImagePickerController/ImageManager (= 3.5.1)
-  - DKImagePickerController/Camera (3.5.1)
-  - DKImagePickerController/ImageManager (3.5.1)
+  - DKImagePickerController (3.5.2):
+    - DKImagePickerController/Camera (= 3.5.2)
+    - DKImagePickerController/ImageManager (= 3.5.2)
+  - DKImagePickerController/Camera (3.5.2)
+  - DKImagePickerController/ImageManager (3.5.2)
   - Font-Awesome-Swift (1.6.2)
   - Locksmith (3.0.0)
   - MBProgressHUD (1.0.0)
@@ -37,7 +37,7 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   Alamofire: dc44b1600b800eb63da6a19039a0083d62a6a62d
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
-  DKImagePickerController: 8db7e76a88a7a66a893ba30e935cc4c9bb7ed335
+  DKImagePickerController: 2ce723b969c1f04bf08dc19565de5e62fcf9c23e
   Font-Awesome-Swift: 4dc96df73b5f32aaccdee50a454c3ec253ee4977
   Locksmith: 310b4cc5031af5728bf4db5d4de547a5100c6a3b
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
