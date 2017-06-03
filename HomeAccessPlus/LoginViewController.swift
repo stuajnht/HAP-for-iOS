@@ -105,6 +105,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         self.pkrHAPServer.delegate = self
         self.pkrHAPServer.dataSource = self
         
+        // Formating the picker view with rounded corners and a border
+        // so that it fits the visual style of the other controls
+        // See: https://stackoverflow.com/a/37657259
+        self.pkrHAPServer.layer.masksToBounds = true
+        self.pkrHAPServer.layer.cornerRadius = 5.0
+        self.pkrHAPServer.layer.borderWidth = 8.0
+        self.pkrHAPServer.layer.borderColor = UIColor.white.cgColor
+        
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
     }
@@ -836,21 +844,29 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     // See: https://stackoverflow.com/a/32026170
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let pickerLabel = UILabel()
-        let titleData = hapServerPickerData[row]
+        // Manual spaces are included to pad the contents
+        // of the picker
+        let titleData = "   " + hapServerPickerData[row]
+        
         // Using the default system font
         // See: https://stackoverflow.com/a/40797423
         let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
         pickerLabel.attributedText = myTitle
+        
         return pickerLabel
     }
     
     // Aligning the text to the left and reducing the font size
     // See: https://stackoverflow.com/a/32026170
     func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
-        let titleData = hapServerPickerData[row]
+        // Manual spaces are included to pad the contents
+        // of the picker
+        let titleData = "   " + hapServerPickerData[row]
+        
         // Using the default system font
         // See: https://stackoverflow.com/a/40797423
         let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.blue])
+        
         return myTitle
     }
 
