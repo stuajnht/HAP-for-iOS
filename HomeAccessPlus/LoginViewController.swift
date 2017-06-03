@@ -152,7 +152,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             
             // Filling in the list of HAP+ servers for use in the
             // multisite picker
-            hapServerPickerData = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6"]
+            hapServerPickerData = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Add new Home Access Plus+ Server"]
             
             // Attempting to log the user in if they've logged in
             // before, but have closed the app (from the app switcher)
@@ -830,6 +830,28 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     // The data to return for the row and component (column) that's being passed in
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return hapServerPickerData[row]
+    }
+    
+    // Aligning the text to the left and reducing the font size
+    // See: https://stackoverflow.com/a/32026170
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let pickerLabel = UILabel()
+        let titleData = hapServerPickerData[row]
+        // Using the default system font
+        // See: https://stackoverflow.com/a/40797423
+        let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        pickerLabel.attributedText = myTitle
+        return pickerLabel
+    }
+    
+    // Aligning the text to the left and reducing the font size
+    // See: https://stackoverflow.com/a/32026170
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        let titleData = hapServerPickerData[row]
+        // Using the default system font
+        // See: https://stackoverflow.com/a/40797423
+        let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.blue])
+        return myTitle
     }
 
 }
