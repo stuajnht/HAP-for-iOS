@@ -33,6 +33,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     @IBOutlet weak var lblMessage: UILabel!
     @IBOutlet weak var tblHAPServer: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
+    @IBOutlet weak var pkrHAPServer: UIPickerView!
     @IBOutlet weak var tblUsername: UITextField!
     @IBOutlet weak var lblUsername: UILabel!
     @IBOutlet weak var tbxPassword: UITextField!
