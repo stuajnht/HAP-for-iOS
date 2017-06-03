@@ -15,7 +15,13 @@ Before asking for help or reporting a bug, please read through these Frequently 
 * [Something is not Working as Expected (Using Log Files)](#something-is-not-working-as-expected-using-log-files)
 
 ## I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect
-You need to be running HAP+ over https with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to check that the server has TLS 1.2 enabled and is using a correctly configured SSL certificate (isn't self signed, expired, or containing a mismatched domain name) using [SSL Labs](https://www.ssllabs.com/ssltest/index.html).
+You need to be running HAP+ over HTTPS with version 1.2 of TLS, which is a requirement by [Apple](https://developer.apple.com/library/prerelease/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS9.html#//apple_ref/doc/uid/TP40016198-SW14) and [Home Access Plus+](https://hap.codeplex.com/SourceControl/changeset/87691). If you know that you are typing your HAP+ server address in correctly, and you are being told that it is incorrect, then it is a good idea to perform some checks with the following websites:
+* [SSL Labs](https://www.ssllabs.com/ssltest/index.html) - to see if the server has TLS 1.2 enabled and is using a correctly configured SSL certificate (isn't self signed, expired, containing a mismatched domain name, etc...) 
+* [ATS Check](https://apptransport.info) - to see if the server complies with Apple's App Transport Security requirements
+
+> :warning: ** USE AT YOUR OWN RISK ** Changes to cipher suites and protocols may make your server unreachable for some clients - please check suitability before putting into production use. The resources below are provided for your convenience only.
+
+> :information_source: To make changes directly on IIS, [IISCrypto](https://www.nartac.com/Products/IISCrypto) can be used. For Squid reverse proxies, the following resources may be of help: [Squid Web Proxy Wiki](http://wiki.squid-cache.org/ConfigExamples/Intercept/SslBumpExplicit#Hardening), [Squid reverse proxy: Improving your ssllabs score](http://www.rawiriblundell.com/?p=1442).
 
 ## What option should I choose after the initial setup: "Personal", "Shared" or "Single"?
 The app is designed to be used in a number of setups, namely Personal, Shared or Single. Which option you should choose is the one that best matches how the device you're installing it on to is being used. If you're still not sure, a more thorough description of each option is given below:
