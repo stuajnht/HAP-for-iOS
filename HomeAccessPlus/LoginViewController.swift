@@ -326,10 +326,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
             if (result == false && attempt != 1) {
                 self.hudHide()
                 
-                let apiFailController = UIAlertController(title: "Invalid HAP+ Address", message: "The address that you have entered for the HAP+ server is not valid, the SSL certificate is not configured correctly or the server is not using TLS 1.2", preferredStyle: UIAlertControllerStyle.alert)
+                let apiFailController = UIAlertController(title: "Unable to Contact Server", message: "The address for the HAP+ server is not valid; the server may be offline; the SSL certificate is not configured correctly; the server is not using TLS 1.2 or is not compliant with App Transport Security requirements\n\nPlease check and try again, or contact your IT department for assistance", preferredStyle: UIAlertControllerStyle.alert)
                 apiFailController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiFailController, animated: true, completion: nil)
-                logger.error("Invalid HAP+ address or server used. Check it is a valid address and the server is configured correctly")
+                logger.error("Unable to Contact HAP+ Server. Any of the following may be the cause: Invalid HAP+ address or server used; server may be offline; SSL certificate is incorrect; server is not using TLS 1.2 or not compliant with App Transport Security requirements. Check it is a valid address and the server is configured correctly")
             }
             if (result) {
                 // Successful HAP+ API check, so we now have a fully valid
