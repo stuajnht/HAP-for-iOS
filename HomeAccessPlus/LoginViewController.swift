@@ -848,9 +848,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         // of the picker
         let titleData = "   " + hapServerPickerData[row]
         
-        // Using the default system font
+        // Using the default system font, and setting the last
+        // item (add new HAP+ server) to be bold
         // See: https://stackoverflow.com/a/40797423
-        let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        var myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        if (row == hapServerPickerData.count - 1) {
+            myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17, weight: UIFontWeightSemibold),NSForegroundColorAttributeName:UIColor.black])
+        }
         pickerLabel.attributedText = myTitle
         
         return pickerLabel
@@ -863,9 +867,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         // of the picker
         let titleData = "   " + hapServerPickerData[row]
         
-        // Using the default system font
+        // Using the default system font, and setting the last
+        // item (add new HAP+ server) to be bold
         // See: https://stackoverflow.com/a/40797423
-        let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.blue])
+        var myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        if (row == hapServerPickerData.count - 1) {
+            myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17, weight: UIFontWeightSemibold),NSForegroundColorAttributeName:UIColor.black])
+        }
         
         return myTitle
     }
