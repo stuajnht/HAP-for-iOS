@@ -1,5 +1,10 @@
 # Home Access Plus+ iOS app change log
 
+## 1.0.1
+
+### Changes
+* Included additional information in the login view alert to inform the user to check the server is working, has a valid SSL certificate, is running TLS 1.2 and is compliant with App Transport Security requirements
+
 ## 1.0.0
 
 ### New Stuff
