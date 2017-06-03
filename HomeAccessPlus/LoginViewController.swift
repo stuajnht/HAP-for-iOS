@@ -27,7 +27,7 @@ import MBProgressHUD
 import XCGLogger
 import Zip
 
-class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
@@ -59,6 +59,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     // Used to see how many times the app name label has been
     // tapped, to see if the log files should be emailed
     var appNameTapCount = 0
+    
+    // Used to display the list of HAP+ servers set up on this
+    // device when multisite is enabled in the settings
+    var hapServerPickerData: [String] = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,6 +99,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
             logger.info("The HAP+ server is for the site: \(siteName)")
             lblMessage.text = siteName
         }
+        
+        // Connecting the HAP+ server picker to the
+        // backing data
+        self.pkrHAPServer.delegate = self
+        self.pkrHAPServer.dataSource = self
         
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
@@ -140,6 +149,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
                 // to log in it will say the URL is incorrect
                 formatHAPURL(self)
             }
+            
+            // Filling in the list of HAP+ servers for use in the
+            // multisite picker
+            hapServerPickerData = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6"]
             
             // Attempting to log the user in if they've logged in
             // before, but have closed the app (from the app switcher)
@@ -799,6 +812,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    
+    // MARK: Multisite
+    
+    // The number of columns of data
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    // The number of rows of data
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return hapServerPickerData.count
+    }
+    
+    // The data to return for the row and component (column) that's being passed in
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return hapServerPickerData[row]
     }
 
 }
