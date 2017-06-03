@@ -67,6 +67,9 @@ The following projects and source code are included in HAP+ for iOS. Their licen
 The following features are planned for the Home Access Plus+ iOS app, along with their expected releases (which can change).
 
 ### 1.1.0
+* Allow the app to be used with multiple Home Access Plus+ servers
+
+### 1.2.0
 * "Favourite" folders for devices in personal or single mode, using a tab bar to select between the my files or favourites "views" -- the use of swiping the table row right to select items could be used to show a favourite button
 * Create a zip file from any selected items items
 * (Optional branding) Set a logo and theme (including app icon) colour based on those used by the school to use throughout the app -- information possibly collected by accessing a app-config.json file located on the HAP+ server somewhere
