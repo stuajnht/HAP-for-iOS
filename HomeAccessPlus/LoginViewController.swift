@@ -93,13 +93,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         lblAppName.isUserInteractionEnabled = true
         lblAppName.addGestureRecognizer(appNameTap)
         
-        // Filling in any settings that are saved
-        if let siteName = settings!.string(forKey: settingsSiteName)
-        {
-            logger.info("The HAP+ server is for the site: \(siteName)")
-            lblMessage.text = siteName
-        }
-        
         // Connecting the HAP+ server picker to the
         // backing data
         self.pkrHAPServer.delegate = self
@@ -142,21 +135,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
             tblHAPServer.isHidden = false
             lblHAPServer.isHidden = false
+            pkrHAPServer.isHidden = true
         } else {
-            // Hiding the HAP+ server textbox, as if this is the
-            // first setup / login on the device and the user
-            // logs out, then the field will be editable again
-            if let hapServer = settings!.string(forKey: settingsHAPServer) {
-                logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
-                tblHAPServer.text = hapServer
-                tblHAPServer.isHidden = true
-                lblHAPServer.isHidden = true
-                
-                // Checking the URL is still correct (it is) but this
-                // function needs to be called otherwise when attempting
-                // to log in it will say the URL is incorrect
-                formatHAPURL(self)
-            }
+            // Showing the relevant HAP+ server controls when the
+            // app has focus. A "will enter forground" notification
+            // is needed if the app is put into the background, the
+            // multisite option changed in settings, then the app is
+            // brought back again otherwise the controls do not update
+            // until a login and logoff has occurred
+            // See: https://stackoverflow.com/a/34529572
+            showHAPServerControls()
+            NotificationCenter.default.addObserver(self, selector: #selector(showHAPServerControls), name: .UIApplicationWillEnterForeground, object: nil)
             
             // Filling in the list of HAP+ servers for use in the
             // multisite picker
@@ -305,6 +294,70 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                 apiCheckConnectionController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                 self.present(apiCheckConnectionController, animated: true, completion: nil)
                 logger.error("Unable to connect to the Internet to access the HAP+ server")
+            }
+        }
+    }
+    
+    /// Shows the relevant HAP+ server controls, and message label,
+    /// based on what mode the device is in
+    ///
+    /// When the view is shown, the relevant HAP+ server controls
+    /// need to be processed to see what should be shown, such as
+    /// the multiple sites picker, the HAP+ server address textbox
+    /// or nothing at all if the device is set up and multiple
+    /// sites is not enabled
+    ///
+    /// The message label is also updated depending on what has been
+    /// set up. If multisite isn't enabled, then the site name is
+    /// shown. Otherwise, a notice to select the school is shown.
+    /// However, if there is no server set up, then the message to
+    /// set up the device is shown instead
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 1
+    /// - date: 2017-06-04
+    func showHAPServerControls() {
+        // Seeing what combination of items for the HAP+ server
+        // label, textbox and picker should be shown. The picker
+        // is hidden by default, and is shown based on what needs
+        // to be available
+        pkrHAPServer.isHidden = true
+        
+        // If there is a HAP+ server set in the settings, then we
+        // need to see if it should be hidden as the device is set
+        // up, or if the multisite picker should be shown. Otherwise,
+        // the HAP+ server label and textbox should be shown
+        if let hapServer = settings!.string(forKey: settingsHAPServer) {
+            logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
+            
+            if settings!.bool(forKey: settingsMultisiteEnabled) {
+                logger.debug("Multisite is enabled, so showing the picker")
+                pkrHAPServer.isHidden = false
+                tblHAPServer.isHidden = true
+                lblHAPServer.isHidden = false
+            } else {
+                logger.debug("Multisite is not enabled, not showing any HAP+ server details")
+                tblHAPServer.isHidden = true
+                lblHAPServer.isHidden = true
+            }
+            
+            tblHAPServer.text = hapServer
+            
+            // Checking the URL is still correct (it is) but this
+            // function needs to be called otherwise when attempting
+            // to log in it will say the URL is incorrect
+            formatHAPURL(self)
+        }
+        
+        // Filling in any settings that are saved for the message label
+        if let siteName = settings!.string(forKey: settingsSiteName)
+        {
+            if settings!.bool(forKey: settingsMultisiteEnabled) {
+                lblMessage.text = "Please select your school"
+            } else {
+                logger.info("The HAP+ server is for the site: \(siteName)")
+                lblMessage.text = siteName
             }
         }
     }
