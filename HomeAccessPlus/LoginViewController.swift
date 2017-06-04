@@ -840,6 +840,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         return hapServerPickerData[row]
     }
     
+    // Processing the picker view selection
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // This method is triggered whenever the user makes a change to the picker selection.
+        // The parameter named row and component represents what was selected.
+        logger.debug("The following site has been selected from the multisite server picker: row \(row), server: \(hapServerPickerData[row])")
+    }
+    
     // Aligning the text to the left and reducing the font size
     // See: https://stackoverflow.com/a/32026170
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
