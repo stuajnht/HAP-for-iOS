@@ -31,9 +31,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
+    @IBOutlet weak var pkrHAPServer: UIPickerView!
     @IBOutlet weak var tblHAPServer: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
-    @IBOutlet weak var pkrHAPServer: UIPickerView!
     @IBOutlet weak var tblUsername: UITextField!
     @IBOutlet weak var lblUsername: UILabel!
     @IBOutlet weak var tbxPassword: UITextField!
