@@ -68,6 +68,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     // device when multisite is enabled in the settings
     var hapServerPickerData: [String] = [String]()
     
+    // Used to hold the dictionary of HAP+ server addresses and
+    // site names. The key is the server URL, the value is the
+    // name of the site
+    var multisiteServerList: [String: String] = [String: String]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -142,9 +147,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             showHAPServerControls()
             NotificationCenter.default.addObserver(self, selector: #selector(showHAPServerControls), name: .UIApplicationWillEnterForeground, object: nil)
             
-            // Filling in the list of HAP+ servers for use in the
-            // multisite picker
-            hapServerPickerData = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Add new Home Access Plus+ Server"]
+            // Clear all items in the multisite picker to prevent them
+            // being added continually when appended to below
+            hapServerPickerData.removeAll()
+            
+            // Seeing if there is any data available before filling
+            // in the multisite picker list
+            if (multisiteServerList.count > 0) {
+                // Filling in the list of HAP+ servers for use in the
+                // multisite picker
+                for (hapServer, siteName) in multisiteServerList {
+                    logger.debug("Adding server \(siteName) (\(hapServer)) to multisite picker list")
+                    hapServerPickerData.append("\(siteName) (\(hapServer))")
+                }
+            }
+            
+            // The last item in the multisite picker should be to add
+            // a new HAP+ server. This is assumed when the formatting
+            // of the picker is taking place
+            hapServerPickerData.append("Add new Home Access Plus+ Server")
             
             // Attempting to log the user in if they've logged in
             // before, but have closed the app (from the app switcher)
@@ -423,7 +444,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 6
+    /// - version: 7
     /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
@@ -448,6 +469,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                 if let siteName = settings!.string(forKey: settingsSiteName) {
                     self.lblMessage.text = siteName
                 }
+                
+                // Saving the new HAP+ server address and site name to the
+                // multisite variable, so that it can be used by the multisite
+                // picker should it be enabled
+                self.multisiteServerList[settings!.string(forKey: settingsHAPServer)!] = settings!.string(forKey: settingsSiteName)
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
