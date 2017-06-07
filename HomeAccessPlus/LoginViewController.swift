@@ -31,7 +31,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
-    @IBOutlet weak var pkrHAPServer: UIPickerView!
+    @IBOutlet weak var lblHAPMultisite: UILabel!
     @IBOutlet weak var tblHAPServer: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
     @IBOutlet weak var tblUsername: UITextField!
@@ -93,7 +93,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         lblAppName.isUserInteractionEnabled = true
         lblAppName.addGestureRecognizer(appNameTap)
         
-        // Connecting the HAP+ server picker to the
+        /*// Connecting the HAP+ server picker to the
         // backing data
         self.pkrHAPServer.delegate = self
         self.pkrHAPServer.dataSource = self
@@ -104,7 +104,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         self.pkrHAPServer.layer.masksToBounds = true
         self.pkrHAPServer.layer.cornerRadius = 5.0
         self.pkrHAPServer.layer.borderWidth = 8.0
-        self.pkrHAPServer.layer.borderColor = UIColor.white.cgColor
+        self.pkrHAPServer.layer.borderColor = UIColor.white.cgColor*/
         
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
@@ -135,7 +135,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
             tblHAPServer.isHidden = false
             lblHAPServer.isHidden = false
-            pkrHAPServer.isHidden = true
+            lblHAPMultisite.isHidden = true
         } else {
             // Showing the relevant HAP+ server controls when the
             // app has focus. A "will enter forground" notification
@@ -315,14 +315,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 1.1.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2017-06-04
     func showHAPServerControls() {
         // Seeing what combination of items for the HAP+ server
-        // label, textbox and picker should be shown. The picker
-        // is hidden by default, and is shown based on what needs
+        // label, textbox and multisite should be shown. The multisite
+        // label is hidden by default, and is shown based on what needs
         // to be available
-        pkrHAPServer.isHidden = true
+        lblHAPMultisite.isHidden = true
         
         // If there is a HAP+ server set in the settings, then we
         // need to see if it should be hidden as the device is set
@@ -332,8 +332,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
             
             if settings!.bool(forKey: settingsMultisiteEnabled) {
-                logger.debug("Multisite is enabled, so showing the picker")
-                pkrHAPServer.isHidden = false
+                logger.debug("Multisite is enabled, so showing the multisite label")
+                lblHAPMultisite.isHidden = false
                 tblHAPServer.isHidden = true
                 lblHAPServer.isHidden = false
             } else {
