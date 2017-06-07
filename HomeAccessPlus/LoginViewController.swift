@@ -31,8 +31,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
-    @IBOutlet weak var lblHAPMultisite: UILabel!
     @IBOutlet weak var tblHAPServer: UITextField!
+    @IBOutlet weak var tbxHAPMultisite: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
     @IBOutlet weak var tblUsername: UITextField!
     @IBOutlet weak var lblUsername: UILabel!
@@ -60,6 +60,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     // tapped, to see if the log files should be emailed
     var appNameTapCount = 0
     
+    // Used to hold a reference to the dynamically generated
+    // picker view to show the servers available
+    var pkrHAPServer : UIPickerView!
+    
     // Used to display the list of HAP+ servers set up on this
     // device when multisite is enabled in the settings
     var hapServerPickerData: [String] = [String]()
@@ -85,6 +89,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         tblHAPServer.returnKeyType = .next
         tblUsername.returnKeyType = .next
         tbxPassword.returnKeyType = .go
+        
+        // Handle the multisite textbox to display
+        // the picker
+        tbxHAPMultisite.delegate = self
         
         // Allowing the app name label to be pressed, so that
         // logs on the device can be uploaded
@@ -135,7 +143,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
             tblHAPServer.isHidden = false
             lblHAPServer.isHidden = false
-            lblHAPMultisite.isHidden = true
+            tbxHAPMultisite.isHidden = true
         } else {
             // Showing the relevant HAP+ server controls when the
             // app has focus. A "will enter forground" notification
@@ -320,9 +328,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     func showHAPServerControls() {
         // Seeing what combination of items for the HAP+ server
         // label, textbox and multisite should be shown. The multisite
-        // label is hidden by default, and is shown based on what needs
+        // textbox is hidden by default, and is shown based on what needs
         // to be available
-        lblHAPMultisite.isHidden = true
+        tbxHAPMultisite.isHidden = true
         
         // If there is a HAP+ server set in the settings, then we
         // need to see if it should be hidden as the device is set
@@ -332,8 +340,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
             
             if settings!.bool(forKey: settingsMultisiteEnabled) {
-                logger.debug("Multisite is enabled, so showing the multisite label")
-                lblHAPMultisite.isHidden = false
+                logger.debug("Multisite is enabled, so showing the multisite textbox")
+                tbxHAPMultisite.isHidden = false
                 tblHAPServer.isHidden = true
                 lblHAPServer.isHidden = false
             } else {
@@ -721,6 +729,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeField = textField
+        
+        // Showing the multisite picker if the relevant textbox
+        // has been tapped
+        if (textField == tbxHAPMultisite) {
+            logger.info("Showing the multisite picker")
+            self.pickUpValue(textField: textField)
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -936,6 +951,73 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         }
         
         return myTitle
+    }
+    
+    // Dynamically generates a picker view when the multisite
+    // textbox is tapped
+    // See: http://www.spidersoft.com.au/2016/dynamic-pickerview-in-swift-3/
+    func pickUpValue(textField: UITextField) {
+        
+        logger.debug("Getting ready to display the multisite picker")
+        
+        // create frame and size of picker view
+        pkrHAPServer = UIPickerView(frame:CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: self.view.frame.size.width, height: 216)))
+        
+        // deletates
+        pkrHAPServer.delegate = self
+        pkrHAPServer.dataSource = self
+        
+        // if there is a value in current text field, try to find it existing list
+        /*if let currentValue = textField.text {
+            
+            var row : Int?
+            
+            // look in correct array
+            switch activeTextField {
+            case 1:
+                row = optionsA.index(of: currentValue)
+            case 2:
+                row = optionsB.index(of: currentValue)
+            default:
+                row = nil
+            }
+            
+            // we got it, let's set select it
+            if row != nil {
+                pkrHAPServer.selectRow(row!, inComponent: 0, animated: true)
+            }
+        }*/
+        
+        pkrHAPServer.backgroundColor = UIColor.white
+        textField.inputView = self.pkrHAPServer
+        
+        // toolBar
+        let toolBar = UIToolbar()
+        toolBar.barStyle = .default
+        toolBar.isTranslucent = true
+        toolBar.barTintColor = UIColor.darkGray
+        toolBar.sizeToFit()
+        
+        // buttons for toolBar
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(doneClick))
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelClick))
+        toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
+        toolBar.isUserInteractionEnabled = true
+        textField.inputAccessoryView = toolBar
+        
+    }
+    
+    // done
+    func doneClick() {
+        //activeTF.text = activeValue
+        activeField?.resignFirstResponder()
+        
+    }
+    
+    // cancel
+    func cancelClick() {
+        activeField?.resignFirstResponder()
     }
 
 }
