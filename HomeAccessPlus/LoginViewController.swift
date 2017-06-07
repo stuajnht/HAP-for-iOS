@@ -151,14 +151,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             // being added continually when appended to below
             hapServerPickerData.removeAll()
             
-            // Seeing if there is any data available before filling
-            // in the multisite picker list
-            if (multisiteServerList.count > 0) {
-                // Filling in the list of HAP+ servers for use in the
-                // multisite picker
-                for (hapServer, siteName) in multisiteServerList {
-                    logger.debug("Adding server \(siteName) (\(hapServer)) to multisite picker list")
-                    hapServerPickerData.append("\(siteName) (\(hapServer))")
+            // Loading the multisite list of servers, and seeing if
+            // there was any data returned
+            if (loadMultisiteList()) {
+                // Seeing if there is any data available before filling
+                // in the multisite picker list
+                if (multisiteServerList.count > 0) {
+                    // Filling in the list of HAP+ servers for use in the
+                    // multisite picker
+                    for (hapServer, siteName) in multisiteServerList {
+                        logger.debug("Adding server \(siteName) (\(hapServer)) to multisite picker list")
+                        hapServerPickerData.append("\(siteName) (\(hapServer))")
+                    }
                 }
             }
             
@@ -473,7 +477,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                 // Saving the new HAP+ server address and site name to the
                 // multisite variable, so that it can be used by the multisite
                 // picker should it be enabled
-                self.multisiteServerList[settings!.string(forKey: settingsHAPServer)!] = settings!.string(forKey: settingsSiteName)
+                self.updateMultisiteList()
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
@@ -905,6 +909,56 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     
     // MARK: Multisite
+    
+    /// Saves and updates the list of HAP+ servers and site names
+    /// that the app has connected to, both for this class property
+    /// multisiteServerList, but also to the NSUserDefaults so that
+    /// it is available between app restarts
+    ///
+    /// It is assumed that some sanity checking has been completed
+    /// to make sure that only once instance of the site exists before
+    /// attempting to save it with this function
+    ///
+    /// See: https://stackoverflow.com/a/36790465
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 1
+    /// - date: 2017-06-07
+    func updateMultisiteList() {
+        multisiteServerList[settings!.string(forKey: settingsHAPServer)!] = settings!.string(forKey: settingsSiteName)
+        let archiver = NSKeyedArchiver.archivedData(withRootObject: multisiteServerList)
+        settings!.set(archiver, forKey: settingsMultisiteServerList)
+    }
+    
+    /// Loads the list of HAP+ servers and site names used by the
+    /// multisite picker
+    ///
+    /// See: https://stackoverflow.com/a/36790465
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 1
+    /// - date: 2017-06-07
+    ///
+    /// - returns: Did the multisite server list load successfully
+    func loadMultisiteList() -> Bool {
+        
+        // Check if data exists
+        guard let data = settings!.object(forKey: settingsMultisiteServerList) else {
+            return false
+        }
+        
+        // Check if retrieved data has correct type
+        guard let retrievedData = data as? Data else {
+            return false
+        }
+        
+        // Unarchive data
+        multisiteServerList = NSKeyedUnarchiver.unarchiveObject(with: retrievedData) as! [String : String]
+        logger.debug("Loaded the multisite server list: \(multisiteServerList)")
+        return true
+    }
     
     // The number of columns of data
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
