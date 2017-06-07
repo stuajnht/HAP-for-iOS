@@ -990,16 +990,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         
         pkrHAPServer.backgroundColor = UIColor.white
         textField.inputView = self.pkrHAPServer
+        textField.hideAssistantBar()
         
         // toolBar
         let toolBar = UIToolbar()
         toolBar.barStyle = .default
         toolBar.isTranslucent = true
-        toolBar.barTintColor = UIColor.darkGray
         toolBar.sizeToFit()
         
         // buttons for toolBar
-        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(doneClick))
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneClick))
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelClick))
         toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
@@ -1020,4 +1020,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         activeField?.resignFirstResponder()
     }
 
+}
+
+// Removes the assistant shortcuts that iOS keyboard
+// contains, for use with the multisite picker
+// See: https://stackoverflow.com/a/33641391
+extension UITextField
+{
+    /// Prevents the shortcut bar being shown for the
+    /// multisite picker control, as it serves no purpose
+    public func hideAssistantBar()
+    {
+        if #available(iOS 9.0, *) {
+            let assistant = self.inputAssistantItem;
+            assistant.leadingBarButtonGroups = [];
+            assistant.trailingBarButtonGroups = [];
+        }
+    }
 }
