@@ -101,19 +101,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         lblAppName.isUserInteractionEnabled = true
         lblAppName.addGestureRecognizer(appNameTap)
         
-        /*// Connecting the HAP+ server picker to the
-        // backing data
-        self.pkrHAPServer.delegate = self
-        self.pkrHAPServer.dataSource = self
-        
-        // Formating the picker view with rounded corners and a border
-        // so that it fits the visual style of the other controls
-        // See: https://stackoverflow.com/a/37657259
-        self.pkrHAPServer.layer.masksToBounds = true
-        self.pkrHAPServer.layer.cornerRadius = 5.0
-        self.pkrHAPServer.layer.borderWidth = 8.0
-        self.pkrHAPServer.layer.borderColor = UIColor.white.cgColor*/
-        
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
     }
