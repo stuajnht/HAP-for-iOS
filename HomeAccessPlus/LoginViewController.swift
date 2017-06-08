@@ -1086,6 +1086,32 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         // so that the buttons on the picker work as expected the
         // next time it is run
         hapServerPickerLastUsedRow = hapServerPickerCurrentRow
+        logger.debug("New default row to use for the multisite picker: \(hapServerPickerLastUsedRow)")
+        
+        // Seeing if the new server alert should be shown,
+        // of if a previously saved one can be used
+        if (hapServerPickerCurrentRow == (hapServerPickerData.count - 1)) {
+            // Displaying the new HAP+ server address alert
+            logger.info("Showing the new HAP+ server alert")
+        } else {
+            // Getting the hap server address from the value in the
+            // multiple HAP+ server textbox
+            // This is a bit of a hacky way to do it, by extracting
+            // the value from between the brackets, but I can't think
+            // of a better way to identify the HAP+ server URL otherwise
+            let serverAddress = hapServerPickerData[hapServerPickerLastUsedRow].components(separatedBy: "(")
+            let hapServer = String(serverAddress[1])?.replacingOccurrences(of: ")", with: "")
+            logger.info("Multisite HAP+ server changed to: \(String(describing: hapServer!))")
+            tblHAPServer.text = hapServer
+            
+            // Checking the URL is still correct (it is) but this
+            // function needs to be called otherwise when attempting
+            // to log in it will say the URL is incorrect
+            formatHAPURL(self)
+            
+            // Move the focus to the username textbox
+            tblUsername.becomeFirstResponder()
+        }
     }
     
     // The user canceled the change in HAP+ server
