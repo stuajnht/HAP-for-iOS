@@ -980,6 +980,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         // This method is triggered whenever the user makes a change to the picker selection.
         // The parameter named row and component represents what was selected.
         logger.debug("The following site has been selected from the multisite server picker: row \(row), server: \(hapServerPickerData[row])")
+        tbxHAPMultisite.text = hapServerPickerData[row]
     }
     
     // Aligning the text to the left and reducing the font size
@@ -1034,26 +1035,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         pkrHAPServer.delegate = self
         pkrHAPServer.dataSource = self
         
-        // if there is a value in current text field, try to find it existing list
-        /*if let currentValue = textField.text {
-            
+        // Seeing if there is a value in current text field,
+        // try to find it existing list and select it
+        if let currentValue = textField.text {
             var row : Int?
-            
-            // look in correct array
-            switch activeTextField {
-            case 1:
-                row = optionsA.index(of: currentValue)
-            case 2:
-                row = optionsB.index(of: currentValue)
-            default:
-                row = nil
-            }
+            row = hapServerPickerData.index(of: currentValue)
             
             // we got it, let's set select it
             if row != nil {
                 pkrHAPServer.selectRow(row!, inComponent: 0, animated: true)
             }
-        }*/
+        }
         
         pkrHAPServer.backgroundColor = UIColor.white
         textField.inputView = self.pkrHAPServer
@@ -1066,7 +1058,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         toolBar.sizeToFit()
         
         // buttons for toolBar
-        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneClick))
+        let doneButton = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(doneClick))
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelClick))
         toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
@@ -1077,7 +1069,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     
     // done
     func doneClick() {
-        //activeTF.text = activeValue
         activeField?.resignFirstResponder()
         
     }
