@@ -1093,6 +1093,47 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         if (hapServerPickerCurrentRow == (hapServerPickerData.count - 1)) {
             // Displaying the new HAP+ server address alert
             logger.info("Showing the new HAP+ server alert")
+            
+            // Displaying an alert view with a textbox for the
+            // user to type in the name of the HAP+ server
+            // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+            var newServerAlert:UIAlertController?
+            newServerAlert = UIAlertController(title: "New HAP+ Server", message: "Please enter the address of the HAP+ server", preferredStyle: .alert)
+            
+            newServerAlert!.addTextField(
+                configurationHandler: {(textField: UITextField!) in
+                    textField.placeholder = "HAP+ Server"
+                    textField.keyboardType = .URL
+                    textField.autocapitalizationType = .none
+                    textField.enablesReturnKeyAutomatically = true
+                    textField.keyboardAppearance = .dark
+                    textField.returnKeyType = .continue
+                    textField.delegate = self
+            })
+            
+            // Setting the create button style to be cancel, so
+            // that it is emboldened in the alert and looks like
+            // the default button to press
+            // Note: Continue is used instead of create, as it
+            //       then keeps the same description as the
+            //       keyboard return key
+            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.cancel, handler: {(paramAction:UIAlertAction!) in
+                if let textFields = newServerAlert?.textFields{
+                    let theTextFields = textFields as [UITextField]
+                    let enteredText = theTextFields[0].text
+                    if (enteredText! != "") {
+                        // Setting the new server address
+                        logger.info("New HAP+ server address is: \(String(describing: enteredText!))")
+                        self.tblHAPServer.text = enteredText
+                        self.formatHAPURL(self)
+                    }
+                }
+            })
+            
+            newServerAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+            
+            newServerAlert?.addAction(action)
+            self.present(newServerAlert!, animated: true, completion: nil)
         } else {
             // Getting the hap server address from the value in the
             // multiple HAP+ server textbox
