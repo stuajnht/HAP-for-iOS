@@ -381,6 +381,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         {
             if settings!.bool(forKey: settingsMultisiteEnabled) {
                 lblMessage.text = "Please select your school"
+                let server = settings!.string(forKey: settingsHAPServer)
+                tbxHAPMultisite.text = "\(siteName) (\(server!))"
             } else {
                 logger.info("The HAP+ server is for the site: \(siteName)")
                 lblMessage.text = siteName
