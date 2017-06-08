@@ -73,6 +73,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     // name of the site
     var multisiteServerList: [String: String] = [String: String]()
     
+    // Used to hold the current and last selected row from the
+    // picker view, so that the "cancel" and "select" buttons
+    // work as expected
+    var hapServerPickerCurrentRow = 0
+    var hapServerPickerLastUsedRow = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -980,7 +986,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         // This method is triggered whenever the user makes a change to the picker selection.
         // The parameter named row and component represents what was selected.
         logger.debug("The following site has been selected from the multisite server picker: row \(row), server: \(hapServerPickerData[row])")
+        
+        // Updating the text being shown in the multipicker
+        // and the current selected row number to be used
+        // by the "select" and "cancel" buttons
         tbxHAPMultisite.text = hapServerPickerData[row]
+        hapServerPickerCurrentRow = row
     }
     
     // Aligning the text to the left and reducing the font size
@@ -1058,7 +1069,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         toolBar.sizeToFit()
         
         // buttons for toolBar
-        let doneButton = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(doneClick))
+        let doneButton = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(selectClick))
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelClick))
         toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
@@ -1067,15 +1078,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         
     }
     
-    // done
-    func doneClick() {
+    // The select button has been chosen
+    func selectClick() {
         activeField?.resignFirstResponder()
         
+        // Updating the last used row value with the one selected
+        // so that the buttons on the picker work as expected the
+        // next time it is run
+        hapServerPickerLastUsedRow = hapServerPickerCurrentRow
     }
     
-    // cancel
+    // The user canceled the change in HAP+ server
     func cancelClick() {
         activeField?.resignFirstResponder()
+        
+        // Reset the multisite HAP+ server and site name
+        // back to what was in place before the user made
+        // any changes
+        tbxHAPMultisite.text = hapServerPickerData[hapServerPickerLastUsedRow]
     }
 
 }
