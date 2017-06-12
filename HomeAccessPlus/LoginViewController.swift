@@ -1112,13 +1112,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                     textField.delegate = self
             })
             
-            // Setting the create button style to be cancel, so
-            // that it is emboldened in the alert and looks like
-            // the default button to press
-            // Note: Continue is used instead of create, as it
-            //       then keeps the same description as the
-            //       keyboard return key
-            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.cancel, handler: {(paramAction:UIAlertAction!) in
+            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.default, handler: {(paramAction:UIAlertAction!) in
                 if let textFields = newServerAlert?.textFields{
                     let theTextFields = textFields as [UITextField]
                     let enteredText = theTextFields[0].text
@@ -1131,9 +1125,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                 }
             })
             
-            newServerAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: nil))
+            newServerAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil))
             
             newServerAlert?.addAction(action)
+            
+            // By default the "Cancel" button is bold and default
+            // This changes it to be the "Continue" button instead
+            // See: https://www.stuartbreckenridge.com/uialertcontroller-preferred-action/
+            newServerAlert!.preferredAction = newServerAlert?.actions[1]
             self.present(newServerAlert!, animated: true, completion: nil)
         } else {
             // Getting the hap server address from the value in the
