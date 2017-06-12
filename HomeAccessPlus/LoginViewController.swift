@@ -1108,7 +1108,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                     textField.keyboardType = .URL
                     textField.autocapitalizationType = .none
                     textField.enablesReturnKeyAutomatically = true
-                    textField.keyboardAppearance = .dark
                     textField.returnKeyType = .continue
                     textField.delegate = self
             })
