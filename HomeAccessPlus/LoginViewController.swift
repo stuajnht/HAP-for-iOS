@@ -946,7 +946,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 1.1.0-alpha
-    /// - version: 1
+    /// - version: 2
     /// - date: 2017-06-07
     ///
     /// - returns: Did the multisite server list load successfully
@@ -963,8 +963,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         }
         
         // Unarchive data
-        multisiteServerList = NSKeyedUnarchiver.unarchiveObject(with: retrievedData) as! [String : String]
-        logger.debug("Loaded the multisite server list: \(multisiteServerList)")
+        let multisiteServerListUnsorted = NSKeyedUnarchiver.unarchiveObject(with: retrievedData) as! [String : String]
+        logger.debug("Loaded the unsorted multisite server list: \(multisiteServerListUnsorted)")
+        
+        
+        // Sorting the list of site names alphabetically
+        // See: https://stackoverflow.com/a/33882119
+        let keyValueArray = multisiteServerListUnsorted.valueKeySorted
+        for (key, value) in keyValueArray {
+            multisiteServerList[key] = value
+        }
+        logger.debug("Sorted multisite server list: \(multisiteServerList)")
+        
         return true
     }
     
@@ -1181,5 +1191,15 @@ extension UITextField
             assistant.leadingBarButtonGroups = [];
             assistant.trailingBarButtonGroups = [];
         }
+    }
+}
+
+// Sorts the list of HAP+ sites in alphabetical order,
+// so that it's easier to scan the list of HAP+ servers
+// available when using the multisite picker
+// See: https://stackoverflow.com/a/33882119
+extension Dictionary where Value: Comparable {
+    var valueKeySorted: [(Key, Value)] {
+        return sorted{ if $0.value != $1.value { return $0.value < $1.value } else { return String(describing: $0.key) < String(describing: $1.key) } }
     }
 }
