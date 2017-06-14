@@ -41,13 +41,7 @@ import XCGLogger
 /// See: https://stackoverflow.com/a/39015132
 class MultisiteTextField : UITextField {
     override public func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        logger.debug("Action being attempted for the multisite textbox: \(action)")
-        if action == #selector(copy(_:)) || action == #selector(paste(_:)) {
-            logger.debug("The action \(action) has been prevented for the multisite textbox")
-            return false
-        }
-        
-        logger.debug("The action \(action) has been allowed for the multisite textbox")
-        return true
+        logger.debug("The action \(action) has been prevented for the multisite textbox")
+        return false
     }
 }

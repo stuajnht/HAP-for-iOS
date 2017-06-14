@@ -102,10 +102,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
         tbxPassword.returnKeyType = .go
         
         // Handle the multisite textbox to display
-        // the picker and hide the cursor
+        // the picker, hide the cursor and prevent
+        // autocorrection of text
         // See: https://stackoverflow.com/a/29989143
+        // See: https://stackoverflow.com/a/30248975
         tbxHAPMultisite.delegate = self
         tbxHAPMultisite.tintColor = .clear
+        tbxHAPMultisite.autocorrectionType = .no
         
         // Allowing the app name label to be pressed, so that
         // logs on the device can be uploaded
