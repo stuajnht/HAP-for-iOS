@@ -1072,6 +1072,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
             // we got it, let's set select it
             if row != nil {
                 pkrHAPServer.selectRow(row!, inComponent: 0, animated: true)
+            } else {
+                // Assume that a new HAP+ server should be added,
+                // which will always be the last row. This can be
+                // found out from the number of items currently
+                // available in the picker
+                pkrHAPServer.selectRow(hapServerPickerData.count - 1, inComponent: 0, animated: true)
             }
         }
         
@@ -1135,6 +1141,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDe
                         // Setting the new server address
                         logger.info("New HAP+ server address is: \(String(describing: enteredText!))")
                         self.tblHAPServer.text = enteredText
+                        self.tbxHAPMultisite.text = "Add new Home Access Plus+ Server (\(enteredText!))"
                         self.formatHAPURL(self)
                     }
                 }

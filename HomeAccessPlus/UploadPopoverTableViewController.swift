@@ -361,7 +361,7 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.7.0-beta
-    /// - version: 4
+    /// - version: 5
     /// - date: 2016-04-09
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         var footerMessage = ""
@@ -376,7 +376,10 @@ class UploadPopoverTableViewController: UITableViewController, UIImagePickerCont
         case 3:
             footerMessage = "Log out from this device so another user can access their files"
             if let firstName = settings!.string(forKey: settingsFirstName), let username = settings!.string(forKey: settingsUsername) {
-                footerMessage += ". Currently logged in as \(firstName) (\(username))"
+                footerMessage += ".\nCurrently logged in as \(firstName) (\(username))"
+                if (settings!.bool(forKey: settingsMultisiteEnabled)) {
+                    footerMessage += " at " + settings!.string(forKey: settingsSiteName)!
+                }
             }
         case 4:
             footerMessage = "Save log files from this device as a zip file to the current folder"
