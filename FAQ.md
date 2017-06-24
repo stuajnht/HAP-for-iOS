@@ -4,6 +4,7 @@ Before asking for help or reporting a bug, please read through these Frequently 
 ## Contents
 * [I am typing in a correct Home Access Plus+ server address, but I am being told it is incorrect](#i-am-typing-in-a-correct-home-access-plus-server-address-but-i-am-being-told-it-is-incorrect)
 * [What option should I choose after the initial setup: "Personal", "Shared" or "Single"?](#what-option-should-i-choose-after-the-initial-setup-personal-shared-or-single)
+* [How can I use the app with multiple Home Access Plus+ servers?](#how-can-i-use-the-app-with-multiple-home-access-plus-servers)
 * [When browsing files, the app downloads and previews a "_login.aspx_" file](#when-browsing-files-the-app-downloads-and-previews-a-login.aspx-file)
 * [When browsing folders, an "_Unable to load folder_" error message keeps showing](#when-browsing-folders-an-unable-to-load-folder-error-message-keeps-showing)
 * [When trying to use the menu (upload popover) I am told to log in again](#when-trying-to-use-the-menu-upload-popover-i-am-told-to-log-in-again)
@@ -28,6 +29,17 @@ The app is designed to be used in a number of setups, namely Personal, Shared or
 * *Personal* - This is the option that should be chosen if you have bought the device for your own use, such as your mobile phone. If you are a student, this is most likely the option that you'll choose
 * *Shared* - If the iOS device is part of a class set or shared between departments. The app will log the user out once the lesson ends, to prevent other students being able to access work that isn't theirs (requires the [HAP+ timetable plugin](https://hap.codeplex.com/wikipage?title=Timetable%20Plugin&referringTitle=Documentation) to be installed and set up on the HAP+ server)
 * *Single* - The device that the app has been installed on is part of a 1:1 scheme, whereby the device is not shared between students and a single student will always log in to the same device, or you are using a set of iOS devices in a presentation / exam and don't want users to log out of them. See also: ["Single" mode logout steps](#i-am-being-asked-to-type-an-authenticated-username-to-log-out-of-the-device)
+
+## How can I use the app with multiple Home Access Plus+ servers?
+Starting from version 1.1.0, the app is able to connect to multiple Home Access Plus+ servers. To turn this option on:
+1. Go to the main iOS settings app and scroll down the the Home Access Plus+ menu item
+2. Turn on the "Multisite Enabled" option
+3. Set up the app with the first Home Access Plus+ server
+4. Log out from the server, then tap on the server address textbox
+5. From the picker that appears, choose the "Add new Home Access Plus+ Server" and press the Select button
+6. Fill in the HAP+ server address in the alert that is shown
+7. Log in with an account for that server. If successful, the additional HAP+ server is added to the list and can be selected from the picker
+8. Repeat steps 4-7 as needed
 
 ## When browsing files, the app downloads and previews a "_login.aspx_" file
 This is due to the logon tokens for the app expiring, so the HAP+ server attempts to show the login page that is used when browsing using an Internet browser. Since version 0.7.0 the app automatically logs users back in with the credentials they origianlly used to log in to the app. If you are on or above this version, please log out of the app and log back in again, as your password may have expired or been changed, meaning the app cannot log you in successfully.

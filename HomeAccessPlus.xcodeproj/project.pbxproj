@@ -27,6 +27,7 @@
 		FC71D86B1C6D2BAC000DA5F4 /* Locksmith.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86A1C6D2BAC000DA5F4 /* Locksmith.framework */; };
 		FC71D86D1C6D2BB2000DA5F4 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC71D86C1C6D2BB2000DA5F4 /* Alamofire.framework */; };
 		FC78D30C1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */; };
+		FC7C7EB71EF1D8770054F4C2 /* MultisiteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7C7EB61EF1D8770054F4C2 /* MultisiteTextField.swift */; };
 		FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */; };
 		FC8219981CE13C8800B37DA1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FC8219971CE13C8800B37DA1 /* Settings.bundle */; };
 		FCB1D9EA1C09F54C00DEC02E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1D9E91C09F54C00DEC02E /* AppDelegate.swift */; };
@@ -131,6 +132,7 @@
 		FC78D3091C5D7E5E00254B07 /* HomeAccessPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeAccessPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC78D30B1C5D7E5E00254B07 /* HomeAccessPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessPlusUITests.swift; sourceTree = "<group>"; };
 		FC78D30D1C5D7E5E00254B07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC7C7EB61EF1D8770054F4C2 /* MultisiteTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultisiteTextField.swift; sourceTree = "<group>"; };
 		FC7E324A1C601B1A008C8087 /* HomeAccessPlus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HomeAccessPlus.entitlements; sourceTree = "<group>"; };
 		FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
 		FC8219971CE13C8800B37DA1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -336,6 +338,7 @@
 				FCF760AD1E39593C004034F0 /* UploadPopoverCustomCamera.swift */,
 				FC7E9F1C1C1CDC8700ACD6A7 /* FileTableViewCell.swift */,
 				FC364A751C0BACB30085DC7E /* LoginViewController.swift */,
+				FC7C7EB61EF1D8770054F4C2 /* MultisiteTextField.swift */,
 				FCF451A21C12FF500067DFF9 /* Reach.swift */,
 				FCB1D9F21C09F54C00DEC02E /* Assets.xcassets */,
 				FCB1D9F41C09F54C00DEC02E /* LaunchScreen.storyboard */,
@@ -853,6 +856,7 @@
 				FCF760AE1E39593C004034F0 /* UploadPopoverCustomCamera.swift in Sources */,
 				FC364A761C0BACB30085DC7E /* LoginViewController.swift in Sources */,
 				FC7E9F1D1C1CDC8700ACD6A7 /* FileTableViewCell.swift in Sources */,
+				FC7C7EB71EF1D8770054F4C2 /* MultisiteTextField.swift in Sources */,
 				FCF451A31C12FF500067DFF9 /* Reach.swift in Sources */,
 				FCE250101C0F946E00DD7E20 /* HAPi.swift in Sources */,
 				FCB1D9EE1C09F54C00DEC02E /* DetailViewController.swift in Sources */,

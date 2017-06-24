@@ -197,7 +197,7 @@
                                 <rect key="frame" x="20" y="193" width="560" height="407"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="0pF-Dc-fgY">
-                                        <rect key="frame" x="0.0" y="24" width="728" height="253.5"/>
+                                        <rect key="frame" x="0.0" y="24" width="728" height="295.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HAP+ Server" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhV-w6-XOo">
                                                 <rect key="frame" x="0.0" y="0.0" width="728" height="20.5"/>
@@ -213,30 +213,36 @@
                                                     <action selector="formatHAPURL:" destination="70L-Rq-5X4" eventType="editingDidEnd" id="m1N-48-RFd"/>
                                                 </connections>
                                             </textField>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zgn-q6-HUZ" customClass="MultisiteTextField" customModule="HomeAccessPlus" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="74.5" width="728" height="30"/>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kaJ-gd-iJ6">
-                                                <rect key="frame" x="0.0" y="74.5" width="728" height="20.5"/>
+                                                <rect key="frame" x="0.0" y="116.5" width="728" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nwk-1j-HYh">
-                                                <rect key="frame" x="0.0" y="107" width="728" height="30"/>
+                                                <rect key="frame" x="0.0" y="149" width="728" height="30"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uiw-KM-uvi">
-                                                <rect key="frame" x="0.0" y="149" width="728" height="20.5"/>
+                                                <rect key="frame" x="0.0" y="191" width="728" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ho4-w2-VHj">
-                                                <rect key="frame" x="0.0" y="181.5" width="728" height="30"/>
+                                                <rect key="frame" x="0.0" y="223.5" width="728" height="30"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet" secureTextEntry="YES"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AeN-LS-lgG">
-                                                <rect key="frame" x="0.0" y="223.5" width="728" height="30"/>
+                                                <rect key="frame" x="0.0" y="265.5" width="728" height="30"/>
                                                 <state key="normal" title="Login"/>
                                                 <connections>
                                                     <action selector="attemptLogin:" destination="70L-Rq-5X4" eventType="touchUpInside" id="4LW-LW-wXo"/>
@@ -285,6 +291,7 @@
                         <outlet property="sclLoginTextboxes" destination="iNB-h7-ReC" id="G11-fp-25b"/>
                         <outlet property="tblHAPServer" destination="Zyd-Pb-sSl" id="4Np-c5-Rqq"/>
                         <outlet property="tblUsername" destination="nwk-1j-HYh" id="bAU-JP-rQO"/>
+                        <outlet property="tbxHAPMultisite" destination="zgn-q6-HUZ" id="bXv-Rq-LzK"/>
                         <outlet property="tbxPassword" destination="ho4-w2-VHj" id="E6Z-UY-irx"/>
                     </connections>
                 </viewController>
@@ -319,7 +326,7 @@
                                 <rect key="frame" x="0.0" y="22" width="320" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="WCw-Qf-5nD" id="37f-cq-3Eg">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="79.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WD2-Zl-A4X">

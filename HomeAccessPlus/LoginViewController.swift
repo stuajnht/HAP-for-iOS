@@ -27,11 +27,12 @@ import MBProgressHUD
 import XCGLogger
 import Zip
 
-class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var lblAppName: UILabel!
     @IBOutlet weak var lblMessage: UILabel!
     @IBOutlet weak var tblHAPServer: UITextField!
+    @IBOutlet weak var tbxHAPMultisite: UITextField!
     @IBOutlet weak var lblHAPServer: UILabel!
     @IBOutlet weak var tblUsername: UITextField!
     @IBOutlet weak var lblUsername: UILabel!
@@ -59,6 +60,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     // tapped, to see if the log files should be emailed
     var appNameTapCount = 0
     
+    // Used to hold a reference to the dynamically generated
+    // picker view to show the servers available
+    var pkrHAPServer : UIPickerView!
+    
+    // Used to display the list of HAP+ servers set up on this
+    // device when multisite is enabled in the settings
+    var hapServerPickerData: [String] = [String]()
+    
+    // Used to hold the dictionary of HAP+ server addresses and
+    // site names. The key is the server URL, the value is the
+    // name of the site
+    var multisiteServerList: [String: String] = [String: String]()
+    
+    // Used to hold the current and last selected row from the
+    // picker view, so that the "cancel" and "select" buttons
+    // work as expected
+    var hapServerPickerCurrentRow = 0
+    var hapServerPickerLastUsedRow = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -81,19 +101,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
         tblUsername.returnKeyType = .next
         tbxPassword.returnKeyType = .go
         
+        // Handle the multisite textbox to display
+        // the picker, hide the cursor and prevent
+        // autocorrection of text
+        // See: https://stackoverflow.com/a/29989143
+        // See: https://stackoverflow.com/a/30248975
+        tbxHAPMultisite.delegate = self
+        tbxHAPMultisite.tintColor = .clear
+        tbxHAPMultisite.autocorrectionType = .no
+        
         // Allowing the app name label to be pressed, so that
         // logs on the device can be uploaded
         // See: http://stackoverflow.com/a/39992213
         let appNameTap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.emailLogFiles))
         lblAppName.isUserInteractionEnabled = true
         lblAppName.addGestureRecognizer(appNameTap)
-        
-        // Filling in any settings that are saved
-        if let siteName = settings!.string(forKey: settingsSiteName)
-        {
-            logger.info("The HAP+ server is for the site: \(siteName)")
-            lblMessage.text = siteName
-        }
         
         // Registering for moving the scroll view when the keyboard is shown
         registerForKeyboardNotifications()
@@ -124,21 +146,41 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
             logger.info("App has been launched in UI testing mode. Showing HAP+ server textbox")
             tblHAPServer.isHidden = false
             lblHAPServer.isHidden = false
+            tbxHAPMultisite.isHidden = true
         } else {
-            // Hiding the HAP+ server textbox, as if this is the
-            // first setup / login on the device and the user
-            // logs out, then the field will be editable again
-            if let hapServer = settings!.string(forKey: settingsHAPServer) {
-                logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
-                tblHAPServer.text = hapServer
-                tblHAPServer.isHidden = true
-                lblHAPServer.isHidden = true
-                
-                // Checking the URL is still correct (it is) but this
-                // function needs to be called otherwise when attempting
-                // to log in it will say the URL is incorrect
-                formatHAPURL(self)
+            // Showing the relevant HAP+ server controls when the
+            // app has focus. A "will enter forground" notification
+            // is needed if the app is put into the background, the
+            // multisite option changed in settings, then the app is
+            // brought back again otherwise the controls do not update
+            // until a login and logoff has occurred
+            // See: https://stackoverflow.com/a/34529572
+            showHAPServerControls()
+            NotificationCenter.default.addObserver(self, selector: #selector(showHAPServerControls), name: .UIApplicationWillEnterForeground, object: nil)
+            
+            // Clear all items in the multisite picker to prevent them
+            // being added continually when appended to below
+            hapServerPickerData.removeAll()
+            
+            // Loading the multisite list of servers, and seeing if
+            // there was any data returned
+            if (loadMultisiteList()) {
+                // Seeing if there is any data available before filling
+                // in the multisite picker list
+                if (multisiteServerList.count > 0) {
+                    // Filling in the list of HAP+ servers for use in the
+                    // multisite picker
+                    for (hapServer, siteName) in multisiteServerList {
+                        logger.debug("Adding server \(siteName) (\(hapServer)) to multisite picker list")
+                        hapServerPickerData.append("\(siteName) (\(hapServer))")
+                    }
+                }
             }
+            
+            // The last item in the multisite picker should be to add
+            // a new HAP+ server. This is assumed when the formatting
+            // of the picker is taking place
+            hapServerPickerData.append("Add new Home Access Plus+ Server")
             
             // Attempting to log the user in if they've logged in
             // before, but have closed the app (from the app switcher)
@@ -287,6 +329,72 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
         }
     }
     
+    /// Shows the relevant HAP+ server controls, and message label,
+    /// based on what mode the device is in
+    ///
+    /// When the view is shown, the relevant HAP+ server controls
+    /// need to be processed to see what should be shown, such as
+    /// the multiple sites picker, the HAP+ server address textbox
+    /// or nothing at all if the device is set up and multiple
+    /// sites is not enabled
+    ///
+    /// The message label is also updated depending on what has been
+    /// set up. If multisite isn't enabled, then the site name is
+    /// shown. Otherwise, a notice to select the school is shown.
+    /// However, if there is no server set up, then the message to
+    /// set up the device is shown instead
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 2
+    /// - date: 2017-06-04
+    func showHAPServerControls() {
+        // Seeing what combination of items for the HAP+ server
+        // label, textbox and multisite should be shown. The multisite
+        // textbox is hidden by default, and is shown based on what needs
+        // to be available
+        tbxHAPMultisite.isHidden = true
+        
+        // If there is a HAP+ server set in the settings, then we
+        // need to see if it should be hidden as the device is set
+        // up, or if the multisite picker should be shown. Otherwise,
+        // the HAP+ server label and textbox should be shown
+        if let hapServer = settings!.string(forKey: settingsHAPServer) {
+            logger.debug("Settings for HAP+ server address exist with value: \(hapServer)")
+            
+            if settings!.bool(forKey: settingsMultisiteEnabled) {
+                logger.debug("Multisite is enabled, so showing the multisite textbox")
+                tbxHAPMultisite.isHidden = false
+                tblHAPServer.isHidden = true
+                lblHAPServer.isHidden = false
+            } else {
+                logger.debug("Multisite is not enabled, not showing any HAP+ server details")
+                tblHAPServer.isHidden = true
+                lblHAPServer.isHidden = true
+            }
+            
+            tblHAPServer.text = hapServer
+            
+            // Checking the URL is still correct (it is) but this
+            // function needs to be called otherwise when attempting
+            // to log in it will say the URL is incorrect
+            formatHAPURL(self)
+        }
+        
+        // Filling in any settings that are saved for the message label
+        if let siteName = settings!.string(forKey: settingsSiteName)
+        {
+            if settings!.bool(forKey: settingsMultisiteEnabled) {
+                lblMessage.text = "Please select your school"
+                let server = settings!.string(forKey: settingsHAPServer)
+                tbxHAPMultisite.text = "\(siteName) (\(server!))"
+            } else {
+                logger.info("The HAP+ server is for the site: \(siteName)")
+                lblMessage.text = siteName
+            }
+        }
+    }
+    
     /// Checks the HAP+ API provided, to make sure that the server is
     /// contactable and the right version
     ///
@@ -353,7 +461,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     ///
     /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
     /// - since: 0.2.0-alpha
-    /// - version: 6
+    /// - version: 7
     /// - date: 2016-03-18
     func loginUser() -> Void {
         // Checking the username and password entered are for a valid user on
@@ -378,6 +486,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
                 if let siteName = settings!.string(forKey: settingsSiteName) {
                     self.lblMessage.text = siteName
                 }
+                
+                // Saving the new HAP+ server address and site name to the
+                // multisite variable, so that it can be used by the multisite
+                // picker should it be enabled
+                self.updateMultisiteList()
                 
                 // Starting the startAPITestCheckTimer from the AppDelegate,
                 // to keep the user logon tokens valid, as it wouldn't have
@@ -646,6 +759,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeField = textField
+        
+        // Showing the multisite picker if the relevant textbox
+        // has been tapped
+        if (textField == tbxHAPMultisite) {
+            logger.info("Showing the multisite picker")
+            self.pickUpValue(textField: textField)
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -799,5 +919,299 @@ class LoginViewController: UIViewController, UITextFieldDelegate, MFMailComposeV
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         self.dismiss(animated: true, completion: nil)
     }
+    
+    
+    // MARK: Multisite
+    
+    /// Saves and updates the list of HAP+ servers and site names
+    /// that the app has connected to, both for this class property
+    /// multisiteServerList, but also to the NSUserDefaults so that
+    /// it is available between app restarts
+    ///
+    /// It is assumed that some sanity checking has been completed
+    /// to make sure that only once instance of the site exists before
+    /// attempting to save it with this function
+    ///
+    /// See: https://stackoverflow.com/a/36790465
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 1
+    /// - date: 2017-06-07
+    func updateMultisiteList() {
+        multisiteServerList[settings!.string(forKey: settingsHAPServer)!] = settings!.string(forKey: settingsSiteName)
+        let archiver = NSKeyedArchiver.archivedData(withRootObject: multisiteServerList)
+        settings!.set(archiver, forKey: settingsMultisiteServerList)
+    }
+    
+    /// Loads the list of HAP+ servers and site names used by the
+    /// multisite picker
+    ///
+    /// See: https://stackoverflow.com/a/36790465
+    ///
+    /// - author: Jonathan Hart (stuajnht) <stuajnht@users.noreply.github.com>
+    /// - since: 1.1.0-alpha
+    /// - version: 2
+    /// - date: 2017-06-07
+    ///
+    /// - returns: Did the multisite server list load successfully
+    func loadMultisiteList() -> Bool {
+        
+        // Check if data exists
+        guard let data = settings!.object(forKey: settingsMultisiteServerList) else {
+            return false
+        }
+        
+        // Check if retrieved data has correct type
+        guard let retrievedData = data as? Data else {
+            return false
+        }
+        
+        // Unarchive data
+        let multisiteServerListUnsorted = NSKeyedUnarchiver.unarchiveObject(with: retrievedData) as! [String : String]
+        logger.debug("Loaded the unsorted multisite server list: \(multisiteServerListUnsorted)")
+        
+        
+        // Sorting the list of site names alphabetically
+        // See: https://stackoverflow.com/a/33882119
+        let keyValueArray = multisiteServerListUnsorted.valueKeySorted
+        for (key, value) in keyValueArray {
+            multisiteServerList[key] = value
+        }
+        logger.debug("Sorted multisite server list: \(multisiteServerList)")
+        
+        return true
+    }
+    
+    // The number of columns of data
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    // The number of rows of data
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return hapServerPickerData.count
+    }
+    
+    // The data to return for the row and component (column) that's being passed in
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return hapServerPickerData[row]
+    }
+    
+    // Processing the picker view selection
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // This method is triggered whenever the user makes a change to the picker selection.
+        // The parameter named row and component represents what was selected.
+        logger.debug("The following site has been selected from the multisite server picker: row \(row), server: \(hapServerPickerData[row])")
+        
+        // Updating the text being shown in the multipicker
+        // and the current selected row number to be used
+        // by the "select" and "cancel" buttons
+        tbxHAPMultisite.text = hapServerPickerData[row]
+        hapServerPickerCurrentRow = row
+    }
+    
+    // Aligning the text to the left and reducing the font size
+    // See: https://stackoverflow.com/a/32026170
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let pickerLabel = UILabel()
+        // Manual spaces are included to pad the contents
+        // of the picker
+        let titleData = "   " + hapServerPickerData[row]
+        
+        // Using the default system font, and setting the last
+        // item (add new HAP+ server) to be bold
+        // See: https://stackoverflow.com/a/40797423
+        var myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        if (row == hapServerPickerData.count - 1) {
+            myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17, weight: UIFontWeightSemibold),NSForegroundColorAttributeName:UIColor.black])
+        }
+        pickerLabel.attributedText = myTitle
+        
+        return pickerLabel
+    }
+    
+    // Aligning the text to the left and reducing the font size
+    // See: https://stackoverflow.com/a/32026170
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        // Manual spaces are included to pad the contents
+        // of the picker
+        let titleData = "   " + hapServerPickerData[row]
+        
+        // Using the default system font, and setting the last
+        // item (add new HAP+ server) to be bold
+        // See: https://stackoverflow.com/a/40797423
+        var myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17),NSForegroundColorAttributeName:UIColor.black])
+        if (row == hapServerPickerData.count - 1) {
+            myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 17, weight: UIFontWeightSemibold),NSForegroundColorAttributeName:UIColor.black])
+        }
+        
+        return myTitle
+    }
+    
+    // Dynamically generates a picker view when the multisite
+    // textbox is tapped
+    // See: http://www.spidersoft.com.au/2016/dynamic-pickerview-in-swift-3/
+    func pickUpValue(textField: UITextField) {
+        
+        logger.debug("Getting ready to display the multisite picker")
+        
+        // create frame and size of picker view
+        pkrHAPServer = UIPickerView(frame:CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: self.view.frame.size.width, height: 216)))
+        
+        // deletates
+        pkrHAPServer.delegate = self
+        pkrHAPServer.dataSource = self
+        
+        // Seeing if there is a value in current text field,
+        // try to find it existing list and select it
+        if let currentValue = textField.text {
+            var row : Int?
+            row = hapServerPickerData.index(of: currentValue)
+            
+            // we got it, let's set select it
+            if row != nil {
+                pkrHAPServer.selectRow(row!, inComponent: 0, animated: true)
+            } else {
+                // Assume that a new HAP+ server should be added,
+                // which will always be the last row. This can be
+                // found out from the number of items currently
+                // available in the picker
+                pkrHAPServer.selectRow(hapServerPickerData.count - 1, inComponent: 0, animated: true)
+            }
+        }
+        
+        pkrHAPServer.backgroundColor = UIColor.white
+        textField.inputView = self.pkrHAPServer
+        textField.hideAssistantBar()
+        
+        // toolBar
+        let toolBar = UIToolbar()
+        toolBar.barStyle = .default
+        toolBar.isTranslucent = true
+        toolBar.sizeToFit()
+        
+        // buttons for toolBar
+        let doneButton = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(selectClick))
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelClick))
+        toolBar.setItems([cancelButton, spaceButton, doneButton], animated: false)
+        toolBar.isUserInteractionEnabled = true
+        textField.inputAccessoryView = toolBar
+        
+    }
+    
+    // The select button has been chosen
+    func selectClick() {
+        activeField?.resignFirstResponder()
+        
+        // Updating the last used row value with the one selected
+        // so that the buttons on the picker work as expected the
+        // next time it is run
+        hapServerPickerLastUsedRow = hapServerPickerCurrentRow
+        logger.debug("New default row to use for the multisite picker: \(hapServerPickerLastUsedRow)")
+        
+        // Seeing if the new server alert should be shown,
+        // of if a previously saved one can be used
+        if (hapServerPickerCurrentRow == (hapServerPickerData.count - 1)) {
+            // Displaying the new HAP+ server address alert
+            logger.info("Showing the new HAP+ server alert")
+            
+            // Displaying an alert view with a textbox for the
+            // user to type in the name of the HAP+ server
+            // See: http://peterwitham.com/swift/intermediate/alert-with-user-entry/
+            var newServerAlert:UIAlertController?
+            newServerAlert = UIAlertController(title: "New HAP+ Server", message: "Please enter the address of the HAP+ server", preferredStyle: .alert)
+            
+            newServerAlert!.addTextField(
+                configurationHandler: {(textField: UITextField!) in
+                    textField.placeholder = "HAP+ Server"
+                    textField.keyboardType = .URL
+                    textField.autocapitalizationType = .none
+                    textField.enablesReturnKeyAutomatically = true
+                    textField.returnKeyType = .continue
+                    textField.delegate = self
+            })
+            
+            let action = UIAlertAction(title: "Continue", style: UIAlertActionStyle.default, handler: {(paramAction:UIAlertAction!) in
+                if let textFields = newServerAlert?.textFields{
+                    let theTextFields = textFields as [UITextField]
+                    let enteredText = theTextFields[0].text
+                    if (enteredText! != "") {
+                        // Setting the new server address
+                        logger.info("New HAP+ server address is: \(String(describing: enteredText!))")
+                        self.tblHAPServer.text = enteredText
+                        self.tbxHAPMultisite.text = "Add new Home Access Plus+ Server (\(enteredText!))"
+                        self.formatHAPURL(self)
+                    }
+                }
+            })
+            
+            newServerAlert!.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil))
+            
+            newServerAlert?.addAction(action)
+            
+            // By default the "Cancel" button is bold and default
+            // This changes it to be the "Continue" button instead
+            // See: https://www.stuartbreckenridge.com/uialertcontroller-preferred-action/
+            newServerAlert!.preferredAction = newServerAlert?.actions[1]
+            self.present(newServerAlert!, animated: true, completion: nil)
+        } else {
+            // Getting the hap server address from the value in the
+            // multiple HAP+ server textbox
+            // This is a bit of a hacky way to do it, by extracting
+            // the value from between the brackets, but I can't think
+            // of a better way to identify the HAP+ server URL otherwise
+            let serverAddress = hapServerPickerData[hapServerPickerLastUsedRow].components(separatedBy: "(")
+            let hapServer = String(serverAddress[1])?.replacingOccurrences(of: ")", with: "")
+            logger.info("Multisite HAP+ server changed to: \(String(describing: hapServer!))")
+            tblHAPServer.text = hapServer
+            
+            // Checking the URL is still correct (it is) but this
+            // function needs to be called otherwise when attempting
+            // to log in it will say the URL is incorrect
+            formatHAPURL(self)
+            
+            // Move the focus to the username textbox
+            tblUsername.becomeFirstResponder()
+        }
+    }
+    
+    // The user canceled the change in HAP+ server
+    func cancelClick() {
+        activeField?.resignFirstResponder()
+        
+        // Reset the multisite HAP+ server and site name
+        // back to what was in place before the user made
+        // any changes
+        tbxHAPMultisite.text = hapServerPickerData[hapServerPickerLastUsedRow]
+    }
 
+}
+
+// Removes the assistant shortcuts that iOS keyboard
+// contains, for use with the multisite picker
+// See: https://stackoverflow.com/a/33641391
+extension UITextField
+{
+    /// Prevents the shortcut bar being shown for the
+    /// multisite picker control, as it serves no purpose
+    public func hideAssistantBar()
+    {
+        if #available(iOS 9.0, *) {
+            let assistant = self.inputAssistantItem;
+            assistant.leadingBarButtonGroups = [];
+            assistant.trailingBarButtonGroups = [];
+        }
+    }
+}
+
+// Sorts the list of HAP+ sites in alphabetical order,
+// so that it's easier to scan the list of HAP+ servers
+// available when using the multisite picker
+// See: https://stackoverflow.com/a/33882119
+extension Dictionary where Value: Comparable {
+    var valueKeySorted: [(Key, Value)] {
+        return sorted{ if $0.value != $1.value { return $0.value < $1.value } else { return String(describing: $0.key) < String(describing: $1.key) } }
+    }
 }

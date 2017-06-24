@@ -35,7 +35,25 @@
 			<string>basicVideoUploaderEnabled</string>
 			<key>DefaultValue</key>
 			<false/>
-		</dict>
+        </dict>
+        <dict>
+            <key>Type</key>
+            <string>PSGroupSpecifier</string>
+            <key>Title</key>
+            <string>Multisite</string>
+            <key>FooterText</key>
+            <string>Allow the app to be used with multiple Home Access Plus+ servers</string>
+        </dict>
+        <dict>
+            <key>Type</key>
+            <string>PSToggleSwitchSpecifier</string>
+            <key>Title</key>
+            <string>Multisite Enabled</string>
+            <key>Key</key>
+            <string>multisiteEnabled</string>
+            <key>DefaultValue</key>
+            <false/>
+        </dict>
 		<dict>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>

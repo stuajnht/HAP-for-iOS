@@ -59,6 +59,8 @@ let settingsFileLoggingEnabled = "fileLoggingEnabled"
 let settingsFileLoggingLevel = "fileLoggingLevel"
 let settingsPasteMode = "pasteMode"
 let settingsPasteItems = "pasteItems"
+let settingsMultisiteEnabled = "multisiteEnabled"
+let settingsMultisiteServerList = "multisiteServerList"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
